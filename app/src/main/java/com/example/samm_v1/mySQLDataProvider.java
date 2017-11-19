@@ -96,7 +96,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
                     }
                 }
 
-                //String link = "http://meadumandal.website/commuteBuddyAPI/signIn.php?";
+                //String link = "http://meadumandal.website/sammAPI/signIn.php?";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

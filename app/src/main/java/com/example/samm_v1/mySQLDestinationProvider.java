@@ -70,7 +70,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = "http://meadumandal.website/commuteBuddyAPI/getDestinations.php?";
+                String link = "http://meadumandal.website/sammAPI/getDestinations.php?";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

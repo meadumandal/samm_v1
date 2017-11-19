@@ -1,5 +1,6 @@
 package com.example.samm_v1;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -28,11 +29,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
-import com.example.samm_v1.POJO.Example;
+import com.example.samm_v1.POJO.Directions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -173,7 +173,6 @@ public class MenuActivity extends AppCompatActivity implements
                         origin = currentLocation;
                         destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
                         build_retrofit_and_get_response("walking");
-                        Toast.makeText(getApplicationContext(), "Insert Logic for getting routes here", Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -286,44 +285,6 @@ public class MenuActivity extends AppCompatActivity implements
                     mMap.setMyLocationEnabled(true);
                 }
 
-                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener(){
-
-                    @Override
-                    public void onMapClick(LatLng latLng) {
-                        if(MarkerPoints.size()>1)
-                        {
-                            mMap.clear();
-                            MarkerPoints.clear();
-                            MarkerPoints = new ArrayList<>();
-//                            showDistanceDuration.setText("");
-                        }
-                        MarkerPoints.add(latLng);
-                        MarkerOptions options = new MarkerOptions();
-                        options.position(latLng);
-                        if (MarkerPoints.size() == 1) {
-                            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                        } else if (MarkerPoints.size() == 2) {
-                            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                        }
-
-
-                        // Add new marker to the Google Map Android API V2
-                        mMap.addMarker(options);
-                        if(MarkerPoints.size()>=2)
-                        {
-                            origin = MarkerPoints.get(0);
-                            destination = MarkerPoints.get(1);
-                        }
-                    }
-                });
-                Button btnWalking = (Button) findViewById(R.id.btnWalk);
-                btnWalking.setOnClickListener(new View.OnClickListener(){
-
-                    @Override
-                    public void onClick(View view) {
-                        build_retrofit_and_get_response("walking");
-                    }
-                });
                 new mySQLDestinationProvider(getApplicationContext(), MenuActivity.this, "", mMap).execute();
 
 
@@ -331,6 +292,13 @@ public class MenuActivity extends AppCompatActivity implements
 
             private void build_retrofit_and_get_response(String type)
             {
+                final ProgressDialog progressDialog;
+                progressDialog = new ProgressDialog(MenuActivity.this);
+                progressDialog.setMax(100);
+                progressDialog.setMessage("Please wait as we search for the best route");
+                progressDialog.setTitle("Analyzing Routes");
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.show();
                 String url = "https://maps.googleapis.com/maps/";
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(url)
@@ -338,11 +306,11 @@ public class MenuActivity extends AppCompatActivity implements
                         .build();
                 RetrofitMaps service = retrofit.create(RetrofitMaps.class);
 
-                Call<Example> call = service.getDistanceDuration("metric", origin.latitude + "," + origin.longitude,destination.latitude + "," + destination.longitude, type);
+                Call<Directions> call = service.getDistanceDuration("metric", origin.latitude + "," + origin.longitude,destination.latitude + "," + destination.longitude, type);
 
-                call.enqueue(new Callback<Example>() {
+                call.enqueue(new Callback<Directions>() {
                     @Override
-                    public void onResponse(Response<Example> response, Retrofit retrofit) {
+                    public void onResponse(Response<Directions> response, Retrofit retrofit) {
 
                         try {
                             //Remove previous line from map
@@ -367,10 +335,12 @@ public class MenuActivity extends AppCompatActivity implements
                             Log.d("onResponse", "There is an error");
                             e.printStackTrace();
                         }
+                        progressDialog.dismiss();
                     }
 
                     @Override
                     public void onFailure(Throwable t) {
+                        progressDialog.dismiss();
                         Log.d("onFailure", t.toString());
                     }
                 });
@@ -440,8 +410,8 @@ public class MenuActivity extends AppCompatActivity implements
                 if(isFirstLoad) {
                     isFirstLoad = false;
                     //move map camera
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
                 }
 //                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
