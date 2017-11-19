@@ -29,7 +29,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
@@ -66,6 +65,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -89,6 +89,8 @@ public class MenuActivity extends AppCompatActivity implements
             boolean isFirstLoad;
             LatLng origin;
             LatLng destination;
+            LatLng currentLocation;
+            Destination bestTerminal;
 //            TextView showDistanceDuration;
             ArrayList<LatLng> MarkerPoints;
             Polyline line;
@@ -167,9 +169,10 @@ public class MenuActivity extends AppCompatActivity implements
                 editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-
-
+                        bestTerminal = listDestinations.get(13);
+                        origin = currentLocation;
+                        destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
+                        build_retrofit_and_get_response("walking");
                         Toast.makeText(getApplicationContext(), "Insert Logic for getting routes here", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -423,10 +426,11 @@ public class MenuActivity extends AppCompatActivity implements
                 //Place current location marker
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
-                LatLng latLng = new LatLng(lat, lng);
+                currentLocation = new LatLng(lat, lng);
+
                 saveLocation(lat, lng);
                 MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
+                markerOptions.position(currentLocation);
                 markerOptions.title(sessionManager.getUsername());
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
@@ -436,8 +440,8 @@ public class MenuActivity extends AppCompatActivity implements
                 if(isFirstLoad) {
                     isFirstLoad = false;
                     //move map camera
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
                 }
 //                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
