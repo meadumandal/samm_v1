@@ -79,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                     else
                     {
+//                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
                         userDatabaseRef = userDatabase.getReference();
                         userDatabaseRef.child("users").child(username)
                                 .addValueEventListener(new ValueEventListener() {
@@ -110,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
     private void signIn(final String email, String password)
     {
         auth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                    .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressBar.setVisibility(View.GONE);

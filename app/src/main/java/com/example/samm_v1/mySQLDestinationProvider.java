@@ -110,13 +110,16 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
     protected void onPostExecute(List<Destination> destinations)
     {
         List<String> strDestinations = new ArrayList<>();
+        ((MenuActivity)this._activity).listDestinations = destinations;
         for (Destination d:destinations)
         {
-            strDestinations.add(d.Description);
+            if(!strDestinations.contains(d.Description))
+                strDestinations.add(d.Description);
         }
 
+
         AutoCompleteTextView editDestination = (AutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this._context, R.layout.list_item , strDestinations);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, strDestinations);
         editDestination.setThreshold(1);
         editDestination.setAdapter(adapter);
 

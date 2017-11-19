@@ -89,9 +89,10 @@ public class MenuActivity extends AppCompatActivity implements
             boolean isFirstLoad;
             LatLng origin;
             LatLng destination;
-            TextView showDistanceDuration;
+//            TextView showDistanceDuration;
             ArrayList<LatLng> MarkerPoints;
             Polyline line;
+
 
             public List<Destination> listDestinations;
 
@@ -136,7 +137,7 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             protected void onCreate(Bundle savedInstanceState) {
 
-                showDistanceDuration = (TextView) findViewById(R.id.show_distance_time);
+//                showDistanceDuration = (TextView) findViewById(R.id.show_distance_time);
                 MarkerPoints = new ArrayList<>();
 
                 displayLocationSettingsRequest(getApplicationContext());
@@ -166,6 +167,8 @@ public class MenuActivity extends AppCompatActivity implements
                 editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+
 
                         Toast.makeText(getApplicationContext(), "Insert Logic for getting routes here", Toast.LENGTH_LONG).show();
                     }
@@ -289,7 +292,7 @@ public class MenuActivity extends AppCompatActivity implements
                             mMap.clear();
                             MarkerPoints.clear();
                             MarkerPoints = new ArrayList<>();
-                            showDistanceDuration.setText("");
+//                            showDistanceDuration.setText("");
                         }
                         MarkerPoints.add(latLng);
                         MarkerOptions options = new MarkerOptions();
@@ -347,7 +350,7 @@ public class MenuActivity extends AppCompatActivity implements
                             for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                 String distance = response.body().getRoutes().get(i).getLegs().get(i).getDistance().getText();
                                 String time = response.body().getRoutes().get(i).getLegs().get(i).getDuration().getText();
-                                showDistanceDuration.setText("Distance:" + distance + ", Duration:" + time);
+//                                showDistanceDuration.setText("Distance:" + distance + ", Duration:" + time);
                                 String encodedString = response.body().getRoutes().get(0).getOverviewPolyline().getPoints();
                                 List<LatLng> list = decodePoly(encodedString);
                                 line = mMap.addPolyline(new PolylineOptions()
@@ -436,7 +439,7 @@ public class MenuActivity extends AppCompatActivity implements
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20));
                 }
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
                 //stop location updates
                 if (mGoogleApiClient != null) {
