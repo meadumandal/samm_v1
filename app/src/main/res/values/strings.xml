@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">SAMM_v1</string>
+    <string name="title_activity_menu">SAMM</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <!--ERROR MESSAGES-->
+    <string name="error_create_account">Error encountered in creating account</string>
+    <string name="error_field_required">%1$s is required</string>
+    <string name="error_passwordnotmatch">Passwords do not match!</string>
+    <string name="error_username_not_exist">Username do not exists</string>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+</resources>
