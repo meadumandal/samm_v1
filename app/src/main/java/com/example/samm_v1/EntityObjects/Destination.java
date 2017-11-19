@@ -27,4 +27,10 @@ public class Destination {
         this.Lat = Lat;
         this.Lng = Lng;
     }
+
+    @Override
+    public String toString()
+    {
+        return Description;
+    }
 }

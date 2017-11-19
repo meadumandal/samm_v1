@@ -102,9 +102,8 @@ public class MenuActivity extends AppCompatActivity implements
 
             protected static final String TAG = "MenuActivity";
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
-
-
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
+
             public boolean checkLocationPermission()
             {
                 if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -169,6 +168,7 @@ public class MenuActivity extends AppCompatActivity implements
                 editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
                         bestTerminal = listDestinations.get(13);
                         origin = currentLocation;
                         destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
@@ -436,7 +436,29 @@ public class MenuActivity extends AppCompatActivity implements
             public void onProviderDisabled(String s) {
 
             }
+            private void saveDestination(String destinationValue)
+            {
+                final HashMap<String, Object> currentDestination = new HashMap<>();
+                currentDestination.put("currentDestination", destinationValue);
+                userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.getValue()==null)
+                        {
+                            userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").setValue(currentDestination);
+                        }
+                        else
+                        {
+                            userDatabaseReference.child(sessionManager.getUsername()).updateChildren(currentDestination);
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
             private void saveLocation(double lat, double lng)
             {
                 final HashMap<String, Object> latitude = new HashMap<>();

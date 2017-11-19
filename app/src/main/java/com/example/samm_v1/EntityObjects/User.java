@@ -1,4 +1,4 @@
-package com.example.samm_v1;
+package com.example.samm_v1.EntityObjects;
 
 import java.util.Date;
 
@@ -14,6 +14,7 @@ public class User {
     public double Latitude;
     public double Longitude;
     public Date lastUpdated;
+    public String currentDestination;
     public User()
     {
 
@@ -27,5 +28,6 @@ public class User {
         this.Latitude = 0.0;
         this.Longitude = 0.0;
         this.lastUpdated = new Date();
+        this.currentDestination = "";
     }
 }

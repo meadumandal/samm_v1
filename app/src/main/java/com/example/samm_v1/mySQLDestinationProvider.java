@@ -119,7 +119,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
 
 
         AutoCompleteTextView editDestination = (AutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, strDestinations);
+        ArrayAdapter<Destination> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, destinations);
         editDestination.setThreshold(1);
         editDestination.setAdapter(adapter);
 
