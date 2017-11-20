@@ -51,6 +51,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -58,6 +59,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -98,7 +100,7 @@ public class MenuActivity extends AppCompatActivity implements
 
             public List<Destination> listDestinations;
 
-            HashMap markerMap = new HashMap();
+            HashMap hashmap_markerMap = new HashMap();
 
             protected static final String TAG = "MenuActivity";
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
@@ -168,11 +170,14 @@ public class MenuActivity extends AppCompatActivity implements
                 editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
+                        saveDestination(chosenDestination.Value);
 
-                        bestTerminal = listDestinations.get(13);
+                        bestTerminal = listDestinations.get(13); //get best terminal by fewest passenger, by nearest from current location, by fewest stops
                         origin = currentLocation;
                         destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
                         build_retrofit_and_get_response("walking");
+                        countPassengersByEndpoint(chosenDestination.Value);
                     }
                 });
 
@@ -214,11 +219,11 @@ public class MenuActivity extends AppCompatActivity implements
                         if (!username.equals(sessionManager.getUsername()))
                         {
                             Marker marker;
-                            marker = (Marker) markerMap.get(username);
+                            marker = (Marker) hashmap_markerMap.get(username);
                             if(marker !=null)
                             {
                                 marker.remove();
-                                    markerMap.remove(username);
+                                    hashmap_markerMap.remove(username);
                             }
                             Object Latitude = dataSnapshot.child("Latitude").getValue();
                             Object Longitude = dataSnapshot.child("Longitude").getValue();
@@ -241,7 +246,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                                 marker = mMap.addMarker(markerOptions);
                                 marker.showInfoWindow();
-                                markerMap.put(username, marker);
+                                hashmap_markerMap.put(username, marker);
                             }
                         }
                     }
@@ -263,8 +268,31 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
-            }
 
+
+            }
+            public void countPassengersByEndpoint(String endpoint)
+            {
+               DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+                Query allPostFromAuthor = ref.orderByChild("currentDestination").equalTo(endpoint);
+
+
+                allPostFromAuthor.addValueEventListener( new ValueEventListener(){
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Integer count = 0;
+                        for(DataSnapshot post : dataSnapshot.getChildren() ){
+                            // Iterate through all posts with the same author
+                            count = count+1;
+                        }
+                        Toast.makeText(getApplicationContext(),count.toString(), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {}
+                });
+
+            }
 
             @Override
             public void onMapReady(GoogleMap googleMap) {
@@ -298,7 +326,9 @@ public class MenuActivity extends AppCompatActivity implements
                 progressDialog.setMessage("Please wait as we search for the best route");
                 progressDialog.setTitle("Analyzing Routes");
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                progressDialog.setCancelable(false);
                 progressDialog.show();
+
                 String url = "https://maps.googleapis.com/maps/";
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(url)
@@ -314,9 +344,9 @@ public class MenuActivity extends AppCompatActivity implements
 
                         try {
                             //Remove previous line from map
-                            if (line != null) {
-                                line.remove();
-                            }
+//                            if (line != null) {
+//                                line.remove();
+//                            }
                             // This loop will go through all the results and add marker on each location.
                             for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                 String distance = response.body().getRoutes().get(i).getLegs().get(i).getDistance().getText();
@@ -326,7 +356,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 List<LatLng> list = decodePoly(encodedString);
                                 line = mMap.addPolyline(new PolylineOptions()
                                         .addAll(list)
-                                        .width(20)
+                                        .width(5f)
                                         .color(Color.RED)
                                         .geodesic(true)
                                 );
@@ -445,7 +475,7 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.getValue()==null)
                         {
-                            userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").setValue(currentDestination);
+                            userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").setValue(currentDestination.get("currentDestination"));
                         }
                         else
                         {

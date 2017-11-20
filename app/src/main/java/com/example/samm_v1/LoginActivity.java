@@ -43,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         if(sessionManager==null)
             sessionManager = new SessionManager(getApplicationContext());
+
         if(auth == null)
             auth = FirebaseAuth.getInstance();
         usernameField = (EditText) findViewById(R.id.username);

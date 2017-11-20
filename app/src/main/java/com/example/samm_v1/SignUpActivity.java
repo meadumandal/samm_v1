@@ -102,6 +102,7 @@ public class SignUpActivity extends AppCompatActivity {
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
+
                 auth.createUserWithEmailAndPassword(emailAddress, password)
                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override

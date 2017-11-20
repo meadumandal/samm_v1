@@ -4,6 +4,8 @@ package com.example.samm_v1.EntityObjects;
  * Created by MeadRoseAnn on 11/14/2017.
  */
 
+//MySQL Entity
+
 public class Destination {
     public int ID;
     public String Value;

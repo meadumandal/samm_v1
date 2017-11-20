@@ -5,6 +5,7 @@ import java.util.Date;
 /**
  * Created by MeadRoseAnn on 10/22/2017.
  */
+//Firebase Entity
 
 public class User {
     public String username;
