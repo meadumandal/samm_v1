@@ -1,8 +1,11 @@
 package com.example.samm_v1;
 
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -38,6 +41,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingApi;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
@@ -48,10 +54,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -59,13 +66,15 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 
 import retrofit.Call;
@@ -73,6 +82,8 @@ import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static com.example.samm_v1.R.id.map;
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -87,45 +98,45 @@ public class MenuActivity extends AppCompatActivity implements
             private GoogleMap mMap;
             FirebaseDatabase userDatabase;
             DatabaseReference userDatabaseReference;
+            DatabaseReference _destinationDatabaseReference;
             SessionManager sessionManager;
             boolean isFirstLoad;
             LatLng origin;
             LatLng destination;
             LatLng currentLocation;
             Destination bestTerminal;
+            List<Destination> possibleTerminals;
 //            TextView showDistanceDuration;
             ArrayList<LatLng> MarkerPoints;
             Polyline line;
-
-
+            Helper _helper;
+            Context _context;
+            List<Geofence> _geoFenceList;
+            PendingIntent mGeofencePendingIntent;
+            private Circle geoFenceLimits;
+            private Marker geoFenceMarker;
             public List<Destination> listDestinations;
-
             HashMap hashmap_markerMap = new HashMap();
 
-            protected static final String TAG = "MenuActivity";
+            protected static final String TAG = "Mead";
+            public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
+            MyBroadcastReceiver myBroadcastReceiver;
+
+
+
 
             public boolean checkLocationPermission()
             {
+                Log.i(TAG, "Checking location permission (checkLocationPermission)");
                 if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                    // Asking user if explanation is needed
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                             android.Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                        // Show an expanation to the user *asynchronously* -- don't block
-                        // this thread waiting for the user's response! After the user
-                        // sees the explanation, try again to request the permission.
-
-                        //Prompt the user once explanation has been shown
                         ActivityCompat.requestPermissions(this,
                                 new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                 MY_PERMISSION_REQUEST_LOCATION);
-
-
                     } else {
-                        // No explanation needed, we can request the permission.
                         ActivityCompat.requestPermissions(MenuActivity.this,
                                 new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                 MY_PERMISSION_REQUEST_LOCATION);
@@ -139,15 +150,20 @@ public class MenuActivity extends AppCompatActivity implements
 
             @Override
             protected void onCreate(Bundle savedInstanceState) {
+                Log.i(TAG, "onCreate");
 
 //                showDistanceDuration = (TextView) findViewById(R.id.show_distance_time);
                 MarkerPoints = new ArrayList<>();
+                _helper = new Helper();
+                _context = getApplicationContext();
+                _geoFenceList = new ArrayList<>();
 
-                displayLocationSettingsRequest(getApplicationContext());
+
+                displayLocationSettingsRequest(_context);
                 super.onCreate(savedInstanceState);
                 isFirstLoad = true;
                 if(sessionManager==null)
-                    sessionManager = new SessionManager(getApplicationContext());
+                    sessionManager = new SessionManager(_context);
                 if(!sessionManager.isLoggedIn())
                 {
                     sessionManager.logoutUser();
@@ -164,6 +180,7 @@ public class MenuActivity extends AppCompatActivity implements
                 {
                     userDatabase = FirebaseDatabase.getInstance();
                     userDatabaseReference = userDatabase.getReference("users");
+                    _destinationDatabaseReference = userDatabase.getReference("destinations");
                 }
                 AutoCompleteTextView editDestinations = (AutoCompleteTextView) findViewById(R.id.edit_destinations);
 
@@ -172,12 +189,19 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
                         saveDestination(chosenDestination.Value);
+                        possibleTerminals = new ArrayList<>();
 
-                        bestTerminal = listDestinations.get(13); //get best terminal by fewest passenger, by nearest from current location, by fewest stops
+                        //get best terminal by fewest passenger, by nearest from current location, by fewest stops
+                        //dummy data for now.
+                        possibleTerminals.add(listDestinations.get(0));
+                        possibleTerminals.add(listDestinations.get(1));
+                        possibleTerminals.add(listDestinations.get(2));
+                        bestTerminal = possibleTerminals.get(2);
+
+
                         origin = currentLocation;
                         destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
                         build_retrofit_and_get_response("walking");
-                        countPassengersByEndpoint(chosenDestination.Value);
                     }
                 });
 
@@ -205,8 +229,9 @@ public class MenuActivity extends AppCompatActivity implements
 
                 // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.map);
+                        .findFragmentById(map);
                 mapFragment.getMapAsync(this);
+
 
                 userDatabaseReference.addChildEventListener(new ChildEventListener() {
                     @Override
@@ -268,34 +293,19 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
+                myBroadcastReceiver = new MyBroadcastReceiver();
 
+                //register BroadcastReceiver
+                IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
+                intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
-            }
-            public void countPassengersByEndpoint(String endpoint)
-            {
-               DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-                Query allPostFromAuthor = ref.orderByChild("currentDestination").equalTo(endpoint);
-
-
-                allPostFromAuthor.addValueEventListener( new ValueEventListener(){
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Integer count = 0;
-                        for(DataSnapshot post : dataSnapshot.getChildren() ){
-                            // Iterate through all posts with the same author
-                            count = count+1;
-                        }
-                        Toast.makeText(getApplicationContext(),count.toString(), Toast.LENGTH_LONG).show();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
+                registerReceiver(myBroadcastReceiver, intentFilter);
 
             }
 
             @Override
             public void onMapReady(GoogleMap googleMap) {
+                Log.i(TAG,"onMapReady");
                 mMap = googleMap;
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
@@ -306,14 +316,17 @@ public class MenuActivity extends AppCompatActivity implements
                             == PackageManager.PERMISSION_GRANTED) {
                         buildGoogleApiClient();
                         mMap.setMyLocationEnabled(true);
+
+//                        createGeoFence(14.42576,121.03898);
                     }
                 }
                 else {
                     buildGoogleApiClient();
+
                     mMap.setMyLocationEnabled(true);
                 }
 
-                new mySQLDestinationProvider(getApplicationContext(), MenuActivity.this, "", mMap).execute();
+
 
 
             }
@@ -409,12 +422,18 @@ public class MenuActivity extends AppCompatActivity implements
                 return poly;
             }
             protected synchronized void buildGoogleApiClient() {
-                mGoogleApiClient = new GoogleApiClient.Builder(this)
-                        .addConnectionCallbacks(this)
-                        .addOnConnectionFailedListener(this)
-                        .addApi(LocationServices.API)
-                        .build();
+                if(_helper.isGooglePlayInstalled(_context)) {
+                    mGoogleApiClient = new GoogleApiClient.Builder(this)
+                            .addConnectionCallbacks(this)
+                            .addOnConnectionFailedListener(this)
+                            .addApi(LocationServices.API)
+                            .build();
                     mGoogleApiClient.connect();
+                }
+                else
+                {
+                    Toast.makeText(_context, "Please install google play service", Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
@@ -470,6 +489,8 @@ public class MenuActivity extends AppCompatActivity implements
             {
                 final HashMap<String, Object> currentDestination = new HashMap<>();
                 currentDestination.put("currentDestination", destinationValue);
+
+
                 userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -558,6 +579,7 @@ public class MenuActivity extends AppCompatActivity implements
             }
             @Override
             public void onConnected(@Nullable Bundle bundle) {
+                new mySQLDestinationProvider(_context, MenuActivity.this, "", mMap, mGoogleApiClient).execute();
                 mLocationRequest = new LocationRequest();
                 mLocationRequest.setInterval(0);
                 mLocationRequest.setFastestInterval(0);
@@ -571,6 +593,12 @@ public class MenuActivity extends AppCompatActivity implements
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
 
                 }
+//                try{
+//                    startGeofence();
+//                } catch (Exception e) {
+//                    // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
+//                    Log.e(TAG, e.getMessage());
+//                }
 
 
             }
@@ -599,6 +627,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                                 if (mGoogleApiClient == null) {
                                     buildGoogleApiClient();
+
                                 }
                                 mMap.setMyLocationEnabled(true);
                             }
@@ -679,6 +708,7 @@ public class MenuActivity extends AppCompatActivity implements
 
             private void displayLocationSettingsRequest(Context context) {
 
+
                 GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
                         .addApi(LocationServices.API).build();
                 googleApiClient.connect();
@@ -718,6 +748,234 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
             }
+            public List<Geofence> createGeoFence()
+            {
+                String geofenceRequestId = "";
+                List<Geofence> geofenceList = new ArrayList<>();
+
+
+                        geofenceRequestId = UUID.randomUUID().toString();
+                        geofenceList.add(new Geofence.Builder()
+                                .setRequestId(geofenceRequestId)
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                                .setCircularRegion(14.42576,121.03898, 50)
+                                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                .build());
+
+
+                return geofenceList;
+            }
+            private GeofencingRequest createGeofenceRequest(List<Geofence> geofence)
+            {
+                GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+                builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
+                builder.addGeofences(geofence);
+                return builder.build();
+            }
+            private PendingIntent createGeofencePendingIntent()
+            {
+                Log.i(TAG, "createGeofencePendingIntent()");
+                Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+//                startService(intent);
+                return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+            }
+
+            private void drawGeofence(LatLng latLng) {
+                Log.d(TAG, "drawGeofence()");
+
+                if ( geoFenceLimits != null )
+                    geoFenceLimits.remove();
+
+                CircleOptions circleOptions = new CircleOptions()
+                        .center(latLng)
+                        .strokeColor(Color.argb(50, 70,70,70))
+                        .fillColor( Color.argb(100, 150,150,150) )
+                        .radius( 200 );
+                geoFenceLimits = mMap.addCircle( circleOptions );
+            }
+
+            // Create a marker for the geofence creation
+            private void markerForGeofence(LatLng latLng) {
+                Log.i(TAG, "markerForGeofence("+latLng+")");
+                String title = latLng.latitude + ", " + latLng.longitude;
+                // Define marker options
+                MarkerOptions markerOptions = new MarkerOptions()
+                        .position(latLng)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                        .title(title);
+                if ( mMap!=null ) {
+                    // Remove last geoFenceMarker
+                    if (geoFenceMarker != null)
+                        geoFenceMarker.remove();
+
+                    geoFenceMarker = mMap.addMarker(markerOptions);
+                }
+            }
+            // Start Geofence creation process
+            private void startGeofence() {
+                Log.i(TAG, "startGeofence()");
+                List<Geofence> geofence = createGeoFence();
+                GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
+                addGeofence( geofenceRequest );
+            }
+            // Add the created GeofenceRequest to the device's monitoring list
+            private void addGeofence(GeofencingRequest request) {
+
+                Log.d(TAG, "addGeofence");
+                if (checkPermission())
+                try
+                {
+                    LocationServices.GeofencingApi.addGeofences(
+                            mGoogleApiClient,
+                            request,
+                            createGeofencePendingIntent()
+                    ).setResultCallback(new ResultCallback<Status>() {
+
+                        @Override
+                        public void onResult(Status status) {
+                            if (status.isSuccess()) {
+                                Log.i(TAG, "Saving Geofence");
+
+
+                            } else {
+                                Log.e(TAG, "Registering geofence failed: " + status.getStatusMessage() +
+                                        " : " + status.getStatusCode());
+                            }
+                        }
+                    });
+                }
+                catch (Exception e)
+                {
+                    Log.e(TAG, e.getMessage());
+                }
+
+            }
+            // Check for permission to access Location
+            private boolean checkPermission() {
+
+
+                Log.d(TAG, "checkPermission()");
+                // Ask for permission if it wasn't granted yet
+                return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                        == PackageManager.PERMISSION_GRANTED );
+            }
+
+
+            private void passengerMovement(final String destinationValue, final String movement)
+            {
+                final HashMap<String, Object> count = new HashMap<>();
+//                final DatabaseReference destinationDatabaseReference = userDatabase.getReference("destinations");
+                final HashMap<String, Object> hashmapCount = new HashMap<>();
+                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData currentData) {
+                        if(currentData.getValue() == null) {
+                            if(movement.toLowerCase().equals("entered"))
+                            {
+                                currentData.setValue(1);
+                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
+
+                            }
+
+
+                        } else {
+                            if(movement.toLowerCase().equals("entered"))
+                            {
+                                currentData.setValue((Long) currentData.getValue() + 1);
+                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
+                            }
+                            if(movement.toLowerCase().equals("exit"))
+                            {
+                                currentData.setValue((Long) currentData.getValue() - 1);
+                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),"");
+                            }
+
+                        }
+                        return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+                    }
+                    @Override
+                    public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
+                        //This method will be called once with the results of the transaction.
+                    }
+                });
+
+//                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger")
+//                        .addValueEventListener(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(DataSnapshot dataSnapshot) {
+//                                Log.i(TAG, "Updating counter for " + destinationValue + " " + movement);
+//                                if(dataSnapshot.getValue()==null)
+//                                {
+//                                    if(movement.toLowerCase().equals("entered"))
+//                                    {
+//
+//                                        _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").setValue(1);
+//                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
+//
+//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
+//
+//                                    }
+//
+//                                }
+//                                else
+//                                {
+//                                    long count = (long) dataSnapshot.getValue();
+//                                    if(movement.toLowerCase().equals("entered"))
+//                                    {
+//                                        count++;
+//                                        hashmapCount.put("WaitingPassenger", count);
+//                                        _destinationDatabaseReference.child(destinationValue).updateChildren(hashmapCount);
+//                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
+//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
+//                                    }
+//                                    if(movement.toLowerCase().equals("exit"))
+//                                    {
+//                                        count--;
+//                                        hashmapCount.put("WaitingPassenger", count);
+//                                        _destinationDatabaseReference.child(destinationValue).updateChildren(hashmapCount);
+//                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
+//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),"");
+//                                    }
+//
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(DatabaseError databaseError) {
+//
+//                            }
+//
+//
+//                        });
+//
+//
+
+            }
+
+            public class MyBroadcastReceiver extends BroadcastReceiver {
+
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String eventType = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_EVENT_TYPE);
+                    String geofenceRequestId = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_GEOFENCEREQUESTID);
+                    for(Destination d:listDestinations)
+                    {
+                        if (d.GeofenceId.equals(geofenceRequestId))
+                        {
+                            passengerMovement(d.Value, eventType);
+                            Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                }
+
+            }
 
 
         }
+
+
+
+

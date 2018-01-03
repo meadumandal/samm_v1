@@ -1,5 +1,7 @@
 package com.example.samm_v1.EntityObjects;
 
+import com.google.android.gms.location.Geofence;
+
 /**
  * Created by MeadRoseAnn on 11/14/2017.
  */
@@ -14,12 +16,13 @@ public class Destination {
     public String Direction;
     public Double Lat;
     public Double Lng;
+    public String GeofenceId;
 
     public Destination()
     {
 
     }
-    public Destination(int ID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng)
+    public Destination(int ID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId)
     {
         this.ID =ID;
         this.Value = Value;
@@ -28,6 +31,7 @@ public class Destination {
         this.Direction = Direction;
         this.Lat = Lat;
         this.Lng = Lng;
+        this.GeofenceId = GeofenceId;
     }
 
     @Override

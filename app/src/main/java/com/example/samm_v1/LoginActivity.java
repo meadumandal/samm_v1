@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
 
                                     }
                                 });
-//                    userDatabaseRef.child("users").child(username).child("firstName").setValue("test");
+//                    userDatabaseRef.  child("users").child(username).child("firstName").setValue("test");
                     }
                 }
 

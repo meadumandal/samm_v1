@@ -10,7 +10,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.samm_v1.LoginActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryDark"
+    android:weightSum="1">
 
     <LinearLayout
         android:id="@+id/frmLogin"
@@ -59,51 +60,59 @@
 
         </android.support.design.widget.TextInputLayout>
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/frmLoginButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_weight="0.27"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/email_sign_in_button"
             style="?android:textAppearanceSmall"
             android:layout_width="0dp"
-            android:layout_weight=".4"
             android:layout_height="42dp"
             android:layout_marginTop="16dp"
-            android:text="Sign In"
-            android:textStyle="bold"
+            android:layout_weight=".4"
             android:background="@drawable/oval_background"
+            android:onClick="SignIn"
+            android:text="Sign In"
             android:textColor="@color/colorPrimaryDark"
-            android:onClick="SignIn"/>
+            android:textStyle="bold" />
+
+
+
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight=".1"
-            android:visibility="invisible"
-            />
+            android:visibility="invisible" />
+
         <Button
             android:id="@+id/btn_goToSignUp"
             android:layout_width="0dp"
-            android:layout_weight=".4"
-
             android:layout_height="42dp"
+
             android:layout_marginTop="16dp"
-            android:text="Not a member?"
-            android:textStyle="bold"
+            android:layout_weight=".4"
             android:background="@drawable/oval_background"
+            android:onClick="SignUp"
+            android:text="Not a member?"
             android:textColor="@color/colorPrimaryDark"
-            android:onClick="SignUp"/>
+            android:textStyle="bold" />
     </LinearLayout>
+
+
     <TextView
+        android:id="@+id/txtForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Forgot Password?"
         android:layout_marginLeft="5dp"
-        android:textColor="@color/colorAccent"
         android:layout_marginTop="20dp"
-        android:id="@+id/txtForgotPassword"
-        android:clickable="true"/>
+        android:clickable="true"
+        android:text="Forgot Password?"
+        android:textColor="@color/colorAccent" />
 
     <ProgressBar
         android:id="@+id/progressBar"

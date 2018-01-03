@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,6 +67,16 @@ public class Helper {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    /**
+     * This method checks if the device has google play services installed before building Google API Client
+     * @return true if google play services is installed
+     */
+    public Boolean isGooglePlayInstalled(Context context)
+    {
+        int resp = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
+        return(resp == ConnectionResult.SUCCESS);
     }
 
 

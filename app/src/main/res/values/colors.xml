@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#1e1e1e</color>
     <color name="colorAccent">#ececec</color>
     <color name="colorWhite">#ffffff</color>
+    <color name="colorFacebook">#3B5998</color>
 
 
 </resources>
