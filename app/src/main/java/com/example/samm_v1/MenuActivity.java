@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,23 +20,31 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
 import com.example.samm_v1.POJO.Directions;
+import com.example.samm_v1.RouteTabs.Route1;
+import com.example.samm_v1.RouteTabs.Route2;
+import com.example.samm_v1.RouteTabs.Route3;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -69,6 +78,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,6 +94,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.example.samm_v1.R.id.map;
+import static com.example.samm_v1.R.id.route_tablayout;
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -91,6 +102,9 @@ public class MenuActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener,
+        Route1.OnFragmentInteractionListener,
+        Route2.OnFragmentInteractionListener,
+        Route3.OnFragmentInteractionListener,
         LocationListener {
             GoogleApiClient mGoogleApiClient;
             Marker mCurrLocationMarker;
@@ -117,12 +131,16 @@ public class MenuActivity extends AppCompatActivity implements
             private Marker geoFenceMarker;
             public List<Destination> listDestinations;
             HashMap hashmap_markerMap = new HashMap();
-
             protected static final String TAG = "Mead";
             public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
             MyBroadcastReceiver myBroadcastReceiver;
+
+            //Declared as public so that they can be accessed on other context.
+            public static AutoCompleteTextView EditDestinationsPH;
+            public static LinearLayout RoutePane;
+            public static  SlidingUpPanelLayout SlideUpPanelContainer;
 
 
 
@@ -176,17 +194,64 @@ public class MenuActivity extends AppCompatActivity implements
                 setSupportActionBar(toolbar);
                 toolbar.setTitle("SAMM");
 
+
+                //For Route Tabs
+                final TabLayout RouteTabs = (TabLayout) findViewById(R.id.route_tablayout);
+                RouteTabs.addTab(RouteTabs.newTab().setText("Route 1"));
+                RouteTabs.addTab(RouteTabs.newTab().setText("Route 2"));
+                RouteTabs.addTab(RouteTabs.newTab().setText("Route 3"));
+                RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
+
+                final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
+                final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), RouteTabs.getTabCount());
+                viewPager.setAdapter(adapter);
+                viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
+
+                RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
+                    @Override
+                    public void onTabSelected(TabLayout.Tab tab) {
+                        viewPager.setCurrentItem(tab.getPosition());
+                    }
+
+                    @Override
+                    public void onTabUnselected(TabLayout.Tab tab) {
+
+                    }
+
+                    @Override
+                    public void onTabReselected(TabLayout.Tab tab) {
+
+                    }
+                });
+
+
                 if(userDatabase == null && userDatabaseReference ==null)
                 {
                     userDatabase = FirebaseDatabase.getInstance();
                     userDatabaseReference = userDatabase.getReference("users");
                     _destinationDatabaseReference = userDatabase.getReference("destinations");
                 }
-                AutoCompleteTextView editDestinations = (AutoCompleteTextView) findViewById(R.id.edit_destinations);
+                EditDestinationsPH = (AutoCompleteTextView) findViewById(R.id.edit_destinationsPH);
+                final ClearableAutoCompleteTextView editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
+                RoutePane = (LinearLayout) findViewById(R.id.route_content);
+                SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+                EditDestinationsPH.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        EditDestinationsPH.setVisibility(View.GONE);
+                        editDestinations.setVisibility(View.VISIBLE);
+
+                    }
+                });
 
                 editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                        //hide keyboard on search ~
+                        InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        mgr.hideSoftInputFromWindow(editDestinations.getWindowToken(),0);
+
                         Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
                         saveDestination(chosenDestination.Value);
                         possibleTerminals = new ArrayList<>();
@@ -202,6 +267,9 @@ public class MenuActivity extends AppCompatActivity implements
                         origin = currentLocation;
                         destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
                         build_retrofit_and_get_response("walking");
+
+                        //slide up the route pane ~
+                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                     }
                 });
 
@@ -300,6 +368,8 @@ public class MenuActivity extends AppCompatActivity implements
                 intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
                 registerReceiver(myBroadcastReceiver, intentFilter);
+
+
 
             }
 
@@ -670,9 +740,9 @@ public class MenuActivity extends AppCompatActivity implements
                 int id = item.getItemId();
 
                 //noinspection SimplifiableIfStatement
-                if (id == R.id.action_settings) {
-                    return true;
-                }
+//                if (id == R.id.action_settings) {
+//                    return true;
+//                }
 
                 return super.onOptionsItemSelected(item);
             }
@@ -954,7 +1024,13 @@ public class MenuActivity extends AppCompatActivity implements
 
             }
 
-            public class MyBroadcastReceiver extends BroadcastReceiver {
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
+
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
 
                 @Override
                 public void onReceive(Context context, Intent intent) {

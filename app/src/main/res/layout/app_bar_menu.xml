@@ -19,7 +19,7 @@
             android:background="@color/colorPrimaryDark"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            android:elevation="4dp">
+            android:elevation="1dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -31,21 +31,59 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
+                    android:orientation="horizontal"
                     android:background="@color/colorPrimaryDark"
                     android:gravity="center|right">
 
                     <AutoCompleteTextView
+                        android:id="@+id/edit_destinationsPH"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_margin="5dp"
+                        android:ems="12"
+                        android:hint="Where are you going?"
+                        android:drawableLeft="@drawable/ic_search"
+                        android:drawablePadding="5dp"
+                        android:textColorHint="@color/colorWhite"
+                        android:textColor="@color/colorWhite"
+                        android:maxLines="1"
+                        android:width="100dp"
+
+                        android:background="@drawable/rounded_corner"
+                        android:gravity="center|left"
+                        android:layout_gravity="left"
+                        android:visibility="visible">
+
+
+                    </AutoCompleteTextView>
+                    <com.example.samm_v1.ClearableAutoCompleteTextView
                         android:id="@+id/edit_destinations"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
                         android:layout_margin="5dp"
-                        android:ems="10"
-                        android:hint="Where are you going?"
+                        android:ems="12"
+                        android:hint=""
                         android:drawableLeft="@drawable/ic_search"
+                        android:drawablePadding="5dp"
                         android:textColorHint="@color/colorWhite"
                         android:textColor="@color/colorWhite"
-                        android:gravity="center" >
-                    </AutoCompleteTextView>
+                        android:maxLines="1"
+                        android:width="100dp"
+                        android:visibility="invisible"
+
+                        android:background="@drawable/rounded_corner"
+                        android:gravity="center|left"
+                        android:layout_gravity="left">
+                        <requestFocus/>
+
+
+                    </com.example.samm_v1.ClearableAutoCompleteTextView>
+                    <!--<TextView-->
+                        <!--android:id="@+id/cancelButton"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="  X  "-->
+                        <!--android:textColor="@color/colorWhite"/>-->
 
                 </LinearLayout>
 
