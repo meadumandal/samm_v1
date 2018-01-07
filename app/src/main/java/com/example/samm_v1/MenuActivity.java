@@ -29,20 +29,25 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.transition.Slide;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
 import com.example.samm_v1.POJO.Directions;
 import com.example.samm_v1.POJO.Route;
+import com.example.samm_v1.POJO.Steps;
 import com.example.samm_v1.RouteTabs.Route1;
 import com.example.samm_v1.RouteTabs.Route2;
 import com.example.samm_v1.RouteTabs.Route3;
@@ -144,6 +149,9 @@ public class MenuActivity extends AppCompatActivity implements
             public static LinearLayout RoutePane;
             public static  SlidingUpPanelLayout SlideUpPanelContainer;
             public static TabLayout RouteTabLayout;
+            public static WebView RouteStepsText;
+            public static ImageView Slide_Expand;
+            public static ImageView Slide_Collapse;
 
 
 
@@ -199,34 +207,6 @@ public class MenuActivity extends AppCompatActivity implements
                 toolbar.setTitle("SAMM");
 
 
-                //For Route Tabs
-                final TabLayout RouteTabs = (TabLayout) findViewById(R.id.route_tablayout);
-                RouteTabs.addTab(RouteTabs.newTab().setText("Route 1"));
-                RouteTabs.addTab(RouteTabs.newTab().setText("Route 2"));
-                RouteTabs.addTab(RouteTabs.newTab().setText("Route 3"));
-                RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
-
-                final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
-                final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), RouteTabs.getTabCount());
-                viewPager.setAdapter(adapter);
-                viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
-
-                RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
-                    @Override
-                    public void onTabSelected(TabLayout.Tab tab) {
-                        viewPager.setCurrentItem(tab.getPosition());
-                    }
-
-                    @Override
-                    public void onTabUnselected(TabLayout.Tab tab) {
-
-                    }
-
-                    @Override
-                    public void onTabReselected(TabLayout.Tab tab) {
-
-                    }
-                });
 
 
                 if(userDatabase == null && userDatabaseReference ==null)
@@ -242,6 +222,8 @@ public class MenuActivity extends AppCompatActivity implements
                 RoutePane = (LinearLayout) findViewById(R.id.route_content);
                 SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
                 RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
+                Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
+                Slide_Expand = (ImageView) findViewById(R.id.ev_panel_expand);
 
                 EditDestinationsPH.setOnClickListener(new View.OnClickListener(){
                     @Override
@@ -249,6 +231,25 @@ public class MenuActivity extends AppCompatActivity implements
                         EditDestinationsPH.setVisibility(View.GONE);
                         editDestinations.setVisibility(View.VISIBLE);
 
+                    }
+                });
+
+                SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+                    @Override
+                    public void onPanelSlide(View panel, float slideOffset) {
+
+                    }
+
+                    @Override
+                    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                        if(previousState == SlidingUpPanelLayout.PanelState.EXPANDED){
+                            Slide_Expand.setVisibility(View.GONE);
+                            Slide_Collapse.setVisibility(View.VISIBLE);
+                        }
+                        if(previousState == SlidingUpPanelLayout.PanelState.COLLAPSED){
+                            Slide_Expand.setVisibility(View.VISIBLE);
+                            Slide_Collapse.setVisibility(View.GONE);
+                        }
                     }
                 });
 
@@ -411,6 +412,7 @@ public class MenuActivity extends AppCompatActivity implements
 
             private void build_retrofit_and_get_response(String type)
             {
+
                 final ProgressDialog progressDialog;
                 progressDialog = new ProgressDialog(MenuActivity.this);
                 progressDialog.setMax(100);
@@ -419,6 +421,7 @@ public class MenuActivity extends AppCompatActivity implements
                 progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 progressDialog.setCancelable(false);
                 progressDialog.show();
+
 
                 String url = "https://maps.googleapis.com/maps/";
                 Retrofit retrofit = new Retrofit.Builder()
@@ -432,7 +435,9 @@ public class MenuActivity extends AppCompatActivity implements
                 call.enqueue(new Callback<Directions>() {
                     @Override
                     public void onResponse(Response<Directions> response, Retrofit retrofit) {
-
+                         String TotalDistance = "";
+                         String TotalTime = "";
+                        List<String> DirectionSteps = new ArrayList<String>();
                         try {
                             //Remove previous line from map
 //                            if (line != null) {
@@ -440,8 +445,8 @@ public class MenuActivity extends AppCompatActivity implements
 //                            }
                             // This loop will go through all the results and add marker on each location.
                             for (int i = 0; i < response.body().getRoutes().size(); i++) {
-                                String distance = response.body().getRoutes().get(i).getLegs().get(i).getDistance().getText();
-                                String time = response.body().getRoutes().get(i).getLegs().get(i).getDuration().getText();
+                                TotalDistance = response.body().getRoutes().get(i).getLegs().get(i).getDistance().getText();
+                                TotalTime = response.body().getRoutes().get(i).getLegs().get(i).getDuration().getText();
 //                                showDistanceDuration.setText("Distance:" + distance + ", Duration:" + time);
                                 String encodedString = response.body().getRoutes().get(0).getOverviewPolyline().getPoints();
                                 List<LatLng> list = decodePoly(encodedString);
@@ -452,6 +457,11 @@ public class MenuActivity extends AppCompatActivity implements
                                         .geodesic(true)
                                 );
                             }
+                            for(int x = 0; x<=response.body().getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++){
+                                String Instructions =  response.body().getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
+                                DirectionSteps.add(Instructions);
+                            }
+
                         } catch (Exception e) {
                             Log.d("onResponse", "There is an error");
                             e.printStackTrace();
@@ -459,6 +469,7 @@ public class MenuActivity extends AppCompatActivity implements
                         progressDialog.dismiss();
 
                         //show route tabs and slide up panel ~
+                        createRouteTabs(TotalDistance, TotalTime, DirectionSteps);
                         RouteTabLayout.setVisibility(View.VISIBLE);
                         SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                     }
@@ -1041,6 +1052,71 @@ public class MenuActivity extends AppCompatActivity implements
 
     }
 
+    public void createRouteTabs(String TD, String TT, List<String> Steps){
+        //For Route Tabs
+        final TabLayout RouteTabs = (TabLayout) findViewById(R.id.route_tablayout);
+        RouteTabs.removeAllTabs();
+        RouteTabs.addTab(RouteTabs.newTab().setText(TT));
+        RouteTabs.addTab(RouteTabs.newTab().setText("Route 2"));
+        RouteTabs.addTab(RouteTabs.newTab().setText("Route 3"));
+        RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
+
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
+        final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), RouteTabs.getTabCount());
+        viewPager.setAdapter(adapter);
+        viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
+
+        RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                viewPager.setCurrentItem(tab.getPosition());
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+        String _Steps = "";
+        for(int x=0; x < Steps.size(); x++){
+            _Steps += (x+1)+". " + CleanDirectionStep(Steps.get(x))  + ". </br>";
+        }
+
+        RouteStepsText = (WebView) findViewById(R.id.route_steps);
+        //Check version for HTML render compatibility
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
+        } else {
+            RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
+        }
+        
+
+    }
+
+    public String CleanDirectionStep(String str){
+        if(str!=null){
+            if(str.contains("onto"))
+            {
+                str = str.replace("onto","on to");
+            }
+            if(str.contains("<div style=\"font-size:0.9em\">"))
+            {
+                str = str.replace("<div style=\"font-size:0.9em\">"," ");
+            }
+            if(str.contains("</div>"))
+            {
+                str = str.replace("</div>","");
+            }
+        }
+
+        return str;
+    }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
 

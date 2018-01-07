@@ -15,6 +15,7 @@ public class Directions {
     @Expose
     private List<Route> routes = new ArrayList<>();
 
+
     /**
      *
      * @return

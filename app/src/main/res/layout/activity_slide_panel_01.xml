@@ -9,20 +9,39 @@
     android:background="@color/colorWhite">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/ev_panel_collapse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_keyboard_arrow_up_black_24px"/>
+        android:visibility="gone"
+        android:src="@drawable/ic_expand_less_black_24dp"/>
 
-<!--<android.support.v7.widget.Toolbar-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:id="@+id/route_tab"-->
-    <!--android:background="@color/colorWhite"-->
-    <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light"-->
-    <!--&gt;-->
-<!--</android.support.v7.widget.Toolbar>-->
-    
+
+    <ImageView
+        android:id="@+id/ev_panel_expand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:src="@drawable/ic_expand_more_black_24dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <WebView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="vertical"
+                android:id="@+id/route_steps"
+                />
+        </LinearLayout>
+
+    </ScrollView>
+
 
 
 

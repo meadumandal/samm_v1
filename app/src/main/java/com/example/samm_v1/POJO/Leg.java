@@ -18,7 +18,12 @@ public class Leg {
     @SerializedName("duration")
     @Expose
     private Duration duration;
+    @SerializedName("steps")
+    @Expose
+    private List<Steps> Instructions = new ArrayList<Steps>();
 
+
+    public List<Steps> getInstructions(){return Instructions;}
     /**
      *
      * @return
@@ -45,6 +50,7 @@ public class Leg {
     public Duration getDuration() {
         return duration;
     }
+
 
     /**
      *
