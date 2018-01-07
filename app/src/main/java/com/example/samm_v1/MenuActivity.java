@@ -42,6 +42,7 @@ import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
 import com.example.samm_v1.POJO.Directions;
+import com.example.samm_v1.POJO.Route;
 import com.example.samm_v1.RouteTabs.Route1;
 import com.example.samm_v1.RouteTabs.Route2;
 import com.example.samm_v1.RouteTabs.Route3;
@@ -95,6 +96,7 @@ import retrofit.Retrofit;
 
 import static com.example.samm_v1.R.id.map;
 import static com.example.samm_v1.R.id.route_tablayout;
+import static com.example.samm_v1.R.id.visible;
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -141,6 +143,8 @@ public class MenuActivity extends AppCompatActivity implements
             public static AutoCompleteTextView EditDestinationsPH;
             public static LinearLayout RoutePane;
             public static  SlidingUpPanelLayout SlideUpPanelContainer;
+            public static TabLayout RouteTabLayout;
+
 
 
 
@@ -231,10 +235,14 @@ public class MenuActivity extends AppCompatActivity implements
                     userDatabaseReference = userDatabase.getReference("users");
                     _destinationDatabaseReference = userDatabase.getReference("destinations");
                 }
+
+                //Instantiate ~
                 EditDestinationsPH = (AutoCompleteTextView) findViewById(R.id.edit_destinationsPH);
                 final ClearableAutoCompleteTextView editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
                 RoutePane = (LinearLayout) findViewById(R.id.route_content);
                 SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+                RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
+
                 EditDestinationsPH.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View v) {
@@ -268,8 +276,8 @@ public class MenuActivity extends AppCompatActivity implements
                         destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
                         build_retrofit_and_get_response("walking");
 
-                        //slide up the route pane ~
-                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+
+
                     }
                 });
 
@@ -449,6 +457,10 @@ public class MenuActivity extends AppCompatActivity implements
                             e.printStackTrace();
                         }
                         progressDialog.dismiss();
+
+                        //show route tabs and slide up panel ~
+                        RouteTabLayout.setVisibility(View.VISIBLE);
+                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                     }
 
                     @Override

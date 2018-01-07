@@ -24,6 +24,7 @@ public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
             ClearableAutoCompleteTextView et = ClearableAutoCompleteTextView.this;
             et.setText("");
             MenuActivity.EditDestinationsPH.setVisibility(View.VISIBLE);
+            MenuActivity.RouteTabLayout.setVisibility(View.GONE);
             MenuActivity.SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
         }
     };
