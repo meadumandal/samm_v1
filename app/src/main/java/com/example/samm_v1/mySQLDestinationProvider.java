@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.Menu;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
@@ -19,7 +16,6 @@ import android.widget.Toast;
 import com.example.samm_v1.EntityObjects.Destination;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.GeofencingRequest;
@@ -29,7 +25,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import android.content.BroadcastReceiver;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -127,7 +122,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                     String Direction = jsonobject.getString("Direction");
                     double Lat  = jsonobject.getDouble("Lat");
                     double Lng = jsonobject.getDouble("Lng");
-                    listDestinations.add(new Destination(ID, Value, Description, OrderOfArrival, Direction,Lat,Lng, ""));
+                    listDestinations.add(new Destination(ID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null));
                 }
                 return listDestinations;
             }
@@ -150,7 +145,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
     {
         Log.i(TAG,"mySQLDestinationProvider(onPostExecute)");
         List<String> strDestinations = new ArrayList<>();
-        ((MenuActivity)this._activity).listDestinations = destinations;
+        ((MenuActivity)this._activity)._listDestinations = destinations;
         for (Destination d:destinations)
         {
             if(!strDestinations.contains(d.Description))

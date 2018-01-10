@@ -57,7 +57,6 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -75,14 +74,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -113,41 +110,39 @@ public class MenuActivity extends AppCompatActivity implements
         Route2.OnFragmentInteractionListener,
         Route3.OnFragmentInteractionListener,
         LocationListener {
-            GoogleApiClient mGoogleApiClient;
-            Marker mCurrLocationMarker;
-            LocationRequest mLocationRequest;
-            private GoogleMap mMap;
-            FirebaseDatabase userDatabase;
-            DatabaseReference userDatabaseReference;
+            GoogleApiClient _googleApiClient;
+            Marker _currentLocationMarker;
+            LocationRequest _locationRequest;
+            private GoogleMap _map;
+            FirebaseDatabase _firebaseDatabase;
+            DatabaseReference _userDatabaseReference;
             DatabaseReference _destinationDatabaseReference;
-            SessionManager sessionManager;
-            boolean isFirstLoad;
-            LatLng origin;
-            LatLng destination;
-            LatLng currentLocation;
-            Destination bestTerminal;
-            List<Destination> possibleTerminals;
-//            TextView showDistanceDuration;
-            ArrayList<LatLng> MarkerPoints;
-            Polyline line;
+            SessionManager _sessionManager;
+            boolean _isFirstLoad;
+            LatLng _currentLocation;
+            Destination _bestTerminal;
+            List<Destination> _candidateTerminals;
+            ArrayList<LatLng> _markerPoints;
+            Polyline _polyLine;
             Helper _helper;
             Context _context;
             List<Geofence> _geoFenceList;
-            PendingIntent mGeofencePendingIntent;
-            private Circle geoFenceLimits;
-            private Marker geoFenceMarker;
-            public List<Destination> listDestinations;
-            HashMap hashmap_markerMap = new HashMap();
-            protected static final String TAG = "Mead";
+            PendingIntent _geoFencePendingIntent;
+            private Circle _geofenceCircleLimits;
+            private Marker _geofenceMarker;
+            public List<Destination> _listDestinations;
+            HashMap _hashmapMarkerMap = new HashMap();
+            MyBroadcastReceiver _broadcastReceiver;
+
+            protected static final String TAG = "mead";
             public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
-            MyBroadcastReceiver myBroadcastReceiver;
 
             //Declared as public so that they can be accessed on other context.
             public static AutoCompleteTextView EditDestinationsPH;
             public static LinearLayout RoutePane;
-            public static  SlidingUpPanelLayout SlideUpPanelContainer;
+            public static SlidingUpPanelLayout SlideUpPanelContainer;
             public static TabLayout RouteTabLayout;
             public static WebView RouteStepsText;
             public static ImageView Slide_Expand;
@@ -181,9 +176,7 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             protected void onCreate(Bundle savedInstanceState) {
                 Log.i(TAG, "onCreate");
-
-//                showDistanceDuration = (TextView) findViewById(R.id.show_distance_time);
-                MarkerPoints = new ArrayList<>();
+                _markerPoints = new ArrayList<>();
                 _helper = new Helper();
                 _context = getApplicationContext();
                 _geoFenceList = new ArrayList<>();
@@ -191,12 +184,12 @@ public class MenuActivity extends AppCompatActivity implements
 
                 displayLocationSettingsRequest(_context);
                 super.onCreate(savedInstanceState);
-                isFirstLoad = true;
-                if(sessionManager==null)
-                    sessionManager = new SessionManager(_context);
-                if(!sessionManager.isLoggedIn())
+                _isFirstLoad = true;
+                if(_sessionManager ==null)
+                    _sessionManager = new SessionManager(_context);
+                if(!_sessionManager.isLoggedIn())
                 {
-                    sessionManager.logoutUser();
+                    _sessionManager.logoutUser();
                     Intent i = new Intent(MenuActivity.this, LoginActivity.class);
                     finish();
                     startActivity(i);
@@ -209,11 +202,11 @@ public class MenuActivity extends AppCompatActivity implements
 
 
 
-                if(userDatabase == null && userDatabaseReference ==null)
+                if(_firebaseDatabase == null && _userDatabaseReference ==null)
                 {
-                    userDatabase = FirebaseDatabase.getInstance();
-                    userDatabaseReference = userDatabase.getReference("users");
-                    _destinationDatabaseReference = userDatabase.getReference("destinations");
+                    _firebaseDatabase = FirebaseDatabase.getInstance();
+                    _userDatabaseReference = _firebaseDatabase.getReference("users");
+                    _destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
                 }
 
                 //Instantiate ~
@@ -263,22 +256,17 @@ public class MenuActivity extends AppCompatActivity implements
 
                         Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
                         saveDestination(chosenDestination.Value);
-                        possibleTerminals = new ArrayList<>();
 
-                        //get best terminal by fewest passenger, by nearest from current location, by fewest stops
-                        //dummy data for now.
-                        possibleTerminals.add(listDestinations.get(0));
-                        possibleTerminals.add(listDestinations.get(1));
-                        possibleTerminals.add(listDestinations.get(2));
-                        bestTerminal = possibleTerminals.get(2);
-
-
-                        origin = currentLocation;
-                        destination = new LatLng(bestTerminal.Lat, bestTerminal.Lng);
-                        build_retrofit_and_get_response("walking");
-
-
-
+                        _candidateTerminals = new ArrayList<>();
+                        for(Destination destination: _listDestinations)
+                        {
+                            if (destination.Direction.equals(chosenDestination.Direction))
+                            {
+                                if(destination.OrderOfArrival < chosenDestination.OrderOfArrival)
+                                    _candidateTerminals.add(destination);
+                            }
+                        }
+                        new AnalyzeForBestRoutes(_context, MenuActivity.this,_map, _currentLocation, getSupportFragmentManager(), _candidateTerminals).execute();
                     }
                 });
 
@@ -310,7 +298,7 @@ public class MenuActivity extends AppCompatActivity implements
                 mapFragment.getMapAsync(this);
 
 
-                userDatabaseReference.addChildEventListener(new ChildEventListener() {
+                _userDatabaseReference.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     }
@@ -318,14 +306,14 @@ public class MenuActivity extends AppCompatActivity implements
                     @Override
                     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                         String username = dataSnapshot.child("username").getValue().toString();
-                        if (!username.equals(sessionManager.getUsername()))
+                        if (!username.equals(_sessionManager.getUsername()))
                         {
                             Marker marker;
-                            marker = (Marker) hashmap_markerMap.get(username);
+                            marker = (Marker) _hashmapMarkerMap.get(username);
                             if(marker !=null)
                             {
                                 marker.remove();
-                                    hashmap_markerMap.remove(username);
+                                    _hashmapMarkerMap.remove(username);
                             }
                             Object Latitude = dataSnapshot.child("Latitude").getValue();
                             Object Longitude = dataSnapshot.child("Longitude").getValue();
@@ -340,15 +328,15 @@ public class MenuActivity extends AppCompatActivity implements
                                 lng = (double) Longitude;
 
                             LatLng latLng = new LatLng(lat, lng);
-                            if (mMap!=null)
+                            if (_map !=null)
                             {
                                 MarkerOptions markerOptions = new MarkerOptions();
                                 markerOptions.position(latLng);
                                 markerOptions.title(username);
                                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                                marker = mMap.addMarker(markerOptions);
+                                marker = _map.addMarker(markerOptions);
                                 marker.showInfoWindow();
-                                hashmap_markerMap.put(username, marker);
+                                _hashmapMarkerMap.put(username, marker);
                             }
                         }
                     }
@@ -370,23 +358,21 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
-                myBroadcastReceiver = new MyBroadcastReceiver();
+                _broadcastReceiver = new MyBroadcastReceiver();
 
                 //register BroadcastReceiver
                 IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
                 intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
-                registerReceiver(myBroadcastReceiver, intentFilter);
-
-
-
+                registerReceiver(_broadcastReceiver, intentFilter);
+                initialiseOnlinePresence();
             }
 
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Log.i(TAG,"onMapReady");
-                mMap = googleMap;
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                _map = googleMap;
+                _map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
                 //Initialize Google Play Services
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -394,7 +380,7 @@ public class MenuActivity extends AppCompatActivity implements
                             android.Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
                         buildGoogleApiClient();
-                        mMap.setMyLocationEnabled(true);
+                        _map.setMyLocationEnabled(true);
 
 //                        createGeoFence(14.42576,121.03898);
                     }
@@ -402,126 +388,21 @@ public class MenuActivity extends AppCompatActivity implements
                 else {
                     buildGoogleApiClient();
 
-                    mMap.setMyLocationEnabled(true);
+                    _map.setMyLocationEnabled(true);
                 }
-
-
-
-
             }
 
-            private void build_retrofit_and_get_response(String type)
-            {
-
-                final ProgressDialog progressDialog;
-                progressDialog = new ProgressDialog(MenuActivity.this);
-                progressDialog.setMax(100);
-                progressDialog.setMessage("Please wait as we search for the best route");
-                progressDialog.setTitle("Analyzing Routes");
-                progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                progressDialog.setCancelable(false);
-                progressDialog.show();
 
 
-                String url = "https://maps.googleapis.com/maps/";
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(url)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-                RetrofitMaps service = retrofit.create(RetrofitMaps.class);
 
-                Call<Directions> call = service.getDistanceDuration("metric", origin.latitude + "," + origin.longitude,destination.latitude + "," + destination.longitude, type);
-
-                call.enqueue(new Callback<Directions>() {
-                    @Override
-                    public void onResponse(Response<Directions> response, Retrofit retrofit) {
-                         String TotalDistance = "";
-                         String TotalTime = "";
-                        List<String> DirectionSteps = new ArrayList<String>();
-                        try {
-                            //Remove previous line from map
-//                            if (line != null) {
-//                                line.remove();
-//                            }
-                            // This loop will go through all the results and add marker on each location.
-                            for (int i = 0; i < response.body().getRoutes().size(); i++) {
-                                TotalDistance = response.body().getRoutes().get(i).getLegs().get(i).getDistance().getText();
-                                TotalTime = response.body().getRoutes().get(i).getLegs().get(i).getDuration().getText();
-//                                showDistanceDuration.setText("Distance:" + distance + ", Duration:" + time);
-                                String encodedString = response.body().getRoutes().get(0).getOverviewPolyline().getPoints();
-                                List<LatLng> list = decodePoly(encodedString);
-                                line = mMap.addPolyline(new PolylineOptions()
-                                        .addAll(list)
-                                        .width(5f)
-                                        .color(Color.RED)
-                                        .geodesic(true)
-                                );
-                            }
-                            for(int x = 0; x<=response.body().getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++){
-                                String Instructions =  response.body().getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
-                                DirectionSteps.add(Instructions);
-                            }
-
-                        } catch (Exception e) {
-                            Log.d("onResponse", "There is an error");
-                            e.printStackTrace();
-                        }
-                        progressDialog.dismiss();
-
-                        //show route tabs and slide up panel ~
-                        createRouteTabs(TotalDistance, TotalTime, DirectionSteps);
-                        RouteTabLayout.setVisibility(View.VISIBLE);
-                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        progressDialog.dismiss();
-                        Log.d("onFailure", t.toString());
-                    }
-                });
-            }
-
-            private List<LatLng> decodePoly(String encoded) {
-                List<LatLng> poly = new ArrayList<>();
-                int index = 0, len = encoded.length();
-                int lat = 0, lng = 0;
-
-                while (index < len) {
-                    int b, shift = 0, result = 0;
-                    do {
-                        b = encoded.charAt(index++) - 63;
-                        result |= (b & 0x1f) << shift;
-                        shift += 5;
-                    } while (b >= 0x20);
-                    int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-                    lat += dlat;
-
-                    shift = 0;
-                    result = 0;
-                    do {
-                        b = encoded.charAt(index++) - 63;
-                        result |= (b & 0x1f) << shift;
-                        shift += 5;
-                    } while (b >= 0x20);
-                    int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-                    lng += dlng;
-
-                    LatLng p = new LatLng( (((double) lat / 1E5)),
-                            (((double) lng / 1E5) ));
-                    poly.add(p);
-                }
-
-                return poly;
-            }
             protected synchronized void buildGoogleApiClient() {
                 if(_helper.isGooglePlayInstalled(_context)) {
-                    mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    _googleApiClient = new GoogleApiClient.Builder(this)
                             .addConnectionCallbacks(this)
                             .addOnConnectionFailedListener(this)
                             .addApi(LocationServices.API)
                             .build();
-                    mGoogleApiClient.connect();
+                    _googleApiClient.connect();
                 }
                 else
                 {
@@ -531,35 +412,34 @@ public class MenuActivity extends AppCompatActivity implements
 
             @Override
             public void onLocationChanged(Location location) {
-//                Toast.makeText(this, "Location updated", Toast.LENGTH_LONG).show();
-                if (mCurrLocationMarker != null) {
-                    mCurrLocationMarker.remove();
+                if (_currentLocationMarker != null) {
+                    _currentLocationMarker.remove();
                 }
                 //Place current location marker
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
-                currentLocation = new LatLng(lat, lng);
+                _currentLocation = new LatLng(lat, lng);
 
                 saveLocation(lat, lng);
                 MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(currentLocation);
-                markerOptions.title(sessionManager.getUsername());
+                markerOptions.position(_currentLocation);
+                markerOptions.title(_sessionManager.getUsername());
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-                mCurrLocationMarker = mMap.addMarker(markerOptions);
-                mCurrLocationMarker.showInfoWindow();
+                _currentLocationMarker = _map.addMarker(markerOptions);
+                _currentLocationMarker.showInfoWindow();
 
-                if(isFirstLoad) {
-                    isFirstLoad = false;
+                if(_isFirstLoad) {
+                    _isFirstLoad = false;
                     //move map camera
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 16));
+                    _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                    _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
                 }
-//                mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+//                _map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
                 //stop location updates
-                if (mGoogleApiClient != null) {
-                    LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+                if (_googleApiClient != null) {
+                    LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
                 }
 
             }
@@ -584,16 +464,16 @@ public class MenuActivity extends AppCompatActivity implements
                 currentDestination.put("currentDestination", destinationValue);
 
 
-                userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").addListenerForSingleValueEvent(new ValueEventListener() {
+                _userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.getValue()==null)
                         {
-                            userDatabaseReference.child(sessionManager.getUsername()).child("currentDestination").setValue(currentDestination.get("currentDestination"));
+                            _userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").setValue(currentDestination.get("currentDestination"));
                         }
                         else
                         {
-                            userDatabaseReference.child(sessionManager.getUsername()).updateChildren(currentDestination);
+                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(currentDestination);
                         }
                     }
 
@@ -611,17 +491,17 @@ public class MenuActivity extends AppCompatActivity implements
                 hashLastUpdated.put("lastUpdated", new Date().toString());
                 latitude.put("Latitude", lat);
                 longitude.put("Longitude", lng);
-                userDatabaseReference.child(sessionManager.getUsername()).child("Longitude")
+                _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude")
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.getValue()==null)
                                 {
-                                    userDatabaseReference.child(sessionManager.getUsername()).child("Longitude").setValue(longitude);
+                                    _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude").setValue(longitude);
                                 }
                                 else
                                 {
-                                    userDatabaseReference.child(sessionManager.getUsername()).updateChildren(longitude);
+                                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(longitude);
                                 }
                             }
 
@@ -630,17 +510,17 @@ public class MenuActivity extends AppCompatActivity implements
 
                             }
                         });
-                userDatabaseReference.child(sessionManager.getUsername()).child("Latitude")
+                _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude")
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.getValue()==null)
                                 {
-                                    userDatabaseReference.child(sessionManager.getUsername()).push().setValue(latitude);
+                                    _userDatabaseReference.child(_sessionManager.getUsername()).push().setValue(latitude);
                                 }
                                 else
                                 {
-                                    userDatabaseReference.child(sessionManager.getUsername()).updateChildren(latitude);
+                                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(latitude);
                                 }
                             }
 
@@ -649,17 +529,17 @@ public class MenuActivity extends AppCompatActivity implements
 
                             }
                         });
-                userDatabaseReference.child(sessionManager.getUsername()).child("lastUpdated")
+                _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated")
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 if(dataSnapshot.getValue()==null)
                                 {
-                                    userDatabaseReference.child(sessionManager.getUsername()).child("lastUpdated").setValue(hashLastUpdated);
+                                    _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated").setValue(hashLastUpdated);
                                 }
                                 else
                                 {
-                                    userDatabaseReference.child(sessionManager.getUsername()).updateChildren(hashLastUpdated);
+                                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(hashLastUpdated);
                                 }
                             }
 
@@ -672,28 +552,20 @@ public class MenuActivity extends AppCompatActivity implements
             }
             @Override
             public void onConnected(@Nullable Bundle bundle) {
-                new mySQLDestinationProvider(_context, MenuActivity.this, "", mMap, mGoogleApiClient).execute();
-                mLocationRequest = new LocationRequest();
-                mLocationRequest.setInterval(0);
-                mLocationRequest.setFastestInterval(0);
-                mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+                new mySQLDestinationProvider(_context, MenuActivity.this, "", _map, _googleApiClient).execute();
+                _locationRequest = new LocationRequest();
+                _locationRequest.setInterval(0);
+                _locationRequest.setFastestInterval(0);
+                _locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
                 if (ContextCompat.checkSelfPermission(this,
                         android.Manifest.permission.ACCESS_FINE_LOCATION)
                         == PackageManager.PERMISSION_GRANTED) {
-                    LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+                    LocationServices.FusedLocationApi.requestLocationUpdates(_googleApiClient, _locationRequest, this);
                     LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
 
                 }
-//                try{
-//                    startGeofence();
-//                } catch (Exception e) {
-//                    // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
-//                    Log.e(TAG, e.getMessage());
-//                }
-
-
             }
             @Override
             public void onConnectionSuspended(int i) {
@@ -718,11 +590,11 @@ public class MenuActivity extends AppCompatActivity implements
                                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                                     == PackageManager.PERMISSION_GRANTED) {
 
-                                if (mGoogleApiClient == null) {
+                                if (_googleApiClient == null) {
                                     buildGoogleApiClient();
 
                                 }
-                                mMap.setMyLocationEnabled(true);
+                                _map.setMyLocationEnabled(true);
                             }
 
                         } else {
@@ -783,7 +655,7 @@ public class MenuActivity extends AppCompatActivity implements
                     // fragment.beginTransaction().replace(R.id.content_frame, new MapsActivity()).commit();
                     startActivity(new Intent(MenuActivity.this, MapsActivity.class));
                 } else if (id == R.id.nav_logout) {
-                    sessionManager.logoutUser();
+                    _sessionManager.logoutUser();
                     Intent i = new Intent(MenuActivity.this, LoginActivity.class);
 
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -878,15 +750,15 @@ public class MenuActivity extends AppCompatActivity implements
             private void drawGeofence(LatLng latLng) {
                 Log.d(TAG, "drawGeofence()");
 
-                if ( geoFenceLimits != null )
-                    geoFenceLimits.remove();
+                if ( _geofenceCircleLimits != null )
+                    _geofenceCircleLimits.remove();
 
                 CircleOptions circleOptions = new CircleOptions()
                         .center(latLng)
                         .strokeColor(Color.argb(50, 70,70,70))
                         .fillColor( Color.argb(100, 150,150,150) )
                         .radius( 200 );
-                geoFenceLimits = mMap.addCircle( circleOptions );
+                _geofenceCircleLimits = _map.addCircle( circleOptions );
             }
 
             // Create a marker for the geofence creation
@@ -898,12 +770,12 @@ public class MenuActivity extends AppCompatActivity implements
                         .position(latLng)
                         .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
                         .title(title);
-                if ( mMap!=null ) {
-                    // Remove last geoFenceMarker
-                    if (geoFenceMarker != null)
-                        geoFenceMarker.remove();
+                if ( _map !=null ) {
+                    // Remove last _geofenceMarker
+                    if (_geofenceMarker != null)
+                        _geofenceMarker.remove();
 
-                    geoFenceMarker = mMap.addMarker(markerOptions);
+                    _geofenceMarker = _map.addMarker(markerOptions);
                 }
             }
             // Start Geofence creation process
@@ -921,7 +793,7 @@ public class MenuActivity extends AppCompatActivity implements
                 try
                 {
                     LocationServices.GeofencingApi.addGeofences(
-                            mGoogleApiClient,
+                            _googleApiClient,
                             request,
                             createGeofencePendingIntent()
                     ).setResultCallback(new ResultCallback<Status>() {
@@ -959,40 +831,60 @@ public class MenuActivity extends AppCompatActivity implements
             private void passengerMovement(final String destinationValue, final String movement)
             {
                 final HashMap<String, Object> count = new HashMap<>();
-//                final DatabaseReference destinationDatabaseReference = userDatabase.getReference("destinations");
+//                final DatabaseReference destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
                 final HashMap<String, Object> hashmapCount = new HashMap<>();
-                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").runTransaction(new Transaction.Handler() {
+                final String uid = _sessionManager.getUsername();
+                _destinationDatabaseReference.child(destinationValue).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public Transaction.Result doTransaction(MutableData currentData) {
-                        if(currentData.getValue() == null) {
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot == null || dataSnapshot.getValue() == null)
+                        {
                             if(movement.toLowerCase().equals("entered"))
-                            {
-                                currentData.setValue(1);
-                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
-
-                            }
-
-
-                        } else {
-                            if(movement.toLowerCase().equals("entered"))
-                            {
-                                currentData.setValue((Long) currentData.getValue() + 1);
-                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
-                            }
-                            if(movement.toLowerCase().equals("exit"))
-                            {
-                                currentData.setValue((Long) currentData.getValue() - 1);
-                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),"");
-                            }
-
+                                _destinationDatabaseReference.child(destinationValue).child(uid).setValue(true);
                         }
-                        return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+                        else if(movement.toLowerCase().equals("exit")){
+                                _destinationDatabaseReference.child(destinationValue).child(uid).removeValue();
+                        }
                     }
+
                     @Override
-                    public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
-                        //This method will be called once with the results of the transaction.
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
+
+//                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").runTransaction(new Transaction.Handler() {
+//                    @Override
+//                    public Transaction.Result doTransaction(MutableData currentData) {
+//                        if(currentData.getValue() == null) {
+//                            if(movement.toLowerCase().equals("entered"))
+//                            {
+//                                currentData.setValue(1);
+//                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
+//
+//                            }
+//
+//
+//                        } else {
+//                            if(movement.toLowerCase().equals("entered"))
+//                            {
+//                                currentData.setValue((Long) currentData.getValue() + 1);
+//                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
+//                            }
+//                            if(movement.toLowerCase().equals("exit"))
+//                            {
+//                                currentData.setValue((Long) currentData.getValue() - 1);
+//                                new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),"");
+//                            }
+//
+//                        }
+//                        return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+//                    }
+//                    @Override
+//                    public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
+//                        //This method will be called once with the results of the transaction.
+//                    }
+//                });
 
 //                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger")
 //                        .addValueEventListener(new ValueEventListener() {
@@ -1007,7 +899,7 @@ public class MenuActivity extends AppCompatActivity implements
 //                                        _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").setValue(1);
 //                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
 //
-//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
+//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
 //
 //                                    }
 //
@@ -1021,7 +913,7 @@ public class MenuActivity extends AppCompatActivity implements
 //                                        hashmapCount.put("WaitingPassenger", count);
 //                                        _destinationDatabaseReference.child(destinationValue).updateChildren(hashmapCount);
 //                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
-//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),destinationValue);
+//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
 //                                    }
 //                                    if(movement.toLowerCase().equals("exit"))
 //                                    {
@@ -1029,7 +921,7 @@ public class MenuActivity extends AppCompatActivity implements
 //                                        hashmapCount.put("WaitingPassenger", count);
 //                                        _destinationDatabaseReference.child(destinationValue).updateChildren(hashmapCount);
 //                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
-//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(sessionManager.getUsername(),"");
+//                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),"");
 //                                    }
 //
 //                                }
@@ -1095,7 +987,7 @@ public class MenuActivity extends AppCompatActivity implements
         } else {
             RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
         }
-        
+
 
     }
 
@@ -1124,7 +1016,7 @@ public class MenuActivity extends AppCompatActivity implements
                 public void onReceive(Context context, Intent intent) {
                     String eventType = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_EVENT_TYPE);
                     String geofenceRequestId = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_GEOFENCEREQUESTID);
-                    for(Destination d:listDestinations)
+                    for(Destination d: _listDestinations)
                     {
                         if (d.GeofenceId.equals(geofenceRequestId))
                         {
@@ -1136,6 +1028,53 @@ public class MenuActivity extends AppCompatActivity implements
                 }
 
             }
+            private void initialiseOnlinePresence() {
+                // any time that connectionsRef's value is null, device is offline
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                final DatabaseReference myConnectionsRef = database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+
+                // stores the timestamp of last online
+                final DatabaseReference lastOnlineRef = database.getReference("/users/" + _sessionManager.getUsername()+ "/lastOnline");
+
+                final DatabaseReference connectedRef = database.getReference(".info/connected");
+                connectedRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = snapshot.getValue(Boolean.class);
+                        if (connected) {
+                            // when this device disconnects, remove it
+                            myConnectionsRef.onDisconnect().setValue(false);
+                            // update the last online timestamp
+                            lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+
+                            // add this device to connections list
+                            myConnectionsRef.setValue(true);
+
+                            final DatabaseReference destinationReference = database.getReference("destinations");
+                            destinationReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    for(DataSnapshot snapshot:dataSnapshot.getChildren())
+                                    {
+                                        destinationReference.child(snapshot.getKey().toString()).child(_sessionManager.getUsername()).onDisconnect().removeValue();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        System.err.println("Listener was cancelled at .info/connected");
+                    }
+                });
+            }
+
 
 
         }
