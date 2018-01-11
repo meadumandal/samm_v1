@@ -33,10 +33,11 @@ import retrofit.Call;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 
+import static com.example.samm_v1.MenuActivity.RoutePane;
 import static com.example.samm_v1.MenuActivity.RouteStepsText;
 import static com.example.samm_v1.MenuActivity.RouteTabLayout;
 import static com.example.samm_v1.MenuActivity.SlideUpPanelContainer;
-
+import static com.example.samm_v1.MenuActivity.StepsScroller;
 
 
 /**
@@ -55,13 +56,15 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     FragmentManager _supportFragmentManager;
     final String TAG = "mead";
     Polyline _line;
+    List<String> _AllSteps = new ArrayList<String>();
+    Destination _SelectedDestination;
 
     /**
      *This is the generic format in accessing data from mySQL
      * @param context
      * @param activity
      */
-    public AnalyzeForBestRoutes(Context context, Activity activity, GoogleMap map, LatLng currentLocation, FragmentManager supportFragmentManager, List<Destination> possibleTerminals)
+    public AnalyzeForBestRoutes(Context context, Activity activity, GoogleMap map, LatLng currentLocation, FragmentManager supportFragmentManager, List<Destination> possibleTerminals, Destination choseDestination)
     {
         this._context = context;
         this._activity = activity;
@@ -71,6 +74,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         progDialog.setMessage(progressMessage);
         this._currentLocation = currentLocation;
         this._possibleTerminals = possibleTerminals;
+        this._SelectedDestination = choseDestination;
 
     }
     @Override
@@ -219,16 +223,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
         try
         {
-
+            int ctr=0;
             for(Destination terminal: topTerminals)
             {
-                String TotalDistance = "";
-                String TotalTime = "";
+                String TotalTime ="";
                 List<String> DirectionSteps = new ArrayList<String>();
                 for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
-                    TotalDistance = terminal.directionsFromCurrentLocation.getRoutes().get(i).getLegs().get(i).getDistance().getText();
-                    TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(i).getLegs().get(i).getDuration().getText();
-//                                showDistanceDuration.setText("Distance:" + distance + ", Duration:" + time);
+                    TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
                     String encodedString = terminal.directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
                     drawLines(encodedString);
                 }
@@ -236,14 +237,15 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     String Instructions =  terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
                     DirectionSteps.add(Instructions);
                 }
-                createRouteTabs(TotalDistance, TotalTime, DirectionSteps);
+                createRouteTabs(TotalTime,DirectionSteps, _possibleTerminals, ctr);
+                ctr++;
 
             }
 
             progDialog.dismiss();
             //show route tabs and slide up panel ~
-
             RouteTabLayout.setVisibility(View.VISIBLE);
+            RoutePane.setVisibility(View.VISIBLE);
             SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
         catch(Exception e)
@@ -252,13 +254,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         }
 
     }
-    public void createRouteTabs(String TD, String TT, List<String> Steps){
+    public void createRouteTabs(String TT, List<String> Steps, List<Destination> terminals, int ctr){
         //For Route Tabs
         final TabLayout RouteTabs = (TabLayout) this._activity.findViewById(R.id.route_tablayout);
         RouteTabs.removeAllTabs();
-        RouteTabs.addTab(RouteTabs.newTab().setText(TT));
-        RouteTabs.addTab(RouteTabs.newTab().setText("Route 2"));
-        RouteTabs.addTab(RouteTabs.newTab().setText("Route 3"));
+        for (Destination entry:terminals) {
+            RouteTabs.addTab(RouteTabs.newTab().setText(entry.Description));
+        }
         RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
@@ -270,6 +272,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+                RouteStepsText.loadData(_AllSteps.get(tab.getPosition()), "text/html; charset=utf-8", "UTF-8");
+                SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                StepsScroller.scrollTo(0,0);
             }
 
             @Override
@@ -283,20 +288,17 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             }
         });
 
-        String _Steps = "";
+        String _Steps = "Approx: <b>" +TT+"</b></br>";
         for(int x=0; x < Steps.size(); x++){
             _Steps += (x+1)+". " + CleanDirectionStep(Steps.get(x))  + ". </br>";
+            if((x+1) == Steps.size()){
+                _Steps += (x+2)+". " +GenerateFinalStep(_SelectedDestination, terminals.get(ctr));
+            }
         }
+        _AllSteps.add(_Steps);
 
         RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
-        //Check version for HTML render compatibility
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
-        } else {
-            RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
-        }
-
-
+        RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
     }
 
     public String CleanDirectionStep(String str){
@@ -316,6 +318,10 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         }
 
         return str;
+    }
+    public String GenerateFinalStep(Destination end, Destination start){
+        int dist = end.OrderOfArrival - start.OrderOfArrival;
+        return "Alight after <b>" + dist + " stop"+(dist > 1 ? "s":"")+"</b>.</br>";
     }
 
 

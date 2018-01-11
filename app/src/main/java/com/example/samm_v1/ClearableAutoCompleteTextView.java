@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -25,7 +26,8 @@ public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
             et.setText("");
             MenuActivity.EditDestinationsPH.setVisibility(View.VISIBLE);
             MenuActivity.RouteTabLayout.setVisibility(View.GONE);
-            MenuActivity.SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+            MenuActivity.RoutePane.setVisibility(View.GONE);
+            MenuActivity.EditDestinationsPH.requestFocus();
         }
     };
 

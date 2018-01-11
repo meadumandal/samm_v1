@@ -41,6 +41,7 @@ import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -147,9 +148,7 @@ public class MenuActivity extends AppCompatActivity implements
             public static WebView RouteStepsText;
             public static ImageView Slide_Expand;
             public static ImageView Slide_Collapse;
-
-
-
+            public static ScrollView StepsScroller;
 
 
             public boolean checkLocationPermission()
@@ -217,6 +216,7 @@ public class MenuActivity extends AppCompatActivity implements
                 RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
                 Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
                 Slide_Expand = (ImageView) findViewById(R.id.ev_panel_expand);
+                StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
 
                 EditDestinationsPH.setOnClickListener(new View.OnClickListener(){
                     @Override
@@ -266,18 +266,18 @@ public class MenuActivity extends AppCompatActivity implements
                                     _candidateTerminals.add(destination);
                             }
                         }
-                        new AnalyzeForBestRoutes(_context, MenuActivity.this,_map, _currentLocation, getSupportFragmentManager(), _candidateTerminals).execute();
+                        new AnalyzeForBestRoutes(_context, MenuActivity.this,_map, _currentLocation, getSupportFragmentManager(), _candidateTerminals, chosenDestination).execute();
                     }
                 });
 
-                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
-                    }
-                });
+//                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//                fab.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                                .setAction("Action", null).show();
+//                    }
+//                });
 
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                 ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

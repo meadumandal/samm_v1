@@ -36,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:clickable="true"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:id="@+id/route_content">
             <include
                 layout="@layout/activity_slide_panel_01"
