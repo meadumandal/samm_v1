@@ -133,7 +133,9 @@ public class MenuActivity extends AppCompatActivity implements
             private Marker _geofenceMarker;
             public List<Destination> _listDestinations;
             HashMap _hashmapMarkerMap = new HashMap();
+            HashMap _driverMarkers = new HashMap();
             MyBroadcastReceiver _broadcastReceiver;
+            DatabaseReference _driverDatabaseReference;
 
             protected static final String TAG = "mead";
             public static float RADIUS = 50;
@@ -201,14 +203,18 @@ public class MenuActivity extends AppCompatActivity implements
 
 
 
+
+
                 if(_firebaseDatabase == null && _userDatabaseReference ==null)
                 {
                     _firebaseDatabase = FirebaseDatabase.getInstance();
                     _userDatabaseReference = _firebaseDatabase.getReference("users");
                     _destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
                 }
+                if(_driverDatabaseReference == null)
+                    _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
 
-                //Instantiate ~
+                    //Instantiate ~
                 EditDestinationsPH = (AutoCompleteTextView) findViewById(R.id.edit_destinationsPH);
                 final ClearableAutoCompleteTextView editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
                 RoutePane = (LinearLayout) findViewById(R.id.route_content);
@@ -339,6 +345,72 @@ public class MenuActivity extends AppCompatActivity implements
                                 _hashmapMarkerMap.put(username, marker);
                             }
                         }
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        String test = databaseError.getMessage();
+
+                    }
+                });
+
+                _driverDatabaseReference.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        try
+                        {
+                            String deviceId = dataSnapshot.getKey();
+
+                            Marker marker;
+                            marker = (Marker) _driverMarkers.get(deviceId);
+                            if(marker !=null)
+                            {
+                                marker.remove();
+                                _driverMarkers.remove(deviceId);
+                            }
+                            Object Latitude = dataSnapshot.child("Lat").getValue();
+                            Object Longitude = dataSnapshot.child("Lng").getValue();
+                            double lat, lng;
+                            if(Latitude == null || Latitude.toString().equals("0"))
+                                lat = 0.0;
+                            else
+                                lat = Double.parseDouble(Latitude.toString());
+                            if(Longitude == null || Longitude.toString().equals("0"))
+                                lng = 0.0;
+                            else
+                                lng = Double.parseDouble(Longitude.toString());
+
+                            LatLng latLng = new LatLng(lat, lng);
+                            if (_map !=null)
+                            {
+                                MarkerOptions markerOptions = new MarkerOptions();
+                                markerOptions.position(latLng);
+                                markerOptions.title(deviceId);
+                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bus));
+                                marker = _map.addMarker(markerOptions);
+                                marker.showInfoWindow();
+                                _driverMarkers.put(deviceId, marker);
+                            }
+                        }
+                        catch(Exception ex)
+                        {
+                            Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+
                     }
 
                     @Override
@@ -901,7 +973,7 @@ public class MenuActivity extends AppCompatActivity implements
 //
 //                                        new mySQLUpdatePassengerMovement(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
 //
-//                                    }
+//                                    }'
 //
 //                                }
 //                                else

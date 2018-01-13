@@ -54,10 +54,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     LatLng _currentLocation;
     List<Destination> _possibleTerminals;
     FragmentManager _supportFragmentManager;
+    List<Destination> _topTerminals;
     final String TAG = "mead";
     Polyline _line;
     List<String> _AllSteps = new ArrayList<String>();
     Destination _SelectedDestination;
+    List<Polyline> polyLines = new ArrayList<>();
 
     /**
      *This is the generic format in accessing data from mySQL
@@ -162,6 +164,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 returnValues.put("Message", e.getMessage());
                 return null;
             }
+            _topTerminals = topTerminals;
             return topTerminals;
 
         }
@@ -214,7 +217,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 .width(5f)
                 .color(Color.RED)
                 .geodesic(true)
+
         );
+        polyLines.add(_line);
+    }
+    private void clearLines()
+    {
+        if(_line!=null)
+            _line.remove();
     }
     @Override
     protected void onPostExecute(List<Destination> topTerminals)
@@ -224,29 +234,42 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         try
         {
             int ctr=0;
-            for(Destination terminal: topTerminals)
+            if(topTerminals.size()>0)
             {
-                String TotalTime ="";
-                List<String> DirectionSteps = new ArrayList<String>();
-                for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
-                    TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                    String encodedString = terminal.directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
-                    drawLines(encodedString);
-                }
-                for(int x = 0; x<terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++){
-                    String Instructions =  terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
-                    DirectionSteps.add(Instructions);
-                }
-                createRouteTabs(TotalTime,DirectionSteps, _possibleTerminals, ctr);
-                ctr++;
+                for(Destination terminal: topTerminals)
+                {
+                    String TotalTime ="";
+                    List<String> DirectionSteps = new ArrayList<String>();
+                    for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
+                        TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
 
+
+                    }
+                    for(int x = 0; x<terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++){
+                        String Instructions =  terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
+                        DirectionSteps.add(Instructions);
+                    }
+                    createRouteTabs(TotalTime,DirectionSteps, _possibleTerminals, ctr);
+                    ctr++;
+
+                }
+
+
+                //show route tabs and slide up panel ~
+                RouteTabLayout.setVisibility(View.VISIBLE);
+                RoutePane.setVisibility(View.VISIBLE);
+                RouteStepsText.loadData(_AllSteps.get(0), "text/html; charset=utf-8", "UTF-8");
+                clearLines();
+                String encodedString = topTerminals.get(0).directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
+                drawLines(encodedString);
+                SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            }
+            else
+            {
+                progDialog.dismiss();
+                Toast.makeText(this._context, "Sorry. We can't find a route for your destination.", Toast.LENGTH_LONG).show();
             }
 
-            progDialog.dismiss();
-            //show route tabs and slide up panel ~
-            RouteTabLayout.setVisibility(View.VISIBLE);
-            RoutePane.setVisibility(View.VISIBLE);
-            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
         catch(Exception e)
         {
@@ -273,6 +296,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
                 RouteStepsText.loadData(_AllSteps.get(tab.getPosition()), "text/html; charset=utf-8", "UTF-8");
+                clearLines();
+                String encodedString = _topTerminals.get(tab.getPosition()).directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
+                drawLines(encodedString);
                 SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                 StepsScroller.scrollTo(0,0);
             }
