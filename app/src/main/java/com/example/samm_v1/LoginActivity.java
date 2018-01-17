@@ -1,17 +1,22 @@
 package com.example.samm_v1;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Patterns;
+import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.samm_v1.EntityObjects.Destination;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -23,7 +28,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-public class LoginActivity extends AppCompatActivity {
+import java.util.List;
+
+public class LoginActivity extends AppCompatActivity{
 
     private EditText usernameField, passwordField;
     private Button btn_SignIn;
@@ -31,83 +38,80 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseDatabase userDatabase;
     private DatabaseReference userDatabaseRef;
-
     SessionManager sessionManager;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-        if(userDatabase == null && userDatabaseRef == null)
-        {
-            userDatabase = FirebaseDatabase.getInstance();
-        }
-        if(sessionManager==null)
-            sessionManager = new SessionManager(getApplicationContext());
-
-        if(auth == null)
-            auth = FirebaseAuth.getInstance();
-        usernameField = (EditText) findViewById(R.id.username);
-        passwordField = (EditText) findViewById(R.id.password);
-        btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-
-
-        if(sessionManager.isLoggedIn())
-        {
-             startActivity(new Intent(LoginActivity.this, MenuActivity.class ));
-             finish();
-        }
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-
-        btn_SignIn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                progressBar.setVisibility(View.VISIBLE);
-                final String username  = usernameField.getText().toString();
-                final String password = passwordField.getText().toString();
-                if(username.trim().isEmpty() || password.trim().isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.VISIBLE);
-                }
-                else
-                {
-                    if(Patterns.EMAIL_ADDRESS.matcher(username).matches())
-                    {
-                        signIn(username, password);
-                    }
-                    else
-                    {
-//                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
-                        userDatabaseRef = userDatabase.getReference();
-                        userDatabaseRef.child("users").child(username)
-                                .addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        if(dataSnapshot!=null)
-                                        {
-                                            String emailAddress = dataSnapshot.child("emailAddress").getValue().toString();
-                                            signIn(emailAddress, password);
-                                        }
-                                        else
-                                        {
-                                            Toast.makeText(getApplicationContext(), getString(R.string.error_username_not_exist), Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-//                    userDatabaseRef.  child("users").child(username).child("firstName").setValue("test");
-                    }
-                }
-
+        setTheme(R.style.SplashTheme);
+            super.onCreate(savedInstanceState);
+        if(MenuActivity.isOnline()) {
+            setContentView(R.layout.activity_login);
+            if (userDatabase == null && userDatabaseRef == null) {
+                userDatabase = FirebaseDatabase.getInstance();
             }
-        });
+            if (sessionManager == null)
+                sessionManager = new SessionManager(getApplicationContext());
+
+            if (auth == null)
+                auth = FirebaseAuth.getInstance();
+            usernameField = (EditText) findViewById(R.id.username);
+            passwordField = (EditText) findViewById(R.id.password);
+            btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
+            progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+
+            if (sessionManager.isLoggedIn()) {
+                startActivity(new Intent(LoginActivity.this, MenuActivity.class));
+                finish();
+            }
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+
+
+            btn_SignIn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    progressBar.setVisibility(View.VISIBLE);
+                    final String username = usernameField.getText().toString();
+                    final String password = passwordField.getText().toString();
+                    if (username.trim().isEmpty() || password.trim().isEmpty()) {
+                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.VISIBLE);
+                    } else {
+                        if (Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+                            signIn(username, password);
+                        } else {
+//                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
+                            userDatabaseRef = userDatabase.getReference();
+                            userDatabaseRef.child("users").child(username)
+                                    .addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            if (dataSnapshot != null) {
+                                                String emailAddress = dataSnapshot.child("emailAddress").getValue().toString();
+                                                signIn(emailAddress, password);
+                                            } else {
+                                                Toast.makeText(getApplicationContext(), getString(R.string.error_username_not_exist), Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+//                    userDatabaseRef.  child("users").child(username).child("firstName").setValue("test");
+                        }
+                    }
+
+                }
+            });
+        }
+        else{
+            MenuActivity.HideNetCheckerDialog(getApplicationContext());
+        }
     }
     private void signIn(final String email, String password)
     {
@@ -183,6 +187,7 @@ public class LoginActivity extends AppCompatActivity {
 ////        Intent menu = new Intent(LoginActivity.this, MenuActivity.class);
 ////      startActivity(menu);
 //    }
+
 
     public void SignUp(View v)
     {

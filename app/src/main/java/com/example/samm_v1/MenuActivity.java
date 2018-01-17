@@ -1,5 +1,6 @@
 package com.example.samm_v1;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -9,9 +10,13 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -84,7 +89,10 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -110,6 +118,7 @@ public class MenuActivity extends AppCompatActivity implements
         Route1.OnFragmentInteractionListener,
         Route2.OnFragmentInteractionListener,
         Route3.OnFragmentInteractionListener,
+        Html.ImageGetter,
         LocationListener {
             GoogleApiClient _googleApiClient;
             Marker _currentLocationMarker;
@@ -136,6 +145,10 @@ public class MenuActivity extends AppCompatActivity implements
             HashMap _driverMarkers = new HashMap();
             MyBroadcastReceiver _broadcastReceiver;
             DatabaseReference _driverDatabaseReference;
+            public static LevelListDrawable d = new LevelListDrawable();
+            public  static Destination _ChosenDestination;
+    Marker _marker;
+
 
             protected static final String TAG = "mead";
             public static float RADIUS = 50;
@@ -151,6 +164,10 @@ public class MenuActivity extends AppCompatActivity implements
             public static ImageView Slide_Expand;
             public static ImageView Slide_Collapse;
             public static ScrollView StepsScroller;
+            public static ClearableAutoCompleteTextView editDestinations;
+            public  static ProgressDialog CheckNetDialog;
+            public  static View MainView;
+    public static TextView TimeOfArrivalTextView;
 
 
             public boolean checkLocationPermission()
@@ -174,107 +191,101 @@ public class MenuActivity extends AppCompatActivity implements
             }
 
 
+    public static void HideNetCheckerDialog(Context context) {
+        Toast ifx = Toast.makeText(context, "Unable to connect to server!", Toast.LENGTH_SHORT);
+    }
+
             @Override
             protected void onCreate(Bundle savedInstanceState) {
-                Log.i(TAG, "onCreate");
-                _markerPoints = new ArrayList<>();
-                _helper = new Helper();
-                _context = getApplicationContext();
-                _geoFenceList = new ArrayList<>();
+                setTheme(R.style.SplashTheme);
+                if (isOnline()) {
+                    Log.i(TAG, "onCreate");
+                    _markerPoints = new ArrayList<>();
+                    _helper = new Helper();
+                    _context = getApplicationContext();
+                    _geoFenceList = new ArrayList<>();
 
 
-                displayLocationSettingsRequest(_context);
-                super.onCreate(savedInstanceState);
-                _isFirstLoad = true;
-                if(_sessionManager ==null)
-                    _sessionManager = new SessionManager(_context);
-                if(!_sessionManager.isLoggedIn())
-                {
-                    _sessionManager.logoutUser();
-                    Intent i = new Intent(MenuActivity.this, LoginActivity.class);
-                    finish();
-                    startActivity(i);
-                }
-                setContentView(R.layout.activity_menu);
-                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                setSupportActionBar(toolbar);
-                toolbar.setTitle("SAMM");
+                    displayLocationSettingsRequest(_context);
+                    super.onCreate(savedInstanceState);
+                    _isFirstLoad = true;
+                    if (_sessionManager == null)
+                        _sessionManager = new SessionManager(_context);
+                    if (!_sessionManager.isLoggedIn()) {
+                        _sessionManager.logoutUser();
+                        Intent i = new Intent(MenuActivity.this, LoginActivity.class);
+                        finish();
+                        startActivity(i);
+                    }
+                    setContentView(R.layout.activity_menu);
+                    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                    setSupportActionBar(toolbar);
+                    toolbar.setTitle("SAMM");
 
-
-
-
-
-
-                if(_firebaseDatabase == null && _userDatabaseReference ==null)
-                {
-                    _firebaseDatabase = FirebaseDatabase.getInstance();
-                    _userDatabaseReference = _firebaseDatabase.getReference("users");
-                    _destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
-                }
-                if(_driverDatabaseReference == null)
-                    _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
+                    if (_firebaseDatabase == null && _userDatabaseReference == null) {
+                        _firebaseDatabase = FirebaseDatabase.getInstance();
+                        _userDatabaseReference = _firebaseDatabase.getReference("users");
+                        _destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
+                    }
+                    if (_driverDatabaseReference == null)
+                        _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
 
                     //Instantiate ~
-                EditDestinationsPH = (AutoCompleteTextView) findViewById(R.id.edit_destinationsPH);
-                final ClearableAutoCompleteTextView editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
-                RoutePane = (LinearLayout) findViewById(R.id.route_content);
-                SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-                RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
-                Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
-                Slide_Expand = (ImageView) findViewById(R.id.ev_panel_expand);
-                StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
+                    editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
+                    RoutePane = (LinearLayout) findViewById(R.id.route_content);
+                    SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+                    RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
+                    Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
+                    Slide_Expand = (ImageView) findViewById(R.id.ev_panel_expand);
+                    StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
+                    TimeOfArrivalTextView = (TextView) findViewById(R.id.toatextview);
 
-                EditDestinationsPH.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        EditDestinationsPH.setVisibility(View.GONE);
-                        editDestinations.setVisibility(View.VISIBLE);
+                    SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+                        @Override
+                        public void onPanelSlide(View panel, float slideOffset) {
 
-                    }
-                });
-
-                SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-                    @Override
-                    public void onPanelSlide(View panel, float slideOffset) {
-
-                    }
-
-                    @Override
-                    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                        if(previousState == SlidingUpPanelLayout.PanelState.EXPANDED){
-                            Slide_Expand.setVisibility(View.GONE);
-                            Slide_Collapse.setVisibility(View.VISIBLE);
                         }
-                        if(previousState == SlidingUpPanelLayout.PanelState.COLLAPSED){
-                            Slide_Expand.setVisibility(View.VISIBLE);
-                            Slide_Collapse.setVisibility(View.GONE);
-                        }
-                    }
-                });
 
-                editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                        //hide keyboard on search ~
-                        InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        mgr.hideSoftInputFromWindow(editDestinations.getWindowToken(),0);
-
-                        Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
-                        saveDestination(chosenDestination.Value);
-
-                        _candidateTerminals = new ArrayList<>();
-                        for(Destination destination: _listDestinations)
-                        {
-                            if (destination.Direction.equals(chosenDestination.Direction))
-                            {
-                                if(destination.OrderOfArrival < chosenDestination.OrderOfArrival)
-                                    _candidateTerminals.add(destination);
+                        @Override
+                        public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                            if (previousState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+                                Slide_Expand.setVisibility(View.GONE);
+                                Slide_Collapse.setVisibility(View.VISIBLE);
+                            }
+                            if (previousState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+                                Slide_Expand.setVisibility(View.VISIBLE);
+                                Slide_Collapse.setVisibility(View.GONE);
                             }
                         }
-                        new AnalyzeForBestRoutes(_context, MenuActivity.this,_map, _currentLocation, getSupportFragmentManager(), _candidateTerminals, chosenDestination).execute();
-                    }
-                });
+                    });
+                    editDestinations.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            editDestinations.showDropDown();
+                        }
+                    });
+                    editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                            //hide keyboard on search ~
+                            InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            mgr.hideSoftInputFromWindow(editDestinations.getWindowToken(), 0);
+
+                            Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
+                            _ChosenDestination = chosenDestination;
+                            saveDestination(chosenDestination.Value);
+
+                            _candidateTerminals = new ArrayList<>();
+                            for (Destination destination : _listDestinations) {
+                                if (destination.Direction.equals(chosenDestination.Direction)) {
+                                    if (destination.OrderOfArrival < chosenDestination.OrderOfArrival)
+                                        _candidateTerminals.add(destination);
+                                }
+                            }
+                            new AnalyzeForBestRoutes(_context, MenuActivity.this, _map, _currentLocation, getSupportFragmentManager(), _candidateTerminals, chosenDestination).execute();
+                        }
+                    });
 
 //                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //                fab.setOnClickListener(new View.OnClickListener() {
@@ -285,159 +296,163 @@ public class MenuActivity extends AppCompatActivity implements
 //                    }
 //                });
 
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-                drawer.setDrawerListener(toggle);
-                toggle.syncState();
+                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                    drawer.setDrawerListener(toggle);
+                    toggle.getDrawerArrowDrawable().setColor(getColor(R.color.colorWhite));
+                    toggle.syncState();
 
-                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-                navigationView.setNavigationItemSelectedListener(this);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                {
-                    checkLocationPermission();
+                    NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                    navigationView.setNavigationItemSelectedListener(this);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        checkLocationPermission();
+                    }
+
+                    // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                            .findFragmentById(map);
+                    mapFragment.getMapAsync(this);
+
+
+                    _userDatabaseReference.addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        }
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            String username = dataSnapshot.child("username").getValue().toString();
+                            if (!username.equals(_sessionManager.getUsername())) {
+                                Marker marker;
+                                marker = (Marker) _hashmapMarkerMap.get(username);
+                                if (marker != null) {
+                                    marker.remove();
+                                    _hashmapMarkerMap.remove(username);
+                                }
+                                Object Latitude = dataSnapshot.child("Latitude").getValue();
+                                Object Longitude = dataSnapshot.child("Longitude").getValue();
+                                double lat, lng;
+                                if (Latitude == null || Latitude.toString().equals("0"))
+                                    lat = 0.0;
+                                else
+                                    lat = (double) Latitude;
+                                if (Longitude == null || Longitude.toString().equals("0"))
+                                    lng = 0.0;
+                                else
+                                    lng = (double) Longitude;
+
+                                LatLng latLng = new LatLng(lat, lng);
+                                if (_map != null) {
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(latLng);
+                                    markerOptions.title(username);
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                                    marker = _map.addMarker(markerOptions);
+                                    marker.showInfoWindow();
+                                    _hashmapMarkerMap.put(username, marker);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            String test = databaseError.getMessage();
+
+                        }
+                    });
+
+                    _driverDatabaseReference.addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        }
+
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                            try {
+                                String deviceId = dataSnapshot.getKey();
+
+                                Marker marker;
+                                marker = (Marker) _driverMarkers.get(deviceId);
+                                if (marker != null) {
+                                    marker.remove();
+                                    _driverMarkers.remove(deviceId);
+                                }
+                                Object Latitude = dataSnapshot.child("Lat").getValue();
+                                Object Longitude = dataSnapshot.child("Lng").getValue();
+                                double lat, lng;
+                                if (Latitude == null || Latitude.toString().equals("0"))
+                                    lat = 0.0;
+                                else
+                                    lat = Double.parseDouble(Latitude.toString());
+                                if (Longitude == null || Longitude.toString().equals("0"))
+                                    lng = 0.0;
+                                else
+                                    lng = Double.parseDouble(Longitude.toString());
+
+                                LatLng latLng = new LatLng(lat, lng);
+                                if (_map != null) {
+                                    if(_ChosenDestination==null){
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.position(latLng);
+                                        markerOptions.title(deviceId);
+                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bus));
+                                    marker = _map.addMarker(markerOptions);
+                                    marker.showInfoWindow();
+                                    _driverMarkers.put(deviceId, marker);
+                                    }
+                                    else{
+                                        ShowLoopTimeofArrival(latLng, deviceId);
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+
+                        }
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                        }
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            String test = databaseError.getMessage();
+
+                        }
+                    });
+
+                    _broadcastReceiver = new MyBroadcastReceiver();
+
+                    //register BroadcastReceiver
+                    IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
+                    intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+
+                    registerReceiver(_broadcastReceiver, intentFilter);
+                    initialiseOnlinePresence();
+                }
+                else{
+                    HideNetCheckerDialog(getApplicationContext());
+                    //Snackbar.make(findViewById(R.id.content), "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                 }
 
-                // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(map);
-                mapFragment.getMapAsync(this);
 
-
-                _userDatabaseReference.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                        String username = dataSnapshot.child("username").getValue().toString();
-                        if (!username.equals(_sessionManager.getUsername()))
-                        {
-                            Marker marker;
-                            marker = (Marker) _hashmapMarkerMap.get(username);
-                            if(marker !=null)
-                            {
-                                marker.remove();
-                                    _hashmapMarkerMap.remove(username);
-                            }
-                            Object Latitude = dataSnapshot.child("Latitude").getValue();
-                            Object Longitude = dataSnapshot.child("Longitude").getValue();
-                            double lat, lng;
-                            if(Latitude == null || Latitude.toString().equals("0"))
-                                lat = 0.0;
-                            else
-                                lat = (double) Latitude;
-                            if(Longitude == null || Longitude.toString().equals("0"))
-                                lng = 0.0;
-                            else
-                                lng = (double) Longitude;
-
-                            LatLng latLng = new LatLng(lat, lng);
-                            if (_map !=null)
-                            {
-                                MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.position(latLng);
-                                markerOptions.title(username);
-                                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                                marker = _map.addMarker(markerOptions);
-                                marker.showInfoWindow();
-                                _hashmapMarkerMap.put(username, marker);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        String test = databaseError.getMessage();
-
-                    }
-                });
-
-                _driverDatabaseReference.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                    }
-
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                        try
-                        {
-                            String deviceId = dataSnapshot.getKey();
-
-                            Marker marker;
-                            marker = (Marker) _driverMarkers.get(deviceId);
-                            if(marker !=null)
-                            {
-                                marker.remove();
-                                _driverMarkers.remove(deviceId);
-                            }
-                            Object Latitude = dataSnapshot.child("Lat").getValue();
-                            Object Longitude = dataSnapshot.child("Lng").getValue();
-                            double lat, lng;
-                            if(Latitude == null || Latitude.toString().equals("0"))
-                                lat = 0.0;
-                            else
-                                lat = Double.parseDouble(Latitude.toString());
-                            if(Longitude == null || Longitude.toString().equals("0"))
-                                lng = 0.0;
-                            else
-                                lng = Double.parseDouble(Longitude.toString());
-
-                            LatLng latLng = new LatLng(lat, lng);
-                            if (_map !=null)
-                            {
-                                MarkerOptions markerOptions = new MarkerOptions();
-                                markerOptions.position(latLng);
-                                markerOptions.title(deviceId);
-                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bus));
-                                marker = _map.addMarker(markerOptions);
-                                marker.showInfoWindow();
-                                _driverMarkers.put(deviceId, marker);
-                            }
-                        }
-                        catch(Exception ex)
-                        {
-                            Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG).show();
-                        }
-
-                    }
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-                    }
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        String test = databaseError.getMessage();
-
-                    }
-                });
-
-                _broadcastReceiver = new MyBroadcastReceiver();
-
-                //register BroadcastReceiver
-                IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
-                intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-
-                registerReceiver(_broadcastReceiver, intentFilter);
-                initialiseOnlinePresence();
             }
 
             @Override
@@ -1015,72 +1030,88 @@ public class MenuActivity extends AppCompatActivity implements
     public void onFragmentInteraction(Uri uri) {
 
     }
+    @Override
+    public Drawable getDrawable(String arg0) {
+        int id = 0;
+        //string = d
 
-    public void createRouteTabs(String TD, String TT, List<String> Steps){
-        //For Route Tabs
-        final TabLayout RouteTabs = (TabLayout) findViewById(R.id.route_tablayout);
-        RouteTabs.removeAllTabs();
-        RouteTabs.addTab(RouteTabs.newTab().setText(TT));
-        RouteTabs.addTab(RouteTabs.newTab().setText("Route 2"));
-        RouteTabs.addTab(RouteTabs.newTab().setText("Route 3"));
-        RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
-
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
-        final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), RouteTabs.getTabCount());
-        viewPager.setAdapter(adapter);
-        viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
-
-        RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-        String _Steps = "";
-        for(int x=0; x < Steps.size(); x++){
-            _Steps += (x+1)+". " + CleanDirectionStep(Steps.get(x))  + ". </br>";
+        if(arg0.equals("ic_walking.png")){
+            id = R.drawable.ic_walking;
         }
 
-        RouteStepsText = (WebView) findViewById(R.id.route_steps);
-        //Check version for HTML render compatibility
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
-        } else {
-            RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
-        }
+        Drawable empty = getResources().getDrawable(id);
+        d.addLevel(0, 0, empty);
+        d.setBounds(0, 0, empty.getIntrinsicWidth(), empty.getIntrinsicHeight());
 
+        return d;
+    }
+
+
+    public static boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        }
+        catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
+    }
+
+    public void ShowLoopTimeofArrival(final LatLng Looploc, final String deviceid) {
+        try {
+            if (_ChosenDestination != null) {
+                HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
+                String url = "https://maps.googleapis.com/maps/";
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(url)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                RetrofitMaps service = retrofit.create(RetrofitMaps.class);
+                Call<Directions> call = service.getDistanceDuration("metric", _ChosenDestination.Lat + "," + _ChosenDestination.Lng, Looploc.latitude + "," + Looploc.longitude, "driving");
+                call.enqueue(new Callback<Directions>() {
+                    @Override
+                    public void onResponse(Response<Directions> response, Retrofit retrofit) {
+                        try {
+                            for (int i = 0; i < response.body().getRoutes().size(); i++) {
+                                if(_map!=null) {
+                                    String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
+                                    MarkerOptions markerOpt = new MarkerOptions();
+                                    LatLng latLng = new LatLng(Looploc.latitude, Looploc.longitude);
+                                    markerOpt.position(latLng);
+                                    markerOpt.title(TimeofArrival);
+                                    markerOpt.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bus));
+                                    if(_marker==null){
+                                    _marker = _map.addMarker(markerOpt);
+                                    }
+                                    _marker.showInfoWindow();
+                                    _marker.setPosition(latLng);
+                                    TimeOfArrivalTextView.setText(deviceid + " - " + TimeofArrival.toString());
+                                }
+                            }
+                            //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
+                        } catch (Exception e) {
+                            Log.d("onResponse", "There is an error");
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.d("onFailure", t.toString());
+                    }
+                });
+                //return _ChosenDestination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
+            }
+            } catch(Exception ex){
+                Toast.makeText(MenuActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
+            }
 
     }
 
-    public String CleanDirectionStep(String str){
-        if(str!=null){
-            if(str.contains("onto"))
-            {
-                str = str.replace("onto","on to");
-            }
-            if(str.contains("<div style=\"font-size:0.9em\">"))
-            {
-                str = str.replace("<div style=\"font-size:0.9em\">"," ");
-            }
-            if(str.contains("</div>"))
-            {
-                str = str.replace("</div>","");
-            }
-        }
 
-        return str;
-    }
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
 

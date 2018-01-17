@@ -5,13 +5,20 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LevelListDrawable;
 import android.os.AsyncTask;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
+import android.text.Html.ImageGetter;
+import android.text.Spanned;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
@@ -38,6 +45,7 @@ import static com.example.samm_v1.MenuActivity.RouteStepsText;
 import static com.example.samm_v1.MenuActivity.RouteTabLayout;
 import static com.example.samm_v1.MenuActivity.SlideUpPanelContainer;
 import static com.example.samm_v1.MenuActivity.StepsScroller;
+import static com.example.samm_v1.MenuActivity.TimeOfArrivalTextView;
 
 
 /**
@@ -54,13 +62,15 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     LatLng _currentLocation;
     List<Destination> _possibleTerminals;
     FragmentManager _supportFragmentManager;
-    List<Destination> _topTerminals;
     final String TAG = "mead";
-    Polyline _line;
+    public  static Polyline _line;
     List<String> _AllSteps = new ArrayList<String>();
     Destination _SelectedDestination;
-    List<Polyline> polyLines = new ArrayList<>();
-
+    List<String> _AllPoints = new ArrayList<String>();
+    List<Polyline> _AllPoly = new ArrayList<Polyline>();
+    List<String> _AllTotalTime = new ArrayList<String>();
+    List<List<String>> _AllDirectionsSteps = new ArrayList<List<String>>();
+    List<List<String>> _AllTerminalPoints = new ArrayList<List<String>>();
     /**
      *This is the generic format in accessing data from mySQL
      * @param context
@@ -164,7 +174,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 returnValues.put("Message", e.getMessage());
                 return null;
             }
-            _topTerminals = topTerminals;
             return topTerminals;
 
         }
@@ -209,6 +218,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
         return poly;
     }
+    public static void clearLines()
+    {
+        if(_line!=null)
+            _line.remove();
+    }
     private void drawLines(String points)
     {
         List<LatLng> list = decodePoly(points);
@@ -217,15 +231,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 .width(5f)
                 .color(Color.RED)
                 .geodesic(true)
-
         );
-        polyLines.add(_line);
     }
-    private void clearLines()
-    {
-        if(_line!=null)
-            _line.remove();
-    }
+
+
+
+
     @Override
     protected void onPostExecute(List<Destination> topTerminals)
     {
@@ -234,42 +245,34 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         try
         {
             int ctr=0;
-            if(topTerminals.size()>0)
+            if (_line!=null){
+                _line.setVisible(false);
+            }
+            for(Destination terminal: topTerminals)
             {
-                for(Destination terminal: topTerminals)
-                {
-                    String TotalTime ="";
-                    List<String> DirectionSteps = new ArrayList<String>();
-                    for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
-                        TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
-
-
-                    }
-                    for(int x = 0; x<terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++){
-                        String Instructions =  terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
-                        DirectionSteps.add(Instructions);
-                    }
-                    createRouteTabs(TotalTime,DirectionSteps, _possibleTerminals, ctr);
-                    ctr++;
-
+                String TotalTime ="";
+                List<String> DirectionSteps = new ArrayList<String>();
+                for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
+                    TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
+                    String encodedString = terminal.directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
+                    //drawLines(encodedString);
+                    _AllPoints.add(encodedString);
+                    _AllTotalTime.add(TotalTime);
                 }
-
-
-                //show route tabs and slide up panel ~
-                RouteTabLayout.setVisibility(View.VISIBLE);
-                RoutePane.setVisibility(View.VISIBLE);
-                RouteStepsText.loadData(_AllSteps.get(0), "text/html; charset=utf-8", "UTF-8");
-                clearLines();
-                String encodedString = topTerminals.get(0).directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
-                drawLines(encodedString);
-                SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                for(int x = 0; x<terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++){
+                    String Instructions =  terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
+                    DirectionSteps.add(Instructions);
+                }
+                _AllTerminalPoints.add(_AllPoints);
+                _AllDirectionsSteps.add(DirectionSteps);
+                ctr++;
             }
-            else
-            {
-                progDialog.dismiss();
-                Toast.makeText(this._context, "Sorry. We can't find a route for your destination.", Toast.LENGTH_LONG).show();
-            }
-
+            createRouteTabs(_AllTotalTime,_AllDirectionsSteps, _possibleTerminals, _AllTerminalPoints, ctr);
+            progDialog.dismiss();
+            //show route tabs and slide up panel ~
+            RouteTabLayout.setVisibility(View.VISIBLE);
+            RoutePane.setVisibility(View.VISIBLE);
+            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         }
         catch(Exception e)
         {
@@ -277,56 +280,74 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         }
 
     }
-    public void createRouteTabs(String TT, List<String> Steps, List<Destination> terminals, int ctr){
+    public void createRouteTabs(final List<String> TotalTimeList, final List<List<String>> DirectionStepsList, final List<Destination> AllPossibleTerminals,final List<List<String>> TerminalPointsList, final int ctr){
         //For Route Tabs
-        final TabLayout RouteTabs = (TabLayout) this._activity.findViewById(R.id.route_tablayout);
-        RouteTabs.removeAllTabs();
-        for (Destination entry:terminals) {
-            RouteTabs.addTab(RouteTabs.newTab().setText(entry.Description));
+        try{
+            if(AllPossibleTerminals.size() == 0 || AllPossibleTerminals == null)
+                throw new Exception("Unable to find route for this destination.");
+            final TabLayout RouteTabs = (TabLayout) this._activity.findViewById(R.id.route_tablayout);
+            RouteTabs.removeAllTabs();
+            for (Destination entry:AllPossibleTerminals) {
+                RouteTabs.addTab(RouteTabs.newTab().setText(entry.Description));
+            }
+            RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
+
+            final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
+            final PagerAdapter adapter = new PagerAdapter(_supportFragmentManager, RouteTabs.getTabCount());
+            viewPager.setAdapter(adapter);
+            viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
+
+            RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    viewPager.setCurrentItem(tab.getPosition());
+                    RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
+                    SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    MenuActivity._ChosenDestination = AllPossibleTerminals.get(tab.getPosition());
+                    StepsScroller.scrollTo(0,0);
+                    clearLines();
+                    drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
+
+            TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+            RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
+            RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+
+            drawLines(TerminalPointsList.get(0).get(0));
+        }catch(Exception e){
+            progDialog.dismiss();
+            Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
         }
-        RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
-        final PagerAdapter adapter = new PagerAdapter(_supportFragmentManager, RouteTabs.getTabCount());
-        viewPager.setAdapter(adapter);
-        viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
-
-        RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-                RouteStepsText.loadData(_AllSteps.get(tab.getPosition()), "text/html; charset=utf-8", "UTF-8");
-                clearLines();
-                String encodedString = _topTerminals.get(tab.getPosition()).directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
-                drawLines(encodedString);
-                SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-                StepsScroller.scrollTo(0,0);
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-        String _Steps = "Approx: <b>" +TT+"</b></br>";
-        for(int x=0; x < Steps.size(); x++){
-            _Steps += (x+1)+". " + CleanDirectionStep(Steps.get(x))  + ". </br>";
-            if((x+1) == Steps.size()){
-                _Steps += (x+2)+". " +GenerateFinalStep(_SelectedDestination, terminals.get(ctr));
-            }
-        }
-        _AllSteps.add(_Steps);
-
-        RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
-        RouteStepsText.loadData(_Steps, "text/html; charset=utf-8", "UTF-8");
     }
 
+    public String SelectedTabInstructions(List<String> StepsList, String TT, Destination Terminal){
+        String Step =
+                "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td><img style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
+                "<td style='padding-left:7%;'><medium style='background:#2196F3; color:white;border-radius:10%; padding: 7px;'>WALK</medium></td></tr>"+
+                "<tr width='20%' style='text-align:center'><td>"+CleanTotalTime(TT)+"</td><td></td></tr>";
+
+        if(StepsList!=null){
+            for(int x=0; x < StepsList.size(); x++){
+                Step +="<tr><td></td><td>"+ (x+1)+". " + CleanDirectionStep(StepsList.get(x))  + ".</td><tr>";
+                if((x+1) == StepsList.size()){
+                    Step += "<tr><td></td><td>"+(x+2)+". " +GenerateFinalStep(_SelectedDestination, Terminal);
+                }
+            }
+        }
+        return Step + "</table></body>";
+    }
     public String CleanDirectionStep(String str){
         if(str!=null){
             if(str.contains("onto"))
@@ -345,11 +366,24 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
         return str;
     }
+    public String CleanTotalTime(String str){
+        if(str!=null){
+            if(str.contains("hours"))
+            {
+                str = str.replace("hours","h");
+            }
+            if(str.contains("mins"))
+            {
+                str = str.replace("mins","min");
+            }
+        }
+
+        return str;
+    }
     public String GenerateFinalStep(Destination end, Destination start){
         int dist = end.OrderOfArrival - start.OrderOfArrival;
-        return "Alight after <b>" + dist + " stop"+(dist > 1 ? "s":"")+"</b>.</br>";
+        return "Alight after <b>" + dist + " stop"+(dist > 1 ? "s":"")+"</b>.</td><tr>";
     }
-
 
 
 }

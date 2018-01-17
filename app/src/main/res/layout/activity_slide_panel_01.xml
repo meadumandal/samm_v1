@@ -2,11 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:gravity="center|top"
+    android:gravity="left|top"
     android:clickable="true"
     android:id="@+id/route_wrapper"
     android:layout_height="match_parent"
     android:background="@color/colorWhite">
+
+
 
     <ImageView
         android:id="@+id/ev_panel_collapse"
@@ -20,8 +22,20 @@
         android:id="@+id/ev_panel_expand"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
-        android:src="@drawable/ic_expand_more_black_24dp" />
+        android:src="@drawable/ic_expand_more_black_24dp"
+        android:visibility="visible" />
+    <TextView
+        android:id="@+id/toatextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:text="Calculating..."
+        android:paddingLeft="10dp"
+        android:textSize="15dp"
+        android:textColor="@color/colorBlack"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
 
     <ScrollView
         android:layout_width="match_parent"

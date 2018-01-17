@@ -16,6 +16,9 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
     boolean justCleared = false;
+    Context _context;
+    Activity _activity;
+
 
     private OnClearListener defaultClearListener = new OnClearListener() {
 
@@ -24,10 +27,11 @@ public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
 
             ClearableAutoCompleteTextView et = ClearableAutoCompleteTextView.this;
             et.setText("");
-            MenuActivity.EditDestinationsPH.setVisibility(View.VISIBLE);
             MenuActivity.RouteTabLayout.setVisibility(View.GONE);
             MenuActivity.RoutePane.setVisibility(View.GONE);
-            MenuActivity.EditDestinationsPH.requestFocus();
+            AnalyzeForBestRoutes.clearLines();
+            MenuActivity._ChosenDestination = null;
+
         }
     };
 
