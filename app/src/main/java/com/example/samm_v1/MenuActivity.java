@@ -300,7 +300,7 @@ public class MenuActivity extends AppCompatActivity implements
                     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                             this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
                     drawer.setDrawerListener(toggle);
-                    toggle.getDrawerArrowDrawable().setColor(getColor(R.color.colorWhite));
+                        toggle.getDrawerArrowDrawable().setColor(ContextCompat.getColor(this._context, R.color.colorWhite));
                     toggle.syncState();
 
                     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
