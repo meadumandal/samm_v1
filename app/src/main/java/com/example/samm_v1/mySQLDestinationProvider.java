@@ -24,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONArray;
@@ -167,8 +168,14 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                 LatLng latLng = new LatLng(lat, lng);
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
+
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bus_stop));
-                _googleMap.addMarker(markerOptions);
+                markerOptions.snippet("0 passenger/s waiting");
+                markerOptions.title(destination.Value);
+                Marker marker = _googleMap.addMarker(markerOptions);
+                marker.showInfoWindow();
+
+                ((MenuActivity)this._activity)._destinationMarkers.put(destination.Value, marker);
             }
         }
         startGeofence(destinations);

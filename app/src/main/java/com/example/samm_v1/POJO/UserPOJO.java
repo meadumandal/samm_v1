@@ -1,4 +1,4 @@
-package com.example.samm_v1.EntityObjects;
+package com.example.samm_v1.POJO;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -10,41 +10,21 @@ import java.util.Date;
  */
 //Firebase Entity
 
-public class User {
-
+public class UserPOJO {
+    @SerializedName("username")
     public String username;
 
-
+    @SerializedName("firstName")
     public String firstName;
 
-
+    @SerializedName("lastName")
     public String lastName;
 
-
+    @SerializedName("emailAddress")
     public String emailAddress;
 
-    public double Latitude;
 
-    public double Longitude;
 
-    public Date lastUpdated;
-
-    public String currentDestination;
-
-    public User() {
-
-    }
-
-    public User(String username, String firstName, String lastName, String emailAddress) {
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.emailAddress = emailAddress;
-        this.Latitude = 0.0;
-        this.Longitude = 0.0;
-        this.lastUpdated = new Date();
-        this.currentDestination = "";
-    }
 
     public String getUsername() { return this.username; }
 

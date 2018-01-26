@@ -8,87 +8,90 @@
     android:background="@color/colorWhite"
     tools:context="com.example.samm_v1.MenuActivity">
 
+    <include layout="@layout/content_menu" />
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:theme="@style/AppTheme.AppBarOverlay"
+        android:layout_height="120dp"
+        android:backgroundTint="@color/colorBlack"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
-        android:backgroundTint="#000000">
+        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:contentInsetStartWithNavigation="0dp"
+            android:background="@color/colorBlack"
+            android:elevation="1dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            android:tint="@color/colorBlack"
             app:contentInsetLeft="0dp"
             app:contentInsetStart="0dp"
-            android:background="@color/colorPrimaryDark"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            android:elevation="1dp"
-            android:tint="@color/colorBlack">
+            app:contentInsetStartWithNavigation="0dp"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorPrimaryDark"
-                android:orientation="vertical"
-                android:gravity="center|right">
+                android:background="@color/colorBlack"
+                android:gravity="center|right"
+                android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
-                    android:orientation="horizontal"
-                    android:background="@color/colorPrimaryDark"
-                    android:gravity="center|right">
+                    android:background="@color/colorBlack"
+                    android:gravity="center|right"
+                    android:orientation="horizontal">
 
                     <com.example.samm_v1.ClearableAutoCompleteTextView
                         android:id="@+id/edit_destinations"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
                         android:layout_margin="5dp"
-                        android:ems="12"
-                        android:hint="Where are you going?"
+                        android:width="100dp"
+                        android:background="@drawable/rounded_corner"
                         android:drawableLeft="@drawable/ic_search"
                         android:drawablePadding="5dp"
-                        android:textColorHint="@color/colorWhite"
-                        android:textColor="@color/colorWhite"
-                        android:maxLines="1"
-                        android:width="100dp"
-                        android:visibility="visible"
-                        android:background="@drawable/rounded_corner"
+                        android:ems="12"
                         android:gravity="center|left"
-                        android:paddingLeft="10dp">
-                        <requestFocus/>
+                        android:hint="Where are you going?"
+                        android:maxLines="1"
+                        android:paddingLeft="10dp"
+                        android:textColor="@color/colorWhite"
+                        android:textColorHint="@color/colorWhite"
+                        android:visibility="visible">
+
+                        <requestFocus />
                     </com.example.samm_v1.ClearableAutoCompleteTextView>
 
                 </LinearLayout>
 
             </LinearLayout>
         </android.support.v7.widget.Toolbar>
+
         <android.support.design.widget.TabLayout
+            android:id="@+id/route_tablayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/route_tablayout"
-            android:background="@color/colorPrimaryDark"
-            app:tabTextColor="@color/colorWhite"
-            app:tabSelectedTextColor="@color/colorWhite"
-            app:tabBackground="@drawable/route_tab_color_selector"
+            android:background="@color/colorBlack"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            android:visibility="gone"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            android:visibility="gone">
+            app:tabBackground="@drawable/route_tab_color_selector"
+            app:tabSelectedTextColor="@color/colorWhite"
+            app:tabTextColor="@color/colorWhite">
 
         </android.support.design.widget.TabLayout>
+
         <android.support.v4.view.ViewPager
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent"
             android:id="@+id/routepager"
-            ></android.support.v4.view.ViewPager>
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"></android.support.v4.view.ViewPager>
 
     </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_menu" />
 
     <!--<android.support.design.widget.FloatingActionButton-->
         <!--android:id="@+id/fab"-->

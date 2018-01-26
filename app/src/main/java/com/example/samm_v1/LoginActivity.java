@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -17,6 +18,12 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
+import com.example.samm_v1.EntityObjects.User;
+import com.example.samm_v1.POJO.Directions;
+import com.example.samm_v1.POJO.UserPOJO;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -30,6 +37,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.GsonConverterFactory;
+import retrofit.Response;
+import retrofit.Retrofit;
+
 public class LoginActivity extends AppCompatActivity{
 
     private EditText usernameField, passwordField;
@@ -39,6 +52,7 @@ public class LoginActivity extends AppCompatActivity{
     private FirebaseDatabase userDatabase;
     private DatabaseReference userDatabaseRef;
     SessionManager sessionManager;
+    private static String TAG = "mead";
 
 
 
@@ -71,6 +85,7 @@ public class LoginActivity extends AppCompatActivity{
 
 
             btn_SignIn.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View view) {
                     progressBar.setVisibility(View.VISIBLE);
@@ -84,24 +99,51 @@ public class LoginActivity extends AppCompatActivity{
                             signIn(username, password);
                         } else {
 //                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
-                            userDatabaseRef = userDatabase.getReference();
-                            userDatabaseRef.child("users").child(username)
-                                    .addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            if (dataSnapshot != null) {
-                                                String emailAddress = dataSnapshot.child("emailAddress").getValue().toString();
-                                                signIn(emailAddress, password);
-                                            } else {
-                                                Toast.makeText(getApplicationContext(), getString(R.string.error_username_not_exist), Toast.LENGTH_LONG).show();
-                                            }
+                            String url = "http://meadumandal.website/sammAPI/";
+                            Retrofit retrofit = new Retrofit.Builder()
+                                    .baseUrl(url)
+                                    .addConverterFactory(GsonConverterFactory.create())
+                                    .build();
+                            RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+                            Call<UserPOJO> call = service.getUserDetails(username);
+                            call.enqueue(new Callback<UserPOJO>() {
+                                @Override
+                                public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
+                                    try {
+                                        signIn(response.body().getEmailAddress(), password);
                                         }
+                                        //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
+                                    catch (Exception e) {
+                                        Log.d(TAG, "There is an error");
+                                        e.printStackTrace();
+                                    }
+                                }
 
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    Log.d(TAG, t.toString());
+                                }
+                            });
 
-                                        }
-                                    });
+
+//                            userDatabaseRef = userDatabase.getReference();
+//                            userDatabaseRef.child("users").child(username)
+//                                    .addValueEventListener(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(DataSnapshot dataSnapshot) {
+//                                            if (dataSnapshot != null) {
+//                                                String emailAddress = dataSnapshot.child("emailAddress").getValue().toString();
+//                                                signIn(emailAddress, password);
+//                                            } else {
+//                                                Toast.makeText(getApplicationContext(), getString(R.string.error_username_not_exist), Toast.LENGTH_LONG).show();
+//                                            }
+//                                        }
+//
+//                                        @Override
+//                                        public void onCancelled(DatabaseError databaseError) {
+//
+//                                        }
+//                                    });
 //                    userDatabaseRef.  child("users").child(username).child("firstName").setValue("test");
                         }
                     }
@@ -115,6 +157,7 @@ public class LoginActivity extends AppCompatActivity{
     }
     private void signIn(final String email, String password)
     {
+        userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -126,44 +169,51 @@ public class LoginActivity extends AppCompatActivity{
                         }
                         else
                         {
-                            Query query = userDatabaseRef.child("users").orderByChild("emailAddress").equalTo(email);
-                            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
+                            try{
+                                Query query = userDatabaseRef.child("users").orderByChild("emailAddress").equalTo(email);
+                                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                    if(dataSnapshot != null)
-                                    {
-                                        String value = dataSnapshot.getValue().toString();
-                                        String username = value.substring(1, value.indexOf('='));
-                                        userDatabaseRef.child("users").child(username)
-                                                .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        if(dataSnapshot!=null)
-                                                        {
-                                                            String firstName = dataSnapshot.child("firstName").getValue().toString();
-                                                            String lastName = dataSnapshot.child("lastName").getValue().toString();
-                                                            String username = dataSnapshot.child("username").getValue().toString();
-                                                            sessionManager.CreateLoginSession(firstName,lastName, username,email,false);
-                                                            Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                                                            startActivity(intent);
-                                                            finish();
+                                        if(dataSnapshot != null)
+                                        {
+                                            String value = dataSnapshot.getValue().toString();
+                                            String username = value.substring(1, value.indexOf('='));
+                                            userDatabaseRef.child("users").child(username)
+                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            if(dataSnapshot!=null)
+                                                            {
+                                                                String firstName = dataSnapshot.child("firstName").getValue().toString();
+                                                                String lastName = dataSnapshot.child("lastName").getValue().toString();
+                                                                String username = dataSnapshot.child("username").getValue().toString();
+                                                                sessionManager.CreateLoginSession(firstName,lastName, username,email,false);
+                                                                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                                                                startActivity(intent);
+                                                                finish();
+                                                            }
                                                         }
-                                                    }
 
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
 
-                                                    }
-                                                });
+                                                        }
+                                                    });
+                                        }
                                     }
-                                }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
-                                }
-                            });
+                                    }
+                                });
+                            }
+                            catch(Exception ex)
+                            {
+                                Log.e(TAG, ex.getMessage());
+                            }
+
 
 
                         }

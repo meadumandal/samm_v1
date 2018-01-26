@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,12 +14,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.User;
+import com.example.samm_v1.POJO.UserPOJO;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import retrofit.Call;
+import retrofit.Callback;
+import retrofit.GsonConverterFactory;
+import retrofit.Response;
+import retrofit.Retrofit;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -29,6 +37,7 @@ public class SignUpActivity extends AppCompatActivity {
     DatabaseReference userDatabaseReference;
     SessionManager sessionManager;
     private TextView link_driver;
+    private static String TAG = "mead";
 
 
     @Override
@@ -100,27 +109,56 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), getString(R.string.error_passwordnotmatch), Toast.LENGTH_LONG).show();
                     return;
                 }
+                String url = "http://meadumandal.website/sammAPI/";
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(url)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+                Call<UserPOJO> call = service.getUserDetails(username);
+                call.enqueue(new Callback<UserPOJO>() {
+                    @Override
+                    public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
+                        try {
+                            if (response.body() == null)
+                            {
+                                progressBar.setVisibility(View.VISIBLE);
 
-                progressBar.setVisibility(View.VISIBLE);
+                                auth.createUserWithEmailAndPassword(emailAddress, password)
+                                        .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                                progressBar.setVisibility(View.GONE);
+                                                if(!task.isSuccessful())
+                                                {
+                                                    Toast.makeText(SignUpActivity.this, getString(R.string.error_create_account), Toast.LENGTH_LONG).show();
+                                                }
+                                                else
+                                                {
+                                                    saveUserDetails(firstName, lastName, username, emailAddress);
+                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false);
+                                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                }
 
-                auth.createUserWithEmailAndPassword(emailAddress, password)
-                        .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.GONE);
-                                if(!task.isSuccessful())
-                                {
-                                    Toast.makeText(SignUpActivity.this, getString(R.string.error_create_account), Toast.LENGTH_LONG).show();
-                                }
-                                else
-                                {
-                                    saveUserDetails(firstName, lastName, username, emailAddress);
-                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false);
-                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                }
-
+                                            }
+                                        });
                             }
-                        });
+                            else {
+                                Toast.makeText(getApplicationContext(), getString(R.string.error_username_alreadyexists), Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
+                        catch (Exception e) {
+                            Log.d(TAG, "There is an error");
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.d(TAG, t.toString());
+                    }
+                });
             }
         });
     }
@@ -134,9 +172,7 @@ public class SignUpActivity extends AppCompatActivity {
     private void saveUserDetails(String firstName, String lastName, String username, String emailAddress)
     {
         User user = new User(username, firstName, lastName, emailAddress);
-
         userDatabaseReference.child(username).setValue(user);
-
-
+        new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
     }
 }

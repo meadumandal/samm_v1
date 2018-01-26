@@ -50,7 +50,7 @@ import java.util.UUID;
  */
 
 
-public class mySQLUpdatePassengerMovement extends AsyncTask<String, Void, Void>{
+public class mySQLSignUp extends AsyncTask<String, Void, Void>{
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -61,7 +61,7 @@ public class mySQLUpdatePassengerMovement extends AsyncTask<String, Void, Void>{
      */
     Context _context;
     Activity _activity;
-    public mySQLUpdatePassengerMovement(Context context, Activity activity)
+    public mySQLSignUp(Context context, Activity activity)
     {
         this._context = context;
         this._activity = activity;
@@ -86,15 +86,19 @@ public class mySQLUpdatePassengerMovement extends AsyncTask<String, Void, Void>{
     protected Void doInBackground(String... params)
     {
         String username = params[0];
-        String waitingAt = params[1];
+        String firstName = params[1];
+        String lastName = params[2];
+        String emailAddress = params[3];
         String data = "";
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = "http://meadumandal.website/sammAPI/updatePassengerMovement.php?";
-                data += "&username=" + URLEncoder.encode(username, "UTF-8") + "&waitingAt=" +
-                        URLEncoder.encode(waitingAt, "UTF-8");
+                String link = "http://meadumandal.website/sammAPI/signUp.php?";
+                data += "username=" + URLEncoder.encode(username, "UTF-8")
+                        + "&firstName=" + URLEncoder.encode(firstName, "UTF-8")
+                        + "&lastName=" + URLEncoder.encode(lastName, "UTF-8")
+                        + "&emailAddress=" + URLEncoder.encode(emailAddress, "UTF-8");
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

@@ -62,6 +62,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     LatLng _currentLocation;
     List<Destination> _possibleTerminals;
     FragmentManager _supportFragmentManager;
+    List<Destination> _topTerminals;
     final String TAG = "mead";
     public  static Polyline _line;
     List<String> _AllSteps = new ArrayList<String>();
@@ -71,6 +72,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     List<String> _AllTotalTime = new ArrayList<String>();
     List<List<String>> _AllDirectionsSteps = new ArrayList<List<String>>();
     List<List<String>> _AllTerminalPoints = new ArrayList<List<String>>();
+    List<Polyline> polyLines = new ArrayList<>();
     /**
      *This is the generic format in accessing data from mySQL
      * @param context
@@ -174,6 +176,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 returnValues.put("Message", e.getMessage());
                 return null;
             }
+            _topTerminals = topTerminals;
             return topTerminals;
 
         }
@@ -231,7 +234,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 .width(5f)
                 .color(Color.RED)
                 .geodesic(true)
+
         );
+        polyLines.add(_line);
     }
 
 
@@ -267,15 +272,29 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 _AllDirectionsSteps.add(DirectionSteps);
                 ctr++;
             }
-            createRouteTabs(_AllTotalTime,_AllDirectionsSteps, _possibleTerminals, _AllTerminalPoints, ctr);
+            createRouteTabs(_AllTotalTime,_AllDirectionsSteps, _topTerminals, _AllTerminalPoints, ctr);
             progDialog.dismiss();
-            //show route tabs and slide up panel ~
+//            //show route tabs and slide up panel ~
             RouteTabLayout.setVisibility(View.VISIBLE);
             RoutePane.setVisibility(View.VISIBLE);
             SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+
+            RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
+            final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
+            viewPager.setCurrentItem(0);
+            RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            MenuActivity._ChosenDestination = _topTerminals.get(0);
+            StepsScroller.scrollTo(0,0);
+            clearLines();
+            drawLines(_AllTerminalPoints.get(0).get(0));
+
+
         }
         catch(Exception e)
         {
+            progDialog.dismiss();
             Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
         }
 
@@ -321,9 +340,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             });
 
             TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-            RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
-            RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
 
+            RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
+            viewPager.setCurrentItem(0);
+            RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            MenuActivity._ChosenDestination = AllPossibleTerminals.get(0);
+            StepsScroller.scrollTo(0,0);
+            clearLines();
             drawLines(TerminalPointsList.get(0).get(0));
         }catch(Exception e){
             progDialog.dismiss();
@@ -384,6 +408,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         int dist = end.OrderOfArrival - start.OrderOfArrival;
         return "Alight after <b>" + dist + " stop"+(dist > 1 ? "s":"")+"</b>.</td><tr>";
     }
+
 
 
 }
