@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+import com.facebook.AccessToken;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.HashMap;
@@ -71,6 +72,14 @@ public class SessionManager {
     public String getUsername()
     {
         return pref.getString(KEY_USERNAME,null);
+    }
+    public String getFullName()
+    {
+        return pref.getString(KEY_FNAME,null) + " " + pref.getString(KEY_LNAME,null);
+    }
+    public String getEmail()
+    {
+        return pref.getString(KEY_EMAIL,null);
     }
     public boolean isLoggedIn()
     {

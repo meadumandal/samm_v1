@@ -81,8 +81,6 @@
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
 
-
-
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -93,7 +91,6 @@
             android:id="@+id/btn_goToSignUp"
             android:layout_width="0dp"
             android:layout_height="42dp"
-
             android:layout_marginTop="16dp"
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
@@ -103,6 +100,21 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button_fb"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/fb_oval_background"
+        android:textColor="@color/colorWhite"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="20dp"
+        android:height="10dp"
+        android:text="SIGN UP WITH FACEBOOK "
+        android:textStyle="bold"
+        android:layout_weight=".4"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"/>
 
     <TextView
         android:id="@+id/txtForgotPassword"
@@ -122,3 +134,5 @@
         android:layout_marginBottom="20dp"
         android:visibility="gone" />
 </LinearLayout>
+
+

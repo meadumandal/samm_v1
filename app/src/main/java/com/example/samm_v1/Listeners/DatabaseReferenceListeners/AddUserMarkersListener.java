@@ -1,6 +1,7 @@
 package com.example.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.app.Activity;
+import android.view.MenuItem;
 
 import com.example.samm_v1.MenuActivity;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -57,10 +58,10 @@ public class AddUserMarkersListener implements
             {
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
-//                markerOptions.title(username);
+                markerOptions.title(username);
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                 marker = ((MenuActivity)this._activity)._map.addMarker(markerOptions);
-//                marker.showInfoWindow();
+                marker.showInfoWindow();
                 ((MenuActivity)this._activity)._hashmapMarkerMap.put(username, marker);
             }
         }

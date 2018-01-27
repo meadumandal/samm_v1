@@ -36,6 +36,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker mCurrLocationMarker;
     LocationRequest mLocationRequest;
     private GoogleMap mMap;
+    private Boolean IsOnline = false;
 
     public static final int MY_PERMISSION_REQUEST_LOCATION=99;
     public boolean checkLocationPermission()
@@ -72,6 +73,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.SplashTheme);
+//        new com.example.samm_v1.AsyncTask(new com.example.samm_v1.AsyncTask.AsyncResponse(){
+//
+//            @Override
+//            public void processFinish(Boolean output){
+//                IsOnline = output;
+//            }
+//        }).execute();
             super.onCreate(savedInstanceState);
         if(MenuActivity.isOnline()) {
             setContentView(R.layout.activity_maps);

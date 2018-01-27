@@ -16,7 +16,8 @@
         android:layout_height="match_parent"
         android:gravity="bottom"
         android:clickable="true"
-        sothree:umanoPanelHeight="68dp"
+        sothree:umanoClipPanel="false"
+        sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoShadowHeight="4dp">
 
         <LinearLayout

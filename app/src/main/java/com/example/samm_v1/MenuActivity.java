@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -18,11 +20,14 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -55,6 +60,8 @@ import com.example.samm_v1.POJO.Directions;
 import com.example.samm_v1.RouteTabs.Route1;
 import com.example.samm_v1.RouteTabs.Route2;
 import com.example.samm_v1.RouteTabs.Route3;
+import com.facebook.login.LoginManager;
+import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -87,8 +94,18 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.BufferedHttpEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -96,13 +113,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import static com.example.samm_v1.R.id.image;
+import static com.example.samm_v1.R.id.imgLogo;
 import static com.example.samm_v1.R.id.map;
+import static com.example.samm_v1.R.id.nav_view;
+import static com.example.samm_v1.R.id.route_tablayout;
+import static com.example.samm_v1.R.id.visible;
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -136,14 +159,19 @@ public class MenuActivity extends AppCompatActivity implements
             private Circle _geofenceCircleLimits;
             private Marker _geofenceMarker;
             public List<Destination> _listDestinations;
+            public HashMap<String, Marker> _destinationMarkers = new HashMap<>();
+
             public HashMap _hashmapMarkerMap = new HashMap();
-            HashMap _driverMarkers = new HashMap();
+            public HashMap _driverMarkers = new HashMap();
             MyBroadcastReceiver _broadcastReceiver;
             DatabaseReference _driverDatabaseReference;
-            public HashMap<String, Marker> _destinationMarkers = new HashMap<>();
             public static LevelListDrawable d = new LevelListDrawable();
             public  static Destination _ChosenDestination;
-            Marker _marker;
+            private Boolean IsOnline = false;
+             Marker _marker;
+            public Boolean IsLoggingOut = false;
+    public String fbImg;
+
 
 
             protected static final String TAG = "mead";
@@ -164,6 +192,13 @@ public class MenuActivity extends AppCompatActivity implements
             public  static ProgressDialog CheckNetDialog;
             public  static View MainView;
             public static TextView TimeOfArrivalTextView;
+            public static MenuItem UserNameMenuItem;
+            public static NavigationView NavView;
+            public static Menu menuNav;
+            public static ImageView ProfilePictureImg;
+            public static View NavHeaderView;
+            public static TextView HeaderUserFullName;
+            public static TextView HeaderUserEmail;
 
 
             public boolean checkLocationPermission()
@@ -194,7 +229,7 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             protected void onCreate(Bundle savedInstanceState) {
                 setTheme(R.style.SplashTheme);
-                if (isOnline()) {
+                if (MenuActivity.isOnline()) {
                     Log.i(TAG, "onCreate");
                     _markerPoints = new ArrayList<>();
                     _helper = new Helper();
@@ -235,7 +270,28 @@ public class MenuActivity extends AppCompatActivity implements
                     Slide_Expand = (ImageView) findViewById(R.id.ev_panel_expand);
                     StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
                     TimeOfArrivalTextView = (TextView) findViewById(R.id.toatextview);
+                    NavView = (NavigationView) findViewById(R.id.nav_view);
+                    menuNav = (Menu) NavView.getMenu();
+                    UserNameMenuItem = menuNav.findItem(R.id.menu_username);
+                    NavHeaderView =  NavView.getHeaderView(0);
+                    ProfilePictureImg = (ImageView) NavHeaderView.findViewById(R.id.imgLogo);
+                    HeaderUserFullName = (TextView) NavHeaderView.findViewById(R.id.HeaderUserFullName);
+                    HeaderUserEmail = (TextView) NavHeaderView.findViewById(R.id.HeaderUserEmail);
 
+
+
+
+                    UserNameMenuItem.setTitle(_sessionManager.getFullName());
+                    HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
+                    HeaderUserEmail.setText(_sessionManager.getEmail());
+
+                    fbImg = "http://graph.facebook.com/"+_sessionManager.getUsername()+"/picture?type=large";
+                    try{
+                        FetchFBDPTask dptask = new FetchFBDPTask ();
+                        dptask.execute();
+                    }catch(Exception ex){
+                        Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
+                    }
 
                     SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
                         @Override
@@ -490,39 +546,39 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             public void onLocationChanged(Location location) {
 
-                if (_currentLocationMarker != null) {
-                    _currentLocationMarker.remove();
-                }
-                //Place current location marker
-                double lat = location.getLatitude();
-                double lng = location.getLongitude();
-                _currentLocation = new LatLng(lat, lng);
+                if(!IsLoggingOut) {
+                    if (_currentLocationMarker != null) {
+                        _currentLocationMarker.remove();
+                    }
+                    //Place current location marker
+                    double lat = location.getLatitude();
+                    double lng = location.getLongitude();
+                    _currentLocation = new LatLng(lat, lng);
 
-                saveLocation(lat, lng);
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(_currentLocation);
+                    saveLocation(lat, lng);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(_currentLocation);
 //                markerOptions.title(_sessionManager.getUsername());
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-                _currentLocationMarker = _map.addMarker(markerOptions);
+                    _currentLocationMarker = _map.addMarker(markerOptions);
 //                _currentLocationMarker.showInfoWindow();
 
-                if(_isFirstLoad) {
-                    _isFirstLoad = false;
-                    //move map camera
-                    _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
-                    _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
-                }
-                else
-                {
-                    _map.moveCamera(CameraUpdateFactory.newLatLng(_currentLocation));
-                    _map.animateCamera(CameraUpdateFactory.newLatLng(_currentLocation));
-                }
+                    if (_isFirstLoad) {
+                        _isFirstLoad = false;
+                        //move map camera
+                        _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                        _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                    } else {
+                        _map.moveCamera(CameraUpdateFactory.newLatLng(_currentLocation));
+                        _map.animateCamera(CameraUpdateFactory.newLatLng(_currentLocation));
+                    }
 //                _map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
-                //stop location updates
-                if (_googleApiClient != null) {
-                    LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
+                    //stop location updates
+                    if (_googleApiClient != null) {
+                        LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
+                    }
                 }
 
             }
@@ -738,11 +794,14 @@ public class MenuActivity extends AppCompatActivity implements
                     // fragment.beginTransaction().replace(R.id.content_frame, new MapsActivity()).commit();
                     startActivity(new Intent(MenuActivity.this, MapsActivity.class));
                 } else if (id == R.id.nav_logout) {
+                    LoginManager.getInstance().logOut();
                     _sessionManager.logoutUser();
+                    IsLoggingOut = true;
                     Intent i = new Intent(MenuActivity.this, LoginActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
+                    Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
 
                 }
 
@@ -1122,7 +1181,6 @@ public class MenuActivity extends AppCompatActivity implements
 
         return str;
     }
-
     public class MyBroadcastReceiver extends BroadcastReceiver {
 
                 @Override
@@ -1188,9 +1246,58 @@ public class MenuActivity extends AppCompatActivity implements
                 });
             }
 
+    private class FetchFBDPTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+            URL imageURL = null;
+            try {
+                imageURL = new URL(fbImg);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            Bitmap bitmap = null;
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            try {
+                bitmap = BitmapFactory.decodeStream((InputStream) fetch(imageURL.toString()), null, options);
+            } catch (OutOfMemoryError e){
+                try{
+                    options.inSampleSize = 2;
+                    bitmap = BitmapFactory.decodeStream(imageURL.openConnection().getInputStream());
+                    return bitmap;
+                }catch (Exception ex){
 
+                }
 
+            }catch (IOException exc){
+
+            }
+            return bitmap;
         }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if(result!=null) {
+                ProfilePictureImg.setImageBitmap(result);
+            }
+        }
+        private InputStream fetch(String address) throws MalformedURLException,IOException {
+            HttpGet httpRequest = new HttpGet(URI.create(address) );
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpResponse response = (HttpResponse) httpclient.execute(httpRequest);
+            HttpEntity entity = response.getEntity();
+            BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
+            InputStream instream = bufHttpEntity.getContent();
+            return instream;
+        }
+    }
+
+
+}
+
+
+
+
+
 
 
 

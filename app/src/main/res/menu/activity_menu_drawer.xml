@@ -1,17 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:facebook="http://schemas.android.com/apk/res-auto">
 
 
-    <item android:title="Help">
+    <item android:title="ACCOUNT">
+        <menu>
+            <item
+                android:id="@+id/menu_username"
+                android:title="JOHN APPLESEED"
+                android:icon="@drawable/com_facebook_profile_picture_blank_portrait"
+                />
+
+            <item
+                android:id="@+id/menu_settings"
+                android:title="Settings"
+                android:icon="@drawable/ic_setting_light"
+                />
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/com_facebook_close"
+                android:title="Logout" />
+        </menu>
+        </item>
+    <item android:title="HELP">
         <menu>
             <item
                 android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
+                android:icon="@drawable/ic_walking"
                 android:title="Full Map" />
-            <item
-                android:id="@+id/nav_logout"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Logout" />
         </menu>
     </item>
 
