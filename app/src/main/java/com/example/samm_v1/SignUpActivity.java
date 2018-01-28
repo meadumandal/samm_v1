@@ -1,8 +1,14 @@
 package com.example.samm_v1;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -38,6 +44,7 @@ public class SignUpActivity extends AppCompatActivity {
     SessionManager sessionManager;
     private TextView link_driver;
     private static String TAG = "mead";
+    private ProgressDialog SignUpProgDiag;
 
 
     @Override
@@ -49,6 +56,9 @@ public class SignUpActivity extends AppCompatActivity {
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
         sessionManager = new SessionManager(getApplicationContext());
         link_driver = (TextView) findViewById(R.id.linkDriver);
+
+
+
         if(userDatabase == null && userDatabaseReference ==null)
         {
             userDatabase = FirebaseDatabase.getInstance();
@@ -122,13 +132,13 @@ public class SignUpActivity extends AppCompatActivity {
                         try {
                             if (response.body() == null)
                             {
-                                progressBar.setVisibility(View.VISIBLE);
+                                ShowSignUpProgressDialog();
 
                                 auth.createUserWithEmailAndPassword(emailAddress, password)
                                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                                             @Override
                                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                                progressBar.setVisibility(View.GONE);
+                                               SignUpProgDiag.dismiss();
                                                 if(!task.isSuccessful())
                                                 {
                                                     Toast.makeText(SignUpActivity.this, getString(R.string.error_create_account), Toast.LENGTH_LONG).show();
@@ -167,6 +177,7 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onResume()
     {
         super.onResume();
+       // SignUpProgDiag.dismiss();
         progressBar.setVisibility(View.GONE);
     }
     private void saveUserDetails(String firstName, String lastName, String username, String emailAddress)
@@ -174,5 +185,15 @@ public class SignUpActivity extends AppCompatActivity {
         User user = new User(username, firstName, lastName, emailAddress);
         userDatabaseReference.child(username).setValue(user);
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
+    }
+    private void ShowSignUpProgressDialog(){
+        SignUpProgDiag = new ProgressDialog(SignUpActivity.this);
+        SignUpProgDiag.setMax(100);
+        SignUpProgDiag.setMessage("Please wait as we create your account...");
+        SignUpProgDiag.setTitle("Sign Up");
+        SignUpProgDiag.setIndeterminate(false);
+        SignUpProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        SignUpProgDiag.setCancelable(false);
+        SignUpProgDiag.show();
     }
 }

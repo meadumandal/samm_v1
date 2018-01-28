@@ -280,7 +280,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             //hide keyboard on search ~
             InputMethodManager mgr = (InputMethodManager) _context.getSystemService(Context.INPUT_METHOD_SERVICE);
             mgr.hideSoftInputFromWindow(MenuActivity.editDestinations.getWindowToken(), 0);
-            
+
             //show route tabs and slide up panel ~
             RouteTabLayout.setVisibility(View.VISIBLE);
             RoutePane.setVisibility(View.VISIBLE);
