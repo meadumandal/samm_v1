@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="@color/colorDarkGrey"
-    android:gravity="bottom"
+    android:background="@color/colorBlack"
+    android:gravity="center"
     android:orientation="vertical"
     android:paddingBottom="5dp"
     android:paddingLeft="10dp"
@@ -18,20 +18,27 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:scaleType="fitXY"
         android:src="@mipmap/ic_launcher"
+        android:layout_alignParentLeft="true"
          />
 
     <TextView
+        android:id="@+id/HeaderUserFullName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:paddingLeft="65dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="SAMM"
-        android:id="@+id/HeaderUserFullName"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/HeaderUserEmail"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="android.studio@android.com" />
+        android:paddingLeft="65dp"
+        android:paddingTop="40dp"
+        android:text="android.studio@android.com"
+        android:textSize="10sp" />
 
-</LinearLayout>
+</RelativeLayout>

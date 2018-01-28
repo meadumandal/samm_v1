@@ -3,6 +3,7 @@ package com.example.samm_v1;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,6 +32,8 @@ public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
             MenuActivity.RoutePane.setVisibility(View.GONE);
             AnalyzeForBestRoutes.clearLines();
             MenuActivity._ChosenDestination = null;
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
+            lp.height = 156;
 
         }
     };

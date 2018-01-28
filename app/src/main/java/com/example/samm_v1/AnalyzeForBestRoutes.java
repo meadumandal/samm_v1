@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.AsyncTask;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
@@ -17,6 +18,7 @@ import android.text.Spanned;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -274,7 +276,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             }
             createRouteTabs(_AllTotalTime,_AllDirectionsSteps, _topTerminals, _AllTerminalPoints, ctr);
             progDialog.dismiss();
-//            //show route tabs and slide up panel ~
+
+            //hide keyboard on search ~
+            InputMethodManager mgr = (InputMethodManager) _context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            mgr.hideSoftInputFromWindow(MenuActivity.editDestinations.getWindowToken(), 0);
+            
+            //show route tabs and slide up panel ~
             RouteTabLayout.setVisibility(View.VISIBLE);
             RoutePane.setVisibility(View.VISIBLE);
             SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
@@ -340,7 +347,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             });
 
             TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-
+            //Set first route in the UI~
             RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             viewPager.setCurrentItem(0);
             RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
@@ -349,6 +356,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             StepsScroller.scrollTo(0,0);
             clearLines();
             drawLines(TerminalPointsList.get(0).get(0));
+
+            //Adjust AppBarLayoutHeight
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
+            //float heightDp = _context.getResources().getDisplayMetrics().heightPixels;
+            lp.height = 235 ;
         }catch(Exception e){
             progDialog.dismiss();
             Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();

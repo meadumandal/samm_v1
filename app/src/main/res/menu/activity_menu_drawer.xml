@@ -22,7 +22,7 @@
                 android:title="Logout" />
         </menu>
         </item>
-    <item android:title="HELP">
+    <item android:title="SAMM HELP">
         <menu>
             <item
                 android:id="@+id/nav_share"

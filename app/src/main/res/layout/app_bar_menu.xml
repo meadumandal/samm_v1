@@ -11,8 +11,10 @@
     <include layout="@layout/content_menu" />
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:animateLayoutChanges="true"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
+        android:layout_height="78dp"
         android:backgroundTint="@color/colorBlack"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
@@ -93,12 +95,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <!--<android.support.design.widget.FloatingActionButton-->
-        <!--android:id="@+id/fab"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_gravity="bottom|end"-->
-        <!--android:layout_margin="@dimen/fab_margin"-->
-        <!--android:src="@android:drawable/ic_dialog_email" />-->
+
 
 </android.support.design.widget.CoordinatorLayout>

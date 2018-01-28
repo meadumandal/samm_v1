@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -199,6 +200,7 @@ public class MenuActivity extends AppCompatActivity implements
             public static View NavHeaderView;
             public static TextView HeaderUserFullName;
             public static TextView HeaderUserEmail;
+            public static AppBarLayout AppBar;
 
 
             public boolean checkLocationPermission()
@@ -263,6 +265,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                     //Instantiate ~
                     editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
+                    AppBar = (AppBarLayout) findViewById(R.id.appBarLayout);
                     RoutePane = (LinearLayout) findViewById(R.id.route_content);
                     SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
                     RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
@@ -321,10 +324,6 @@ public class MenuActivity extends AppCompatActivity implements
                     editDestinations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                            //hide keyboard on search ~
-                            InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                            mgr.hideSoftInputFromWindow(editDestinations.getWindowToken(), 0);
 
                             Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
                             _ChosenDestination = chosenDestination;
