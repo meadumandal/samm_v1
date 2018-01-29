@@ -3,6 +3,8 @@ package com.example.samm_v1;
 import android.app.ProgressDialog;
 import android.content.ClipData;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
@@ -90,6 +92,7 @@ public class LoginActivity extends AppCompatActivity{
     private LoginButton loginButton;
     private static String TAG = "mead";
     ProgressDialog LoginProgDiag;
+    private static Helper _helper = new Helper();
 
 
 
@@ -102,11 +105,13 @@ public class LoginActivity extends AppCompatActivity{
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
+
         setTheme(R.style.SplashTheme);
         super.onCreate(savedInstanceState);
 
 
         if(MenuActivity.isOnline()) {
+            Log.i(TAG, "device is online");
             FacebookSdk.sdkInitialize(getApplicationContext());
             setContentView(R.layout.activity_login);
             try {
@@ -119,9 +124,10 @@ public class LoginActivity extends AppCompatActivity{
                     Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
                 }
             } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, e.getMessage());
 
             } catch (NoSuchAlgorithmException e) {
-
+                Log.e(TAG, e.getMessage());
             }
 
             callbackManager = CallbackManager.Factory.create();
@@ -129,6 +135,8 @@ public class LoginActivity extends AppCompatActivity{
             ForgotPasswordTV = (TextView) findViewById(R.id.txtForgotPassword);
             loginButton = (LoginButton) findViewById(R.id.login_button_fb);
             loginButton.setReadPermissions("email", "public_profile");
+
+
 
             loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
@@ -180,16 +188,40 @@ public class LoginActivity extends AppCompatActivity{
 
             if (auth == null)
                 auth = FirebaseAuth.getInstance();
+
+
             usernameField = (EditText) findViewById(R.id.username);
             passwordField = (EditText) findViewById(R.id.password);
             btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+            ForgotPasswordTV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (usernameField.getText().toString().trim().length() == 0)
+                    {
+                        try {
+                            ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter your username \n or email-address");
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                        catch(Exception e)
+                        {
+                                Log.e(TAG, e.getMessage());
+                        }
+
+                    }
+
+                }
+            });
 
 
             if (sessionManager.isLoggedIn()) {
                 ShowLogInProgressDialog("SAMM");
                 startActivity(new Intent(LoginActivity.this, MenuActivity.class));
                 finish();
+
+
             }
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -235,35 +267,16 @@ public class LoginActivity extends AppCompatActivity{
                                     Log.d(TAG, t.toString());
                                 }
                             });
-
-
-//                            userDatabaseRef = userDatabase.getReference();
-//                            userDatabaseRef.child("users").child(username)
-//                                    .addValueEventListener(new ValueEventListener() {
-//                                        @Override
-//                                        public void onDataChange(DataSnapshot dataSnapshot) {
-//                                            if (dataSnapshot != null) {
-//                                                String emailAddress = dataSnapshot.child("emailAddress").getValue().toString();
-//                                                signIn(emailAddress, password);
-//                                            } else {
-//                                                Toast.makeText(getApplicationContext(), getString(R.string.error_username_not_exist), Toast.LENGTH_LONG).show();
-//                                            }
-//                                        }
-//
-//                                        @Override
-//                                        public void onCancelled(DatabaseError databaseError) {
-//
-//                                        }
-//                                    });
-//                    userDatabaseRef.  child("users").child(username).child("firstName").setValue("test");
                         }
                     }
 
                 }
             });
+
         }
         else{
-            MenuActivity.HideNetCheckerDialog(getApplicationContext());
+            Log.i(TAG, "device is not online");
+            _helper.showNoInternetPrompt(this);
         }
     }
     private void signIn(final String email, String password)
@@ -350,6 +363,7 @@ public class LoginActivity extends AppCompatActivity{
 ////        Intent menu = new Intent(LoginActivity.this, MenuActivity.class);
 ////      startActivity(menu);
 //    }
+
 
     public void SignUp(View v)
     {

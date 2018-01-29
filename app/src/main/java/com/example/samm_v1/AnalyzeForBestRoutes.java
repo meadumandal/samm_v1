@@ -3,24 +3,16 @@ package com.example.samm_v1;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LevelListDrawable;
 import android.os.AsyncTask;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
-import android.text.Html;
-import android.text.Html.ImageGetter;
-import android.text.Spanned;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.samm_v1.EntityObjects.Destination;
@@ -136,7 +128,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     try {
                         Directions directions = call.execute().body();
                         d.directionsFromCurrentLocation = directions;
-//                        destinationId_distance.put(d.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
+//                        destinationId_distance.put(dialog.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
                         Log.i(TAG, "Success retrofit");
                     } catch (MalformedURLException ex) {
                         Log.e(TAG, ex.getMessage());
@@ -292,7 +284,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             viewPager.setCurrentItem(0);
             RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
             SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            MenuActivity._ChosenDestination = _topTerminals.get(0);
+            MenuActivity._chosenTerminal = _topTerminals.get(0);
             StepsScroller.scrollTo(0,0);
             clearLines();
             drawLines(_AllTerminalPoints.get(0).get(0));
@@ -329,7 +321,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     viewPager.setCurrentItem(tab.getPosition());
                     RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
                     SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-                    MenuActivity._ChosenDestination = AllPossibleTerminals.get(tab.getPosition());
+                    MenuActivity._chosenTerminal = AllPossibleTerminals.get(tab.getPosition());
                     StepsScroller.scrollTo(0,0);
                     clearLines();
                     drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
@@ -352,7 +344,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             viewPager.setCurrentItem(0);
             RouteStepsText.loadDataWithBaseURL("file:///android_res/",SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
             SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            MenuActivity._ChosenDestination = AllPossibleTerminals.get(0);
+            MenuActivity._chosenTerminal = AllPossibleTerminals.get(0);
             StepsScroller.scrollTo(0,0);
             clearLines();
             drawLines(TerminalPointsList.get(0).get(0));

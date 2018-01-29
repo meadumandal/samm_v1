@@ -5,14 +5,9 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 
 public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
@@ -31,7 +26,7 @@ public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
             MenuActivity.RouteTabLayout.setVisibility(View.GONE);
             MenuActivity.RoutePane.setVisibility(View.GONE);
             AnalyzeForBestRoutes.clearLines();
-            MenuActivity._ChosenDestination = null;
+            MenuActivity._chosenTerminal = null;
             CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
             lp.height = 156;
 

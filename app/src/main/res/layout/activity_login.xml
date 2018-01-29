@@ -120,7 +120,6 @@
         android:background="@drawable/fb_oval_background"
         android:textColor="@color/colorWhite"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="30dp"
         android:layout_marginTop="20dp"
         android:height="10dp"
         android:text="SIGN UP WITH FACEBOOK "
@@ -129,6 +128,7 @@
         android:paddingTop="15dp"
         android:paddingBottom="15dp"/>
 
+
     <TextView
         android:id="@+id/txtForgotPassword"
         android:layout_width="wrap_content"
@@ -136,8 +136,9 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:clickable="true"
-        android:text="Forgot Password?"
+        android:text="Forgot Password? Click here"
         android:textColor="@color/colorAccent" />
+
 
     <ProgressBar
         android:id="@+id/progressBar"

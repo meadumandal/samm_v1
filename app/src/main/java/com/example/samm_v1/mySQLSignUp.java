@@ -55,7 +55,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
      *
      * This updates the movement of passengers in mySQL Database
      * @param context
-     * @param activity
+     * @param _activity
      * @param progressMessage Message that will appear in UI while processing
      * @param map Pass the main map of the app, so the asynctask will be able to pin the location of destinations
      */

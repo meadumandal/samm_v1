@@ -1,6 +1,9 @@
 package com.example.samm_v1;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -77,6 +80,14 @@ public class Helper {
     {
         int resp = GooglePlayServicesUtil.isGooglePlayServicesAvailable(context);
         return(resp == ConnectionResult.SUCCESS);
+    }
+
+    public void showNoInternetPrompt(Activity activity)
+    {
+        NoInternetDialog dialog=new NoInternetDialog(activity);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
+        dialog.show();
     }
 
 

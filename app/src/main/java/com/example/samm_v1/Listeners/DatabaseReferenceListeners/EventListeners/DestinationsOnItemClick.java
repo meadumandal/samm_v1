@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.example.samm_v1.AnalyzeForBestRoutes;
 import com.example.samm_v1.EntityObjects.Destination;
+import com.example.samm_v1.Helper;
 import com.example.samm_v1.MenuActivity;
 import com.example.samm_v1.SessionManager;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +27,7 @@ public class DestinationsOnItemClick implements AdapterView.OnItemClickListener 
     public MenuActivity _activity;
     public Context _context;
     public SessionManager _sessionManager;
+    private static Helper _helper = new Helper();
 
 
     public DestinationsOnItemClick(MenuActivity activity, Context context)
@@ -37,26 +39,34 @@ public class DestinationsOnItemClick implements AdapterView.OnItemClickListener 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-        //hide keyboard on search ~
-        InputMethodManager mgr = (InputMethodManager) (this._activity).getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
-        saveDestination(chosenDestination.Value);
-
-        (this._activity)._candidateTerminals = new ArrayList<>();
-        for(Destination destination: (this._activity)._listDestinations)
+        if(MenuActivity.isOnline())
         {
-            if (destination.Direction.equals(chosenDestination.Direction))
+            //hide keyboard on search ~
+            InputMethodManager mgr = (InputMethodManager) (this._activity).getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
+            saveDestination(chosenDestination.Value);
+
+            (this._activity)._candidateTerminals = new ArrayList<>();
+            for(Destination destination: (this._activity)._listDestinations)
             {
-                if(destination.OrderOfArrival < chosenDestination.OrderOfArrival)
-                    (this._activity)._candidateTerminals.add(destination);
+                if (destination.Direction.equals(chosenDestination.Direction))
+                {
+                    if(destination.OrderOfArrival < chosenDestination.OrderOfArrival)
+                        (this._activity)._candidateTerminals.add(destination);
+                }
             }
+            new AnalyzeForBestRoutes(_context, _activity,
+                    (this._activity)._map, (this._activity)._currentLocation,
+                    (this._activity).getSupportFragmentManager(),
+                    (this._activity)._candidateTerminals, chosenDestination)
+                    .execute();
         }
-        new AnalyzeForBestRoutes(_context, _activity,
-                (this._activity)._map, (this._activity)._currentLocation,
-                (this._activity).getSupportFragmentManager(),
-                (this._activity)._candidateTerminals, chosenDestination)
-                .execute();
+        else
+        {
+            _helper.showNoInternetPrompt(this._activity);
+        }
+
     }
     private void saveDestination(String destinationValue)
     {

@@ -169,7 +169,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
 
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_bus_stop));
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
                 markerOptions.snippet("0 passenger/s waiting");
                 markerOptions.title(destination.Value);
                 Marker marker = _googleMap.addMarker(markerOptions);
