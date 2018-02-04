@@ -1,17 +1,25 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'Android-Release-Eleaz'
+            keyPassword 'eleazpogi'
+            storeFile file('/Users/eleazerarcilla/AndroidStudioProjects/AppReleaseKeyStore.jks')
+            storePassword 'eleazpogi'
+        }
+    }
     compileSdkVersion 24
     buildToolsVersion '25.0.0'
     useLibrary 'org.apache.http.legacy'
-
     defaultConfig {
-        applicationId "com.example.samm_v1"
+        applicationId "com.umandalmead.samm_v1"
         minSdkVersion 21
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        signingConfig signingConfigs.release
     }
     buildTypes {
         release {
@@ -19,7 +27,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
+    productFlavors {
+    }
 }
 
 dependencies {
@@ -42,5 +51,6 @@ dependencies {
     compile 'com.sothree.slidinguppanel:library:3.3.1'
     testCompile 'junit:junit:4.12'
     compile 'com.facebook.android:facebook-android-sdk:4.6.0'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
 }
 apply plugin: 'com.google.gms.google-services'

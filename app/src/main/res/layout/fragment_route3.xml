@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.samm_v1.RouteTabs.Route3">
+    tools:context="com.umandalmead.samm_v1.RouteTabs.Route3">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView

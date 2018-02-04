@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@color/colorWhite"
-    tools:context="com.example.samm_v1.MenuActivity">
+    tools:context="com.umandalmead.samm_v1.MenuActivity">
 
     <include layout="@layout/content_menu" />
 
@@ -14,7 +14,7 @@
         android:id="@+id/appBarLayout"
         android:animateLayoutChanges="true"
         android:layout_width="match_parent"
-        android:layout_height="78dp"
+        android:layout_height="120dp"
         android:backgroundTint="@color/colorBlack"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
@@ -40,22 +40,40 @@
                 android:gravity="center|right"
                 android:orientation="vertical">
 
+                <TextView
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                    android:layout_marginTop="10dp"
+                android:text="Current location"
+                android:drawableLeft="@drawable/ic_my_location_black_24dp"
+                android:textColor="@color/colorWhite"
+                    android:textSize="20dp"
+                    android:textStyle="italic"
+                android:id="@+id/tvcurrentlocation"
+                   android:drawablePadding="13dp"
+                    android:paddingLeft="0dp"
+                    android:scaleX="0.9"
+                    android:scaleY="0.8"
+
+                />
+
                 <LinearLayout
+                    android:id="@+id/searchlayoutcontainer"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="1"
+                    android:paddingTop="15dp"
                     android:background="@color/colorBlack"
                     android:gravity="center|right"
                     android:orientation="horizontal">
 
-                    <com.example.samm_v1.ClearableAutoCompleteTextView
+                    <com.umandalmead.samm_v1.ClearableAutoCompleteTextView
                         android:id="@+id/edit_destinations"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
                         android:layout_margin="5dp"
+                        android:layout_marginTop="100dp"
                         android:width="100dp"
-                        android:background="@drawable/rounded_corner"
-                        android:drawableLeft="@drawable/ic_search"
                         android:drawablePadding="5dp"
                         android:ems="12"
                         android:gravity="center|left"
@@ -67,7 +85,7 @@
                         android:visibility="visible">
 
                         <requestFocus />
-                    </com.example.samm_v1.ClearableAutoCompleteTextView>
+                    </com.umandalmead.samm_v1.ClearableAutoCompleteTextView>
 
                 </LinearLayout>
 
@@ -79,10 +97,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorBlack"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             android:visibility="gone"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:tabBackground="@drawable/route_tab_color_selector"
+            app:tabBackground="@color/colorBlack"
             app:tabSelectedTextColor="@color/colorWhite"
             app:tabTextColor="@color/colorWhite">
 

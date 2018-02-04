@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item android:drawable="@color/colorBlack"/>
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/sammlogo"/>
+        <!--<pl.droidsonroids.gif.GifTextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:background="@drawable/sammspin"-->
+            <!--/>-->
+    </item>
+</layer-list>
