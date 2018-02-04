@@ -87,8 +87,8 @@ public class DestinationAdapter extends ArrayAdapter<Destination>{
             ArrayList<Destination> c = (ArrayList<Destination>) results.values;
             if (results != null && results.count > 0) {
                 clear();
-                for (Destination cust : c) {
-                    add(cust);
+                for (Destination dest : c) {
+                    add(dest);
                     notifyDataSetChanged();
                 }
             }

@@ -40,9 +40,9 @@
                 android:gravity="center|right"
                 android:orientation="vertical">
 
-                <TextView
-                android:layout_width="match_parent"
-                android:layout_height="25dp"
+                <EditText
+                android:layout_width="189dp"
+                android:layout_height="35dp"
                     android:layout_marginTop="10dp"
                 android:text="Current location"
                 android:drawableLeft="@drawable/ic_my_location_black_24dp"
@@ -51,9 +51,13 @@
                     android:textStyle="italic"
                 android:id="@+id/tvcurrentlocation"
                    android:drawablePadding="13dp"
-                    android:paddingLeft="0dp"
+                    android:paddingLeft="5dp"
                     android:scaleX="0.9"
                     android:scaleY="0.8"
+                    android:inputType="none"
+                    android:editable="false"
+                    android:layout_gravity="left"
+                    android:background="@drawable/rounded_corner"
 
                 />
 

@@ -28,6 +28,7 @@
             android:label="@string/title_activity_menu"
             android:theme="@style/SplashTheme" />
         <activity android:name="com.umandalmead.samm_v1.SignUpActivity" />
+        <activity android:name="com.umandalmead.samm_v1.AboutActivity"/>
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.

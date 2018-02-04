@@ -1,9 +1,11 @@
 package com.umandalmead.samm_v1;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -11,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
@@ -38,6 +41,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -186,7 +190,7 @@ public class MenuActivity extends AppCompatActivity implements
             public static AppBarLayout AppBar;
             public static Toolbar toolbar;
     public static LinearLayout SearchLinearLayout;
-    public  static TextView CurrentLocation;
+    public  static EditText CurrentLocation;
 
 
             public boolean checkLocationPermission()
@@ -267,11 +271,7 @@ public class MenuActivity extends AppCompatActivity implements
                     HeaderUserFullName = (TextView) NavHeaderView.findViewById(R.id.HeaderUserFullName);
                     HeaderUserEmail = (TextView) NavHeaderView.findViewById(R.id.HeaderUserEmail);
                     SearchLinearLayout = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
-                    CurrentLocation = (TextView) findViewById(R.id.tvcurrentlocation);
-
-
-
-
+                    CurrentLocation = (EditText) findViewById(R.id.tvcurrentlocation);
 
                     UserNameMenuItem.setTitle(_sessionManager.getFullName());
                     HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
@@ -756,19 +756,40 @@ public class MenuActivity extends AppCompatActivity implements
                 android.app.FragmentManager fragment = getFragmentManager();
 
                 if (id == R.id.nav_share) {
-
-                    // fragment.beginTransaction().replace(R.id.content_frame, new MapsActivity()).commit();
                     startActivity(new Intent(MenuActivity.this, MapsActivity.class));
                 } else if (id == R.id.nav_logout) {
-                    LoginManager.getInstance().logOut();
-                    _sessionManager.logoutUser();
-                    IsLoggingOut = true;
-                    Intent i = new Intent(MenuActivity.this, LoginActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(i);
-                    Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
+                    AlertDialog.Builder builder;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+                    } else {
+                        builder = new AlertDialog.Builder(this);
+                    }
+                    builder.setTitle("Log out")
+                            .setMessage("Are you sure you want to log out?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    LoginManager.getInstance().logOut();
+                                    _sessionManager.logoutUser();
+                                    IsLoggingOut = true;
+                                    Intent i = new Intent(MenuActivity.this, LoginActivity.class);
+                                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(i);
+                                    Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
 
+
+                }
+                else if(id==R.id.nav_about){
+                    startActivity(new Intent(MenuActivity.this, AboutActivity.class));
                 }
 
                 DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
