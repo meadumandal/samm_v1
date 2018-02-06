@@ -1,5 +1,6 @@
 package com.umandalmead.samm_v1;
 
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -23,6 +24,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -40,6 +43,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,6 +53,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.CameraPosition;
 import com.umandalmead.samm_v1.EntityObjects.Destination;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
@@ -159,7 +165,8 @@ public class MenuActivity extends AppCompatActivity implements
              Marker _marker;
             public Boolean IsLoggingOut = false;
     public String fbImg;
-
+    Marker _markerAnimate;
+    private Boolean isMarkerRotating = false;
 
 
             protected static final String TAG = "mead";
@@ -343,17 +350,14 @@ public class MenuActivity extends AppCompatActivity implements
                         @Override
                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                             try {
+                                final String deviceId = dataSnapshot.getKey();
 
-
-
-                                String deviceId = dataSnapshot.getKey();
-
-                                Marker marker;
-                                marker = (Marker) _driverMarkers.get(deviceId);
-                                if (marker != null) {
-                                    marker.remove();
-                                    _driverMarkers.remove(deviceId);
-                                }
+//                                Marker marker;
+//                                marker = (Marker) _driverMarkers.get(deviceId);
+//                                if (marker != null) {
+//                                    marker.remove();
+//                                    _driverMarkers.remove(deviceId);
+//                                }
                                 Object Latitude = dataSnapshot.child("Lat").getValue();
                                 Object Longitude = dataSnapshot.child("Lng").getValue();
                                 double lat, lng;
@@ -365,28 +369,52 @@ public class MenuActivity extends AppCompatActivity implements
                                     lng = 0.0;
                                 else
                                     lng = Double.parseDouble(Longitude.toString());
-                                LatLng latLng = new LatLng(lat, lng);
+                                final LatLng latLng = new LatLng(lat, lng);
 
-                                Location prevLocation = new Location("");
-                                Location currLocation = new Location("");
+                                final Location prevLocation = new Location("");
+                                final Location currLocation = new Location("");
                                 prevLocation.setLatitude(Double.parseDouble(dataSnapshot.child("PrevLat").getValue().toString()));
                                 prevLocation.setLongitude(Double.parseDouble(dataSnapshot.child("PrevLng").getValue().toString()));
                                 currLocation.setLatitude(lat);
                                 currLocation.setLongitude(lng);
-                                float bearing = prevLocation.bearingTo(currLocation);
+                                final float bearing =  (float)bearingBetweenLocations(prevLocation,currLocation);//prevLocation.bearingTo(currLocation);
 
                                 if (_map != null) {
                                     if (_chosenTerminal == null) {
-                                        MarkerOptions markerOptions = new MarkerOptions();
-                                        markerOptions.position(latLng);
-                                        markerOptions.title(deviceId);
-                                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop));
-                                        markerOptions.anchor(0.5f, 0.5f);
-                                        markerOptions.rotation(bearing);
-                                        marker = _map.addMarker(markerOptions);
+                                        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+                                        valueAnimator.setDuration(2000);
+                                        valueAnimator.setInterpolator(new LinearInterpolator());
+                                        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                            @Override
+                                            public void onAnimationUpdate(ValueAnimator valueAnimator) {
 
-                                        marker.showInfoWindow();
-                                        _driverMarkers.put(deviceId, marker);
+                                                _markerAnimate = (Marker) _driverMarkers.get(deviceId);
+                                                final MarkerOptions markerOptions = new MarkerOptions();
+                                                markerOptions.position(latLng);
+                                                markerOptions.title(deviceId);
+                                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop));
+                                                float  v = valueAnimator.getAnimatedFraction();
+                                                double lng = v * currLocation.getLongitude() + (1 - v)
+                                                        * prevLocation.getLongitude();
+                                                double lat = v * currLocation.getLatitude() + (1 - v)
+                                                        * prevLocation.getLatitude();
+                                                LatLng newPos = new LatLng(lat, lng);
+                                                if(_markerAnimate==null) {
+                                                    _markerAnimate = _map.addMarker(markerOptions);
+                                                }
+                                                if(bearing!=0.0){
+                                                    _markerAnimate.setPosition(newPos);
+                                                    _markerAnimate.setAnchor(0.5f, 0.5f);
+                                                    _markerAnimate.setRotation(bearing);
+                                                    rotateMarker(_markerAnimate, bearing);
+                                                }
+                                                _markerAnimate.showInfoWindow();
+                                                _driverMarkers.put(deviceId, _markerAnimate);
+
+                                            }
+                                            });
+                                             valueAnimator.start();
+
                                     } else {
                                         //ShowLoopTimeofArrival(latLng, bearing, deviceId);
                                     }
@@ -472,6 +500,57 @@ public class MenuActivity extends AppCompatActivity implements
                 }
             }
 
+    private double bearingBetweenLocations(Location PrevLoc,Location CurrLoc) {
+
+        double PI = 3.14159;
+        double lat1 = PrevLoc.getLatitude() * PI / 180;
+        double long1 = PrevLoc.getLongitude() * PI / 180;
+        double lat2 = CurrLoc.getLatitude() * PI / 180;
+        double long2 = CurrLoc.getLongitude() * PI / 180;
+
+        double dLon = (long2 - long1);
+
+        double y = Math.sin(dLon) * Math.cos(lat2);
+        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
+                * Math.cos(lat2) * Math.cos(dLon);
+
+        double brng = Math.atan2(y, x);
+
+        brng = Math.toDegrees(brng);
+        brng = (brng + 360) % 360;
+
+        return brng;
+    }
+    private void rotateMarker(final Marker marker, final float toRotation) {
+        if(!isMarkerRotating) {
+            final Handler handler = new Handler();
+            final long start = SystemClock.uptimeMillis();
+            final float startRotation = marker.getRotation();
+            final long duration = 1000;
+
+            final Interpolator interpolator = new LinearInterpolator();
+
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    isMarkerRotating = true;
+
+                    long elapsed = SystemClock.uptimeMillis() - start;
+                    float t = interpolator.getInterpolation((float) elapsed / duration);
+
+                    float rot = t * toRotation + (1 - t) * startRotation;
+
+                    marker.setRotation(-rot > 180 ? rot / 2 : rot);
+                    if (t < 1.0) {
+                        // Post again 16ms later.
+                        handler.postDelayed(this, 16);
+                    } else {
+                        isMarkerRotating = false;
+                    }
+                }
+            });
+        }
+    }
             @Override
             public void onMapReady(GoogleMap googleMap) {
                 Log.i(TAG,"onMapReady");
