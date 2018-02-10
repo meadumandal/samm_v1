@@ -2,6 +2,7 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -57,11 +58,11 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
 
 
     protected static final String TAG = "Mead";
-    public static float RADIUS = 20;
+    public static float RADIUS = 10;
     public static final int LOITERINGDELAY = 10000;
     private GeofencingApi mGeofenceApi;
     private List<Destination> mDestinations;
-
+    ProgressDialog progDialog;
 
 
 
@@ -75,13 +76,13 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
      */
     public mySQLDestinationProvider(Context context, Activity activity, String progressMessage, GoogleMap map, GoogleApiClient googleApiClient)
     {
-
         Log.i(TAG, "Called mySQLDestinationProvider");
         this.mGeofenceApi = LocationServices.GeofencingApi;
         this._context = context;
         this._activity = activity;
         this._googleMap = map;
         this.mGoogleApiClient = googleApiClient;
+        progDialog = new ProgressDialog(this._activity);
 
     }
 
@@ -91,6 +92,13 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         try
         {
             super.onPreExecute();
+            progDialog.setMax(100);
+            progDialog.setMessage("The app is initializing, please wait...");
+            progDialog.setTitle("Initializing Data");
+            progDialog.setIndeterminate(false);
+            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progDialog.setCancelable(false);
+            progDialog.show();
         }
         catch(Exception e)
         {
@@ -206,6 +214,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
             }
         }
         startGeofence(destinations);
+        progDialog.dismiss();
     }
 
     // Start Geofence creation process

@@ -30,6 +30,8 @@ public class SessionManager {
     private static final String IS_LOGIN = "IsLoggedIn";
     private static final String ERROR_MSG = "ErrorMsg";
 
+    private static final String REPORT_TYPE = "ReportType";
+
 
 
 
@@ -51,6 +53,15 @@ public class SessionManager {
         prefEditor.putBoolean(IS_LOGIN, true);
 
         prefEditor.commit();
+    }
+    public void PassReportType(String reportType)
+    {
+        prefEditor.putString(REPORT_TYPE, reportType);
+        prefEditor.commit();
+    }
+    public String GetReportType()
+    {
+        return pref.getString(REPORT_TYPE,null);
     }
     public void CreateLoginSession(boolean isLoggedIn, String errorMsg)
     {
@@ -84,6 +95,10 @@ public class SessionManager {
     {
         return pref.getBoolean(IS_LOGIN, false) && firebaseAuth.getCurrentUser()!=null;
     }
+    public boolean isDriver()
+    {
+        return pref.getBoolean(KEY_ISDRIVER,false);
+    }
     public void checkLogin()
     {
         if (!this.isLoggedIn())
@@ -99,8 +114,6 @@ public class SessionManager {
         prefEditor.clear();
         prefEditor.commit();
         firebaseAuth.signOut();
-
-
 
     }
 

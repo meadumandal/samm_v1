@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:text="Calculating..."
+        android:text="The e-loop will arrive in 3 minutes. There are 0 passenger/s waiting in this terminal."
         android:paddingLeft="10dp"
         android:textSize="15dp"
         android:textColor="@color/colorBlack"

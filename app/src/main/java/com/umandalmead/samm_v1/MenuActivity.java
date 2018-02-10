@@ -29,11 +29,13 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +45,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
@@ -119,7 +122,9 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import static com.umandalmead.samm_v1.R.id.appBarLayout;
 import static com.umandalmead.samm_v1.R.id.map;
+import static com.umandalmead.samm_v1.R.id.routepager;
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -152,7 +157,7 @@ public class MenuActivity extends AppCompatActivity implements
             PendingIntent _geoFencePendingIntent;
             private Circle _geofenceCircleLimits;
             private Marker _geofenceMarker;
-            public List<Destination> _listDestinations;
+            public static List<Destination> _listDestinations;
             public HashMap<String, Marker> _destinationMarkers = new HashMap<>();
 
             public HashMap _hashmapMarkerMap = new HashMap();
@@ -164,11 +169,10 @@ public class MenuActivity extends AppCompatActivity implements
             private Boolean IsOnline = false;
              Marker _marker;
             public Boolean IsLoggingOut = false;
-    public String fbImg;
-    Marker _markerAnimate;
-    private Boolean isMarkerRotating = false;
-
-
+            public String fbImg;
+            Marker _markerAnimate;
+            private Boolean isMarkerRotating = false;
+            public static final String DRIVERPREFIX="SAMM_";
             protected static final String TAG = "mead";
             public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
@@ -227,6 +231,7 @@ public class MenuActivity extends AppCompatActivity implements
 
             @Override
             protected void onCreate(Bundle savedInstanceState) {
+
                 setTheme(R.style.SplashTheme);
                 if (MenuActivity.isOnline()) {
                     Log.i(TAG, "onCreate");
@@ -283,6 +288,32 @@ public class MenuActivity extends AppCompatActivity implements
                     UserNameMenuItem.setTitle(_sessionManager.getFullName());
                     HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
                     HeaderUserEmail.setText(_sessionManager.getEmail());
+                    if (_sessionManager.isDriver())
+                    {
+                        //Prepare UI for driver
+                        LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
+                        EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
+
+                        searchContainer.setVisibility(View.GONE);
+                        tvcurrentlocation.setVisibility(View.GONE);
+                        AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appBarLayout);
+
+                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)appbar.getLayoutParams();
+                        lp.height = 150;
+
+                        //show route tabs and slide up panel ~
+//                        RouteTabLayout.setVisibility(View.VISIBLE);
+                        RoutePane.setVisibility(View.VISIBLE);
+
+                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+//                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                        TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+                        TextView sammDriver = (TextView) findViewById(R.id.sammdriver);
+                        sammDriver.setVisibility(View.VISIBLE);
+                        TimeOfArrivalTextView.setText("You are approaching FASTBYTES terminal, there are NO PASSENGER WAITING");
+
+
+                    }
 
                     RouteTabLayout.setMinimumWidth(150);
                     fbImg = "http://graph.facebook.com/"+_sessionManager.getUsername()+"/picture?type=large";
@@ -340,7 +371,7 @@ public class MenuActivity extends AppCompatActivity implements
                     mapFragment.getMapAsync(this);
 
 
-                    _userDatabaseReference.addChildEventListener(new AddUserMarkersListener(this));
+                    _userDatabaseReference.addChildEventListener(new AddUserMarkersListener(getApplicationContext(), this));
 
                     _driverDatabaseReference.addChildEventListener(new ChildEventListener() {
                         @Override
@@ -351,6 +382,7 @@ public class MenuActivity extends AppCompatActivity implements
                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                             try {
                                 final String deviceId = dataSnapshot.getKey();
+
 
 //                                Marker marker;
 //                                marker = (Marker) _driverMarkers.get(deviceId);
@@ -370,6 +402,13 @@ public class MenuActivity extends AppCompatActivity implements
                                 else
                                     lng = Double.parseDouble(Longitude.toString());
                                 final LatLng latLng = new LatLng(lat, lng);
+                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, "")))
+                                {
+
+                                    //move map camera
+                                    _map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                    _map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
+                                }
 
                                 final Location prevLocation = new Location("");
                                 final Location currLocation = new Location("");
@@ -391,8 +430,17 @@ public class MenuActivity extends AppCompatActivity implements
                                                 _markerAnimate = (Marker) _driverMarkers.get(deviceId);
                                                 final MarkerOptions markerOptions = new MarkerOptions();
                                                 markerOptions.position(latLng);
-                                                markerOptions.title(deviceId);
-                                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop));
+//                                                markerOptions.title(deviceId);
+                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, "")))
+                                                {
+                                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
+
+
+                                                }
+                                                else {
+                                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop));
+                                                }
+
                                                 float  v = valueAnimator.getAnimatedFraction();
                                                 double lng = v * currLocation.getLongitude() + (1 - v)
                                                         * prevLocation.getLongitude();
@@ -408,7 +456,12 @@ public class MenuActivity extends AppCompatActivity implements
                                                     _markerAnimate.setRotation(bearing);
                                                     rotateMarker(_markerAnimate, bearing);
                                                 }
-                                                _markerAnimate.showInfoWindow();
+                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, "")))
+                                                {
+                                                    _markerAnimate.setTitle("HEY!");
+                                                    _markerAnimate.setSnippet("It's you");
+                                                    _markerAnimate.showInfoWindow();
+                                                }
                                                 _driverMarkers.put(deviceId, _markerAnimate);
 
                                             }
@@ -448,7 +501,7 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 Marker terminalEntered = _destinationMarkers.get(dataSnapshot.getKey());
                                 terminalEntered.showInfoWindow();
-                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passengers waiting");
+                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
                             } catch (Exception ex) {
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -459,7 +512,7 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 Marker terminalEntered = _destinationMarkers.get(dataSnapshot.getKey());
                                 terminalEntered.showInfoWindow();
-                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passengers waiting");
+                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
                             } catch (Exception ex) {
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -470,7 +523,7 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 Marker terminalEntered = _destinationMarkers.get(dataSnapshot.getKey());
                                 terminalEntered.showInfoWindow();
-                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passengers waiting");
+                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
                             } catch (Exception ex) {
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -597,33 +650,38 @@ public class MenuActivity extends AppCompatActivity implements
             public void onLocationChanged(Location location) {
 
                 if(!IsLoggingOut) {
-                    if (_currentLocationMarker != null) {
-                        _currentLocationMarker.remove();
-                    }
-                    //Place current location marker
-                    double lat = location.getLatitude();
-                    double lng = location.getLongitude();
-                    _currentLocation = new LatLng(lat, lng);
+                    if(!_sessionManager.isDriver())
+                    {
+                        if (_currentLocationMarker != null) {
+                            _currentLocationMarker.remove();
+                        }
+                        //Place current location marker
+                        double lat = location.getLatitude();
+                        double lng = location.getLongitude();
+                        _currentLocation = new LatLng(lat, lng);
 
-                    saveLocation(lat, lng);
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    markerOptions.position(_currentLocation);
+                        saveLocation(lat, lng);
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(_currentLocation);
 //                markerOptions.title(_sessionManager.getUsername());
-                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-                    _currentLocationMarker = _map.addMarker(markerOptions);
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
-                    if (_isFirstLoad) {
-                        _isFirstLoad = false;
-                        //move map camera
-                        _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
-                        _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                        _currentLocationMarker = _map.addMarker(markerOptions);
+
+                        if (_isFirstLoad) {
+                            _isFirstLoad = false;
+                            //move map camera
+                            _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                            _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                        }
+
+                        //stop location updates
+                        if (_googleApiClient != null) {
+                            LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
+                        }
                     }
 
-                    //stop location updates
-                    if (_googleApiClient != null) {
-                        LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
-                    }
                 }
 
             }
@@ -831,48 +889,72 @@ public class MenuActivity extends AppCompatActivity implements
             public boolean onNavigationItemSelected(MenuItem item) {
 
                 // Handle navigation view item clicks here.
-                int id = item.getItemId();
-                android.app.FragmentManager fragment = getFragmentManager();
+                try {
+                    int id = item.getItemId();
+                    android.app.FragmentManager fragment = getFragmentManager();
 
-                if (id == R.id.nav_share) {
-                    startActivity(new Intent(MenuActivity.this, MapsActivity.class));
-                } else if (id == R.id.nav_logout) {
-                    AlertDialog.Builder builder;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-                    } else {
-                        builder = new AlertDialog.Builder(this);
+                    if (id == R.id.nav_share) {
+                        startActivity(new Intent(MenuActivity.this, MapsActivity.class));
+                    } else if (id == R.id.nav_logout) {
+                        AlertDialog.Builder builder;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+                        } else {
+                            builder = new AlertDialog.Builder(this);
+                        }
+                        builder.setTitle("Log out")
+                                .setMessage("Are you sure you want to log out?")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        LoginManager.getInstance().logOut();
+                                        _sessionManager.logoutUser();
+                                        IsLoggingOut = true;
+                                        Intent i = new Intent(MenuActivity.this, LoginActivity.class);
+                                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(i);
+                                        Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // do nothing
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+
+
                     }
-                    builder.setTitle("Log out")
-                            .setMessage("Are you sure you want to log out?")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    LoginManager.getInstance().logOut();
-                                    _sessionManager.logoutUser();
-                                    IsLoggingOut = true;
-                                    Intent i = new Intent(MenuActivity.this, LoginActivity.class);
-                                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(i);
-                                    Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // do nothing
-                                }
-                            })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
+                    else if(id==R.id.nav_about){
+                        startActivity(new Intent(MenuActivity.this, AboutActivity.class));
+
+                    }
+                    else if (id == R.id.nav_passengerpeakandlean)
+                    {
+                        _sessionManager.PassReportType("passenger");
+
+                        Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
+                        startActivity(i);
+//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+                    }
+                    else if (id == R.id.nav_ecolooppeakandlean)
+                    {
+                        _sessionManager.PassReportType("ecoloop");
+                        Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
+                        startActivity(i);
+//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+                    }
 
 
+                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                    drawer.closeDrawer(GravityCompat.START);
+                    return true;
                 }
-                else if(id==R.id.nav_about){
-                    startActivity(new Intent(MenuActivity.this, AboutActivity.class));
+                catch(Exception ex)
+                {
+                    Toast.makeText(MenuActivity.this,ex.getMessage(), Toast.LENGTH_LONG).show();
                 }
-
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                drawer.closeDrawer(GravityCompat.START);
                 return true;
             }
 
@@ -1032,7 +1114,11 @@ public class MenuActivity extends AppCompatActivity implements
                         == PackageManager.PERMISSION_GRANTED );
             }
 
+            private void updatePassengerCounter(String username, String terminal)
+            {
+                new mySQLUpdatePassengerCounter(getApplicationContext(), this).execute(username, terminal);
 
+            }
             private void passengerMovement(final String destinationValue, final String movement)
             {
                 final HashMap<String, Object> count = new HashMap<>();
@@ -1045,10 +1131,18 @@ public class MenuActivity extends AppCompatActivity implements
                         if(dataSnapshot == null || dataSnapshot.getValue() == null)
                         {
                             if(movement.toLowerCase().equals("entered"))
+                            {
                                 _destinationDatabaseReference.child(destinationValue).child(uid).setValue(true);
+                                updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
+                            }
+
                         }
                         else if(movement.toLowerCase().equals("exit")){
                                 _destinationDatabaseReference.child(destinationValue).child(uid).removeValue();
+                        }
+                        else if (movement.toLowerCase().equals("entered"))
+                        {
+                            updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
                         }
                     }
 
@@ -1270,49 +1364,53 @@ public class MenuActivity extends AppCompatActivity implements
             }
             private void initialiseOnlinePresence() {
                 // any time that connectionsRef's value is null, device is offline
-                final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                final DatabaseReference myConnectionsRef = database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+                if (!_sessionManager.isDriver())
+                {
+                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    final DatabaseReference myConnectionsRef = database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
 
-                // stores the timestamp of last online
-                final DatabaseReference lastOnlineRef = database.getReference("/users/" + _sessionManager.getUsername()+ "/lastOnline");
+                    // stores the timestamp of last online
+                    final DatabaseReference lastOnlineRef = database.getReference("/users/" + _sessionManager.getUsername()+ "/lastOnline");
 
-                final DatabaseReference connectedRef = database.getReference(".info/connected");
-                connectedRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        boolean connected = snapshot.getValue(Boolean.class);
-                        if (connected) {
-                            // when this device disconnects, remove it
-                            myConnectionsRef.onDisconnect().setValue(false);
-                            // update the last online timestamp
-                            lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+                    final DatabaseReference connectedRef = database.getReference(".info/connected");
+                    connectedRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            boolean connected = snapshot.getValue(Boolean.class);
+                            if (connected) {
+                                // when this device disconnects, remove it
+                                myConnectionsRef.onDisconnect().setValue(false);
+                                // update the last online timestamp
+                                lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
 
-                            // add this device to connections list
-                            myConnectionsRef.setValue(true);
+                                // add this device to connections list
+                                myConnectionsRef.setValue(true);
 
-                            final DatabaseReference destinationReference = database.getReference("destinations");
-                            destinationReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    for(DataSnapshot snapshot:dataSnapshot.getChildren())
-                                    {
-                                        destinationReference.child(snapshot.getKey().toString()).child(_sessionManager.getUsername()).onDisconnect().removeValue();
+                                final DatabaseReference destinationReference = database.getReference("destinations");
+                                destinationReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for(DataSnapshot snapshot:dataSnapshot.getChildren())
+                                        {
+                                            destinationReference.child(snapshot.getKey().toString()).child(_sessionManager.getUsername()).onDisconnect().removeValue();
+                                        }
                                     }
-                                }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
-                                }
-                            });
+                                    }
+                                });
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError error) {
-                        System.err.println("Listener was cancelled at .info/connected");
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                            System.err.println("Listener was cancelled at .info/connected");
+                        }
+                    });
+                }
+
             }
 
     private class FetchFBDPTask extends AsyncTask<String, Void, Bitmap> {

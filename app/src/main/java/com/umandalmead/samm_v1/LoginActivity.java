@@ -21,6 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.umandalmead.samm_v1.EntityObjects.User;
 import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.facebook.AccessToken;
@@ -183,7 +185,7 @@ public class LoginActivity extends AppCompatActivity{
                     if (usernameField.getText().toString().trim().length() == 0)
                     {
                         try {
-                            ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter your username \n or email-address");
+                            ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an email address.");
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                             dialog.show();
                         }
@@ -191,6 +193,51 @@ public class LoginActivity extends AppCompatActivity{
                         {
                                 Log.e(TAG, e.getMessage());
                         }
+
+                    }
+                    else {
+                        if (Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches())
+                        {
+                            FirebaseAuth.getInstance().sendPasswordResetEmail(usernameField.getText().toString())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d(TAG, "Email sent.");
+                                            }
+                                            else
+                                            {
+                                                Log.e(TAG,task.getException().toString());
+                                            }
+                                        }
+                                    })
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+
+
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.e(TAG, e.getMessage());
+                                }
+                            });
+
+                        }
+                        else {
+                            try {
+                                ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an e-mail address");
+                                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                dialog.show();
+                            }
+                            catch(Exception e)
+                            {
+                                Log.e(TAG, e.getMessage());
+                            }
+                        }
+
 
                     }
 
@@ -220,9 +267,9 @@ public class LoginActivity extends AppCompatActivity{
                         Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.VISIBLE);
                     } else {
-                        if (Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
-                            signIn(username, password);
-                        } else {
+//                        if (Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
+//                            signIn(username, password);
+//                        } else {
 //                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
                             String url = "http://meadumandal.website/sammAPI/";
                             Retrofit retrofit = new Retrofit.Builder()
@@ -235,7 +282,7 @@ public class LoginActivity extends AppCompatActivity{
                                 @Override
                                 public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
                                     try {
-                                        signIn(response.body().getEmailAddress(), password);
+                                        signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
                                         }
                                         //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                     catch (Exception e) {
@@ -249,7 +296,7 @@ public class LoginActivity extends AppCompatActivity{
                                     Log.d(TAG, t.toString());
                                 }
                             });
-                        }
+//                        }
                     }
 
                 }
@@ -261,7 +308,7 @@ public class LoginActivity extends AppCompatActivity{
             _helper.showNoInternetPrompt(this);
         }
     }
-    private void signIn(final String email, String password)
+    private void signIn(final String email, String password, final String _lastName, final String _firstName, final String _username)
     {
         userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(email, password)
@@ -276,46 +323,17 @@ public class LoginActivity extends AppCompatActivity{
                         else
                         {
                             try{
-                                Query query = userDatabaseRef.child("users").orderByChild("emailAddress").equalTo(email);
-                                query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                        if(dataSnapshot != null)
-                                        {
-                                            String value = dataSnapshot.getValue().toString();
-                                            String username = value.substring(1, value.indexOf('='));
-                                            userDatabaseRef.child("users").child(username)
-                                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                                        @Override
-                                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            if(dataSnapshot!=null)
-                                                            {
-                                                                String firstName = dataSnapshot.child("firstName").getValue().toString();
-                                                                String lastName = dataSnapshot.child("lastName").getValue().toString();
-                                                                String username = dataSnapshot.child("username").getValue().toString();
-                                                                sessionManager.CreateLoginSession(firstName,lastName, username,email,false);
-                                                                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                                                                startActivity(intent);
-                                                                finish();
-                                                                Toast.makeText(LoginActivity.this, ("Logged in as "+ username ), Toast.LENGTH_LONG).show();
-
-                                                            }
-                                                        }
-
-                                                        @Override
-                                                        public void onCancelled(DatabaseError databaseError) {
-
-                                                        }
-                                                    });
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
+                                String firstName = _firstName;
+                                String lastName = _lastName;
+                                String username =  _username;
+                                boolean isDriver = false;
+                                if(email.equals("sammdriver@yahoo.com"))
+                                    isDriver = true;
+                                sessionManager.CreateLoginSession(firstName,lastName, username,email,isDriver);
+                                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                                startActivity(intent);
+                                finish();
+                                Toast.makeText(LoginActivity.this, ("Logged in as "+ username ), Toast.LENGTH_LONG).show();
                             }
                             catch(Exception ex)
                             {
@@ -374,7 +392,7 @@ public class LoginActivity extends AppCompatActivity{
 
                         } else {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginActivity.this, "Authentication failed : " + task.getException(),
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

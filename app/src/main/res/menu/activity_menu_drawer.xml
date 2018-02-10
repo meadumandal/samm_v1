@@ -11,27 +11,39 @@
                 android:icon="@drawable/ic_person_black_24dp"
                 />
 
-            <item
-                android:id="@+id/menu_settings"
-                android:title="Settings"
-                android:icon="@drawable/ic_setting_light"
-                />
+            <!--<item-->
+                <!--android:id="@+id/menu_settings"-->
+                <!--android:title="Settings"-->
+                <!--android:icon="@drawable/ic_setting_light"-->
+                <!--/>-->
+
+
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_close_black_24dp"
                 android:title="Logout" />
         </menu>
-        </item>
+    </item>
+    <item android:title="Reports" >
+        <menu>
+            <item android:id="@+id/nav_passengerpeakandlean"
+                android:icon="@drawable/ic_reports_black_24dp"
+                android:title="Passenger Flow"/>
+            <item android:id="@+id/nav_ecolooppeakandlean"
+                android:icon="@drawable/ic_reports_black_24dp"
+                android:title="Ecoloop Flow"/>
+        </menu>
+    </item>
     <item android:title="SAMM HELP">
         <menu>
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_zoom_out_map_black_24dp"
                 android:title="Full Map" />
-            <item
-                android:id="@+id/nav_report"
-                android:icon="@drawable/ic_report_problem_black_24dp"
-                android:title="Report" />
+            <!--<item-->
+                <!--android:id="@+id/nav_report"-->
+                <!--android:icon="@drawable/ic_report_problem_black_24dp"-->
+                <!--android:title="Report" />-->
             <item
                 android:id="@+id/nav_about"
                 android:icon="@drawable/ic_info_outline_black_24dp"

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorWhite"
+    tools:context="com.umandalmead.samm_v1.ReportsActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:animateLayoutChanges="true"
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:backgroundTint="@color/colorBlack"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorBlack"
+            android:elevation="1dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            android:tint="@color/colorBlack"
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorBlack"
+                android:gravity="center|left"
+                android:orientation="vertical"
+                >
+
+                <EditText
+                    android:id="@+id/reportDate"
+                    android:clickable="true"
+                    android:editable="false"
+                    android:hint="Choose a date"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:layout_marginTop="100dp"
+                    android:width="100dp"
+                    android:drawablePadding="5dp"
+                    android:ems="12"
+                    android:gravity="center|left"
+                    android:maxLines="1"
+                    android:paddingLeft="10dp"
+                    android:textColor="@color/colorWhite"
+                    android:textColorHint="@color/colorWhite"
+                    android:textAlignment="center"
+                    android:visibility="visible"
+                    android:backgroundTint="@color/colorAccent"
+                    android:focusable="false"/>
+
+
+                <com.umandalmead.samm_v1.ClearableAutoCompleteTextView
+                    android:id="@+id/reportTerminal"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_margin="5dp"
+                    android:layout_marginTop="100dp"
+                    android:textAlignment="center"
+                    android:width="100dp"
+                    android:drawablePadding="5dp"
+                    android:ems="12"
+                    android:gravity="center|left"
+                    android:hint="Where are you going?"
+                    android:maxLines="1"
+                    android:paddingLeft="10dp"
+                    android:textColor="@color/colorWhite"
+                    android:textColorHint="@color/colorWhite"
+                    android:visibility="visible">
+
+                    <requestFocus />
+                </com.umandalmead.samm_v1.ClearableAutoCompleteTextView>
+                <Button
+                    android:id="@+id/btnViewReport"
+                    style="?android:textAppearanceSmall"
+                    android:layout_width="200dp"
+                    android:layout_height="42dp"
+                    android:layout_gravity="center"
+
+                    android:layout_weight=".4"
+                    android:background="@drawable/oval_background"
+                    android:text="View Report"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+
+</android.support.design.widget.CoordinatorLayout>

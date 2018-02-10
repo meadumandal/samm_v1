@@ -18,6 +18,6 @@ public class AboutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
         SammTV = (TextView) findViewById(R.id.SAMM_text);
-        SammTV.setText(Html.fromHtml("<b>SAMM</b> <i>(Saan Ako Mabilis Makakasakay)</i>"));
+        SammTV.setText(Html.fromHtml("<b>SAMM</b> <i></i>"));
     }
 }

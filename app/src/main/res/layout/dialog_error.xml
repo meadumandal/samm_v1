@@ -21,18 +21,19 @@
 
     <TextView
         android:id="@+id/txtErrorMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/imageView"
+        android:layout_centerHorizontal="true"
         android:fontFamily="casual"
         android:text="---"
+        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="14sp"
         android:textStyle="bold"
         tools:layout_editor_absoluteX="52dp"
-        tools:layout_editor_absoluteY="275dp"
-        android:layout_alignTop="@+id/imageView"
-        android:layout_centerHorizontal="true" />
+        tools:layout_editor_absoluteY="275dp" />
 
 
 

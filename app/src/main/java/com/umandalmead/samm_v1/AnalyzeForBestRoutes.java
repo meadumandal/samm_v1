@@ -418,7 +418,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     }
     public String GenerateFinalStep(Destination end, Destination start){
         int dist = end.OrderOfArrival - start.OrderOfArrival;
-        return "Alight after <b>" + dist + " stop"+(dist > 1 ? "s":"")+"</b>.</td><tr>";
+        return "Ride the e-loop and alight after <b>" + dist + " stop"+(dist > 1 ? "s":"")+"</b>.</td><tr>";
     }
 
 

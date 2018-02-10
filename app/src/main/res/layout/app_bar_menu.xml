@@ -39,6 +39,18 @@
                 android:background="@color/colorBlack"
                 android:gravity="center|right"
                 android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="SAMM DRIVER"
+                    android:id="@+id/sammdriver"
+                    android:textColor="@color/colorAccent"
+                    android:fontFamily="casual"
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:textSize="25dp"
+                    android:visibility="gone"
+                    />
 
                 <EditText
                 android:layout_width="189dp"
