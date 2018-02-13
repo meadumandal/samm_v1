@@ -14,7 +14,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
@@ -33,9 +32,9 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -45,7 +44,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
@@ -56,7 +54,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.CameraPosition;
 import com.umandalmead.samm_v1.EntityObjects.Destination;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
@@ -122,9 +119,7 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import static com.umandalmead.samm_v1.R.id.appBarLayout;
 import static com.umandalmead.samm_v1.R.id.map;
-import static com.umandalmead.samm_v1.R.id.routepager;
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -546,6 +541,7 @@ public class MenuActivity extends AppCompatActivity implements
                     IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
                     intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
+
                     registerReceiver(_broadcastReceiver, intentFilter);
                     initialiseOnlinePresence();
 
@@ -891,7 +887,7 @@ public class MenuActivity extends AppCompatActivity implements
                 // Handle navigation view item clicks here.
                 try {
                     int id = item.getItemId();
-                    android.app.FragmentManager fragment = getFragmentManager();
+                    FragmentManager fragment = getSupportFragmentManager();
 
                     if (id == R.id.nav_share) {
                         startActivity(new Intent(MenuActivity.this, MapsActivity.class));
@@ -927,16 +923,20 @@ public class MenuActivity extends AppCompatActivity implements
 
                     }
                     else if(id==R.id.nav_about){
-                        startActivity(new Intent(MenuActivity.this, AboutActivity.class));
+                        LinearLayout maps = (LinearLayout)findViewById(R.id.maps);
+                        maps.setVisibility(View.GONE);
+
+                        fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
+//                        startActivity(new Intent(MenuActivity.this, AboutActivity.class));
 
                     }
                     else if (id == R.id.nav_passengerpeakandlean)
                     {
                         _sessionManager.PassReportType("passenger");
+//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
 
                         Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
                         startActivity(i);
-//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
                     }
                     else if (id == R.id.nav_ecolooppeakandlean)
                     {
@@ -944,6 +944,13 @@ public class MenuActivity extends AppCompatActivity implements
                         Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
                         startActivity(i);
 //                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+                    } else if (id == R.id.nav_addGPS)
+                    {
+                        LinearLayout maps = (LinearLayout)findViewById(R.id.maps);
+                        maps.setVisibility(View.GONE);
+                        fragment.beginTransaction().replace(R.id.content_frame, new AddGPSFragment()).commit();
+//                        Intent i = new Intent(MenuActivity.this, AddGPSFragment.class);
+//                        startActivity(i);
                     }
 
 
@@ -1362,56 +1369,56 @@ public class MenuActivity extends AppCompatActivity implements
                 }
 
             }
-            private void initialiseOnlinePresence() {
-                // any time that connectionsRef's value is null, device is offline
-                if (!_sessionManager.isDriver())
-                {
-                    final FirebaseDatabase database = FirebaseDatabase.getInstance();
-                    final DatabaseReference myConnectionsRef = database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+    private void initialiseOnlinePresence() {
+        // any time that connectionsRef's value is null, device is offline
+        if (!_sessionManager.isDriver())
+        {
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference myConnectionsRef = database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
 
-                    // stores the timestamp of last online
-                    final DatabaseReference lastOnlineRef = database.getReference("/users/" + _sessionManager.getUsername()+ "/lastOnline");
+            // stores the timestamp of last online
+            final DatabaseReference lastOnlineRef = database.getReference("/users/" + _sessionManager.getUsername()+ "/lastOnline");
 
-                    final DatabaseReference connectedRef = database.getReference(".info/connected");
-                    connectedRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot snapshot) {
-                            boolean connected = snapshot.getValue(Boolean.class);
-                            if (connected) {
-                                // when this device disconnects, remove it
-                                myConnectionsRef.onDisconnect().setValue(false);
-                                // update the last online timestamp
-                                lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+            final DatabaseReference connectedRef = database.getReference(".info/connected");
+            connectedRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    boolean connected = snapshot.getValue(Boolean.class);
+                    if (connected) {
+                        // when this device disconnects, remove it
+                        myConnectionsRef.onDisconnect().setValue(false);
+                        // update the last online timestamp
+                        lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
 
-                                // add this device to connections list
-                                myConnectionsRef.setValue(true);
+                        // add this device to connections list
+                        myConnectionsRef.setValue(true);
 
-                                final DatabaseReference destinationReference = database.getReference("destinations");
-                                destinationReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        for(DataSnapshot snapshot:dataSnapshot.getChildren())
-                                        {
-                                            destinationReference.child(snapshot.getKey().toString()).child(_sessionManager.getUsername()).onDisconnect().removeValue();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
+                        final DatabaseReference destinationReference = database.getReference("destinations");
+                        destinationReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for(DataSnapshot snapshot:dataSnapshot.getChildren())
+                                {
+                                    destinationReference.child(snapshot.getKey().toString()).child(_sessionManager.getUsername()).onDisconnect().removeValue();
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(DatabaseError error) {
-                            System.err.println("Listener was cancelled at .info/connected");
-                        }
-                    });
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
                 }
 
-            }
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    System.err.println("Listener was cancelled at .info/connected");
+                }
+            });
+        }
+
+    }
 
     private class FetchFBDPTask extends AsyncTask<String, Void, Bitmap> {
         @Override

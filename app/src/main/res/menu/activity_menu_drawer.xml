@@ -24,7 +24,7 @@
                 android:title="Logout" />
         </menu>
     </item>
-    <item android:title="Reports" >
+    <item android:title="REPORTS" >
         <menu>
             <item android:id="@+id/nav_passengerpeakandlean"
                 android:icon="@drawable/ic_reports_black_24dp"
@@ -48,6 +48,23 @@
                 android:id="@+id/nav_about"
                 android:icon="@drawable/ic_info_outline_black_24dp"
                 android:title="About" />
+
+        </menu>
+    </item>
+    <item android:title="ADMIN TOOLS">
+        <menu>
+            <item
+                android:id="@+id/nav_addGPS"
+                android:icon="@drawable/ic_info_outline_black_24dp"
+                android:title="Add GPS Devices" />
+            <item
+                android:id="@+id/nav_viewGPS"
+                android:icon="@drawable/ic_info_outline_black_24dp"
+                android:title="View GPS Devices" />
+            <item
+                android:id="@+id/nav_addPoint"
+                android:icon="@drawable/ic_info_outline_black_24dp"
+                android:title="Add Pick-up/Drop-off Point" />
         </menu>
     </item>
 

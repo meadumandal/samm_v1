@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp"
-    tools:context="com.umandalmead.samm_v1.AddGPSActivity"
+    tools:context="com.umandalmead.samm_v1.AddGPSFragment"
     android:background="@color/colorPrimaryDark"
     android:weightSum="1">
 
@@ -18,13 +18,6 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
-        <ImageView
-            android:id="@+id/imgLogo"
-            android:layout_width="200dp"
-            android:layout_height="240dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/sammlogo" />
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -45,12 +38,13 @@
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
 
+
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/GPSId"
+                android:id="@+id/GPSIMEI"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
@@ -63,6 +57,17 @@
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Spinner
+                android:id="@+id/spinnerNetworkProviders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+                android:foregroundTint="@color/colorAccent"
+                />
         </android.support.design.widget.TextInputLayout>
         <Button
             android:id="@+id/btnAddGPS"

@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.READ_SMS" />
 
     <application
         android:name=".SAMM"
@@ -30,7 +32,6 @@
             android:label="@string/title_activity_menu"
             android:theme="@style/SplashTheme" />
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".AboutActivity" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -73,7 +74,15 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
 
-        <activity android:name=".AddGPSActivity"></activity>
+        <activity android:name=".AddGPSFragment"></activity>
+        <!--<receiver-->
+            <!--android:name=".SmsReceiver"-->
+            <!--android:enabled="true"-->
+            <!--android:exported="true">-->
+            <!--<intent-filter android:priority="999">-->
+                <!--<action android:name="android.provider.Telephony.SMS_RECEIVED" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
     </application>
 
 </manifest>

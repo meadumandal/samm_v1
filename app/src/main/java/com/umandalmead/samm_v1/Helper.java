@@ -2,10 +2,16 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -28,6 +34,9 @@ public class Helper {
      * @return
      * @throws JSONException
      */
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
+    private String _smsMessage;
+    private String _smsPhoneNo;
     public HashMap<String, Object> jsonToMap(String jsonString) throws JSONException
     {
         HashMap<String, Object> map = new HashMap<String, Object>();
@@ -89,6 +98,7 @@ public class Helper {
         dialog.setCancelable(false);
         dialog.show();
     }
+
 
 
 }
