@@ -61,6 +61,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
 
         Log.i(TAG, "asyncAddPoints doInBackground");
         try{
+            return "";
 
         }
         catch(Exception e)
@@ -69,6 +70,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             return e.getMessage();
 
         }
+
 
     }
 

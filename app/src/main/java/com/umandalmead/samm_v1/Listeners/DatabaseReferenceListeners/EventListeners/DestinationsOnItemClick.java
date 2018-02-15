@@ -1,5 +1,6 @@
 package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,7 +19,7 @@ import java.util.HashMap;
  * Created by MeadRoseAnn on 1/17/2018.
  */
 
-public class DestinationsOnItemClick implements AdapterView.OnItemClickListener {
+public class DestinationsOnItemClick  {
     public MenuActivity _activity;
     public Context _context;
     public SessionManager _sessionManager;
@@ -31,15 +32,12 @@ public class DestinationsOnItemClick implements AdapterView.OnItemClickListener 
         this._context = context;
         this._sessionManager = new SessionManager(_context);
     }
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+    public void FindNearestStations(Destination chosenTerminal) {
 
         if(MenuActivity.isOnline())
         {
-            //hide keyboard on search ~
-            InputMethodManager mgr = (InputMethodManager) (this._activity).getSystemService(Context.INPUT_METHOD_SERVICE);
-
-            Destination chosenDestination = (Destination) adapterView.getItemAtPosition(i);
+            Destination chosenDestination =chosenTerminal;
             saveDestination(chosenDestination.Value);
 
             (this._activity)._candidateTerminals = new ArrayList<>();

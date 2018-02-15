@@ -3,6 +3,15 @@
     xmlns:facebook="http://schemas.android.com/apk/res-auto">
 
 
+    <item android:title="BASICS">
+        <menu>
+            <item
+                android:id="@+id/menu_home"
+                android:title="Home"
+                android:icon="@drawable/ic_home_black_24dp"
+                />
+        </menu>
+    </item>
     <item android:title="ACCOUNT">
         <menu>
             <item
@@ -10,12 +19,6 @@
                 android:title="JOHN APPLESEED"
                 android:icon="@drawable/ic_person_black_24dp"
                 />
-
-            <!--<item-->
-                <!--android:id="@+id/menu_settings"-->
-                <!--android:title="Settings"-->
-                <!--android:icon="@drawable/ic_setting_light"-->
-                <!--/>-->
 
 
             <item

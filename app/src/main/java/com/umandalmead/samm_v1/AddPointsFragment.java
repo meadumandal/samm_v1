@@ -64,7 +64,7 @@ public class AddPointsFragment extends Fragment {
                              Bundle savedInstanceState) {
         btnAddPoints = (Button) myView.findViewById(R.id.btnAddPoint);
         editName = (EditText) myView.findViewById(R.id.terminalName);
-        editLocation = (EditText) myView.findViewById(R.id.location);
+        //editLocation = (EditText) myView.findViewById(R.id.location);
 
         btnAddPoints.setOnClickListener(new View.OnClickListener() {
             @Override

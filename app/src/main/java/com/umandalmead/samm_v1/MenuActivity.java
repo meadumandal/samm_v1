@@ -32,6 +32,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -54,6 +55,9 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.umandalmead.samm_v1.EntityObjects.Destination;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
@@ -107,9 +111,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.UUID;
 
 
@@ -143,10 +151,11 @@ public class MenuActivity extends AppCompatActivity implements
             boolean _isFirstLoad;
             public LatLng _currentLocation;
             Destination _bestTerminal;
-            public List<Destination> _candidateTerminals;
+            public static List<Destination> _candidateTerminals;
             ArrayList<LatLng> _markerPoints;
             Polyline _polyLine;
             Helper _helper;
+            DestinationsOnItemClick _DestinationsHelper;
             Context _context;
             List<Geofence> _geoFenceList;
             PendingIntent _geoFencePendingIntent;
@@ -172,6 +181,7 @@ public class MenuActivity extends AppCompatActivity implements
             public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
+            public Destination _chosenDestination;
 
             //Declared as public so that they can be accessed on other context.
 
@@ -197,6 +207,9 @@ public class MenuActivity extends AppCompatActivity implements
             public static Toolbar toolbar;
     public static LinearLayout SearchLinearLayout;
     public  static EditText CurrentLocation;
+    public static LinearLayout MapsHolder_LinearLayout;
+    public static LinearLayout AddGPSHolder_LinearLayout;
+    public static Fragment GoogleMapSearchBar;
 
 
             public boolean checkLocationPermission()
@@ -232,6 +245,7 @@ public class MenuActivity extends AppCompatActivity implements
                     Log.i(TAG, "onCreate");
                     _markerPoints = new ArrayList<>();
                     _helper = new Helper();
+                    _DestinationsHelper = new DestinationsOnItemClick(MenuActivity.this,getApplicationContext());
                     _context = getApplicationContext();
                     _geoFenceList = new ArrayList<>();
 
@@ -283,6 +297,56 @@ public class MenuActivity extends AppCompatActivity implements
                     UserNameMenuItem.setTitle(_sessionManager.getFullName());
                     HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
                     HeaderUserEmail.setText(_sessionManager.getEmail());
+
+                    ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextColor(Color.parseColor("#FFFFFF"));
+                    ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextSize(14);
+                    PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+                            getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
+                    autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+                        @Override
+                        public void onPlaceSelected(Place place) {
+                            double prevDistance = 0.0;
+                            int ctr=0;
+                            for (Destination dest: _listDestinations){
+                                double tempDistance;
+                                LatLng destLatLng = new LatLng(dest.Lat, dest.Lng);
+                                LatLng searchLatLng = place.getLatLng();
+                                tempDistance = _helper.getDistanceFromLatLonInKm(destLatLng,searchLatLng);
+                                if(ctr==0){
+                                    prevDistance = tempDistance;
+                                    _chosenDestination = dest;
+                                }else{
+                                    if(tempDistance <= prevDistance){
+                                        prevDistance = tempDistance;
+                                        _chosenDestination = dest;
+                                    }
+                                }
+                                ctr++;
+                            }
+                            //new DestinationsOnItemClick(getApplicationContext());
+                           _DestinationsHelper.FindNearestStations(_chosenDestination);
+                        }
+
+                        @Override
+                        public void onError(Status status) {
+                            // TODO: Handle the error.
+                            Log.i(TAG, "An error occurred: " + status);
+                        }
+                    });
+                    autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button)
+                            .setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    RouteTabLayout.setVisibility(View.GONE);
+                                    RoutePane.setVisibility(View.GONE);
+                                    AnalyzeForBestRoutes.clearLines();
+                                    _chosenTerminal = null;
+                                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
+                                    lp.height = 156;
+                                    view.setVisibility(View.GONE);
+                                }
+                            });
                     if (_sessionManager.isDriver())
                     {
                         //Prepare UI for driver
@@ -346,7 +410,6 @@ public class MenuActivity extends AppCompatActivity implements
                         }
                     });
 
-                    editDestinations.setOnItemClickListener(new DestinationsOnItemClick(this, getApplicationContext()));
 
                     DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                     ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -923,8 +986,8 @@ public class MenuActivity extends AppCompatActivity implements
 
                     }
                     else if(id==R.id.nav_about){
-                        LinearLayout maps = (LinearLayout)findViewById(R.id.maps);
-                        maps.setVisibility(View.GONE);
+                        MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                        MapsHolder_LinearLayout.setVisibility(View.GONE);
 
                         fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
 //                        startActivity(new Intent(MenuActivity.this, AboutActivity.class));
@@ -946,11 +1009,24 @@ public class MenuActivity extends AppCompatActivity implements
 //                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
                     } else if (id == R.id.nav_addGPS)
                     {
-                        LinearLayout maps = (LinearLayout)findViewById(R.id.maps);
-                        maps.setVisibility(View.GONE);
+                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                        lp.height = 156;
+                        MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                        MapsHolder_LinearLayout.setVisibility(View.GONE);
                         fragment.beginTransaction().replace(R.id.content_frame, new AddGPSFragment()).commit();
-//                        Intent i = new Intent(MenuActivity.this, AddGPSFragment.class);
-//                        startActivity(i);
+                        editDestinations.setVisibility(View.GONE);
+                        CurrentLocation.setVisibility(View.GONE);
+                    }
+                    else if(id == R.id.menu_home){
+                        AddGPSHolder_LinearLayout = (LinearLayout) findViewById(R.id.addGPSLinearLayout);
+                        AddGPSHolder_LinearLayout.setVisibility(View.GONE);
+                        MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                        MapsHolder_LinearLayout.setVisibility(View.VISIBLE);
+                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                        lp.height = 235;
+                        editDestinations.setVisibility(View.VISIBLE);
+                        CurrentLocation.setVisibility(View.VISIBLE);
+
                     }
 
 

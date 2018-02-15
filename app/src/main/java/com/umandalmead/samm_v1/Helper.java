@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,6 +98,23 @@ public class Helper {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(false);
         dialog.show();
+    }
+    public double getDistanceFromLatLonInKm(LatLng First, LatLng Second) {
+        double R = 6371; // Radius of the earth in km
+        double dLat = ToRadians(Second.latitude-First.latitude);  // deg2rad below
+        double dLon = ToRadians(Second.longitude-First.longitude);
+        double a =
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(ToRadians(First.latitude)) * Math.cos(ToRadians(Second.latitude)) *
+                                Math.sin(dLon/2) * Math.sin(dLon/2)
+                ;
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double d = R * c; // Distance in km
+        return d;
+    }
+
+    public double ToRadians(double deg) {
+        return deg * (Math.PI/180);
     }
 
 

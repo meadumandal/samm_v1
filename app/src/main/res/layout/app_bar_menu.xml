@@ -82,6 +82,12 @@
                     android:background="@color/colorBlack"
                     android:gravity="center|right"
                     android:orientation="horizontal">
+                    <fragment
+                        android:id="@+id/place_autocomplete_fragment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+                        />
 
                     <com.umandalmead.samm_v1.ClearableAutoCompleteTextView
                         android:id="@+id/edit_destinations"

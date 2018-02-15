@@ -11,7 +11,8 @@
     android:paddingTop="8dp"
     tools:context="com.umandalmead.samm_v1.AddGPSFragment"
     android:background="@color/colorPrimaryDark"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:id="@+id/addGPSLinearLayout">
 
     <LinearLayout
         android:id="@+id/frmLogin"
