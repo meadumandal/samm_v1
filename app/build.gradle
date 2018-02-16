@@ -54,6 +54,7 @@ dependencies {
     compile 'com.sothree.slidinguppanel:library:3.3.1'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.8'
     compile 'com.github.PhilJay:MPAndroidChart:v2.0.9'
+    compile 'com.github.clans:fab:1.6.4'
     testCompile 'junit:junit:4.12'
 }
 apply plugin: 'com.google.gms.google-services'

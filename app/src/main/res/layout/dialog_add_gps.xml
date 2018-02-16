@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
@@ -9,16 +9,17 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp"
-    tools:context="com.umandalmead.samm_v1.AddGPSFragment"
-    android:background="@color/colorPrimaryDark"
+    tools:context="com.umandalmead.samm_v1.MenuActivity"
+    android:background="@color/colorWhite"
     android:weightSum="1"
     android:id="@+id/addGPSLinearLayout">
 
     <LinearLayout
         android:id="@+id/frmLogin"
-        android:layout_width="300dp"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="20dp">
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -34,7 +35,8 @@
                 android:inputType="text|phone"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorWhite"
+
+                android:textColor="@color/colorBlack"
                 android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
@@ -55,7 +57,7 @@
                 android:inputType="text|number"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorWhite"
+                android:textColor="@color/colorBlack"
                 android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
@@ -78,9 +80,9 @@
             android:layout_marginTop="16dp"
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
-            android:onClick="AddGPS"
+            android:backgroundTint="@color/colorAccent"
             android:text="Add GPS"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorWhite"
             android:textStyle="bold" />
     </LinearLayout>
 

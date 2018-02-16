@@ -10,9 +10,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.Menu;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.Adapters.DestinationAdapter;
@@ -38,6 +35,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,7 +60,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
     public static final int LOITERINGDELAY = 10000;
     private GeofencingApi mGeofenceApi;
     private List<Destination> mDestinations;
-    ProgressDialog progDialog;
+    ProgressDialog _progDialog;
 
 
 
@@ -82,7 +80,18 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         this._activity = activity;
         this._googleMap = map;
         this.mGoogleApiClient = googleApiClient;
-        progDialog = new ProgressDialog(this._activity);
+        _progDialog = new ProgressDialog(this._activity);
+
+    }
+    public mySQLDestinationProvider(Context context, Activity activity, String progressMessage, GoogleMap map, GoogleApiClient googleApiClient, ProgressDialog progDialog)
+    {
+        Log.i(TAG, "Called mySQLDestinationProvider");
+        this.mGeofenceApi = LocationServices.GeofencingApi;
+        this._context = context;
+        this._activity = activity;
+        this._googleMap = map;
+        this.mGoogleApiClient = googleApiClient;
+        _progDialog = progDialog;
 
     }
 
@@ -92,13 +101,13 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         try
         {
             super.onPreExecute();
-            progDialog.setMax(100);
-            progDialog.setMessage("The app is initializing, please wait...");
-            progDialog.setTitle("Initializing Data");
-            progDialog.setIndeterminate(false);
-            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDialog.setCancelable(false);
-            progDialog.show();
+            _progDialog.setMax(100);
+            _progDialog.setMessage("The app is initializing, please wait...");
+            _progDialog.setTitle("Initializing Data");
+            _progDialog.setIndeterminate(false);
+            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            _progDialog.setCancelable(false);
+            _progDialog.show();
         }
         catch(Exception e)
         {
@@ -193,6 +202,8 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         editDestination.setThreshold(1);
         editDestination.setAdapter(adapter);
         editDestination.setDropDownAnchor(MenuActivity.AppBar.getId());
+        _googleMap.clear();
+        ((MenuActivity)this._activity)._destinationMarkers = new HashMap<>();
 
         for (Destination destination:destinations)
         {
@@ -208,13 +219,15 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                 markerOptions.snippet("0 passenger/s waiting");
                 markerOptions.title(destination.Value);
                 Marker marker = _googleMap.addMarker(markerOptions);
+
                 marker.showInfoWindow();
 
                 ((MenuActivity)this._activity)._destinationMarkers.put(destination.Value, marker);
             }
         }
+
         startGeofence(destinations);
-        progDialog.dismiss();
+        _progDialog.dismiss();
     }
 
     // Start Geofence creation process

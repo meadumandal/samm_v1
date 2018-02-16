@@ -9,6 +9,7 @@
     android:background="@color/colorWhite"
     tools:openDrawer="start">
 
+
     <include
         layout="@layout/app_bar_menu"
         android:layout_width="match_parent"
@@ -23,6 +24,7 @@
         android:background="@color/colorWhite"
         app:headerLayout="@layout/nav_header_menu"
         app:menu="@menu/activity_menu_drawer" />
+
 
 
 </android.support.v4.widget.DrawerLayout>

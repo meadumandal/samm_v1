@@ -74,7 +74,7 @@
         <!-- </intent-filter> -->
         <!-- </activity> -->
 
-        <activity android:name=".AddGPSFragment"></activity>
+
         <!--<receiver-->
             <!--android:name=".SmsReceiver"-->
             <!--android:enabled="true"-->

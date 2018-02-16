@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:gravity="center_horizontal"
     android:orientation="vertical"
@@ -8,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp"
-    tools:context="com.umandalmead.samm_v1.AddPointsFragment"
+    tools:context="com.umandalmead.samm_v1.MenuActivity"
     android:background="@color/colorWhite"
     android:weightSum="1">
 
@@ -16,7 +17,29 @@
         android:id="@+id/frmLogin"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
+        android:layout_margin="15dp"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtActionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="ADD PICKUP/DROPOFF POINT"
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtDestinationIDForEdit"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:text=""
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -27,6 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "
                 android:ellipsize="start"
                 android:gravity="center_horizontal"
                 android:hint="Name"
@@ -109,10 +133,7 @@
                 android:backgroundTint="@color/colorAccent"
                 android:drawSelectorOnTop="true"
                 android:entries="@array/array_preposition"
-                android:foregroundTint="@color/colorAccent"
-
-
-                />
+                android:foregroundTint="@color/colorAccent" />
 
             <Spinner
                 android:id="@+id/spinner_terminalReference"
@@ -120,24 +141,9 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
                 android:drawSelectorOnTop="true"
-                android:foregroundTint="@color/colorAccent"
-
-
-                />
+                android:foregroundTint="@color/colorAccent" />
         </LinearLayout>
 
-
-        <!--<android.support.design.widget.TextInputLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content">-->
-        <!--<Spinner-->
-        <!--android:id="@+id/spinnerNetworkProviders"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:backgroundTint="@color/colorAccent"-->
-        <!--android:foregroundTint="@color/colorAccent"-->
-        <!--/>-->
-        <!--</android.support.design.widget.TextInputLayout>-->
         <Button
             android:id="@+id/btnAddPoint"
             style="?android:textAppearanceSmall"
@@ -146,9 +152,23 @@
             android:layout_marginTop="16dp"
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
+            android:backgroundTint="@color/colorAccent"
             android:text="Add Pick-up/Drop-off Point"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
+        <Button
+            android:id="@+id/btnDeletePoint"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight=".4"
+            android:background="@drawable/oval_background"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Delete Pick-up/Drop-off Point"
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold" />
     </LinearLayout>
-
 </LinearLayout>
+
+

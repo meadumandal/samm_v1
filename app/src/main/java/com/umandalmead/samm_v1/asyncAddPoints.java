@@ -4,9 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.GoogleMap;
 
 import org.json.JSONObject;
 
@@ -23,17 +27,27 @@ import java.net.URLConnection;
 
 public class asyncAddPoints extends AsyncTask<String, Void, String>{
     Context _context;
+
+    ProgressDialog _progDialog;
     Activity _activity;
+    GoogleApiClient _googleAPIClient;
+    GoogleMap _map;
+    Integer _destinationIDForEdit;
+    String _action;
     public static String TAG = "mead";
 
 
-    public asyncAddPoints(Context context)
-    {
+    public asyncAddPoints(Context context, ProgressDialog progDialog, Activity activity, GoogleMap map, GoogleApiClient apiClient, String action, Integer destinationIDForEdit) {
         Log.i(TAG, "asyncAddPoints");
         this._context = context;
-
-
+        this._progDialog = progDialog;
+        this._activity = activity;
+        this._map = map;
+        this._googleAPIClient = apiClient;
+        this._action = action.toLowerCase();
+        this._destinationIDForEdit = destinationIDForEdit;
     }
+
     @Override
     protected void onPreExecute()
     {
@@ -61,8 +75,77 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
 
         Log.i(TAG, "asyncAddPoints doInBackground");
         try{
-            return "";
+            String name="";
+            String lat="";
+            String lng="";
+            String preposition="";
+            String terminalreferenceid="";
+            if(_action.equals("add") || _action.equals("update"))
+            {
+                name = params[0];
+                lat = params[1];
+                lng = params[2];
+                preposition = params[3];
+                terminalreferenceid = params[4];
+            }
 
+
+            Helper helper = new Helper();
+            if (helper.isConnectedToInternet(this._context))
+            {
+                String link = "";
+                if(_action.equals("add"))
+
+                    link = "http://meadumandal.website/sammAPI/addPoint.php?name=" +name
+                            + "&lat=" + lat
+                            + "&lng=" + lng
+                            + "&preposition=" + preposition
+                            + "&terminalreferenceid="+terminalreferenceid;
+                else if (_action.equals("update"))
+                    link = "http://meadumandal.website/sammAPI/updatePoint.php?id="+_destinationIDForEdit.toString()
+                            + "&name=" +name
+                            + "&lat=" + lat
+                            + "&lng=" + lng
+                            + "&preposition=" + preposition
+                            + "&terminalreferenceid="+terminalreferenceid;
+                else
+                    link = "http://meadumandal.website/sammAPI/removePoint.php?destinationid="+_destinationIDForEdit.toString();
+                URL url = new URL(link);
+                URLConnection conn = url.openConnection();
+
+                conn.setDoOutput(true);
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String jsonResponse = reader.readLine();
+                JSONObject json;
+
+                try
+                {
+                    json = new JSONObject(jsonResponse);
+                    if ((Boolean)json.get("status")==true)
+                    {
+
+                        return "Success";
+                    }
+                    else
+                    {
+
+                        return json.get("msg").toString();
+                    }
+                }
+                catch(Exception e){
+
+
+                    Log.e(TAG, e.getLocalizedMessage() +":"+ e.getMessage());
+
+                    return "Error encountered : "+e.getMessage()+". Please re-try";
+                }
+            }
+            else
+            {
+
+                return  "Looks like you're offline";
+            }
         }
         catch(Exception e)
         {
@@ -71,13 +154,43 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
 
         }
 
-
     }
 
     @Override
     protected void onPostExecute(String s)
     {
-        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
+        try
+        {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this._activity);
+            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            if(s.equals("Success"))
+            {
+                alertDialogBuilder.setTitle("Success");
+                if(_action.equals("add"))
+                    alertDialogBuilder.setMessage("We have successfully added the point on the map!");
+                else if(_action.equals("update"))
+                    alertDialogBuilder.setMessage("We have successfully updated the point on the map!");
+                else
+                    alertDialogBuilder.setMessage("We have successfully deleted the point from the map!");
+                new mySQLDestinationProvider(_context, this._activity, "", _map, _googleAPIClient, _progDialog).execute();
+            }
+            else
+            {
+                alertDialogBuilder.setTitle("Error");
+                alertDialogBuilder.setMessage(s);
+            }
+            alertDialogBuilder.show();
+//        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
+        }
+        catch(Exception e)
+        {
+
+            Log.e(TAG, e.getMessage());
+
+        }
     }
 
 

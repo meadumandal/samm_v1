@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -31,11 +33,12 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
     JSONObject postData;
 
 
-    public addGPStoTraccar(Context context, ProgressDialog progDialog)
+    public addGPStoTraccar(Context context, ProgressDialog progDialog, Activity activity)
     {
         Log.i(TAG, "addGPStoTraccar");
         this._context = context;
         this._progDialog = progDialog;
+        this._activity = activity;
 
 
     }
@@ -131,7 +134,33 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
     @Override
     protected void onPostExecute(String s)
     {
-        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
+        try
+        {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this._activity);
+            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            if(s.equals("Success"))
+            {
+                alertDialogBuilder.setTitle("Success");
+                alertDialogBuilder.setMessage("Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.");
+            }
+            else
+            {
+                alertDialogBuilder.setTitle("Error");
+                alertDialogBuilder.setMessage(s);
+            }
+            alertDialogBuilder.show();
+//        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
+        }
+        catch(Exception e)
+        {
+
+            Log.e(TAG, e.getMessage());
+
+        }
+
     }
 
 

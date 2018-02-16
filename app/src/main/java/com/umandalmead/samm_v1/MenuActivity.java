@@ -1,7 +1,9 @@
 package com.umandalmead.samm_v1;
 
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -14,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
@@ -29,6 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -40,24 +44,31 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.facebook.internal.LockOnGetVariable;
 import com.umandalmead.samm_v1.EntityObjects.Destination;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
@@ -127,6 +138,8 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import com.github.clans.fab.FloatingActionButton;
+
 import static com.umandalmead.samm_v1.R.id.map;
 
 public class MenuActivity extends AppCompatActivity implements
@@ -139,8 +152,7 @@ public class MenuActivity extends AppCompatActivity implements
         Route2.OnFragmentInteractionListener,
         Route3.OnFragmentInteractionListener,
         Html.ImageGetter,
-        LocationListener {
-            GoogleApiClient _googleApiClient;
+        LocationListener {GoogleApiClient _googleApiClient;
             Marker _currentLocationMarker;
             LocationRequest _locationRequest;
             public GoogleMap _map;
@@ -167,6 +179,8 @@ public class MenuActivity extends AppCompatActivity implements
             public HashMap _hashmapMarkerMap = new HashMap();
             public HashMap _driverMarkers = new HashMap();
             MyBroadcastReceiver _broadcastReceiver;
+            mySentSMSBroadcastReceiver _smsSentBroadcastReceiver;
+            mySMSDeliveredBroadcastReceiver _smsDeliveredBroadcastReceiver;
             DatabaseReference _driverDatabaseReference;
             public static LevelListDrawable d = new LevelListDrawable();
             public  static Destination _chosenTerminal;
@@ -177,7 +191,6 @@ public class MenuActivity extends AppCompatActivity implements
             Marker _markerAnimate;
             private Boolean isMarkerRotating = false;
             public static final String DRIVERPREFIX="SAMM_";
-            protected static final String TAG = "mead";
             public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
@@ -205,12 +218,26 @@ public class MenuActivity extends AppCompatActivity implements
             public static TextView HeaderUserEmail;
             public static AppBarLayout AppBar;
             public static Toolbar toolbar;
-    public static LinearLayout SearchLinearLayout;
-    public  static EditText CurrentLocation;
-    public static LinearLayout MapsHolder_LinearLayout;
-    public static LinearLayout AddGPSHolder_LinearLayout;
-    public static Fragment GoogleMapSearchBar;
+            public static LinearLayout SearchLinearLayout;
+            public  static EditText CurrentLocation;
+            public static LinearLayout MapsHolder_LinearLayout;
+            public static LinearLayout AddGPSHolder_LinearLayout;
+            public static Fragment GoogleMapSearchBar;
+            FloatingActionButton addGPS,addPoint;
 
+
+            private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
+            public String _message;
+            android.os.Handler mHandler;
+            public static String TAG ="mead";
+            public ProgressDialog progDialog;
+            PendingIntent sentPendingIntent;
+            PendingIntent deliveredPendingIntent;
+            public HashMap<String, Boolean> smsCommandsStatus = new HashMap<>();
+            String phoneNo;
+            String apn;
+            String GPSIMEI;
+        //    MyBroadcastReceiver _broadcastReceiver;
 
             public boolean checkLocationPermission()
             {
@@ -239,7 +266,7 @@ public class MenuActivity extends AppCompatActivity implements
 
             @Override
             protected void onCreate(Bundle savedInstanceState) {
-
+            try {
                 setTheme(R.style.SplashTheme);
                 if (MenuActivity.isOnline()) {
                     Log.i(TAG, "onCreate");
@@ -297,6 +324,32 @@ public class MenuActivity extends AppCompatActivity implements
                     UserNameMenuItem.setTitle(_sessionManager.getFullName());
                     HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
                     HeaderUserEmail.setText(_sessionManager.getEmail());
+                    addGPS = (FloatingActionButton) findViewById(R.id.subFloatingAddGPS);
+                    addPoint = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
+
+                    addGPS.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AddGPSDialog dialog=new AddGPSDialog(MenuActivity.this);
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                    });
+
+                    addPoint.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "ADD");
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                    });
+                    progDialog = new ProgressDialog(this);
+                    progDialog.setTitle("Adding Vehicle GPS");
+                    progDialog.setMessage("Initializing...");
+                    progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progDialog.setCancelable(false);
+
 
                     ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextColor(Color.parseColor("#FFFFFF"));
                     ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextSize(14);
@@ -325,7 +378,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 ctr++;
                             }
                             //new DestinationsOnItemClick(getApplicationContext());
-                           _DestinationsHelper.FindNearestStations(_chosenDestination);
+                            _DestinationsHelper.FindNearestStations(_chosenDestination);
                         }
 
                         @Override
@@ -347,6 +400,31 @@ public class MenuActivity extends AppCompatActivity implements
                                     view.setVisibility(View.GONE);
                                 }
                             });
+                    addGPS = (FloatingActionButton) findViewById(R.id.subFloatingAddGPS);
+                    addPoint = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
+
+                    addGPS.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AddGPSDialog dialog=new AddGPSDialog(MenuActivity.this);
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                    });
+
+                    addPoint.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "ADD");
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                    });
+                    progDialog = new ProgressDialog(this);
+                    progDialog.setTitle("Adding Vehicle GPS");
+                    progDialog.setMessage("Initializing...");
+                    progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    progDialog.setCancelable(false);
                     if (_sessionManager.isDriver())
                     {
                         //Prepare UI for driver
@@ -357,7 +435,7 @@ public class MenuActivity extends AppCompatActivity implements
                         tvcurrentlocation.setVisibility(View.GONE);
                         AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appBarLayout);
 
-                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)appbar.getLayoutParams();
+                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
                         lp.height = 150;
 
                         //show route tabs and slide up panel ~
@@ -375,11 +453,11 @@ public class MenuActivity extends AppCompatActivity implements
                     }
 
                     RouteTabLayout.setMinimumWidth(150);
-                    fbImg = "http://graph.facebook.com/"+_sessionManager.getUsername()+"/picture?type=large";
-                    try{
-                        FetchFBDPTask dptask = new FetchFBDPTask ();
+                    fbImg = "http://graph.facebook.com/" + _sessionManager.getUsername() + "/picture?type=large";
+                    try {
+                        FetchFBDPTask dptask = new FetchFBDPTask();
                         dptask.execute();
-                    }catch(Exception ex){
+                    } catch (Exception ex) {
                         Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
                     }
 
@@ -406,7 +484,7 @@ public class MenuActivity extends AppCompatActivity implements
                         @Override
                         public void onClick(View v) {
                             editDestinations.showDropDown();
-                          editDestinations.setCursorVisible(true);
+                            editDestinations.setCursorVisible(true);
                         }
                     });
 
@@ -460,8 +538,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 else
                                     lng = Double.parseDouble(Longitude.toString());
                                 final LatLng latLng = new LatLng(lat, lng);
-                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, "")))
-                                {
+                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, ""))) {
 
                                     //move map camera
                                     _map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
@@ -474,7 +551,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 prevLocation.setLongitude(Double.parseDouble(dataSnapshot.child("PrevLng").getValue().toString()));
                                 currLocation.setLatitude(lat);
                                 currLocation.setLongitude(lng);
-                                final float bearing =  (float)bearingBetweenLocations(prevLocation,currLocation);//prevLocation.bearingTo(currLocation);
+                                final float bearing = (float) bearingBetweenLocations(prevLocation, currLocation);//prevLocation.bearingTo(currLocation);
 
                                 if (_map != null) {
                                     if (_chosenTerminal == null) {
@@ -489,33 +566,30 @@ public class MenuActivity extends AppCompatActivity implements
                                                 final MarkerOptions markerOptions = new MarkerOptions();
                                                 markerOptions.position(latLng);
 //                                                markerOptions.title(deviceId);
-                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, "")))
-                                                {
+                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, ""))) {
                                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
 
 
-                                                }
-                                                else {
+                                                } else {
                                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop));
                                                 }
 
-                                                float  v = valueAnimator.getAnimatedFraction();
+                                                float v = valueAnimator.getAnimatedFraction();
                                                 double lng = v * currLocation.getLongitude() + (1 - v)
                                                         * prevLocation.getLongitude();
                                                 double lat = v * currLocation.getLatitude() + (1 - v)
                                                         * prevLocation.getLatitude();
                                                 LatLng newPos = new LatLng(lat, lng);
-                                                if(_markerAnimate==null) {
+                                                if (_markerAnimate == null) {
                                                     _markerAnimate = _map.addMarker(markerOptions);
                                                 }
-                                                if(bearing!=0.0){
+                                                if (bearing != 0.0) {
                                                     _markerAnimate.setPosition(newPos);
                                                     _markerAnimate.setAnchor(0.5f, 0.5f);
                                                     _markerAnimate.setRotation(bearing);
                                                     rotateMarker(_markerAnimate, bearing);
                                                 }
-                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, "")))
-                                                {
+                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, ""))) {
                                                     _markerAnimate.setTitle("HEY!");
                                                     _markerAnimate.setSnippet("It's you");
                                                     _markerAnimate.showInfoWindow();
@@ -523,8 +597,8 @@ public class MenuActivity extends AppCompatActivity implements
                                                 _driverMarkers.put(deviceId, _markerAnimate);
 
                                             }
-                                            });
-                                             valueAnimator.start();
+                                        });
+                                        valueAnimator.start();
 
                                     } else {
                                         //ShowLoopTimeofArrival(latLng, bearing, deviceId);
@@ -558,8 +632,10 @@ public class MenuActivity extends AppCompatActivity implements
                         public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                             try {
                                 Marker terminalEntered = _destinationMarkers.get(dataSnapshot.getKey());
-                                terminalEntered.showInfoWindow();
-                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                                if (terminalEntered != null) {
+                                    terminalEntered.showInfoWindow();
+                                    terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                                }
                             } catch (Exception ex) {
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -569,8 +645,12 @@ public class MenuActivity extends AppCompatActivity implements
                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                             try {
                                 Marker terminalEntered = _destinationMarkers.get(dataSnapshot.getKey());
-                                terminalEntered.showInfoWindow();
-                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                                if (terminalEntered != null)
+                                {
+                                    terminalEntered.showInfoWindow();
+                                    terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                                }
+
                             } catch (Exception ex) {
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -580,8 +660,10 @@ public class MenuActivity extends AppCompatActivity implements
                         public void onChildRemoved(DataSnapshot dataSnapshot) {
                             try {
                                 Marker terminalEntered = _destinationMarkers.get(dataSnapshot.getKey());
-                                terminalEntered.showInfoWindow();
-                                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                                if (terminalEntered != null) {
+                                    terminalEntered.showInfoWindow();
+                                    terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                                }
                             } catch (Exception ex) {
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
                             }
@@ -598,19 +680,34 @@ public class MenuActivity extends AppCompatActivity implements
                         }
                     });
 
+
+
                     _broadcastReceiver = new MyBroadcastReceiver();
+                    _smsSentBroadcastReceiver = new mySentSMSBroadcastReceiver();
+                    _smsDeliveredBroadcastReceiver = new mySMSDeliveredBroadcastReceiver();
+
+                    String SMS_SENT = "SMS_SENT";
+                    String SMS_DELIVERED = "SMS_DELIVERED";
+                    sentPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
+                    deliveredPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
 
                     //register BroadcastReceiver
                     IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
                     intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
-
-
                     registerReceiver(_broadcastReceiver, intentFilter);
+                    registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
+                    registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
                     initialiseOnlinePresence();
 
 
                 }
+            }catch(Exception ex)
+            {
+                Log.e(TAG, ex.getMessage());
             }
+
+
+    }
 
     private double bearingBetweenLocations(Location PrevLoc,Location CurrLoc) {
 
@@ -867,6 +964,18 @@ public class MenuActivity extends AppCompatActivity implements
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
 
                 }
+                _map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+                        //if admin only:
+                        AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
+                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        dialog.show();
+
+
+                        return true;
+                    }
+                });
             }
             @Override
             public void onConnectionSuspended(int i) {
@@ -904,6 +1013,20 @@ public class MenuActivity extends AppCompatActivity implements
                             Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
                         }
                         return;
+                    }
+                    case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                        if (grantResults.length > 0
+                                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                            SmsManager smsManager = SmsManager.getDefault();
+                            smsManager.sendTextMessage(phoneNo, null, this._message, sentPendingIntent, deliveredPendingIntent);
+
+                            Log.i(TAG, this._message + " sent");
+                            Toast.makeText(this, this._message + " sent", Toast.LENGTH_LONG).show();
+                        } else {
+                            Log.e(TAG, "SMS failed, please try again.");
+                            Toast.makeText(this, "SMS Failed", Toast.LENGTH_LONG).show();
+                            return;
+                        }
                     }
 
                     // other 'case' lines to check for other permissions this app might request.
@@ -1013,9 +1136,14 @@ public class MenuActivity extends AppCompatActivity implements
                         lp.height = 156;
                         MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                         MapsHolder_LinearLayout.setVisibility(View.GONE);
-                        fragment.beginTransaction().replace(R.id.content_frame, new AddGPSFragment()).commit();
                         editDestinations.setVisibility(View.GONE);
                         CurrentLocation.setVisibility(View.GONE);
+                    }
+                    else if(id == R.id.nav_addPoint)
+                    {
+                        LinearLayout maps = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                        maps.setVisibility(View.GONE);
+                        fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
                     }
                     else if(id == R.id.menu_home){
                         AddGPSHolder_LinearLayout = (LinearLayout) findViewById(R.id.addGPSLinearLayout);
@@ -1429,22 +1557,93 @@ public class MenuActivity extends AppCompatActivity implements
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
 
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String eventType = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_EVENT_TYPE);
-                    String geofenceRequestId = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_GEOFENCEREQUESTID);
-                    for(Destination d: _listDestinations)
-                    {
-                        if (d.GeofenceId.equals(geofenceRequestId))
-                        {
-                            passengerMovement(d.Value, eventType);
-                            Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
-                        }
-
-                    }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String eventType = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_EVENT_TYPE);
+            String geofenceRequestId = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_GEOFENCEREQUESTID);
+            for(Destination d: _listDestinations)
+            {
+                if (d.GeofenceId.equals(geofenceRequestId))
+                {
+                    passengerMovement(d.Value, eventType);
+                    Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
                 }
 
             }
+        }
+
+    }
+    public class mySentSMSBroadcastReceiver extends BroadcastReceiver
+    {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            try
+            {
+                switch (getResultCode()) {
+                    case Activity.RESULT_OK:
+                        if (_message.equals("begin123456")) {
+                            progDialog.setMessage("Activating GPRS");
+                            sendSMSMessage("gprs123456");
+                        }
+                        else if (_message.equals("gprs123456")) {
+                            progDialog.setMessage("Setting APN");
+                            sendSMSMessage("apn123456 " + apn);
+                        }
+                        else if (_message.equals("apn123456 " + apn)) {
+                            progDialog.setMessage("Configuring IP and Port");
+                            sendSMSMessage("adminip123456 server.traccar.org 5002");
+                        }
+                        else if (_message.equals("adminip123456 server.traccar.org 5002")) {
+                            progDialog.setMessage("Setting automatic location updates");
+                            sendSMSMessage("t005s***n123456");
+                        }
+                        else if (_message.equals("t005s***n123456")) {
+                            new addGPStoTraccar(getApplicationContext(), progDialog, MenuActivity.this).execute("SAMM_"+GPSIMEI.substring(GPSIMEI.length()-5, GPSIMEI.length()), GPSIMEI);
+                        }
+                        break;
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        progDialog.dismiss();
+                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        progDialog.dismiss();
+                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        break;
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        progDialog.dismiss();
+                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        break;
+
+                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+                        progDialog.dismiss();
+                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+
+
+            }
+            catch(Exception ex)
+            {
+                Log.e(TAG, ex.getMessage());
+            }
+
+        }
+    }
+    public class mySMSDeliveredBroadcastReceiver extends BroadcastReceiver
+    {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (getResultCode()) {
+                case Activity.RESULT_OK:
+                    Toast.makeText(getApplicationContext(), "SMS delivered", Toast.LENGTH_SHORT).show();
+                    break;
+                case Activity.RESULT_CANCELED:
+                    Toast.makeText(getApplicationContext(), "SMS not delivered", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
     private void initialiseOnlinePresence() {
         // any time that connectionsRef's value is null, device is offline
         if (!_sessionManager.isDriver())
@@ -1496,6 +1695,53 @@ public class MenuActivity extends AppCompatActivity implements
 
     }
 
+    public void AddPoint()
+    {
+
+    }
+
+    public static void sendSMS(String message)
+    {
+
+    }
+
+    public void sendSMSMessage(String message) {
+        try
+        {
+            this._message = message;
+
+
+            if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.SEND_SMS)) {
+
+                } else {
+
+                    Log.i(TAG,"sending " + this._message);
+//                    Toast.makeText(getApplicationContext(), "sending " + this._message, Toast.LENGTH_LONG).show();
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{android.Manifest.permission.SEND_SMS},
+                            MY_PERMISSIONS_REQUEST_SEND_SMS);
+                }
+            }
+            else
+            {
+                Log.i(TAG,"sending " + this._message);
+//                Toast.makeText(getApplicationContext(), "sending " + this._message, Toast.LENGTH_LONG).show();
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phoneNo, null, this._message, sentPendingIntent, deliveredPendingIntent);
+
+                Log.i(TAG, message + " sent");
+//                Toast.makeText(getApplicationContext(),this._message + " sent", Toast.LENGTH_LONG).show();
+            }
+        }
+        catch(Exception ex)
+        {
+            Log.e(TAG, ex.getMessage());
+            progDialog.dismiss();
+            Toast.makeText(getApplicationContext(),"Error encountered" + ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
     private class FetchFBDPTask extends AsyncTask<String, Void, Bitmap> {
         @Override
         protected Bitmap doInBackground(String... strings) {
@@ -1538,6 +1784,307 @@ public class MenuActivity extends AppCompatActivity implements
             BufferedHttpEntity bufHttpEntity = new BufferedHttpEntity(entity);
             InputStream instream = bufHttpEntity.getContent();
             return instream;
+        }
+    }
+
+
+    public class AddPointDialog extends Dialog implements
+            android.view.View.OnClickListener {
+        View myView;
+        String _action;
+        Button btnAddPoints, btnDeletePoints;
+        EditText editName;
+        EditText editLat;
+        EditText editLng;
+        Spinner spinnerPrePosition, spinnerTerminalReference;
+        String _destinationValueForEdit = "";
+        public String TAG = "mead";
+
+
+        public AddPointDialog(Activity activity, String action) {
+            super(activity);
+            this._action = action.toLowerCase();
+        }
+        public AddPointDialog(Activity activity, String action, String destinationValueforEdit) {
+            super(activity);
+            this._action = action.toLowerCase();
+            this._destinationValueForEdit = destinationValueforEdit;
+        }
+
+
+        @Override
+        public void onClick(View view) {
+
+        }
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            try {
+                requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+                setContentView(R.layout.dialog_add_point);
+                btnAddPoints = (Button) findViewById(R.id.btnAddPoint);
+                btnDeletePoints = (Button) findViewById(R.id.btnDeletePoint);
+                editName = (EditText) findViewById(R.id.terminalName);
+                editLat = (EditText) findViewById(R.id.lat);
+                editLng = (EditText) findViewById(R.id.lng);
+                TextView txtAction = (TextView) findViewById(R.id.txtActionLabel);
+                final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
+                spinnerPrePosition = (Spinner) findViewById(R.id.spinner_preposition);
+                spinnerTerminalReference = (Spinner) findViewById(R.id.spinner_terminalReference);
+                Integer orderOfArrival = 0;
+                final Integer destinationIDforEdit=0;
+
+
+
+                ArrayAdapter<Destination> terminalReferencesAdapter = new ArrayAdapter<Destination>(getApplicationContext(), R.layout.spinner_item, MenuActivity._listDestinations);
+
+                spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
+                if(_action.equals("add"))
+                {
+                    btnAddPoints.setText("ADD");
+                    txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
+                    btnDeletePoints.setVisibility(View.GONE);
+                }
+                else {
+
+                    btnAddPoints.setText("UPDATE");
+
+                    for(Destination d: _listDestinations)
+                    {
+                        if (d.Value.equals(_destinationValueForEdit))
+                        {
+                            txtDestinationIDForEdit.setText(String.valueOf(d.ID));
+                            editName.setText(d.Description);
+                            editLat.setText(d.Lat.toString());
+                            editLng.setText(d.Lng.toString());
+                            orderOfArrival = d.OrderOfArrival;
+
+                            break;
+                        }
+                    }
+                    txtAction.setText("EDIT PICKUP/DROPOFF POINT");
+                    int index = 0;
+                    for(Destination d: _listDestinations)
+                    {
+                        if (d.OrderOfArrival == orderOfArrival + 1)
+                        {
+                            spinnerPrePosition.setSelection(0);
+                            spinnerTerminalReference.setSelection(index);
+                            break;
+                        }else if (d.OrderOfArrival == orderOfArrival - 1)
+                        {
+                            spinnerPrePosition.setSelection(1);
+                            spinnerTerminalReference.setSelection(index);
+                            break;
+                        }
+                        index++;
+                    }
+
+                }
+                final DialogInterface.OnClickListener dialog_deletepoint = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which){
+                            case DialogInterface.BUTTON_POSITIVE:
+                                deletePoint(Integer.parseInt(txtDestinationIDForEdit.getText().toString()));
+                                break;
+
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                //No button clicked
+                                break;
+                        }
+                    }
+                };
+                btnDeletePoints.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        try {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                            builder.setMessage("Are you sure?").setPositiveButton("Yes", dialog_deletepoint)
+                                    .setNegativeButton("No", dialog_deletepoint).show();
+
+                        }
+                        catch(Exception ex)
+                        {
+                            Log.e(TAG,ex.getMessage());
+                        }
+
+                    }
+                });
+                btnAddPoints.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(_action.equals("add")) {
+                            String name = editName.getText().toString();
+                            String lat = editLat.getText().toString();
+                            String lng = editLng.getText().toString();
+                            String preposition = spinnerPrePosition.getSelectedItem().toString();
+                            Destination terminalReference = (Destination) spinnerTerminalReference.getSelectedItem();
+                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
+                                Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                            } else {
+
+                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+                            }
+                        }
+                        else if(_action.equals("update"))
+                        {
+                            String name = editName.getText().toString();
+                            String lat = editLat.getText().toString();
+                            String lng = editLng.getText().toString();
+                            String preposition = spinnerPrePosition.getSelectedItem().toString();
+                            Integer destinationID = Integer.parseInt(txtDestinationIDForEdit.getText().toString());
+                            Destination terminalReference = (Destination) spinnerTerminalReference.getSelectedItem();
+                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
+                                Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                            } else {
+
+                                updatePoint(destinationID, name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+                            }
+                        }
+
+                    }
+                });
+            }catch(Exception e)
+            {
+                Log.e(TAG, e.getMessage());
+            }
+
+            progDialog.dismiss();
+        }
+
+        private void savePoint(String name, Double lat, Double lng, String preposition, Destination terminalReference)
+        {
+            progDialog = new ProgressDialog(MenuActivity.this);
+            progDialog.setTitle("Adding Pickup/Dropoff Point");
+            progDialog.setMessage("Please wait as we set up the points on the map");
+            progDialog.show();
+            new asyncAddPoints(getApplicationContext(), progDialog, MenuActivity.this, _map, _googleApiClient,"Add", 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+        }
+        private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Destination terminalReference)
+        {
+            progDialog = new ProgressDialog(MenuActivity.this);
+            progDialog.setTitle("Updating Pickup/Dropoff Point");
+            progDialog.setMessage("Please wait as we update the points on the map");
+            progDialog.show();
+            new asyncAddPoints(getApplicationContext(), progDialog, MenuActivity.this, _map, _googleApiClient, "Update", ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+        }
+        private void deletePoint(Integer ID)
+        {
+            progDialog = new ProgressDialog(MenuActivity.this);
+            progDialog.setTitle("Deleting Pickup/Dropoff Point");
+            progDialog.setMessage("Please wait as we update the points on the map");
+            progDialog.show();
+            new asyncAddPoints(getApplicationContext(), progDialog, MenuActivity.this, _map, _googleApiClient, "Delete", ID).execute();
+        }
+    }
+
+    public class AddGPSDialog extends Dialog implements
+            android.view.View.OnClickListener {
+        Button sendBtn;
+        EditText txtphoneNo;
+        EditText txtIMEI;
+        Spinner networkProvider;
+
+
+        public String TAG ="mead";
+
+        PendingIntent sentPendingIntent;
+        PendingIntent deliveredPendingIntent;
+        public HashMap<String, Boolean> smsCommandsStatus = new HashMap<>();
+        public final Activity _activity;
+        public AddGPSDialog(Activity activity) {
+            super(activity);
+            // TODO Auto-generated constructor stub
+            this._activity = activity;
+        }
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setContentView(R.layout.dialog_add_gps);
+
+            networkProvider = (Spinner)findViewById(R.id.spinnerNetworkProviders);
+
+            ArrayList<String> networkProviders = new ArrayList<>();
+            networkProviders.add("Select GSM SIM Network Provider");
+            networkProviders.add("Globe");
+            networkProviders.add("Smart");
+
+
+            ArrayAdapter<String> networkProvidersAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, networkProviders){
+                @Override
+                public boolean isEnabled(int position)
+                {
+                    if (position == 0)
+                        return false;
+                    else
+                        return true;
+                }
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent)
+                {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+                    if(position==0) {
+                        // Set the disable item text color
+                        tv.setTextColor(Color.GRAY);
+                    }
+                    else {
+                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+                    }
+                    return view;
+                }
+
+            };
+            networkProvider.setAdapter(networkProvidersAdapter);
+
+            sendBtn = (Button) findViewById(R.id.btnAddGPS);
+            txtphoneNo = (EditText) findViewById(R.id.GPSMobileNum);
+            txtIMEI  = (EditText) findViewById(R.id.GPSIMEI);
+
+
+
+            sendBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    phoneNo = txtphoneNo.getText().toString();
+                    GPSIMEI = txtIMEI.getText().toString();
+                    if(phoneNo.trim().length() == 0 || GPSIMEI.trim().length() == 0 || networkProvider.getSelectedItem().toString().equals("Select GSM SIM Network Provicer"))
+                    {
+                        Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        smsCommandsStatus.put("begin123456", false);
+                        smsCommandsStatus.put("gprs123456", false);
+                        if (networkProvider.getSelectedItem().toString().equals("Globe"))
+                            apn = "http.globe.com.ph";
+                        else
+                            apn = "internet";
+                        smsCommandsStatus.put("apn123456 " + apn, false);
+                        smsCommandsStatus.put("adminip123456 server.traccar.org 5002", false);
+                        smsCommandsStatus.put("t005s***n123456", false);
+
+                        //Configure thru SMS
+                        progDialog.show();
+
+                        sendSMSMessage("begin123456");
+//                        sendSMSMessage("t005s***n123456");
+                    }
+                    dismiss();
+
+                }
+            });
+
+
+        }
+
+
+        @Override
+        public void onClick(View view) {
+
         }
     }
 
