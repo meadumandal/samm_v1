@@ -71,12 +71,13 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
         try{
             String name = params[0];
             String uniqueId = params[1];
+            String phoneNo = params[2];
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
 
-                String link = "http://meadumandal.website/sammAPI/createDevices.php?name="+name+"&uniqueId="+uniqueId;
+                String link = "http://meadumandal.website/sammAPI/createDevices.php?name="+name+"&uniqueId="+uniqueId+"&phoneNo="+phoneNo;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

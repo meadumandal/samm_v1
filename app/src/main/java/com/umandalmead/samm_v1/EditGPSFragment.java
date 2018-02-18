@@ -3,25 +3,21 @@ package com.umandalmead.samm_v1;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-
-import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link GPSView.OnFragmentInteractionListener} interface
+ * {@link EditGPSFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link GPSView#newInstance} factory method to
+ * Use the {@link EditGPSFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GPSView extends Fragment {
+public class EditGPSFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -30,13 +26,11 @@ public class GPSView extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    View myView;
 
     private OnFragmentInteractionListener mListener;
 
-    public GPSView() {
+    public EditGPSFragment() {
         // Required empty public constructor
-
     }
 
     /**
@@ -45,11 +39,11 @@ public class GPSView extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment GPSView.
+     * @return A new instance of fragment EditGPSFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static GPSView newInstance(String param1, String param2) {
-        GPSView fragment = new GPSView();
+    public static EditGPSFragment newInstance(String param1, String param2) {
+        EditGPSFragment fragment = new EditGPSFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -70,9 +64,7 @@ public class GPSView extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        myView = inflater.inflate(R.layout.fragment_gpsview, container, false);
-        ListView gpsListview = (ListView) myView.findViewById(R.id.gpslistview);
-        return myView;
+        return inflater.inflate(R.layout.fragment_edit_gps, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

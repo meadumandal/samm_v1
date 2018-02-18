@@ -1,5 +1,7 @@
 package com.umandalmead.samm_v1;
+//IMPORTS
 
+//region Imports
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,11 +34,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
-
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
@@ -65,18 +65,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.facebook.internal.LockOnGetVariable;
-import com.umandalmead.samm_v1.EntityObjects.Destination;
-import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
-import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
-import com.umandalmead.samm_v1.POJO.Directions;
-import com.umandalmead.samm_v1.RouteTabs.Route1;
-import com.umandalmead.samm_v1.RouteTabs.Route2;
-import com.umandalmead.samm_v1.RouteTabs.Route3;
 import com.facebook.login.LoginManager;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -89,6 +79,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -99,7 +92,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -108,6 +100,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.umandalmead.samm_v1.EntityObjects.Destination;
+import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
+import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
+import com.umandalmead.samm_v1.POJO.Directions;
+import com.umandalmead.samm_v1.RouteTabs.Route1;
+import com.umandalmead.samm_v1.RouteTabs.Route2;
+import com.umandalmead.samm_v1.RouteTabs.Route3;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -122,15 +121,10 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.UUID;
-
 
 import retrofit.Call;
 import retrofit.Callback;
@@ -138,9 +132,10 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import com.github.clans.fab.FloatingActionButton;
-
 import static com.umandalmead.samm_v1.R.id.map;
+//endregion
+
+//endregion
 
 public class MenuActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener,
@@ -153,7 +148,8 @@ public class MenuActivity extends AppCompatActivity implements
         Route3.OnFragmentInteractionListener,
         Html.ImageGetter,
         LocationListener {GoogleApiClient _googleApiClient;
-            Marker _currentLocationMarker;
+    //region Global Variables
+    Marker _currentLocationMarker;
             LocationRequest _locationRequest;
             public GoogleMap _map;
             FirebaseDatabase _firebaseDatabase;
@@ -162,15 +158,12 @@ public class MenuActivity extends AppCompatActivity implements
             public SessionManager _sessionManager;
             boolean _isFirstLoad;
             public LatLng _currentLocation;
-            Destination _bestTerminal;
             public static List<Destination> _candidateTerminals;
             ArrayList<LatLng> _markerPoints;
-            Polyline _polyLine;
             Helper _helper;
             DestinationsOnItemClick _DestinationsHelper;
             Context _context;
             List<Geofence> _geoFenceList;
-            PendingIntent _geoFencePendingIntent;
             private Circle _geofenceCircleLimits;
             private Marker _geofenceMarker;
             public static List<Destination> _listDestinations;
@@ -184,14 +177,12 @@ public class MenuActivity extends AppCompatActivity implements
             DatabaseReference _driverDatabaseReference;
             public static LevelListDrawable d = new LevelListDrawable();
             public  static Destination _chosenTerminal;
-            private Boolean IsOnline = false;
              Marker _marker;
             public Boolean IsLoggingOut = false;
             public String fbImg;
             Marker _markerAnimate;
             private Boolean isMarkerRotating = false;
             public static final String DRIVERPREFIX="SAMM_";
-            public static float RADIUS = 50;
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
             public Destination _chosenDestination;
@@ -206,8 +197,6 @@ public class MenuActivity extends AppCompatActivity implements
             public static ImageView Slide_Collapse;
             public static ScrollView StepsScroller;
             public static ClearableAutoCompleteTextView editDestinations;
-            public  static ProgressDialog CheckNetDialog;
-            public  static View MainView;
             public static TextView TimeOfArrivalTextView;
             public static MenuItem UserNameMenuItem;
             public static NavigationView NavView;
@@ -222,7 +211,6 @@ public class MenuActivity extends AppCompatActivity implements
             public  static EditText CurrentLocation;
             public static LinearLayout MapsHolder_LinearLayout;
             public static LinearLayout AddGPSHolder_LinearLayout;
-            public static Fragment GoogleMapSearchBar;
             FloatingActionButton addGPS,addPoint;
 
 
@@ -233,10 +221,10 @@ public class MenuActivity extends AppCompatActivity implements
             public ProgressDialog progDialog;
             PendingIntent sentPendingIntent;
             PendingIntent deliveredPendingIntent;
-            public HashMap<String, Boolean> smsCommandsStatus = new HashMap<>();
             String phoneNo;
             String apn;
             String GPSIMEI;
+    //endregion
         //    MyBroadcastReceiver _broadcastReceiver;
 
             public boolean checkLocationPermission()
@@ -437,13 +425,9 @@ public class MenuActivity extends AppCompatActivity implements
 
                         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
                         lp.height = 150;
-
-                        //show route tabs and slide up panel ~
-//                        RouteTabLayout.setVisibility(View.VISIBLE);
                         RoutePane.setVisibility(View.VISIBLE);
 
                         SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-//                        SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                         TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                         TextView sammDriver = (TextView) findViewById(R.id.sammdriver);
                         sammDriver.setVisibility(View.VISIBLE);
@@ -518,14 +502,6 @@ public class MenuActivity extends AppCompatActivity implements
                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                             try {
                                 final String deviceId = dataSnapshot.getKey();
-
-
-//                                Marker marker;
-//                                marker = (Marker) _driverMarkers.get(deviceId);
-//                                if (marker != null) {
-//                                    marker.remove();
-//                                    _driverMarkers.remove(deviceId);
-//                                }
                                 Object Latitude = dataSnapshot.child("Lat").getValue();
                                 Object Longitude = dataSnapshot.child("Lng").getValue();
                                 double lat, lng;
@@ -760,118 +736,144 @@ public class MenuActivity extends AppCompatActivity implements
             });
         }
     }
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                Log.i(TAG,"onMapReady");
-                _map = googleMap;
-                _map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        Log.i(TAG,"onMapReady");
+        _map = googleMap;
+        _map.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-                //Initialize Google Play Services
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(this,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        buildGoogleApiClient();
-                        _map.setMyLocationEnabled(true);
+        //Initialize Google Play Services
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                buildGoogleApiClient();
+                _map.setMyLocationEnabled(true);
+            }
+        }
+        else {
+            buildGoogleApiClient();
 
-//                        createGeoFence(14.42576,121.03898);
-                    }
+            _map.setMyLocationEnabled(true);
+        }
+    }
+
+
+
+
+    protected synchronized void buildGoogleApiClient() {
+        if(_helper.isGooglePlayInstalled(_context)) {
+            _googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+            _googleApiClient.connect();
+        }
+        else
+        {
+            Toast.makeText(_context, "Please install google play service", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        if(!IsLoggingOut) {
+            if(!_sessionManager.isDriver())
+            {
+                if (_currentLocationMarker != null) {
+                    _currentLocationMarker.remove();
                 }
-                else {
-                    buildGoogleApiClient();
+                //Place current location marker
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+                _currentLocation = new LatLng(lat, lng);
 
-                    _map.setMyLocationEnabled(true);
+                saveLocation(lat, lng);
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(_currentLocation);
+//                markerOptions.title(_sessionManager.getUsername());
+
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+
+                _currentLocationMarker = _map.addMarker(markerOptions);
+
+                if (_isFirstLoad) {
+                    _isFirstLoad = false;
+                    //move map camera
+                    _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                    _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
+                }
+
+                //stop location updates
+                if (_googleApiClient != null) {
+                    LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
                 }
             }
 
+        }
+
+    }
+
+    @Override
+    public void onStatusChanged(String s, int i, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String s) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String s) {
+
+    }
+    private void saveDestination(String destinationValue)
+    {
+        final HashMap<String, Object> currentDestination = new HashMap<>();
+        currentDestination.put("currentDestination", destinationValue);
 
 
-
-            protected synchronized void buildGoogleApiClient() {
-                if(_helper.isGooglePlayInstalled(_context)) {
-                    _googleApiClient = new GoogleApiClient.Builder(this)
-                            .addConnectionCallbacks(this)
-                            .addOnConnectionFailedListener(this)
-                            .addApi(LocationServices.API)
-                            .build();
-                    _googleApiClient.connect();
+        _userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getValue()==null)
+                {
+                    _userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").setValue(currentDestination.get("currentDestination"));
                 }
                 else
                 {
-                    Toast.makeText(_context, "Please install google play service", Toast.LENGTH_LONG).show();
+                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(currentDestination);
                 }
             }
 
             @Override
-            public void onLocationChanged(Location location) {
-
-                if(!IsLoggingOut) {
-                    if(!_sessionManager.isDriver())
-                    {
-                        if (_currentLocationMarker != null) {
-                            _currentLocationMarker.remove();
-                        }
-                        //Place current location marker
-                        double lat = location.getLatitude();
-                        double lng = location.getLongitude();
-                        _currentLocation = new LatLng(lat, lng);
-
-                        saveLocation(lat, lng);
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(_currentLocation);
-//                markerOptions.title(_sessionManager.getUsername());
-
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-
-                        _currentLocationMarker = _map.addMarker(markerOptions);
-
-                        if (_isFirstLoad) {
-                            _isFirstLoad = false;
-                            //move map camera
-                            _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
-                            _map.animateCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
-                        }
-
-                        //stop location updates
-                        if (_googleApiClient != null) {
-                            LocationServices.FusedLocationApi.removeLocationUpdates(_googleApiClient, this);
-                        }
-                    }
-
-                }
+            public void onCancelled(DatabaseError databaseError) {
 
             }
-
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-
-            }
-            private void saveDestination(String destinationValue)
-            {
-                final HashMap<String, Object> currentDestination = new HashMap<>();
-                currentDestination.put("currentDestination", destinationValue);
-
-
-                _userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").addListenerForSingleValueEvent(new ValueEventListener() {
+        });
+    }
+    private void saveLocation(double lat, double lng)
+    {
+        final HashMap<String, Object> latitude = new HashMap<>();
+        final HashMap<String, Object> longitude = new HashMap<>();
+        final HashMap<String, Object> hashLastUpdated= new HashMap<>();
+        hashLastUpdated.put("lastUpdated", new Date().toString());
+        latitude.put("Latitude", lat);
+        longitude.put("Longitude", lng);
+        _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if(dataSnapshot.getValue()==null)
                         {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").setValue(currentDestination.get("currentDestination"));
+                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude").setValue(longitude);
                         }
                         else
                         {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(currentDestination);
+                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(longitude);
                         }
                     }
 
@@ -880,574 +882,458 @@ public class MenuActivity extends AppCompatActivity implements
 
                     }
                 });
-            }
-            private void saveLocation(double lat, double lng)
-            {
-                final HashMap<String, Object> latitude = new HashMap<>();
-                final HashMap<String, Object> longitude = new HashMap<>();
-                final HashMap<String, Object> hashLastUpdated= new HashMap<>();
-                hashLastUpdated.put("lastUpdated", new Date().toString());
-                latitude.put("Latitude", lat);
-                longitude.put("Longitude", lng);
-                _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.getValue()==null)
-                                {
-                                    _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude").setValue(longitude);
-                                }
-                                else
-                                {
-                                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(longitude);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.getValue()==null)
-                                {
-                                    _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude").setValue(latitude);
-                                }
-                                else
-                                {
-                                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(latitude);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-                _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if(dataSnapshot.getValue()==null)
-                                {
-                                    _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated").setValue(hashLastUpdated);
-                                }
-                                else
-                                {
-                                    _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(hashLastUpdated);
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-
-            }
-            @Override
-            public void onConnected(@Nullable Bundle bundle) {
-                new mySQLDestinationProvider(_context, MenuActivity.this, "", _map, _googleApiClient).execute();
-                _locationRequest = new LocationRequest();
-                _locationRequest.setInterval(0);
-                _locationRequest.setFastestInterval(0);
-                _locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-                if (ContextCompat.checkSelfPermission(this,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    LocationServices.FusedLocationApi.requestLocationUpdates(_googleApiClient, _locationRequest, this);
-                    LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
-
-                }
-                _map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+        _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public boolean onMarkerClick(Marker marker) {
-                        //if admin only:
-                        AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
-                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog.show();
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.getValue()==null)
+                        {
+                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude").setValue(latitude);
+                        }
+                        else
+                        {
+                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(latitude);
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                        return true;
                     }
                 });
-            }
-            @Override
-            public void onConnectionSuspended(int i) {
-
-            }
-
-            @Override
-            public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-            }
-            @Override
-            public void onRequestPermissionsResult(int requestCode,
-                                                   String permissions[], int[] grantResults) {
-                switch (requestCode) {
-                    case MY_PERMISSION_REQUEST_LOCATION: {
-                        // If request is cancelled, the result arrays are empty.
-                        if (grantResults.length > 0
-                                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                            // Permission was granted.
-                            if (ContextCompat.checkSelfPermission(this,
-                                    android.Manifest.permission.ACCESS_FINE_LOCATION)
-                                    == PackageManager.PERMISSION_GRANTED) {
-
-                                if (_googleApiClient == null) {
-                                    buildGoogleApiClient();
-
-                                }
-                                _map.setMyLocationEnabled(true);
-                            }
-
-                        } else {
-
-                            // Permission denied, Disable the functionality that depends on this permission.
-                            Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+        _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.getValue()==null)
+                        {
+                            _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated").setValue(hashLastUpdated);
                         }
-                        return;
-                    }
-                    case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                        if (grantResults.length > 0
-                                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                            SmsManager smsManager = SmsManager.getDefault();
-                            smsManager.sendTextMessage(phoneNo, null, this._message, sentPendingIntent, deliveredPendingIntent);
-
-                            Log.i(TAG, this._message + " sent");
-                            Toast.makeText(this, this._message + " sent", Toast.LENGTH_LONG).show();
-                        } else {
-                            Log.e(TAG, "SMS failed, please try again.");
-                            Toast.makeText(this, "SMS Failed", Toast.LENGTH_LONG).show();
-                            return;
+                        else
+                        {
+                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(hashLastUpdated);
                         }
                     }
 
-                    // other 'case' lines to check for other permissions this app might request.
-                    //You can add here other case statements according to your requirement.
-                }
-            }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-            @Override
-            public void onBackPressed() {
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                if (drawer.isDrawerOpen(GravityCompat.START)) {
-                    drawer.closeDrawer(GravityCompat.START);
-                } else {
-                    super.onBackPressed();
-                }
-            }
+                    }
+                });
 
+    }
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        new mySQLDestinationProvider(_context, MenuActivity.this, "", _map, _googleApiClient).execute();
+        _locationRequest = new LocationRequest();
+        _locationRequest.setInterval(0);
+        _locationRequest.setFastestInterval(0);
+        _locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(_googleApiClient, _locationRequest, this);
+            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
+
+        }
+        _map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public boolean onCreateOptionsMenu(Menu menu) {
-                // Inflate the menu; this adds items to the action bar if it is present.
-                getMenuInflater().inflate(R.menu.menu, menu);
+            public boolean onMarkerClick(Marker marker) {
+                //if admin only:
+                AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+
+
                 return true;
             }
+        });
+    }
+    @Override
+    public void onConnectionSuspended(int i) {
 
-            @Override
-            public boolean onOptionsItemSelected(MenuItem item) {
-                // Handle action bar item clicks here. The action bar will
-                // automatically handle clicks on the Home/Up button, so long
-                // as you specify a parent activity in AndroidManifest.xml.
-                int id = item.getItemId();
+    }
 
-                //noinspection SimplifiableIfStatement
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_LOCATION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        // Permission was granted.
+                        if (ContextCompat.checkSelfPermission(this,
+                                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED) {
+
+                            if (_googleApiClient == null) {
+                                buildGoogleApiClient();
+
+                            }
+                            _map.setMyLocationEnabled(true);
+                        }
+                } else {
+                    // Permission denied, Disable the functionality that depends on this permission.
+                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    SmsManager smsManager = SmsManager.getDefault();
+                    smsManager.sendTextMessage(phoneNo, null, this._message, sentPendingIntent, deliveredPendingIntent);
+
+                    Log.i(TAG, this._message + " sent");
+                    Toast.makeText(this, this._message + " sent", Toast.LENGTH_LONG).show();
+                } else {
+                    Log.e(TAG, "SMS failed, please try again.");
+                    Toast.makeText(this, "SMS Failed", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+            // other 'case' lines to check for other permissions this app might request.
+            //You can add here other case statements according to your requirement.
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
 //                if (id == R.id.action_settings) {
 //                    return true;
 //                }
 
-                return super.onOptionsItemSelected(item);
-            }
+        return super.onOptionsItemSelected(item);
+    }
 
-            @SuppressWarnings("StatementWithEmptyBody")
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+
+        // Handle navigation view item clicks here.
+        try {
+            int id = item.getItemId();
+            FragmentManager fragment = getSupportFragmentManager();
+
+            if (id == R.id.nav_share) {
+                startActivity(new Intent(MenuActivity.this, MapsActivity.class));
+            } else if (id == R.id.nav_logout) {
+                AlertDialog.Builder builder;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
+                } else {
+                    builder = new AlertDialog.Builder(this);
+                }
+                builder.setTitle("Log out")
+                        .setMessage("Are you sure you want to log out?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                LoginManager.getInstance().logOut();
+                                _sessionManager.logoutUser();
+                                IsLoggingOut = true;
+                                Intent i = new Intent(MenuActivity.this, LoginActivity.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(i);
+                                Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+
+            }
+            else if(id==R.id.nav_about){
+                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                MapsHolder_LinearLayout.setVisibility(View.GONE);
+
+                fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
+
+            }
+            else if (id == R.id.nav_passengerpeakandlean)
+            {
+                _sessionManager.PassReportType("passenger");
+                Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
+                startActivity(i);
+            }
+            else if (id == R.id.nav_ecolooppeakandlean)
+            {
+                _sessionManager.PassReportType("ecoloop");
+                Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
+                startActivity(i);
+//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+            } else if (id == R.id.nav_addGPS)
+            {
+                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                lp.height = 156;
+                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                MapsHolder_LinearLayout.setVisibility(View.GONE);
+                editDestinations.setVisibility(View.GONE);
+                CurrentLocation.setVisibility(View.GONE);
+            }
+            else if(id == R.id.nav_addPoint)
+            {
+                LinearLayout maps = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                maps.setVisibility(View.GONE);
+                fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
+            }
+            else if(id == R.id.menu_home){
+//                AddGPSHolder_LinearLayout = (LinearLayout) findViewById(R.id.addGPSLinearLayout);
+//                AddGPSHolder_LinearLayout.setVisibility(View.GONE);
+                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                MapsHolder_LinearLayout.setVisibility(View.VISIBLE);
+                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                lp.height = 235;
+                editDestinations.setVisibility(View.VISIBLE);
+                CurrentLocation.setVisibility(View.VISIBLE);
+
+            }
+            else if(id==R.id.nav_viewGPS)
+            {
+                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                MapsHolder_LinearLayout.setVisibility(View.GONE);
+                fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
+            }
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        }
+        catch(Exception ex)
+        {
+            Toast.makeText(MenuActivity.this,ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        return true;
+    }
+
+    private void displayLocationSettingsRequest(Context context) {
+
+
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(LocationServices.API).build();
+        googleApiClient.connect();
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(10000 / 2);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
             @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        Log.i(TAG, "All location settings are satisfied.");
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        Log.i(TAG, "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
 
-                // Handle navigation view item clicks here.
-                try {
-                    int id = item.getItemId();
-                    FragmentManager fragment = getSupportFragmentManager();
-
-                    if (id == R.id.nav_share) {
-                        startActivity(new Intent(MenuActivity.this, MapsActivity.class));
-                    } else if (id == R.id.nav_logout) {
-                        AlertDialog.Builder builder;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
-                        } else {
-                            builder = new AlertDialog.Builder(this);
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the result
+                            // in onActivityResult().
+                            status.startResolutionForResult(MenuActivity.this, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            Log.i(TAG, "PendingIntent unable to execute request.");
                         }
-                        builder.setTitle("Log out")
-                                .setMessage("Are you sure you want to log out?")
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        LoginManager.getInstance().logOut();
-                                        _sessionManager.logoutUser();
-                                        IsLoggingOut = true;
-                                        Intent i = new Intent(MenuActivity.this, LoginActivity.class);
-                                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(i);
-                                        Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // do nothing
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-
-
-                    }
-                    else if(id==R.id.nav_about){
-                        MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                        MapsHolder_LinearLayout.setVisibility(View.GONE);
-
-                        fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
-//                        startActivity(new Intent(MenuActivity.this, AboutActivity.class));
-
-                    }
-                    else if (id == R.id.nav_passengerpeakandlean)
-                    {
-                        _sessionManager.PassReportType("passenger");
-//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
-
-                        Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
-                        startActivity(i);
-                    }
-                    else if (id == R.id.nav_ecolooppeakandlean)
-                    {
-                        _sessionManager.PassReportType("ecoloop");
-                        Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
-                        startActivity(i);
-//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
-                    } else if (id == R.id.nav_addGPS)
-                    {
-                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
-                        lp.height = 156;
-                        MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                        MapsHolder_LinearLayout.setVisibility(View.GONE);
-                        editDestinations.setVisibility(View.GONE);
-                        CurrentLocation.setVisibility(View.GONE);
-                    }
-                    else if(id == R.id.nav_addPoint)
-                    {
-                        LinearLayout maps = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                        maps.setVisibility(View.GONE);
-                        fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
-                    }
-                    else if(id == R.id.menu_home){
-                        AddGPSHolder_LinearLayout = (LinearLayout) findViewById(R.id.addGPSLinearLayout);
-                        AddGPSHolder_LinearLayout.setVisibility(View.GONE);
-                        MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                        MapsHolder_LinearLayout.setVisibility(View.VISIBLE);
-                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
-                        lp.height = 235;
-                        editDestinations.setVisibility(View.VISIBLE);
-                        CurrentLocation.setVisibility(View.VISIBLE);
-
-                    }
-
-
-                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                    drawer.closeDrawer(GravityCompat.START);
-                    return true;
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        Log.i(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
+                        break;
                 }
-                catch(Exception ex)
-                {
-                    Toast.makeText(MenuActivity.this,ex.getMessage(), Toast.LENGTH_LONG).show();
-                }
-                return true;
             }
-
-            private void displayLocationSettingsRequest(Context context) {
-
-
-                GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
-                        .addApi(LocationServices.API).build();
-                googleApiClient.connect();
-
-                LocationRequest locationRequest = LocationRequest.create();
-                locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-                locationRequest.setInterval(10000);
-                locationRequest.setFastestInterval(10000 / 2);
-
-                LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
-                builder.setAlwaysShow(true);
-
-                PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
-                result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
-                    @Override
-                    public void onResult(LocationSettingsResult result) {
-                        final Status status = result.getStatus();
-                        switch (status.getStatusCode()) {
-                            case LocationSettingsStatusCodes.SUCCESS:
-                                Log.i(TAG, "All location settings are satisfied.");
-                                break;
-                            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                                Log.i(TAG, "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
-
-                                try {
-                                    // Show the dialog by calling startResolutionForResult(), and check the result
-                                    // in onActivityResult().
-                                    status.startResolutionForResult(MenuActivity.this, REQUEST_CHECK_SETTINGS);
-                                } catch (IntentSender.SendIntentException e) {
-                                    Log.i(TAG, "PendingIntent unable to execute request.");
-                                }
-                                break;
-                            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                                Log.i(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
-                                break;
-                        }
-                    }
-                });
-            }
-            public List<Geofence> createGeoFence()
-            {
-                String geofenceRequestId = "";
-                List<Geofence> geofenceList = new ArrayList<>();
+        });
+    }
+    public List<Geofence> createGeoFence()
+    {
+        String geofenceRequestId = "";
+        List<Geofence> geofenceList = new ArrayList<>();
 
 
-                        geofenceRequestId = UUID.randomUUID().toString();
-                        geofenceList.add(new Geofence.Builder()
-                                .setRequestId(geofenceRequestId)
-                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                                .setCircularRegion(14.42576,121.03898, 50)
-                                .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                                .build());
+                geofenceRequestId = UUID.randomUUID().toString();
+                geofenceList.add(new Geofence.Builder()
+                        .setRequestId(geofenceRequestId)
+                        .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                        .setCircularRegion(14.42576,121.03898, 50)
+                        .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                        .build());
 
 
-                return geofenceList;
-            }
-            private GeofencingRequest createGeofenceRequest(List<Geofence> geofence)
-            {
-                GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-                builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
-                builder.addGeofences(geofence);
-                return builder.build();
-            }
-            private PendingIntent createGeofencePendingIntent()
-            {
-                Log.i(TAG, "createGeofencePendingIntent()");
-                Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        return geofenceList;
+    }
+    private GeofencingRequest createGeofenceRequest(List<Geofence> geofence)
+    {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_DWELL);
+        builder.addGeofences(geofence);
+        return builder.build();
+    }
+    private PendingIntent createGeofencePendingIntent()
+    {
+        Log.i(TAG, "createGeofencePendingIntent()");
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
 //                startService(intent);
-                return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-            }
+    }
 
-            private void drawGeofence(LatLng latLng) {
-                Log.d(TAG, "drawGeofence()");
+    private void drawGeofence(LatLng latLng) {
+        Log.d(TAG, "drawGeofence()");
 
-                if ( _geofenceCircleLimits != null )
-                    _geofenceCircleLimits.remove();
+        if ( _geofenceCircleLimits != null )
+            _geofenceCircleLimits.remove();
 
-                CircleOptions circleOptions = new CircleOptions()
-                        .center(latLng)
-                        .strokeColor(Color.argb(50, 70,70,70))
-                        .fillColor( Color.argb(100, 150,150,150) )
-                        .radius( 200 );
-                _geofenceCircleLimits = _map.addCircle( circleOptions );
-            }
+        CircleOptions circleOptions = new CircleOptions()
+                .center(latLng)
+                .strokeColor(Color.argb(50, 70,70,70))
+                .fillColor( Color.argb(100, 150,150,150) )
+                .radius( 200 );
+        _geofenceCircleLimits = _map.addCircle( circleOptions );
+    }
 
-            // Create a marker for the geofence creation
-            private void markerForGeofence(LatLng latLng) {
-                Log.i(TAG, "markerForGeofence("+latLng+")");
-                String title = latLng.latitude + ", " + latLng.longitude;
-                // Define marker options
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(latLng)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
-                        .title(title);
-                if ( _map !=null ) {
-                    // Remove last _geofenceMarker
-                    if (_geofenceMarker != null)
-                        _geofenceMarker.remove();
+    // Create a marker for the geofence creation
+    private void markerForGeofence(LatLng latLng) {
+        Log.i(TAG, "markerForGeofence("+latLng+")");
+        String title = latLng.latitude + ", " + latLng.longitude;
+        // Define marker options
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
+                .title(title);
+        if ( _map !=null ) {
+            // Remove last _geofenceMarker
+            if (_geofenceMarker != null)
+                _geofenceMarker.remove();
 
-                    _geofenceMarker = _map.addMarker(markerOptions);
+            _geofenceMarker = _map.addMarker(markerOptions);
+        }
+    }
+    // Start Geofence creation process
+    private void startGeofence() {
+        Log.i(TAG, "startGeofence()");
+        List<Geofence> geofence = createGeoFence();
+        GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
+        addGeofence( geofenceRequest );
+    }
+    // Add the created GeofenceRequest to the device's monitoring list
+    private void addGeofence(GeofencingRequest request) {
+
+        Log.d(TAG, "addGeofence");
+        if (checkPermission())
+        try
+        {
+            LocationServices.GeofencingApi.addGeofences(
+                    _googleApiClient,
+                    request,
+                    createGeofencePendingIntent()
+            ).setResultCallback(new ResultCallback<Status>() {
+
+                @Override
+                public void onResult(Status status) {
+                    if (status.isSuccess()) {
+                        Log.i(TAG, "Saving Geofence");
+
+
+                    } else {
+                        Log.e(TAG, "Registering geofence failed: " + status.getStatusMessage() +
+                                " : " + status.getStatusCode());
+                    }
                 }
-            }
-            // Start Geofence creation process
-            private void startGeofence() {
-                Log.i(TAG, "startGeofence()");
-                List<Geofence> geofence = createGeoFence();
-                GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-                addGeofence( geofenceRequest );
-            }
-            // Add the created GeofenceRequest to the device's monitoring list
-            private void addGeofence(GeofencingRequest request) {
+            });
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+        }
 
-                Log.d(TAG, "addGeofence");
-                if (checkPermission())
-                try
-                {
-                    LocationServices.GeofencingApi.addGeofences(
-                            _googleApiClient,
-                            request,
-                            createGeofencePendingIntent()
-                    ).setResultCallback(new ResultCallback<Status>() {
-
-                        @Override
-                        public void onResult(Status status) {
-                            if (status.isSuccess()) {
-                                Log.i(TAG, "Saving Geofence");
+    }
+    // Check for permission to access Location
+    private boolean checkPermission() {
 
 
-                            } else {
-                                Log.e(TAG, "Registering geofence failed: " + status.getStatusMessage() +
-                                        " : " + status.getStatusCode());
-                            }
-                        }
-                    });
-                }
-                catch (Exception e)
-                {
-                    Log.e(TAG, e.getMessage());
-                }
+        Log.d(TAG, "checkPermission()");
+        // Ask for permission if it wasn't granted yet
+        return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED );
+    }
 
-            }
-            // Check for permission to access Location
-            private boolean checkPermission() {
+    private void updatePassengerCounter(String username, String terminal)
+    {
+        new mySQLUpdatePassengerCounter(getApplicationContext(), this).execute(username, terminal);
 
-
-                Log.d(TAG, "checkPermission()");
-                // Ask for permission if it wasn't granted yet
-                return (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED );
-            }
-
-            private void updatePassengerCounter(String username, String terminal)
-            {
-                new mySQLUpdatePassengerCounter(getApplicationContext(), this).execute(username, terminal);
-
-            }
-            private void passengerMovement(final String destinationValue, final String movement)
-            {
-                final HashMap<String, Object> count = new HashMap<>();
+    }
+    private void passengerMovement(final String destinationValue, final String movement)
+    {
+        final HashMap<String, Object> count = new HashMap<>();
 //                final DatabaseReference destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
-                final HashMap<String, Object> hashmapCount = new HashMap<>();
-                final String uid = _sessionManager.getUsername();
-                _destinationDatabaseReference.child(destinationValue).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot == null || dataSnapshot.getValue() == null)
-                        {
-                            if(movement.toLowerCase().equals("entered"))
-                            {
-                                _destinationDatabaseReference.child(destinationValue).child(uid).setValue(true);
-                                updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
-                            }
-
-                        }
-                        else if(movement.toLowerCase().equals("exit")){
-                                _destinationDatabaseReference.child(destinationValue).child(uid).removeValue();
-                        }
-                        else if (movement.toLowerCase().equals("entered"))
-                        {
-                            updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
-                        }
+        final HashMap<String, Object> hashmapCount = new HashMap<>();
+        final String uid = _sessionManager.getUsername();
+        _destinationDatabaseReference.child(destinationValue).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot == null || dataSnapshot.getValue() == null)
+                {
+                    if(movement.toLowerCase().equals("entered"))
+                    {
+                        _destinationDatabaseReference.child(destinationValue).child(uid).setValue(true);
+                        updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
                     }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                }
+                else if(movement.toLowerCase().equals("exit")){
+                        _destinationDatabaseReference.child(destinationValue).child(uid).removeValue();
+                }
+                else if (movement.toLowerCase().equals("entered"))
+                {
+                    updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
+                }
+            }
 
-                    }
-                });
-
-//                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").runTransaction(new Transaction.Handler() {
-//                    @Override
-//                    public Transaction.Result doTransaction(MutableData currentData) {
-//                        if(currentData.getValue() == null) {
-//                            if(movement.toLowerCase().equals("entered"))
-//                            {
-//                                currentData.setValue(1);
-//                                new mySQLSignUp(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
-//
-//                            }
-//
-//
-//                        } else {
-//                            if(movement.toLowerCase().equals("entered"))
-//                            {
-//                                currentData.setValue((Long) currentData.getValue() + 1);
-//                                new mySQLSignUp(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
-//                            }
-//                            if(movement.toLowerCase().equals("exit"))
-//                            {
-//                                currentData.setValue((Long) currentData.getValue() - 1);
-//                                new mySQLSignUp(_context, MenuActivity.this).execute(_sessionManager.getUsername(),"");
-//                            }
-//
-//                        }
-//                        return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
-//                    }
-//                    @Override
-//                    public void onComplete(DatabaseError firebaseError, boolean committed, DataSnapshot currentData) {
-//                        //This method will be called once with the results of the transaction.
-//                    }
-//                });
-
-//                _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger")
-//                        .addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//                                Log.i(TAG, "Updating counter for " + destinationValue + " " + movement);
-//                                if(dataSnapshot.getValue()==null)
-//                                {
-//                                    if(movement.toLowerCase().equals("entered"))
-//                                    {
-//
-//                                        _destinationDatabaseReference.child(destinationValue).child("WaitingPassenger").setValue(1);
-//                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
-//
-//                                        new mySQLSignUp(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
-//
-//                                    }'
-//
-//                                }
-//                                else
-//                                {
-//                                    long count = (long) dataSnapshot.getValue();
-//                                    if(movement.toLowerCase().equals("entered"))
-//                                    {
-//                                        count++;
-//                                        hashmapCount.put("WaitingPassenger", count);
-//                                        _destinationDatabaseReference.child(destinationValue).updateChildren(hashmapCount);
-//                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
-//                                        new mySQLSignUp(_context, MenuActivity.this).execute(_sessionManager.getUsername(),destinationValue);
-//                                    }
-//                                    if(movement.toLowerCase().equals("exit"))
-//                                    {
-//                                        count--;
-//                                        hashmapCount.put("WaitingPassenger", count);
-//                                        _destinationDatabaseReference.child(destinationValue).updateChildren(hashmapCount);
-//                                        _destinationDatabaseReference.child(destinationValue).removeEventListener(this);
-//                                        new mySQLSignUp(_context, MenuActivity.this).execute(_sessionManager.getUsername(),"");
-//                                    }
-//
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//
-//
-//                        });
-//
-//
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
             }
+        });
+
+    }
 
     @Override
     public void onFragmentInteraction(Uri uri) {
@@ -1484,6 +1370,20 @@ public class MenuActivity extends AppCompatActivity implements
     }
 
     public void ShowLoopTimeofArrival(final LatLng Looploc, final float bearing, final String deviceid) {
+        //February 18, 2108 4:00AM (sobrang effective ng REDBULL)
+        //Dear Eleaz, sana mabasa mo ito. Thank you sa lahat ng tulong mo dito sa app na ito.
+        //Thank you for lifting my spirits up when I'm feeling down
+        //Thank you for giving me hope when I'm losing it =)
+        //Thank you for staying positive when I'm thinking negative
+        //I know you're also pagod and puyat, but thanks for staying pagod and puyat with me. =)
+        //Eto na nga, seems like hindi 'to aabot para sa #march2018 goal, pero thank you
+        //kasi andyan ka to uplift my emotions.
+        //Malungkot ako, kasi I keep on remembering all the hustling and cramming para lang umabot
+        //pero still, hindi umabot. Pero nawawala ung lungkot ko kapag iniisip kong dalawa naman tayo dito.
+        //Hindi ako nag-iisa =) Diba? =)
+        //Now, #march2018 becomes #may2018. PUSH parin tayo baby ha?
+        //I am sure this will all be worth it! Gandahan natin ang app. Go go go!!! :*
+        //I LOVE YOU!
         try {
             if (_chosenTerminal != null) {
                 HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
@@ -1599,7 +1499,7 @@ public class MenuActivity extends AppCompatActivity implements
                             sendSMSMessage("t005s***n123456");
                         }
                         else if (_message.equals("t005s***n123456")) {
-                            new addGPStoTraccar(getApplicationContext(), progDialog, MenuActivity.this).execute("SAMM_"+GPSIMEI.substring(GPSIMEI.length()-5, GPSIMEI.length()), GPSIMEI);
+                            new addGPStoTraccar(getApplicationContext(), progDialog, MenuActivity.this).execute("SAMM_"+GPSIMEI.substring(GPSIMEI.length()-5, GPSIMEI.length()), GPSIMEI, phoneNo);
                         }
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:

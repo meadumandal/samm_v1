@@ -10,4 +10,15 @@
         android:layout_height="match_parent"
         android:text="@string/hello_blank_fragment" />
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.umandalmead.samm_v1.NonScrollListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/gpslistview"></com.umandalmead.samm_v1.NonScrollListView>
+
+    </ScrollView>
+
 </FrameLayout>
