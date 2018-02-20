@@ -12,5 +12,5 @@ import retrofit.http.Query;
 
 public interface RetrofitUserDetails {
     @GET("getUserDetails.php")
-    Call<UserPOJO> getUserDetails(@Query("username") String username);
+    Call<UserPOJO> getUserDetails(@Query("username") String username, @Query("emailAddress") String emailAddress);
 }

@@ -42,17 +42,17 @@ public class listViewCustomAdapter extends ArrayAdapter<GPS> implements View.OnC
 
     @Override
     public void onClick(View v) {
-
-        int position=(Integer) v.getTag();
-        Object object= getItem(position);
-        GPS dataModel=(GPS)object;
-
-        switch (v.getId())
-        {
-            case R.id.gpsname:
-                Toast.makeText(this.mContext,"Clicked", Toast.LENGTH_LONG).show();
-                break;
-        }
+//
+//        int position=(Integer) v.getTag();
+//        Object object= getItem(position);
+//        GPS dataModel=(GPS)object;
+//
+//        switch (v.getId())
+//        {
+//            case R.id.gpsname:
+//                Toast.makeText(this.mContext,"Clicked", Toast.LENGTH_LONG).show();
+//                break;
+//        }
     }
 
     private int lastPosition = -1;

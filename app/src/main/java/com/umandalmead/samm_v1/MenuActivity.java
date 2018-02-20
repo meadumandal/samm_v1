@@ -437,7 +437,7 @@ public class MenuActivity extends AppCompatActivity implements
                     }
 
                     RouteTabLayout.setMinimumWidth(150);
-                    fbImg = "http://graph.facebook.com/" + _sessionManager.getUsername() + "/picture?type=large";
+                    fbImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
                     try {
                         FetchFBDPTask dptask = new FetchFBDPTask();
                         dptask.execute();
@@ -1125,7 +1125,7 @@ public class MenuActivity extends AppCompatActivity implements
             else if(id==R.id.nav_viewGPS)
             {
                 MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                MapsHolder_LinearLayout.setVisibility(View.GONE);
+                MapsHolder_LinearLayout.setVisibility(  View.GONE);
                 fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
             }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1499,7 +1499,8 @@ public class MenuActivity extends AppCompatActivity implements
                             sendSMSMessage("t005s***n123456");
                         }
                         else if (_message.equals("t005s***n123456")) {
-                            new addGPStoTraccar(getApplicationContext(), progDialog, MenuActivity.this).execute("SAMM_"+GPSIMEI.substring(GPSIMEI.length()-5, GPSIMEI.length()), GPSIMEI, phoneNo);
+                            progDialog.setMessage("Successfully configured GPS. Now adding GPS to server...");
+                            new asyncAddTraccarGPS(getApplicationContext(), progDialog, MenuActivity.this).execute("SAMM_"+GPSIMEI.substring(GPSIMEI.length()-5, GPSIMEI.length()), GPSIMEI, phoneNo);
                         }
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
@@ -1546,13 +1547,18 @@ public class MenuActivity extends AppCompatActivity implements
     }
     private void initialiseOnlinePresence() {
         // any time that connectionsRef's value is null, device is offline
-        if (!_sessionManager.isDriver())
-        {
+        String node="";
+        if (_sessionManager.isDriver()) {
+            node ="drivers/" + _sessionManager.getLastName();
+        }
+        else {
+            node="users/" + _sessionManager.getUsername();
+        }
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
-            final DatabaseReference myConnectionsRef = database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+            final DatabaseReference myConnectionsRef = database.getReference(node + "/connections");
 
             // stores the timestamp of last online
-            final DatabaseReference lastOnlineRef = database.getReference("/users/" + _sessionManager.getUsername()+ "/lastOnline");
+            final DatabaseReference lastOnlineRef = database.getReference("/"+node + "/lastOnline");
 
             final DatabaseReference connectedRef = database.getReference(".info/connected");
             connectedRef.addValueEventListener(new ValueEventListener() {
@@ -1593,7 +1599,7 @@ public class MenuActivity extends AppCompatActivity implements
             });
         }
 
-    }
+
 
     public void AddPoint()
     {

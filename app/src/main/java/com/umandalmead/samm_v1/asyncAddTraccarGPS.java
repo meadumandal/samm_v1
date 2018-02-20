@@ -23,7 +23,7 @@ import java.net.URLConnection;
  */
 
 
-public class addGPStoTraccar extends AsyncTask<String, Void, String>{
+public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     Context _context;
     Activity _activity;
     ProgressDialog _progDialog;
@@ -33,9 +33,9 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
     JSONObject postData;
 
 
-    public addGPStoTraccar(Context context, ProgressDialog progDialog, Activity activity)
+    public asyncAddTraccarGPS(Context context, ProgressDialog progDialog, Activity activity)
     {
-        Log.i(TAG, "addGPStoTraccar");
+        Log.i(TAG, "asyncAddTraccarGPS");
         this._context = context;
         this._progDialog = progDialog;
         this._activity = activity;
@@ -67,11 +67,13 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
     protected String doInBackground(String... params)
     {
 
-        Log.i(TAG, "addGPStoTraccar doInBackground");
+        Log.i(TAG, "asyncAddTraccarGPS doInBackground");
         try{
             String name = params[0];
             String uniqueId = params[1];
             String phoneNo = params[2];
+            String returnString  ="";
+            Integer deviceId = 0;
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
@@ -90,15 +92,17 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
                 try
                 {
                     json = new JSONObject(jsonResponse);
-                    if (Integer.parseInt(json.get("id").toString())>0)
+                    deviceId=Integer.parseInt(json.get("id").toString());
+                    if (deviceId>0)
                     {
+
                         _progDialog.dismiss();
-                        return "Success";
+                        returnString= "Success";
                     }
                     else
                     {
                         _progDialog.dismiss();
-                        return "Error encountered upon adding GPS. Please re-try";
+                        returnString= "Error encountered upon adding GPS. Please re-try";
                     }
                 }
                 catch(Exception e){
@@ -114,14 +118,15 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
                     }
                     Log.e(TAG, e.getLocalizedMessage() +":"+ e.getMessage());
                     _progDialog.dismiss();
-                    return "Error encountered upon adding GPS: "+errorMessage+". Please re-try";
+                    returnString= "Error encountered upon adding GPS: "+errorMessage+". Please re-try";
                 }
             }
             else
             {
                 _progDialog.dismiss();
-                return  "Looks like you're offline";
+                returnString=  "Looks like you're offline";
             }
+            return returnString + "/" + name + "/" +deviceId.toString();
         }
         catch(Exception e)
         {
@@ -133,24 +138,30 @@ public class addGPStoTraccar extends AsyncTask<String, Void, String>{
     }
 
     @Override
-    protected void onPostExecute(String s)
+    protected void onPostExecute(String returnMessage)
     {
         try
         {
+            String[] parts = returnMessage.split("/");
+            String message = parts[0];
+            String gpsname = parts[1];
+            String deviceId = parts[2];
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this._activity);
             alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                 }
             });
-            if(s.equals("Success"))
+            if(message.equals("Success"))
             {
+
                 alertDialogBuilder.setTitle("Success");
                 alertDialogBuilder.setMessage("Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.");
+                new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
             }
             else
             {
                 alertDialogBuilder.setTitle("Error");
-                alertDialogBuilder.setMessage(s);
+                alertDialogBuilder.setMessage(message);
             }
             alertDialogBuilder.show();
 //        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();

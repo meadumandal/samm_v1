@@ -2,9 +2,12 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +18,14 @@ import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
 import java.util.ArrayList;
+import android.app.DialogFragment;
 
+
+import static android.R.attr.fragment;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 
-public class ViewGPSFragment extends Fragment {
+public class ViewGPSFragment extends android.support.v4.app.Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -74,11 +80,8 @@ public class ViewGPSFragment extends Fragment {
             progDialog.setMessage("Please wait");
             progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progDialog.show();
-
-            new asyncGetGPSFromTraccar(getActivity(), progDialog, dataModels, gpsListview).execute();
-
-
-
+            FragmentManager fm = getActivity().getFragmentManager();
+            new asyncGetGPSFromTraccar(getActivity(), progDialog, gpsListview, fm).execute();
         }
         catch(Exception ex)
         {

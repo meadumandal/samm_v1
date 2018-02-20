@@ -257,7 +257,6 @@ public class LoginActivity extends AppCompatActivity{
 
 
             btn_SignIn.setOnClickListener(new View.OnClickListener() {
-
                 @Override
                 public void onClick(View view) {
                     progressBar.setVisibility(View.VISIBLE);
@@ -267,36 +266,101 @@ public class LoginActivity extends AppCompatActivity{
                         Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.VISIBLE);
                     } else {
-//                        if (Patterns.EMAIL_ADDRESS.matcher(username).matches()) {
-//                            signIn(username, password);
-//                        } else {
-//                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
-                            String url = "http://meadumandal.website/sammAPI/";
-                            Retrofit retrofit = new Retrofit.Builder()
-                                    .baseUrl(url)
-                                    .addConverterFactory(GsonConverterFactory.create())
-                                    .build();
-                            RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
-                            Call<UserPOJO> call = service.getUserDetails(username);
-                            call.enqueue(new Callback<UserPOJO>() {
-                                @Override
-                                public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
-                                    try {
-                                        signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
-                                        }
-                                        //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
-                                    catch (Exception e) {
-                                        Log.d(TAG, "There is an error");
-                                        e.printStackTrace();
+                        String url = "http://meadumandal.website/sammAPI/";
+                        Retrofit retrofit = new Retrofit.Builder()
+                                .baseUrl(url)
+                                .addConverterFactory(GsonConverterFactory.create())
+                                .build();
+                        RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+                        Call<UserPOJO> call = service.getUserDetails(username, username);
+                        call.enqueue(new Callback<UserPOJO>() {
+                            @Override
+                            public void onResponse(final Response<UserPOJO> response, Retrofit retrofit) {
+                                try {
+                                    if(response.body()==null)
+                                    {
+                                        progressBar.setVisibility(View.GONE);
+                                        Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
                                     }
-                                }
+                                    else
+                                    {
+                                        if(!response.body().getEmailAddress().toLowerCase().equals("sammdriver@yahoo.com"))
+                                        {
+                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());                                        }
+                                        else {
+                                            FirebaseDatabase _firebaseDatabase =  FirebaseDatabase.getInstance();;
+                                            DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
+                                            _driverDatabaseReference.child(response.body().getLastName()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    if (dataSnapshot != null) {
+                                                        if (dataSnapshot.child("connections") == null )
+                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+                                                        else if (dataSnapshot.child("connections").getValue() == null)
+                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+                                                        else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
+                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+                                                        else {
+                                                            progressBar.setVisibility(View.GONE);
+                                                            Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
+                                                        }
+                                                        {
+                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+                                                        }
+                                                    }
+                                                }
 
-                                @Override
-                                public void onFailure(Throwable t) {
-                                    Log.d(TAG, t.toString());
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                        }
+
+                                    }
+
+
                                 }
-                            });
-//                        }
+                                //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
+                                catch (Exception e) {
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(LoginActivity.this, "Error Occurred", Toast.LENGTH_LONG).show();
+                                    Log.d(TAG, "There is an error");
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Throwable t) {
+                                Log.d(TAG, t.toString());
+                            }
+                        });
+
+//                        String url = "http://meadumandal.website/sammAPI/";
+//                        Retrofit retrofit = new Retrofit.Builder()
+//                                .baseUrl(url)
+//                                .addConverterFactory(GsonConverterFactory.create())
+//                                .build();
+//                        RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+//                        Call<UserPOJO> call = service.getUserDetails(username, username);
+//                        call.enqueue(new Callback<UserPOJO>() {
+//                            @Override
+//                            public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
+//                                try {
+//                                    signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+//                                    }
+//                                    //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
+//                                catch (Exception e) {
+//                                    Log.d(TAG, "There is an error");
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onFailure(Throwable t) {
+//                                Log.d(TAG, t.toString());
+//                            }
+//                        });
                     }
 
                 }

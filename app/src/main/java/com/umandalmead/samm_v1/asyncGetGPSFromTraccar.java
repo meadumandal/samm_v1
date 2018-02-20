@@ -3,12 +3,15 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.google.gson.Gson;
 import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
@@ -43,17 +47,19 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
     ProgressDialog _progDialog;
     NonScrollListView _listView;
     ArrayList<GPS> _dataModels;
+    FragmentManager _fragmentManager;
     public static String TAG="mead";
 
 
-    public asyncGetGPSFromTraccar(Context context, ProgressDialog progDialog, ArrayList<GPS> dataModels, NonScrollListView listView)
+    public asyncGetGPSFromTraccar(Context context, ProgressDialog progDialog, NonScrollListView listView, FragmentManager fm)
     {
         Log.i(TAG, "asyncGetGPSFromTraccar");
         this._context = context;
         this._progDialog = progDialog;
 
-        this._dataModels = dataModels;
+
         this._listView = listView;
+        this._fragmentManager = fm;
 
     }
 
@@ -120,19 +126,31 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                 String GPSNetwork = json.get("model").toString();
                 Integer ID = Integer.parseInt(json.get("id").toString());
                 _dataModels.add(new GPS(ID, GPSName, GPSIMEI, GPSPhone, GPSNetwork));
+
             }
             _listView.setAdapter(new listViewCustomAdapter(_dataModels,getApplicationContext()));
-            _progDialog.dismiss();
             _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    try {
+                        Gson gson = new Gson();
+                        String json = gson.toJson(_dataModels.get(position));
+                        Bundle bundle = new Bundle();
+                        bundle.putString("datamodel", json);
+                        EditGPSDialogFragment editGPSDialog = new EditGPSDialogFragment();
+                        editGPSDialog.setArguments(bundle);
+                        editGPSDialog.show(_fragmentManager ,"EditGPSDialogFragment");
 
-                    GPS dataModel= _dataModels.get(position);
-//                    MenuActivity.AddGPSDialog dialog=new MenuActivity.AddGPSDialog(_context);
-//                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//                    dialog.show();
+                    }
+                    catch(Exception e)
+                    {
+                        Log.e(TAG, e.getMessage());
+                    }
+
                 }
             });
+            _progDialog.dismiss();
+
         }
         catch(Exception e)
         {

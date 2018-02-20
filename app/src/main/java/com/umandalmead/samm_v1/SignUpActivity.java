@@ -134,7 +134,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         .addConverterFactory(GsonConverterFactory.create())
                                         .build();
                                 RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
-                                Call<UserPOJO> call = service.getUserDetails(username);
+                                Call<UserPOJO> call = service.getUserDetails(username, emailAddress);
                                 call.enqueue(new Callback<UserPOJO>() {
                                     @Override
                                     public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {

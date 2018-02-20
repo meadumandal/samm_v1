@@ -1,5 +1,7 @@
 package com.umandalmead.samm_v1.EntityObjects;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+
 /**
  * Created by MeadRoseAnn on 2/17/2018.
  */
@@ -19,8 +21,23 @@ public class GPS {
         this.GPSIMEI = gpsIMEI;
         this.GPSPhone = gpsPhone;
         this.GPSNetworkProvider = gpsNetworkProvider;
+    }
 
-
+    public void setGPSName(String GPSName)
+    {
+        this.GPSName = GPSName;
+    }
+    public void setGPSIMEI(String GPSIMEI)
+    {
+        this.GPSIMEI = GPSIMEI;
+    }
+    public void setGPSPhone(String GPSPhone)
+    {
+        this.GPSPhone = GPSPhone;
+    }
+    public void setGPSNetworkProvider(String GPSNetworkProvider)
+    {
+        this.GPSNetworkProvider = GPSNetworkProvider;
     }
     public String getGPSName()
     {
@@ -38,5 +55,11 @@ public class GPS {
     {
         return this.GPSNetworkProvider;
     }
+    public Integer getID()
+    {
+        return this.ID;
+    }
+
+
 
 }
