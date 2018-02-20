@@ -54,15 +54,29 @@ public class Destination implements Comparable<Destination>{
     @Override
     public int compareTo(@NonNull Destination destination) {
         //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
-        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
-            return 1;
-        }
-        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+        if (this.OrderOfArrival > destination.OrderOfArrival) {
             return -1;
+        }
+        else if (this.OrderOfArrival < destination.OrderOfArrival) {
+            return 1;
         }
         else {
             return 0;
         }
 
     }
+//    @Override
+//    public int compareTo(@NonNull Destination destination) {
+//        //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
+//        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
+//            return 1;
+//        }
+//        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+//            return -1;
+//        }
+//        else {
+//            return 0;
+//        }
+//
+//    }
 }

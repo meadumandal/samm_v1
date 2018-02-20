@@ -5,10 +5,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.annotation.IntegerRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -16,6 +18,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import com.google.android.gms.drive.internal.StringListResponse;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.umandalmead.samm_v1.EntityObjects.Destination;
 import com.umandalmead.samm_v1.POJO.Directions;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,12 +37,16 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
 import retrofit.Call;
+import retrofit.Callback;
 import retrofit.GsonConverterFactory;
+import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.umandalmead.samm_v1.MenuActivity.RoutePane;
@@ -69,6 +83,10 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     List<List<String>> _AllDirectionsSteps = new ArrayList<List<String>>();
     List<List<String>> _AllTerminalPoints = new ArrayList<List<String>>();
     List<Polyline> polyLines = new ArrayList<>();
+    private FirebaseDatabase FireDatabase;
+    private DatabaseReference userDatabaseRef;
+    private String _loopIds = "";
+    private List<Integer> _ListOfLoops = new ArrayList<Integer>();
     /**
      *This is the generic format in accessing data from mySQL
      * @param context
@@ -318,6 +336,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             viewPager.setAdapter(adapter);
             viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
 
+
             RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
@@ -328,6 +347,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     StepsScroller.scrollTo(0,0);
                     clearLines();
                     drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
+                   GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(tab.getPosition()));
                 }
 
                 @Override
@@ -358,6 +378,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             MenuActivity.CurrentLocation.setVisibility(View.GONE);
             MenuActivity.SearchLinearLayout.setPadding(0,0,0,0);
             MenuActivity.editDestinations.setVisibility(View.VISIBLE);
+
+            //Get nearest loop time of arrival~
+            GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
            // tvlp.setMargins(0,0,0,0);
 
             lp.height = 235 ;
@@ -368,6 +391,109 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
     }
 
+    public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Destination currentDest) {
+        try {
+            String res = "";
+            if (currentDest != null) {
+                final List<Destination> DestList = MenuActivity._listDestinations;
+                Collections.sort(DestList);
+                FireDatabase = FirebaseDatabase.getInstance();
+                userDatabaseRef = FireDatabase.getReference("vehicle_destinations");//.child(dl.Value).child("LoopIds"); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+                userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Iterable<DataSnapshot> ds = dataSnapshot.getChildren();
+                        DataSnapshot dsToBeUsed = dataSnapshot;
+
+                        for (Destination dl:DestList) {
+                            if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
+                                for (DataSnapshot v : ds) {
+                                    String StationName = v.child(dl.Value).getKey();
+                                    if(dl.Value == StationName){
+                                        _loopIds = v.child("LoopIds").getValue().toString();
+                                        if(!_loopIds.equals("")) {
+                                            dsToBeUsed = v;
+                                            List<String> temploopids = Arrays.asList(_loopIds.split(","));
+                                            for (String tli: temploopids
+                                                 ) {
+                                                _ListOfLoops.add(Integer.parseInt(tli));
+                                            }
+                                            Collections.sort(_ListOfLoops);
+                                            if(_ListOfLoops.size()>0){
+                                                GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
+                                            }
+                                            break;
+                                        }
+                                        else continue;
+                                    }
+                                    else continue;
+
+                                }
+
+                            }
+
+
+                            else continue;
+
+
+                            //"457,458,460,462,464,465,466,467,469,472,477,471,480,483,"
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        }catch(Exception ex){
+
+            Toast.makeText(this._context, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+    public void GetTimeRemainingFromGoogle(Integer LoopId, final Destination dest){
+        if(LoopId != null){
+            FireDatabase = FirebaseDatabase.getInstance();
+            userDatabaseRef = FireDatabase.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+            userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener(){
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
+                    String url = "https://maps.googleapis.com/maps/";
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(url)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    RetrofitMaps service = retrofit.create(RetrofitMaps.class);
+                    Call<Directions> call = service.getDistanceDuration("metric", dest.Lat + "," + dest.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
+                    call.enqueue(new Callback<Directions>() {
+                        @Override
+                        public void onResponse(Response<Directions> response, Retrofit retrofit) {
+                            try {
+                                for (int i = 0; i < response.body().getRoutes().size(); i++) {
+                                        String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
+                                        TimeOfArrivalTextView.setText(Html.fromHtml("<i>Loop will arrive at approx: </i><b>"+TimeofArrival.toString()+".</b>"));
+
+                                }
+                            } catch (Exception e) {
+                                Log.d("onResponse", "There is an error");
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.d("onFailure", t.toString());
+                        }
+                    });
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
     public String SelectedTabInstructions(List<String> StepsList, String TT, Destination Terminal){
         String Step =
                 "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><img style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
