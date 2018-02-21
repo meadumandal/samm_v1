@@ -405,40 +405,40 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                         Iterable<DataSnapshot> ds = dataSnapshot.getChildren();
                         DataSnapshot dsToBeUsed = dataSnapshot;
 
-                        for (Destination dl:DestList) {
-                            if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
-                                for (DataSnapshot v : ds) {
-                                    String StationName = v.child(dl.Value).getKey();
-                                    if(dl.Value == StationName){
-                                        _loopIds = v.child("LoopIds").getValue().toString();
-                                        if(!_loopIds.equals("")) {
-                                            dsToBeUsed = v;
-                                            List<String> temploopids = Arrays.asList(_loopIds.split(","));
-                                            for (String tli: temploopids
-                                                 ) {
-                                                _ListOfLoops.add(Integer.parseInt(tli));
-                                            }
-                                            Collections.sort(_ListOfLoops);
-                                            if(_ListOfLoops.size()>0){
-                                                GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
-                                            }
-                                            break;
-                                        }
-                                        else continue;
+                        Boolean found = false;
+                            for (Destination dl : DestList) {
+                                if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
+                                    for (DataSnapshot v : ds) {
+                                        String StationName = v.child(dl.Value).getKey();
+                                        if (dl.Value == StationName) {
+                                            _loopIds = v.child("LoopIds").getValue().toString();
+                                            if (!_loopIds.equals("") && !found) {
+                                                dsToBeUsed = v;
+                                                found = true;
+                                                List<String> temploopids = Arrays.asList(_loopIds.split(","));
+                                                for (String tli : temploopids
+                                                        ) {
+                                                    _ListOfLoops.add(Integer.parseInt(tli));
+                                                }
+                                                Collections.sort(_ListOfLoops);
+                                                if (_ListOfLoops.size() > 0) {
+                                                    GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
+
+                                                }
+                                                _ListOfLoops.clear();
+                                                break;
+                                            } else continue;
+                                        } else continue;
+
                                     }
-                                    else continue;
 
-                                }
+                                } else continue;
 
+
+                                //"457,458,460,462,464,465,466,467,469,472,477,471,480,483,"
                             }
-
-
-                            else continue;
-
-
-                            //"457,458,460,462,464,465,466,467,469,472,477,471,480,483,"
                         }
-                    }
+
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
