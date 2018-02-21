@@ -348,6 +348,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     clearLines();
                     drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                    GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(tab.getPosition()));
+                    MenuActivity.valueAnimator.start();
                 }
 
                 @Override
@@ -382,6 +383,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             //Get nearest loop time of arrival~
             GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
            // tvlp.setMargins(0,0,0,0);
+            MenuActivity.valueAnimator.start();
 
             lp.height = 235 ;
         }catch(Exception e){

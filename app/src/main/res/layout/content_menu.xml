@@ -16,7 +16,10 @@
         android:layout_height="match_parent"
         android:gravity="bottom"
         android:clickable="true"
+
         sothree:umanoClipPanel="false"
+        sothree:umanoOverlay="false"
+
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoShadowHeight="4dp">
 

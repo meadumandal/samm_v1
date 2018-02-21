@@ -90,6 +90,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -186,6 +187,7 @@ public class MenuActivity extends AppCompatActivity implements
             protected static final int REQUEST_CHECK_SETTINGS = 0x1;
             public static final int MY_PERMISSION_REQUEST_LOCATION=99;
             public Destination _chosenDestination;
+            public static ValueAnimator valueAnimator;
 
             //Declared as public so that they can be accessed on other context.
 
@@ -344,6 +346,9 @@ public class MenuActivity extends AppCompatActivity implements
                     PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                             getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
+                    //set bounds to search within bounds only~
+                    //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
+
                     autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                         @Override
                         public void onPlaceSelected(Place place) {
@@ -380,7 +385,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 @Override
                                 public void onClick(View view) {
                                     RouteTabLayout.setVisibility(View.GONE);
-                                    RoutePane.setVisibility(View.GONE);
+                                    RoutePane.setVisibility(View.INVISIBLE);
                                     AnalyzeForBestRoutes.clearLines();
                                     _chosenTerminal = null;
                                     CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
@@ -531,7 +536,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                                 if (_map != null) {
                                     if (_chosenTerminal == null) {
-                                        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+                                        valueAnimator = ValueAnimator.ofFloat(0, 1);
                                         valueAnimator.setDuration(2000);
                                         valueAnimator.setInterpolator(new LinearInterpolator());
                                         valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
