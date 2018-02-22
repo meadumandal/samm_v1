@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.umandalmead.samm_v1.POJO.Directions;
 
+import java.util.Comparator;
+
 /**
  * Created by MeadRoseAnn on 11/14/2017.
  */
@@ -51,32 +53,55 @@ public class Destination implements Comparable<Destination>{
     public int getDestinationPicture() {
         return DestinationPicture;
     }
-    @Override
-    public int compareTo(@NonNull Destination destination) {
-        //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
-        if (this.OrderOfArrival > destination.OrderOfArrival) {
-            return -1;
-        }
-        else if (this.OrderOfArrival < destination.OrderOfArrival) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-
-    }
 //    @Override
 //    public int compareTo(@NonNull Destination destination) {
 //        //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
-//        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
-//            return 1;
-//        }
-//        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+//        if (this.OrderOfArrival > destination.OrderOfArrival) {
 //            return -1;
+//        }
+//        else if (this.OrderOfArrival < destination.OrderOfArrival) {
+//            return 1;
 //        }
 //        else {
 //            return 0;
 //        }
 //
 //    }
+    @Override
+    public int compareTo(@NonNull Destination destination) {
+       // return DestinationComparators.DEFAULT.compare(this, destination);
+        //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
+        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
+            return 1;
+        }
+        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+            return -1;
+        }
+        else {
+            return 0;
+        }
+
+    }
+    public static class DestinationComparators{
+        public static Comparator<Destination> ORDER_OF_ARRIVAL = new Comparator<Destination>() {
+            @Override
+            public int compare(Destination dest1, Destination dest2) {
+                return dest1.OrderOfArrival - dest2.OrderOfArrival;
+            }
+        };
+//        public static Comparator<Destination> DEFAULT = new Comparator<Destination>() {
+//            @Override
+//            public int compare(Destination destination, Destination t1) {
+//                if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
+//                    return 1;
+//                }
+//                else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+//                    return -1;
+//                }
+//                else {
+//                    return 0;
+//                }
+//            }
+//        };
+    }
 }

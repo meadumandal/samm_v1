@@ -398,7 +398,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             String res = "";
             if (currentDest != null) {
                 final List<Destination> DestList = MenuActivity._listDestinations;
-                Collections.sort(DestList);
+                Collections.sort(DestList, Destination.DestinationComparators.ORDER_OF_ARRIVAL);
                 FireDatabase = FirebaseDatabase.getInstance();
                 userDatabaseRef = FireDatabase.getReference("vehicle_destinations");//.child(dl.Value).child("LoopIds"); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
                 userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -408,6 +408,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                         DataSnapshot dsToBeUsed = dataSnapshot;
 
                         Boolean found = false;
+                        int ctr=0;
                             for (Destination dl : DestList) {
                                 if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
                                     for (DataSnapshot v : ds) {
