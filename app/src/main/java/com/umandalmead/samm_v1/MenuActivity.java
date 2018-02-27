@@ -79,6 +79,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -348,6 +349,8 @@ public class MenuActivity extends AppCompatActivity implements
 
                     //set bounds to search within bounds only~
                     //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
+
+
 
                     autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                         @Override

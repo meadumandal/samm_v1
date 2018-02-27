@@ -87,6 +87,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+
                         />
 
                     <com.umandalmead.samm_v1.ClearableAutoCompleteTextView

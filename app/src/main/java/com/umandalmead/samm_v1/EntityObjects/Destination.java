@@ -86,7 +86,7 @@ public class Destination implements Comparable<Destination>{
         public static Comparator<Destination> ORDER_OF_ARRIVAL = new Comparator<Destination>() {
             @Override
             public int compare(Destination dest1, Destination dest2) {
-                return dest1.OrderOfArrival - dest2.OrderOfArrival;
+                return dest2.OrderOfArrival - dest1.OrderOfArrival;
             }
         };
 //        public static Comparator<Destination> DEFAULT = new Comparator<Destination>() {
