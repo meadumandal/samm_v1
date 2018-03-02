@@ -38,11 +38,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
-                android:ellipsize="start"
+
                 android:gravity="center_horizontal"
                 android:hint="GPS Mobile Number"
                 android:inputType="text|phone"
-                android:maxLines="1"
+
                 android:singleLine="true"
 
                 android:textColor="@color/colorBlack"
@@ -60,11 +60,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
-                android:ellipsize="start"
+
                 android:gravity="center_horizontal"
                 android:hint="GPS IMEI"
                 android:inputType="text|number"
-                android:maxLines="1"
+
                 android:singleLine="true"
                 android:textColor="@color/colorBlack"
                 android:textColorHint="@color/colorAccent"
@@ -81,6 +81,7 @@
                 android:foregroundTint="@color/colorAccent"
                 />
         </android.support.design.widget.TextInputLayout>
+
         <Button
             android:id="@+id/btnUpdateGPS"
             style="?android:textAppearanceSmall"
@@ -91,6 +92,18 @@
             android:background="@drawable/oval_background"
             android:backgroundTint="@color/colorAccent"
             android:text="Update GPS"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/btnDeleteGPS"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight=".4"
+            android:background="@drawable/oval_background"
+            android:backgroundTint="@color/colorOrange"
+            android:text="Delete GPS"
             android:textColor="@color/colorWhite"
             android:textStyle="bold" />
     </LinearLayout>

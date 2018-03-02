@@ -26,7 +26,7 @@ public class AboutActivity extends Fragment {
         myView = inflater.inflate(R.layout.activity_about, container, false);
 
         SammTV = (TextView) myView.findViewById(R.id.SAMM_text);
-        SammTV.setText(Html.fromHtml("<b>SAMM</b> <i></i>"));
+        SammTV.setText(Html.fromHtml("This application is designed for Filinvest City 360 Ecoloop. This is a beta version and some features are not yet available. <br><br> <i>Developed by: E & M <i>"));
         return myView;
     }
 }

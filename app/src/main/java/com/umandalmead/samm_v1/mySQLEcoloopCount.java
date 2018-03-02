@@ -107,26 +107,26 @@ public class mySQLEcoloopCount extends AsyncTask<String, Void, ArrayList<Passeng
 //                    listReport.add(new PassengerCountReport(count, hour));
 //                }
 
-                listReport.add(new PassengerCountReport(5, 5));
-                listReport.add(new PassengerCountReport(8, 6));
-                listReport.add(new PassengerCountReport(8, 7));
-                listReport.add(new PassengerCountReport(8, 8));
-                listReport.add(new PassengerCountReport(9, 9));
-                listReport.add(new PassengerCountReport(9, 10));
-                listReport.add(new PassengerCountReport(8, 11));
-                listReport.add(new PassengerCountReport(8, 12));
-                listReport.add(new PassengerCountReport(8, 13));
-                listReport.add(new PassengerCountReport(8, 14));
-                listReport.add(new PassengerCountReport(8, 15));
-                listReport.add(new PassengerCountReport(10, 16));
-                listReport.add(new PassengerCountReport(10, 17));
-                listReport.add(new PassengerCountReport(10, 18));
-                listReport.add(new PassengerCountReport(10, 19));
-                listReport.add(new PassengerCountReport(10, 20));
-                listReport.add(new PassengerCountReport(5, 21));
-                listReport.add(new PassengerCountReport(5, 22));
-                listReport.add(new PassengerCountReport(5, 23));
-                listReport.add(new PassengerCountReport(5, 24));
+//                listReport.add(new PassengerCountReport(5, 5));
+//                listReport.add(new PassengerCountReport(8, 6));
+//                listReport.add(new PassengerCountReport(8, 7));
+//                listReport.add(new PassengerCountReport(8, 8));
+//                listReport.add(new PassengerCountReport(9, 9));
+//                listReport.add(new PassengerCountReport(9, 10));
+//                listReport.add(new PassengerCountReport(8, 11));
+//                listReport.add(new PassengerCountReport(8, 12));
+//                listReport.add(new PassengerCountReport(8, 13));
+//                listReport.add(new PassengerCountReport(8, 14));
+//                listReport.add(new PassengerCountReport(8, 15));
+//                listReport.add(new PassengerCountReport(10, 16));
+//                listReport.add(new PassengerCountReport(10, 17));
+//                listReport.add(new PassengerCountReport(10, 18));
+//                listReport.add(new PassengerCountReport(10, 19));
+//                listReport.add(new PassengerCountReport(10, 20));
+//                listReport.add(new PassengerCountReport(5, 21));
+//                listReport.add(new PassengerCountReport(5, 22));
+//                listReport.add(new PassengerCountReport(5, 23));
+//                listReport.add(new PassengerCountReport(5, 24));
                 return listReport;
             }
             catch(Exception e)

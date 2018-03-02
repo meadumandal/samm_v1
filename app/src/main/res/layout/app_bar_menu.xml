@@ -14,8 +14,8 @@
         android:id="@+id/appBarLayout"
         android:animateLayoutChanges="true"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:backgroundTint="@color/colorBlack"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorDarkGrey"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
         android:theme="@style/AppTheme.AppBarOverlay">
@@ -24,7 +24,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorBlack"
+            android:background="@color/colorDarkGrey"
             android:elevation="1dp"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             android:tint="@color/colorBlack"
@@ -36,33 +36,29 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/colorBlack"
+                android:background="@color/colorDarkGrey"
                 android:gravity="center|right"
                 android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="SAMM DRIVER"
-                    android:id="@+id/sammdriver"
-                    android:textColor="@color/colorAccent"
-                    android:fontFamily="casual"
-                    android:textAlignment="center"
-                    android:textStyle="bold"
-                    android:textSize="25dp"
-                    android:visibility="gone"
+                <ImageView
+                    android:layout_width="102dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/text_samm"
+                    android:id="@+id/text_samm"
+                    android:layout_gravity="center"
+                    android:layout_marginRight="20dp"
                     />
 
                 <EditText
-                android:layout_width="189dp"
-                android:layout_height="35dp"
+                    android:layout_width="189dp"
+                    android:layout_height="35dp"
                     android:layout_marginTop="10dp"
-                android:text="Current location"
-                android:drawableLeft="@drawable/ic_my_location_black_24dp"
-                android:textColor="@color/colorWhite"
+                    android:text="Current location"
+                    android:drawableLeft="@drawable/ic_my_location_black_24dp"
+                    android:textColor="@color/colorWhite"
                     android:textSize="20dp"
                     android:textStyle="italic"
-                android:id="@+id/tvcurrentlocation"
-                   android:drawablePadding="13dp"
+                    android:id="@+id/tvcurrentlocation"
+                    android:drawablePadding="13dp"
                     android:paddingLeft="5dp"
                     android:scaleX="0.9"
                     android:scaleY="0.8"
@@ -70,6 +66,7 @@
                     android:editable="false"
                     android:layout_gravity="left"
                     android:background="@drawable/rounded_corner"
+
 
                 />
 
@@ -79,7 +76,7 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"
                     android:paddingTop="15dp"
-                    android:background="@color/colorBlack"
+                    android:background="@color/colorDarkGrey"
                     android:gravity="center|right"
                     android:orientation="horizontal">
                     <fragment

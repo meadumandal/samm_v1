@@ -25,12 +25,16 @@ public class SessionManager {
     public static final String KEY_LNAME = "LastName";
     public static final String KEY_USERNAME = "Username";
     public static final String KEY_EMAIL = "Email";
+    public static final String KEY_DEVICEID = "DeviceId";
 
     public static final String KEY_ISDRIVER = "IsDriver";
-    private static final String IS_LOGIN = "IsLoggedIn";
-    private static final String ERROR_MSG = "ErrorMsg";
+    public static final String IS_LOGIN = "IsLoggedIn";
+    public static final String IS_GUEST = "IsGuest";
+    public static final String ERROR_MSG = "ErrorMsg";
+    public static final String REPORT_TYPE = "ReportType";
+    public static final String IS_BETA = "IsBeta";
+    public static final String IS_ADMIN = "IsAdmin";
 
-    private static final String REPORT_TYPE = "ReportType";
 
 
 
@@ -43,17 +47,19 @@ public class SessionManager {
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    public void CreateLoginSession(String firstname, String lastname, String username, String email, boolean isDriver)
+    public void CreateLoginSession(String firstname, String lastname, String username, String email, boolean isDriver, boolean isGuest, String deviceId)
     {
         prefEditor.putString(KEY_FNAME, firstname);
         prefEditor.putString(KEY_LNAME, lastname);
         prefEditor.putString(KEY_USERNAME, username);
         prefEditor.putString(KEY_EMAIL, email);
         prefEditor.putBoolean(KEY_ISDRIVER, isDriver);
-        prefEditor.putBoolean(IS_LOGIN, true);
-
+        prefEditor.putBoolean(IS_LOGIN, !isGuest);
+        prefEditor.putBoolean(IS_GUEST, isGuest);
+        prefEditor.putString(KEY_DEVICEID, deviceId);
         prefEditor.commit();
     }
+
     public void PassReportType(String reportType)
     {
         prefEditor.putString(REPORT_TYPE, reportType);
@@ -79,6 +85,24 @@ public class SessionManager {
         user.put(IS_LOGIN, pref.getString(KEY_FNAME,null));
         return user;
     }
+    public Boolean getIsBeta()
+    {
+        return pref.getBoolean(IS_BETA, false);
+    }
+    public void setIsBeta(Boolean IsBeta)
+    {
+        prefEditor.putBoolean(IS_BETA, IsBeta);
+        prefEditor.commit();
+    }
+    public Boolean getIsAdmin()
+    {
+        return pref.getBoolean(IS_ADMIN, false);
+    }
+    public void setIsAdmin(Boolean IsAdmin)
+    {
+        prefEditor.putBoolean(IS_ADMIN, IsAdmin);
+        prefEditor.commit();
+    }
     public String getUsername()
     {
         return pref.getString(KEY_USERNAME,null);
@@ -103,6 +127,18 @@ public class SessionManager {
     {
         return pref.getBoolean(KEY_ISDRIVER,false);
     }
+    public String getKeyDeviceid()
+    {
+        return pref.getString(KEY_DEVICEID, "");
+    }
+    public boolean isGuest()
+    {
+        return pref.getBoolean(IS_GUEST, false);
+
+    }
+
+
+
     public void checkLogin()
     {
         if (!this.isLoggedIn())
@@ -118,7 +154,6 @@ public class SessionManager {
         prefEditor.clear();
         prefEditor.commit();
         firebaseAuth.signOut();
-
     }
 
 }

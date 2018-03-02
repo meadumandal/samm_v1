@@ -13,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -33,7 +34,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
+
 
 
 /**
@@ -42,24 +43,29 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
-    Context _context;
-    Activity _activity;
-    ProgressDialog _progDialog;
-    NonScrollListView _listView;
-    ArrayList<GPS> _dataModels;
-    FragmentManager _fragmentManager;
+    public Context _context;
+    public Activity _activity;
+    public ProgressDialog _progDialog;
+    public NonScrollListView _listView;
+    public ArrayList<GPS> _dataModels;
+    public FragmentManager _fragmentManager;
+    public SwipeRefreshLayout _swipeRefreshGPS;
+    public listViewCustomAdapter customAdapter;
     public static String TAG="mead";
 
 
-    public asyncGetGPSFromTraccar(Context context, ProgressDialog progDialog, NonScrollListView listView, FragmentManager fm)
+    public asyncGetGPSFromTraccar(Context context,
+                                  ProgressDialog progDialog,
+                                  NonScrollListView listView,
+                                  FragmentManager fm,
+                                  SwipeRefreshLayout swipeRefreshGPS)
     {
         Log.i(TAG, "asyncGetGPSFromTraccar");
         this._context = context;
         this._progDialog = progDialog;
-
-
         this._listView = listView;
         this._fragmentManager = fm;
+        this._swipeRefreshGPS = swipeRefreshGPS;
 
     }
 
@@ -125,10 +131,14 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                 String GPSPhone = json.get("phone").toString();
                 String GPSNetwork = json.get("model").toString();
                 Integer ID = Integer.parseInt(json.get("id").toString());
-                _dataModels.add(new GPS(ID, GPSName, GPSIMEI, GPSPhone, GPSNetwork));
+                String Status = json.get("status").toString();
+
+                _dataModels.add(new GPS(ID, GPSName, GPSIMEI, GPSPhone, GPSNetwork, Status));
 
             }
-            _listView.setAdapter(new listViewCustomAdapter(_dataModels,getApplicationContext()));
+            customAdapter =new listViewCustomAdapter(_dataModels, _context);
+            _listView.setAdapter(customAdapter);
+
             _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -149,6 +159,8 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
 
                 }
             });
+
+            _swipeRefreshGPS.setRefreshing(false);
             _progDialog.dismiss();
 
         }

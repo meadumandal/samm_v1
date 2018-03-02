@@ -5,20 +5,23 @@
     tools:context="com.umandalmead.samm_v1.ViewGPSFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="@string/hello_blank_fragment" />-->
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_refresh_gps"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <com.umandalmead.samm_v1.NonScrollListView
+        android:layout_height="wrap_content">
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/gpslistview"></com.umandalmead.samm_v1.NonScrollListView>
+            android:layout_height="match_parent">
 
-    </ScrollView>
+            <com.umandalmead.samm_v1.NonScrollListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/gpslistview"></com.umandalmead.samm_v1.NonScrollListView>
 
+        </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>

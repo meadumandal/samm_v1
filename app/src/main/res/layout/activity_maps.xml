@@ -11,7 +11,7 @@
         android:layout_height="match_parent"
         tools:context="com.umandalmead.samm_v1.MapsActivity" />
     <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/FloatingActionMenu1"
+        android:id="@+id/AdminFloatingActionMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -56,6 +56,14 @@
         fab:menu_fab_label="Admin Tools">
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/subFloatingAddPoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_add_point"
+            fab:fab_label="Add Pick-up/Drop-off Point"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
             android:id="@+id/subFloatingAddGPS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -64,11 +72,11 @@
             fab:fab_size="mini" />
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/subFloatingAddPoint"
+            android:id="@+id/subFloatingViewGPS"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_add_point"
-            fab:fab_label="Add Pick-up/Drop-off Point"
+            android:src="@mipmap/ic_view"
+            fab:fab_label="View All GPS"
             fab:fab_size="mini" />
     </com.github.clans.fab.FloatingActionMenu>
 

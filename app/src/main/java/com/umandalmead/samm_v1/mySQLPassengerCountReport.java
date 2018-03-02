@@ -87,10 +87,10 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
         {
             try{
                 String reportDate = params[0];
-                String reportTerminal = params[1];
+//                String reportTerminal = params[1];
                 String link = "http://meadumandal.website/sammAPI/getPassengerCountReport.php?reportDate="
                         + reportDate.toString()
-                        + "&reportTerminal=" + reportTerminal;
+                        + "&reportTerminal=";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -102,10 +102,11 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
                 ArrayList<PassengerCountReport> listReport = new ArrayList<>();
                 for(int index=0; index < jsonArray.length(); index++) {
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
+                    String terminal = jsonobject.getString("TERMINAL");
                     int count = jsonobject.getInt("COUNT");
                     int hour = jsonobject.getInt("HOUR");
 
-                    listReport.add(new PassengerCountReport(count, hour));
+                    listReport.add(new PassengerCountReport(count, hour, terminal));
                 }
                 return listReport;
             }
@@ -157,38 +158,13 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
         int i = 0;
         for(PassengerCountReport report:listReport)
         {
-//            if(i>0)
-//            {
-//                while(report.hour - 1 != Integer.parseInt(xAxis.get(i-1).replace(":00H","")))
-//                {
-//                    BarEntry v1e1 = new BarEntry(0, i);
-//                    xAxis.add(Integer.parseInt(xAxis.get(i-1).replace(":00H","")) + 1 + ":00H");
-//                    valueSet1.add(v1e1);
-//                    i++;
-//                }
-//            }
-//            else
-//            {
-//                while(i != report.hour)
-//                {
-//                    BarEntry v1e1 = new BarEntry(0, i);
-//                    xAxis.add(Integer.toString(i) + ":00H");
-//                    valueSet1.add(v1e1);
-//                    i++;
-//                }
-//            }
+
             BarEntry v1e1 = new BarEntry(report.count, i); // Jan
             xAxis.add(report.hour + ":00H");
             valueSet1.add(v1e1);
             i++;
         }
-//        while(i < 25)
-//        {
-//            BarEntry v1e1 = new BarEntry(0, i);
-//            xAxis.add(Integer.toString(i) + ":00H");
-//            valueSet1.add(v1e1);
-//            i++;
-//        }
+
 
         BarDataSet barDataSet1 = new BarDataSet(valueSet1, "Number of Passengers");
         barDataSet1.setColor(Color.rgb(27, 163, 156));

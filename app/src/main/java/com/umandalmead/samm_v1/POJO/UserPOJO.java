@@ -20,8 +20,8 @@ public class UserPOJO {
     @SerializedName("emailAddress")
     public String emailAddress;
 
-
-
+    @SerializedName("deviceId")
+    public String deviceId;
 
     public String getUsername() { return this.username; }
 
@@ -31,6 +31,8 @@ public class UserPOJO {
 
     public String getEmailAddress(){ return this.emailAddress; }
 
+    public String getDeviceId(){return this.deviceId;}
+
     public void setUsername(String username){this.username = username;}
 
     public void setFirstName(String firstName){this.firstName = firstName;}
@@ -39,5 +41,5 @@ public class UserPOJO {
 
     public void setEmailAddress(String emailAddress){this.emailAddress = emailAddress;}
 
-
+    public void setDeviceId(String deviceId) {this.deviceId = deviceId;}
 }

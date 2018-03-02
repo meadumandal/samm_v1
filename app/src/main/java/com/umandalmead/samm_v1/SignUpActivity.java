@@ -17,7 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.login.LoginManager;
 import com.umandalmead.samm_v1.EntityObjects.User;
 import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -133,7 +132,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         .baseUrl(url)
                                         .addConverterFactory(GsonConverterFactory.create())
                                         .build();
-                                RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+                                RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
                                 Call<UserPOJO> call = service.getUserDetails(username, emailAddress);
                                 call.enqueue(new Callback<UserPOJO>() {
                                     @Override
@@ -155,7 +154,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 else
                                                                 {
                                                                     saveUserDetails(firstName, lastName, username, emailAddress);
-                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false);
+                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false, false, "");
                                                                     startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                                                 }
 

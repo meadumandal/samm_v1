@@ -13,16 +13,22 @@ public class GPS {
     String GPSNetworkProvider;
     String GPSPlateNo;
     Integer ID;
+    String Status;
 
-    public GPS(Integer ID,String gpsName, String gpsIMEI, String gpsPhone, String gpsNetworkProvider)
+    public GPS(Integer ID,String gpsName, String gpsIMEI, String gpsPhone, String gpsNetworkProvider, String status)
     {
         this.ID = ID;
         this.GPSName = gpsName;
         this.GPSIMEI = gpsIMEI;
         this.GPSPhone = gpsPhone;
         this.GPSNetworkProvider = gpsNetworkProvider;
+        this.Status = status;
     }
 
+    public void setStatus (String status)
+    {
+        this.Status = status;
+    }
     public void setGPSName(String GPSName)
     {
         this.GPSName = GPSName;
@@ -39,9 +45,13 @@ public class GPS {
     {
         this.GPSNetworkProvider = GPSNetworkProvider;
     }
+    public String getStatus()
+    {
+        return this.Status;
+    }
     public String getGPSName()
     {
-        return this.GPSName;
+        return this.GPSName.trim();
     }
     public String getGPSIMEI()
     {

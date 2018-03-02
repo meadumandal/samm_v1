@@ -89,7 +89,7 @@ public class ReportsActivity extends AppCompatActivity {
             btnViewReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(_sessionManager.GetReportType()=="passenger")
+                    if(_sessionManager.GetReportType().equals("passenger"))
                         new mySQLPassengerCountReport(getApplicationContext(), ReportsActivity.this).execute(reportDate.getText().toString(), reportTerminal.getText().toString());
                     else
                         new mySQLEcoloopCount(getApplicationContext(), ReportsActivity.this).execute(reportDate.getText().toString());

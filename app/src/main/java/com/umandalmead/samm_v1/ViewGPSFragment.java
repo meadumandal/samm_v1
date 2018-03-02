@@ -1,28 +1,19 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
+import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
 import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
 import java.util.ArrayList;
-import android.app.DialogFragment;
-
-
-import static android.R.attr.fragment;
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class ViewGPSFragment extends android.support.v4.app.Fragment {
@@ -33,6 +24,7 @@ public class ViewGPSFragment extends android.support.v4.app.Fragment {
     private String TAG = "mead";
     private String mParam1;
     private String mParam2;
+    public SwipeRefreshLayout swipeRefreshGPS;
     View myView;
     ArrayList<GPS> dataModels;
     ProgressDialog progDialog;
@@ -75,13 +67,30 @@ public class ViewGPSFragment extends android.support.v4.app.Fragment {
         myView = inflater.inflate(R.layout.fragment_view_gps, container, false);
         try
         {
-            NonScrollListView gpsListview = (NonScrollListView) myView.findViewById(R.id.gpslistview);
+            final NonScrollListView gpsListview = (NonScrollListView) myView.findViewById(R.id.gpslistview);
+            swipeRefreshGPS = (SwipeRefreshLayout) myView.findViewById(R.id.swipe_refresh_gps);
+            swipeRefreshGPS.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    swipeRefreshGPS.setRefreshing(true);
+                    FragmentManager fm = getActivity().getFragmentManager();
+                    new asyncGetGPSFromTraccar(getActivity(), progDialog, gpsListview, fm,swipeRefreshGPS).execute();
+                }
+            });
+            swipeRefreshGPS.post(new Runnable() {
+                @Override
+                public void run() {
+                    swipeRefreshGPS.setRefreshing(true);
+                    FragmentManager fm = getActivity().getFragmentManager();
+                    new asyncGetGPSFromTraccar(getActivity(), progDialog, gpsListview, fm, swipeRefreshGPS).execute();
+                }
+            });
             progDialog.setTitle("Please wait");
             progDialog.setMessage("Please wait");
             progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             progDialog.show();
-            FragmentManager fm = getActivity().getFragmentManager();
-            new asyncGetGPSFromTraccar(getActivity(), progDialog, gpsListview, fm).execute();
+
+
         }
         catch(Exception ex)
         {

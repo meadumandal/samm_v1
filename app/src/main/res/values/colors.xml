@@ -9,6 +9,9 @@
     <color name="colorBlack">#000000</color>
     <color name="colorLightGrey">#e7e7e7</color>
     <color name="colorWhiteEC">#ececec</color>
+    <color name="colorGreen">#c9fddd</color>
+    <color name="colorRed">#ffcbd1</color>
+    <color name="colorOrange">#E26A6A</color>
 
 
 </resources>

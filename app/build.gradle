@@ -10,13 +10,13 @@ android {
         }
     }
     compileSdkVersion 24
-    buildToolsVersion '25.0.0'
+    buildToolsVersion '26.0.2'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         applicationId "com.umandalmead.samm_v1"
         minSdkVersion 21
         targetSdkVersion 24
-        versionName '1.0.1'
+        versionName '1.0.2'
         multiDexEnabled true
         signingConfig signingConfigs.release
         versionCode 2
@@ -38,12 +38,12 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:design:26.0.0-alpha1'
     compile 'com.android.support:appcompat-v7:24.1.1'
-    compile 'com.google.firebase:firebase-auth:9.0.2'
-    compile 'com.google.firebase:firebase-core:9.0.2'
-    compile 'com.google.firebase:firebase-database:9.0.2'
-    compile 'com.google.android.gms:play-services:9.0.2'
-    compile 'com.google.android.gms:play-services-maps:9.0.2'
-    compile 'com.google.android.gms:play-services-location:9.0.2'
+    compile 'com.google.firebase:firebase-auth:11.8.0'
+    compile 'com.google.firebase:firebase-core:11.8.0'
+    compile 'com.google.firebase:firebase-database:11.8.0'
+    compile 'com.google.android.gms:play-services:11.8.0'
+    compile 'com.google.android.gms:play-services-maps:11.8.0'
+    compile 'com.google.android.gms:play-services-location:11.8.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support:support-v4:24.2.1'
     compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'

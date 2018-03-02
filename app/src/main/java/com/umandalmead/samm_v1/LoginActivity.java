@@ -45,7 +45,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
@@ -271,55 +270,51 @@ public class LoginActivity extends AppCompatActivity{
                                 .baseUrl(url)
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build();
-                        RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+                        RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
                         Call<UserPOJO> call = service.getUserDetails(username, username);
                         call.enqueue(new Callback<UserPOJO>() {
                             @Override
                             public void onResponse(final Response<UserPOJO> response, Retrofit retrofit) {
                                 try {
-                                    if(response.body()==null)
-                                    {
+                                    if (response.body() == null) {
                                         progressBar.setVisibility(View.GONE);
                                         Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
-                                    }
-                                    else
-                                    {
-                                        if(!response.body().getEmailAddress().toLowerCase().equals("sammdriver@yahoo.com"))
-                                        {
-                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());                                        }
-                                        else {
-                                            FirebaseDatabase _firebaseDatabase =  FirebaseDatabase.getInstance();;
-                                            DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
-                                            _driverDatabaseReference.child(response.body().getLastName()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    if (dataSnapshot != null) {
-                                                        if (dataSnapshot.child("connections") == null )
-                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
-                                                        else if (dataSnapshot.child("connections").getValue() == null)
-                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
-                                                        else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
-                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
-                                                        else {
-                                                            progressBar.setVisibility(View.GONE);
-                                                            Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
-                                                        }
-                                                        {
-                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+                                    } else {
+                                        if (!response.body().getEmailAddress().toLowerCase().equals("sammdriver@yahoo.com")) {
+                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId());
+                                        }
+                                        else{
+                                                FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
+                                                ;
+                                                DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
+                                                _driverDatabaseReference.child(response.body().getLastName()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        if (dataSnapshot != null) {
+                                                            if (dataSnapshot.child("connections") == null)
+                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                            else if (dataSnapshot.child("connections").getValue() == null)
+                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                            else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
+                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                            else {
+                                                                progressBar.setVisibility(View.GONE);
+                                                                Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
+                                                            }
+//                                                        {
+//                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
+//                                                        }
                                                         }
                                                     }
-                                                }
 
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
 
-                                                }
-                                            });
+                                                    }
+                                                });
+                                            }
+
                                         }
-
-                                    }
-
-
                                 }
                                 //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                 catch (Exception e) {
@@ -341,7 +336,7 @@ public class LoginActivity extends AppCompatActivity{
 //                                .baseUrl(url)
 //                                .addConverterFactory(GsonConverterFactory.create())
 //                                .build();
-//                        RetrofitUserDetails service = retrofit.create(RetrofitUserDetails.class);
+//                        RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
 //                        Call<UserPOJO> call = service.getUserDetails(username, username);
 //                        call.enqueue(new Callback<UserPOJO>() {
 //                            @Override
@@ -372,7 +367,7 @@ public class LoginActivity extends AppCompatActivity{
             _helper.showNoInternetPrompt(this);
         }
     }
-    private void signIn(final String email, String password, final String _lastName, final String _firstName, final String _username)
+    private void signIn(final String email, String password, final String _lastName, final String _firstName, final String _username, final String _deviceId)
     {
         userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(email, password)
@@ -387,13 +382,17 @@ public class LoginActivity extends AppCompatActivity{
                         else
                         {
                             try{
+
                                 String firstName = _firstName;
                                 String lastName = _lastName;
                                 String username =  _username;
+                                String deviceId = _deviceId;
                                 boolean isDriver = false;
                                 if(email.equals("sammdriver@yahoo.com"))
                                     isDriver = true;
-                                sessionManager.CreateLoginSession(firstName,lastName, username,email,isDriver);
+
+                                userDatabaseRef.child(sessionManager.getUsername()).removeValue();
+                                sessionManager.CreateLoginSession(firstName,lastName, username,email,isDriver, false, deviceId);
                                 Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                 startActivity(intent);
                                 finish();
@@ -446,7 +445,7 @@ public class LoginActivity extends AppCompatActivity{
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = auth.getCurrentUser();
                             saveUserDetails(FirstName,LastName,token.getUserId().toString(),Email);
-                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email,false);
+                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email,false, false, "");
                             LoginProgDiag.hide();
                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                             startActivity(intent);

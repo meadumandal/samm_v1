@@ -34,7 +34,6 @@ public class AddUserMarkersListener implements
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
             String username = dataSnapshot.getKey();
             if (!username.equals(((MenuActivity)this._activity)._sessionManager.getUsername()))
             {

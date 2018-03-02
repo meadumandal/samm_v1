@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="@color/colorGreen"
+        android:padding="10dp"
+        android:id="@+id/gpsitemLinearLayout">
+        <TextView
+            android:id="@+id/gpsname"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="SAMM_xxxxx"
+            android:textColor="@color/colorBlack"
+            android:textSize="20dp"/>
+
+
+        <TextView
+            android:id="@+id/gpsstatus"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Offline"
+            android:textSize="20dp"
+            android:textColor="@color/colorBlack"/>
+        <!--<Button-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Refresh"-->
+            <!--android:id="@+id/btnReconnectGPS"-->
+            <!--android:focusable="false"-->
+            <!--android:focusableInTouchMode="false"/>-->
+        <Button
+            android:id="@+id/btnReconnectGPS"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".4"
+            android:background="@drawable/oval_background"
+            android:text="Reconnect"
+            android:textColor="@color/colorPrimaryDark"
+            android:focusable="false"
+            android:textSize="10dp"
+            android:focusableInTouchMode="false"/>
+
+
+    </LinearLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="horizontal">-->
+        <!--<Button-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Refresh"-->
+            <!--android:id="@+id/btnReconnectGPS"/>-->
+
+
+    <!--</LinearLayout>-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="horizontal">-->
+        <!--<TextView-->
+            <!--android:layout_width="120dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="GPS Name:"-->
+            <!--android:textColor="@color/colorBlack"-->
+            <!--android:textSize="12dp"/>-->
+
+
+        <!--<TextView-->
+            <!--android:id="@+id/gpsname"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="SAMM_01777"-->
+            <!--android:textSize="12dp"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+
+    <!--</LinearLayout>-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="horizontal">-->
+        <!--<TextView-->
+            <!--android:layout_width="120dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="GPS Mobile Number:"-->
+            <!--android:textColor="@color/colorBlack"-->
+            <!--android:textSize="12dp"/>-->
+
+
+        <!--<TextView-->
+            <!--android:id="@+id/gpsphone"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="09451238391"-->
+            <!--android:textSize="12dp"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+
+    <!--</LinearLayout>-->
+
+
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="horizontal">-->
+        <!--<TextView-->
+            <!--android:layout_width="120dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="GPS Network:"-->
+            <!--android:textColor="@color/colorBlack"-->
+            <!--android:textSize="12dp"/>-->
+
+
+        <!--<TextView-->
+            <!--android:id="@+id/gpsnetwork"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Online"-->
+            <!--android:textSize="12dp"-->
+            <!--android:textColor="@android:color/black"/>-->
+
+
+    <!--</LinearLayout>-->
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:orientation="horizontal">-->
+        <!--<TextView-->
+            <!--android:layout_width="120dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Status:"-->
+            <!--android:textColor="@color/colorGreen"-->
+            <!--android:textSize="12dp"/>-->
+
+
+        <!--<TextView-->
+            <!--android:id="@+id/status"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Online"-->
+            <!--android:textSize="12dp"-->
+            <!--android:textColor="@color/colorGreen"/>-->
+
+
+    <!--</LinearLayout>-->
+
+
+
+</LinearLayout>

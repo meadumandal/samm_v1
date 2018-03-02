@@ -47,6 +47,7 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,8 +66,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.internal.LockOnGetVariable;
 import com.facebook.login.LoginManager;
 import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -106,6 +110,9 @@ import com.umandalmead.samm_v1.EntityObjects.Destination;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkersListener;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners.DestinationsOnItemClick;
 import com.umandalmead.samm_v1.POJO.Directions;
+import com.umandalmead.samm_v1.POJO.Setting;
+import com.umandalmead.samm_v1.POJO.Settings;
+import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.umandalmead.samm_v1.RouteTabs.Route1;
 import com.umandalmead.samm_v1.RouteTabs.Route2;
 import com.umandalmead.samm_v1.RouteTabs.Route3;
@@ -123,6 +130,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -151,25 +159,25 @@ public class MenuActivity extends AppCompatActivity implements
         Html.ImageGetter,
         LocationListener {GoogleApiClient _googleApiClient;
     //region Global Variables
-    Marker _currentLocationMarker;
-            LocationRequest _locationRequest;
-            public GoogleMap _map;
-            FirebaseDatabase _firebaseDatabase;
-            public DatabaseReference _userDatabaseReference;
-            DatabaseReference _destinationDatabaseReference;
-            public SessionManager _sessionManager;
-            boolean _isFirstLoad;
-            public LatLng _currentLocation;
-            public static List<Destination> _candidateTerminals;
-            ArrayList<LatLng> _markerPoints;
-            Helper _helper;
-            DestinationsOnItemClick _DestinationsHelper;
-            Context _context;
-            List<Geofence> _geoFenceList;
-            private Circle _geofenceCircleLimits;
-            private Marker _geofenceMarker;
-            public static List<Destination> _listDestinations;
-            public HashMap<String, Marker> _destinationMarkers = new HashMap<>();
+        Marker _currentLocationMarker;
+        LocationRequest _locationRequest;
+        public GoogleMap _map;
+        FirebaseDatabase _firebaseDatabase;
+        public DatabaseReference _userDatabaseReference;
+        DatabaseReference _destinationDatabaseReference;
+        public SessionManager _sessionManager;
+        boolean _isFirstLoad;
+        public LatLng _currentLocation;
+        public static List<Destination> _candidateTerminals;
+        ArrayList<LatLng> _markerPoints;
+        Helper _helper;
+        DestinationsOnItemClick _DestinationsHelper;
+        Context _context;
+        List<Geofence> _geoFenceList;
+        private Circle _geofenceCircleLimits;
+        private Marker _geofenceMarker;
+        public static List<Destination> _listDestinations;
+        public HashMap<String, Marker> _destinationMarkers = new HashMap<>();
 
             public HashMap _hashmapMarkerMap = new HashMap();
             public HashMap _driverMarkers = new HashMap();
@@ -190,43 +198,49 @@ public class MenuActivity extends AppCompatActivity implements
             public Destination _chosenDestination;
             public static ValueAnimator valueAnimator;
 
-            //Declared as public so that they can be accessed on other context.
+        //Declared as public so that they can be accessed on other context.
 
-            public static LinearLayout RoutePane;
-            public static SlidingUpPanelLayout SlideUpPanelContainer;
-            public static TabLayout RouteTabLayout;
-            public static WebView RouteStepsText;
-            public static ImageView Slide_Expand;
-            public static ImageView Slide_Collapse;
-            public static ScrollView StepsScroller;
-            public static ClearableAutoCompleteTextView editDestinations;
-            public static TextView TimeOfArrivalTextView;
-            public static MenuItem UserNameMenuItem;
-            public static NavigationView NavView;
-            public static Menu menuNav;
-            public static ImageView ProfilePictureImg;
-            public static View NavHeaderView;
-            public static TextView HeaderUserFullName;
-            public static TextView HeaderUserEmail;
-            public static AppBarLayout AppBar;
-            public static Toolbar toolbar;
-            public static LinearLayout SearchLinearLayout;
-            public  static EditText CurrentLocation;
-            public static LinearLayout MapsHolder_LinearLayout;
-            public static LinearLayout AddGPSHolder_LinearLayout;
-            FloatingActionButton addGPS,addPoint;
+        public static LinearLayout RoutePane;
+        public static SlidingUpPanelLayout SlideUpPanelContainer;
+        public static TabLayout RouteTabLayout;
+        public static WebView RouteStepsText;
+        public static ImageView Slide_Expand;
+        public static ImageView Slide_Collapse;
+        public static ScrollView StepsScroller;
+        public static ClearableAutoCompleteTextView editDestinations;
+        public static TextView TimeOfArrivalTextView;
+        public static MenuItem UserNameMenuItem;
+        public static NavigationView NavView;
+        public static Menu menuNav;
+        public static ImageView ProfilePictureImg;
+        public static View NavHeaderView;
+        public static TextView HeaderUserFullName;
+        public static TextView HeaderUserEmail;
+        public static AppBarLayout AppBar;
+        public static Toolbar toolbar;
+        public static LinearLayout SearchLinearLayout;
+        public  static EditText CurrentLocation;
+        public static LinearLayout MapsHolder_LinearLayout;
+        public static LinearLayout AddGPSHolder_LinearLayout;
+        FloatingActionButton addGPS,addPoint, viewGPS;
+        FloatingActionMenu adminFloatingActionMenu;
 
 
-            private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
-            public String _message;
-            android.os.Handler mHandler;
-            public static String TAG ="mead";
-            public ProgressDialog progDialog;
-            PendingIntent sentPendingIntent;
-            PendingIntent deliveredPendingIntent;
-            String phoneNo;
-            String apn;
-            String GPSIMEI;
+        private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
+        public String _message;
+        android.os.Handler mHandler;
+        public static String TAG ="mead";
+        public ProgressDialog progDialog;
+        PendingIntent sentPendingIntent;
+        PendingIntent deliveredPendingIntent;
+        String phoneNo;
+        public String apn;
+        public Boolean isRefresh = false;
+        String GPSIMEI;
+        public Button btnReconnectGPS;
+        public HashMap<String, Long> _destinationCount = new HashMap<>();
+
+
     //endregion
         //    MyBroadcastReceiver _broadcastReceiver;
 
@@ -274,12 +288,56 @@ public class MenuActivity extends AppCompatActivity implements
                     if (_sessionManager == null)
                         _sessionManager = new SessionManager(_context);
                     if (!_sessionManager.isLoggedIn()) {
-                        _sessionManager.logoutUser();
-                        Intent i = new Intent(MenuActivity.this, LoginActivity.class);
-                        finish();
-                        startActivity(i);
+//                        _sessionManager.logoutUser();
+                        String username = "guestuser" + UUID.randomUUID().toString();
+                        _sessionManager.CreateLoginSession("Guest", "User", username, "", false, true, "");
+//                        Intent i = new Intent(MenuActivity.this, LoginActivity.class);
+//                        finish();
+//                        startActivity(i);
                     }
                     setContentView(R.layout.activity_menu);
+
+                    String url = "http://meadumandal.website/sammAPI/";
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(url)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
+                    Call<Settings> call = service.getSettings();
+                    call.enqueue(new Callback<Settings>() {
+                        @Override
+                        public void onResponse(final Response<Settings> response, Retrofit retrofit) {
+                            try {
+                                if (response.body() != null) {
+                                    if (response.body().getSetting() != null) {
+                                        for (Setting setting : response.body().getSetting()) {
+                                            if (setting.getName().toLowerCase().equals(_sessionManager.IS_BETA.toLowerCase()))
+                                                _sessionManager.setIsBeta(Boolean.valueOf(setting.getValue()));
+                                            if (setting.getName().toLowerCase().equals("admindeviceid")) {
+                                                List<String> adminDeviceIds = Arrays.asList(setting.getValue().toLowerCase().split(","));
+                                                String androidId = android.provider.Settings.Secure.getString(getContentResolver(),
+                                                        android.provider.Settings.Secure.ANDROID_ID).toLowerCase();
+                                                if (adminDeviceIds.contains(androidId))
+                                                    _sessionManager.setIsAdmin(true);
+                                                else
+                                                    _sessionManager.setIsAdmin(false);
+                                            }
+
+
+                                        }
+
+                                    }
+                                }
+                            } catch (Exception e) {
+                                Log.d(TAG, e.getMessage());
+                            }
+                        }
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.d(TAG, t.toString());
+                        }
+                    });
+
                     toolbar = (Toolbar) findViewById(R.id.toolbar);
                     setSupportActionBar(toolbar);
                     toolbar.setTitle("SAMM");
@@ -295,6 +353,7 @@ public class MenuActivity extends AppCompatActivity implements
                     //Instantiate ~
                     editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
                     AppBar = (AppBarLayout) findViewById(R.id.appBarLayout);
+
                     RoutePane = (LinearLayout) findViewById(R.id.route_content);
                     SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
                     RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
@@ -317,6 +376,30 @@ public class MenuActivity extends AppCompatActivity implements
                     HeaderUserEmail.setText(_sessionManager.getEmail());
                     addGPS = (FloatingActionButton) findViewById(R.id.subFloatingAddGPS);
                     addPoint = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
+                    viewGPS = (FloatingActionButton) findViewById(R.id.subFloatingViewGPS);
+                    adminFloatingActionMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
+
+                    NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
+                    NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest());
+                    NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(!_sessionManager.isGuest());
+                    NavView.getMenu().findItem(R.id.nav_addGPS).setVisible(!_sessionManager.isGuest());
+                    NavView.getMenu().findItem(R.id.nav_viewGPS).setVisible(!_sessionManager.isGuest());
+                    NavView.getMenu().findItem(R.id.nav_addPoint).setVisible(!_sessionManager.isGuest());
+
+                    NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
+
+                    if(_sessionManager.getIsBeta() && !_sessionManager.getIsAdmin())
+                    {
+                        ((TextView) findViewById(R.id.tvcurrentlocation)).setVisibility(View.GONE);
+                        ((LinearLayout) findViewById(R.id.searchlayoutcontainer)).setVisibility(View.GONE);
+                    }
+
+
+                    if (_sessionManager.getEmail().equals("admin@yahoo.com"))
+                        adminFloatingActionMenu.setVisibility(View.VISIBLE);
+                    else
+                        adminFloatingActionMenu.setVisibility(View.GONE);
+
 
                     addGPS.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -335,6 +418,49 @@ public class MenuActivity extends AppCompatActivity implements
                             dialog.show();
                         }
                     });
+                    viewGPS.setOnClickListener(new View.OnClickListener()
+                    {
+
+                        @Override
+                        public void onClick(View view) {
+                            try {
+                                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                                MapsHolder_LinearLayout.setVisibility(View.GONE);
+                                FragmentManager fragment = getSupportFragmentManager();
+                                fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).addToBackStack("tag").commit();
+                                ViewGPSFragment myFragment = (ViewGPSFragment) getSupportFragmentManager().findFragmentByTag("tag");
+
+                                myFragment.getView().setFocusableInTouchMode(true);
+
+                                myFragment.getView().requestFocus();
+
+
+                                myFragment.getView().setOnKeyListener( new View.OnKeyListener()
+
+                                {
+
+                                    @Override
+
+                                    public boolean onKey( View v, int keyCode, KeyEvent event )
+                                    {
+                                        if( keyCode == KeyEvent.KEYCODE_BACK )
+                                        {
+                                            return true;
+                                        }
+                                        return false;
+                                    }
+                                } );
+                            }
+                            catch(Exception e)
+                            {
+                                Log.e(TAG, e.getMessage());
+                            }
+
+                        }
+                    });
+
+
+
                     progDialog = new ProgressDialog(this);
                     progDialog.setTitle("Adding Vehicle GPS");
                     progDialog.setMessage("Initializing...");
@@ -421,9 +547,8 @@ public class MenuActivity extends AppCompatActivity implements
                     progDialog.setMessage("Initializing...");
                     progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                     progDialog.setCancelable(false);
-                    if (_sessionManager.isDriver())
+                    if (_sessionManager.isGuest() || _sessionManager.isDriver())
                     {
-                        //Prepare UI for driver
                         LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
                         EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
 
@@ -433,15 +558,14 @@ public class MenuActivity extends AppCompatActivity implements
 
                         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
                         lp.height = 150;
+                    }
+                    if (_sessionManager.isDriver())
+                    {
                         RoutePane.setVisibility(View.VISIBLE);
 
                         SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                         TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-                        TextView sammDriver = (TextView) findViewById(R.id.sammdriver);
-                        sammDriver.setVisibility(View.VISIBLE);
                         TimeOfArrivalTextView.setText("You are approaching FASTBYTES terminal, there are NO PASSENGER WAITING");
-
-
                     }
 
                     RouteTabLayout.setMinimumWidth(150);
@@ -693,6 +817,8 @@ public class MenuActivity extends AppCompatActivity implements
 
     }
 
+
+
     private double bearingBetweenLocations(Location PrevLoc,Location CurrLoc) {
 
         double PI = 3.14159;
@@ -808,6 +934,10 @@ public class MenuActivity extends AppCompatActivity implements
                 _currentLocationMarker = _map.addMarker(markerOptions);
 
                 if (_isFirstLoad) {
+                    if (_sessionManager.getIsBeta())
+                    {
+                        _currentLocation = new LatLng(14.42576,121.03898);
+                    }
                     _isFirstLoad = false;
                     //move map camera
                     _map.moveCamera(CameraUpdateFactory.newLatLngZoom(_currentLocation, 16));
@@ -949,12 +1079,19 @@ public class MenuActivity extends AppCompatActivity implements
         _map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                //if admin only:
-                AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
-                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                dialog.show();
-
-
+                if (_sessionManager.getIsAdmin())
+                {
+                    //if admin only:
+                    AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    dialog.show();
+                }
+                long passengercount = 0;
+                if(_destinationCount.containsKey(marker.getTitle())) {
+                    passengercount = _destinationCount.get(marker.getTitle());
+                }
+                marker.setSnippet(String.valueOf(passengercount) + " passengers waiting");
+                marker.showInfoWindow();
                 return true;
             }
         });
@@ -1052,26 +1189,37 @@ public class MenuActivity extends AppCompatActivity implements
             int id = item.getItemId();
             FragmentManager fragment = getSupportFragmentManager();
 
-            if (id == R.id.nav_share) {
-                startActivity(new Intent(MenuActivity.this, MapsActivity.class));
-            } else if (id == R.id.nav_logout) {
+//            if (id == R.id.nav_share) {
+//                startActivity(new Intent(MenuActivity.this, MapsActivity.class));
+            if (id == R.id.nav_logout) {
                 AlertDialog.Builder builder;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     builder = new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
                 } else {
                     builder = new AlertDialog.Builder(this);
                 }
+
                 builder.setTitle("Log out")
                         .setMessage("Are you sure you want to log out?")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                LoginManager.getInstance().logOut();
+                                try {
+                                    LoginManager.getInstance().logOut();
+                                }
+                                catch(Exception ex)
+                                {
+
+                                }
+
                                 _sessionManager.logoutUser();
-                                IsLoggingOut = true;
-                                Intent i = new Intent(MenuActivity.this, LoginActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(i);
+                                _sessionManager.CreateLoginSession("Guest", "User", "guestuser","", false, true,"");
+//                                IsLoggingOut = true;
+                                finish();
+                                startActivity(getIntent());
+//                                Intent i = new Intent(MenuActivity.this, LoginActivity.class);
+//                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                startActivity(i);
                                 Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
                             }
                         })
@@ -1092,6 +1240,18 @@ public class MenuActivity extends AppCompatActivity implements
                 fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
 
             }
+            else if (id==R.id.nav_login)
+            {
+                if(_sessionManager.getIsBeta() && !_sessionManager.getIsAdmin())
+                {
+                    Toast.makeText(_context, "Login not available in Beta version", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                }
+
+            }
             else if (id == R.id.nav_passengerpeakandlean)
             {
                 _sessionManager.PassReportType("passenger");
@@ -1103,7 +1263,7 @@ public class MenuActivity extends AppCompatActivity implements
                 _sessionManager.PassReportType("ecoloop");
                 Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
                 startActivity(i);
-//                    fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+//              fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             } else if (id == R.id.nav_addGPS)
             {
                 CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
@@ -1124,10 +1284,15 @@ public class MenuActivity extends AppCompatActivity implements
 //                AddGPSHolder_LinearLayout.setVisibility(View.GONE);
                 MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                 MapsHolder_LinearLayout.setVisibility(View.VISIBLE);
-                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
-                lp.height = 235;
-                editDestinations.setVisibility(View.VISIBLE);
-                CurrentLocation.setVisibility(View.VISIBLE);
+
+                if(!_sessionManager.isGuest())
+                {
+                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                    lp.height = 235;
+                    editDestinations.setVisibility(View.VISIBLE);
+                    CurrentLocation.setVisibility(View.VISIBLE);
+                }
+
 
             }
             else if(id==R.id.nav_viewGPS)
@@ -1314,18 +1479,19 @@ public class MenuActivity extends AppCompatActivity implements
 //                final DatabaseReference destinationDatabaseReference = _firebaseDatabase.getReference("destinations");
         final HashMap<String, Object> hashmapCount = new HashMap<>();
         final String uid = _sessionManager.getUsername();
-        _destinationDatabaseReference.child(destinationValue).child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+
+        _destinationDatabaseReference.child(destinationValue).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot == null || dataSnapshot.getValue() == null)
+//                if(dataSnapshot == null || dataSnapshot.getValue() == null)
+//                {
+                if(movement.toLowerCase().equals("entered"))
                 {
-                    if(movement.toLowerCase().equals("entered"))
-                    {
-                        _destinationDatabaseReference.child(destinationValue).child(uid).setValue(true);
-                        updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
-                    }
-
+                    _destinationDatabaseReference.child(destinationValue).child(uid).setValue(true);
+                    updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
                 }
+
+//                }
                 else if(movement.toLowerCase().equals("exit")){
                         _destinationDatabaseReference.child(destinationValue).child(uid).removeValue();
                 }
@@ -1333,6 +1499,7 @@ public class MenuActivity extends AppCompatActivity implements
                 {
                     updatePassengerCounter(_sessionManager.getUsername(), destinationValue);
                 }
+                _destinationCount.put(destinationValue, dataSnapshot.getChildrenCount());
             }
 
             @Override
@@ -1492,19 +1659,31 @@ public class MenuActivity extends AppCompatActivity implements
                     case Activity.RESULT_OK:
                         if (_message.equals("begin123456")) {
                             progDialog.setMessage("Activating GPRS");
-                            sendSMSMessage("gprs123456");
+                            sendSMSMessage("gprs123456", phoneNo);
                         }
                         else if (_message.equals("gprs123456")) {
-                            progDialog.setMessage("Setting APN");
-                            sendSMSMessage("apn123456 " + apn);
+                            if(isRefresh) {
+                                btnReconnectGPS.setText("Reconnect");
+                                btnReconnectGPS.setEnabled(true);
+                            }
+                            else {
+                                progDialog.setMessage("Setting APN");
+                                sendSMSMessage("apn123456 " + apn, phoneNo);
+                            }
                         }
                         else if (_message.equals("apn123456 " + apn)) {
-                            progDialog.setMessage("Configuring IP and Port");
-                            sendSMSMessage("adminip123456 server.traccar.org 5002");
+                            if(isRefresh) {
+                                sendSMSMessage("gprs123456",phoneNo);
+                            }
+                            else {
+                                progDialog.setMessage("Configuring IP and Port");
+                                sendSMSMessage("adminip123456 server.traccar.org 5002",phoneNo);
+                            }
+
                         }
                         else if (_message.equals("adminip123456 server.traccar.org 5002")) {
                             progDialog.setMessage("Setting automatic location updates");
-                            sendSMSMessage("t005s***n123456");
+                            sendSMSMessage("t005s***n123456",phoneNo);
                         }
                         else if (_message.equals("t005s***n123456")) {
                             progDialog.setMessage("Successfully configured GPS. Now adding GPS to server...");
@@ -1512,20 +1691,53 @@ public class MenuActivity extends AppCompatActivity implements
                         }
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        progDialog.dismiss();
+                        if(isRefresh)
+                        {
+                            btnReconnectGPS.setEnabled(true);
+                            btnReconnectGPS.setText("Reconnect");
+                        }
+                        else
+                        {
+                            progDialog.dismiss();
+                        }
                         Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+
                         break;
                     case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        progDialog.dismiss();
+                        if(isRefresh)
+                        {
+                            btnReconnectGPS.setEnabled(true);
+                            btnReconnectGPS.setText("Reconnect");
+                        }
+                        else
+                        {
+                            progDialog.dismiss();
+                        }
                         Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
                         break;
                     case SmsManager.RESULT_ERROR_NULL_PDU:
-                        progDialog.dismiss();
+                        if(isRefresh)
+                        {
+                            btnReconnectGPS.setEnabled(true);
+                            btnReconnectGPS.setText("Reconnect");
+                        }
+                        else
+                        {
+                            progDialog.dismiss();
+                        }
                         Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
                         break;
 
                     case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        progDialog.dismiss();
+                        if(isRefresh)
+                        {
+                            btnReconnectGPS.setEnabled(true);
+                            btnReconnectGPS.setText("Reconnect");
+                        }
+                        else
+                        {
+                            progDialog.dismiss();
+                        }
                         Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
                         break;
                 }
@@ -1563,7 +1775,9 @@ public class MenuActivity extends AppCompatActivity implements
             node="users/" + _sessionManager.getUsername();
         }
             final FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference userRef = database.getReference(node);
             final DatabaseReference myConnectionsRef = database.getReference(node + "/connections");
+
 
             // stores the timestamp of last online
             final DatabaseReference lastOnlineRef = database.getReference("/"+node + "/lastOnline");
@@ -1575,10 +1789,14 @@ public class MenuActivity extends AppCompatActivity implements
                     boolean connected = snapshot.getValue(Boolean.class);
                     if (connected) {
                         // when this device disconnects, remove it
-                        myConnectionsRef.onDisconnect().setValue(false);
-                        // update the last online timestamp
-                        lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
-
+                        if(_sessionManager.isGuest())
+                            userRef.onDisconnect().removeValue();
+                        else
+                        {
+                            myConnectionsRef.onDisconnect().setValue(false);
+                            // update the last online timestamp
+                            lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+                        }
                         // add this device to connections list
                         myConnectionsRef.setValue(true);
 
@@ -1619,11 +1837,10 @@ public class MenuActivity extends AppCompatActivity implements
 
     }
 
-    public void sendSMSMessage(String message) {
+    public void sendSMSMessage(String message, String phone) {
         try
         {
             this._message = message;
-
 
             if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.SEND_SMS)) {
@@ -1642,7 +1859,7 @@ public class MenuActivity extends AppCompatActivity implements
                 Log.i(TAG,"sending " + this._message);
 //                Toast.makeText(getApplicationContext(), "sending " + this._message, Toast.LENGTH_LONG).show();
                 SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(phoneNo, null, this._message, sentPendingIntent, deliveredPendingIntent);
+                smsManager.sendTextMessage(phone, null, this._message, sentPendingIntent, deliveredPendingIntent);
 
                 Log.i(TAG, message + " sent");
 //                Toast.makeText(getApplicationContext(),this._message + " sent", Toast.LENGTH_LONG).show();
@@ -1655,6 +1872,44 @@ public class MenuActivity extends AppCompatActivity implements
             Toast.makeText(getApplicationContext(),"Error encountered" + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+    public void sendSMSMessage(String message, String phone, Button btnReconnectGPS) {
+        try
+        {
+            this._message = message;
+            this.phoneNo = phone;
+
+            if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.SEND_SMS)) {
+
+                } else {
+
+                    Log.i(TAG,"sending " + this._message);
+//                    Toast.makeText(getApplicationContext(), "sending " + this._message, Toast.LENGTH_LONG).show();
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{android.Manifest.permission.SEND_SMS},
+                            MY_PERMISSIONS_REQUEST_SEND_SMS);
+                }
+            }
+            else
+            {
+                Log.i(TAG,"sending " + this._message);
+//                Toast.makeText(getApplicationContext(), "sending " + this._message, Toast.LENGTH_LONG).show();
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phone, null, this._message, sentPendingIntent, deliveredPendingIntent);
+                this.btnReconnectGPS = btnReconnectGPS;
+
+                Log.i(TAG, message + " sent");
+//                Toast.makeText(getApplicationContext(),this._message + " sent", Toast.LENGTH_LONG).show();
+            }
+        }
+        catch(Exception ex)
+        {
+            Log.e(TAG, ex.getMessage());
+            progDialog.dismiss();
+            Toast.makeText(getApplicationContext(),"Error encountered" + ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
 
     private class FetchFBDPTask extends AsyncTask<String, Void, Bitmap> {
         @Override
@@ -1964,8 +2219,8 @@ public class MenuActivity extends AppCompatActivity implements
             sendBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    phoneNo = txtphoneNo.getText().toString();
-                    GPSIMEI = txtIMEI.getText().toString();
+                    phoneNo = txtphoneNo.getText().toString().trim();
+                    GPSIMEI = txtIMEI.getText().toString().trim();
                     if(phoneNo.trim().length() == 0 || GPSIMEI.trim().length() == 0 || networkProvider.getSelectedItem().toString().equals("Select GSM SIM Network Provicer"))
                     {
                         Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
@@ -1984,7 +2239,7 @@ public class MenuActivity extends AppCompatActivity implements
                         //Configure thru SMS
                         progDialog.show();
 
-                        sendSMSMessage("begin123456");
+                        sendSMSMessage("begin123456", phoneNo);
 //                        sendSMSMessage("t005s***n123456");
                     }
                     dismiss();

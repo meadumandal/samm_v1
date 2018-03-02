@@ -1,11 +1,15 @@
 package com.umandalmead.samm_v1;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -17,7 +21,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.google.gson.Gson;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
@@ -47,10 +53,12 @@ public class EditGPSDialogFragment extends DialogFragment
         {
 
             View view = getActivity().getLayoutInflater().inflate(R.layout.fragmentdialog_edit_gps, new LinearLayout(getActivity()), false);
+
             final EditText GPSPhone = (EditText) view.findViewById(R.id.GPSMobileNum);
             final EditText GPSIMEI = (EditText) view.findViewById(R.id.GPSIMEI);
             final Spinner GPSNetwork = (Spinner) view.findViewById(R.id.spinnerNetworkProviders);
             Button btnUpdate = (Button) view.findViewById(R.id.btnUpdateGPS);
+            Button btnDelete = (Button) view.findViewById(R.id.btnDeleteGPS);
             ArrayList<String> networkProviders = new ArrayList<>();
             networkProviders.add("Select GSM SIM Network Provider");
             networkProviders.add("Globe");
@@ -74,9 +82,52 @@ public class EditGPSDialogFragment extends DialogFragment
 
                     new asyncUpdateTraccarGPS(getActivity(), progDialog, getActivity(), _datamodel).execute();
 
+
                 }
             });
 
+            btnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder builder;
+                    builder = new AlertDialog.Builder(getActivity());
+
+
+                    builder.setTitle("Delete GPS")
+                            .setMessage("Are you sure you want to delete this GPS?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    try {
+                                        ProgressDialog progDialog = new ProgressDialog(getActivity());
+                                        progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                        progDialog.setTitle("Deleting GPS");
+                                        progDialog.setMessage("Please wait...");
+                                        progDialog.setCancelable(false);
+                                        progDialog.show();
+
+                                        new asyncDeleteTraccarGPS(getActivity(), progDialog, getActivity(), _datamodel).execute();
+                                    }
+                                    catch(Exception ex)
+                                    {
+
+                                    }
+
+
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+
+
+
+
+                }
+            });
 
             ArrayAdapter<String> networkProvidersAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, networkProviders){
                 @Override
