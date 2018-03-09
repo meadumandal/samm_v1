@@ -59,21 +59,19 @@
 
         </menu>
     </item>
-    <item android:title="ADMIN TOOLS">
-        <menu>
-            <item
-                android:id="@+id/nav_addGPS"
-                android:icon="@drawable/ic_info_outline_black_24dp"
-                android:title="Add GPS Devices" />
-            <item
-                android:id="@+id/nav_viewGPS"
-                android:icon="@drawable/ic_info_outline_black_24dp"
-                android:title="View GPS Devices" />
-            <item
-                android:id="@+id/nav_addPoint"
-                android:icon="@drawable/ic_info_outline_black_24dp"
-                android:title="Add Pick-up/Drop-off Point" />
-        </menu>
-    </item>
+    <!--<item android:title="ADMIN TOOLS">-->
+        <!--<menu>-->
+
+            <!--<item-->
+                <!--android:id="@+id/nav_viewGPS"-->
+                <!--android:icon="@drawable/ic_view"-->
+                <!--android:title="View GPS Devices" />-->
+            <!--<item-->
+                <!--android:id="@+id/nav_settings"-->
+                <!--android:icon="@drawable/ic_settings_black_24dp"-->
+                <!--android:title="View GPS Devices" />-->
+
+        <!--</menu>-->
+    <!--</item>-->
 
 </menu>

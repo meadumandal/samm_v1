@@ -2,6 +2,8 @@ package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.umandalmead.samm_v1.MenuActivity;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -21,6 +23,7 @@ public class AddUserMarkersListener implements
         ChildEventListener{
     Activity _activity;
     SessionManager _sessionManager;
+    public String TAG = "mead";
 
     public AddUserMarkersListener(Context context, Activity activity) {
         _activity = activity;
@@ -34,6 +37,8 @@ public class AddUserMarkersListener implements
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+        try
+        {
             String username = dataSnapshot.getKey();
             if (!username.equals(((MenuActivity)this._activity)._sessionManager.getUsername()))
             {
@@ -68,6 +73,13 @@ public class AddUserMarkersListener implements
                     ((MenuActivity)this._activity)._hashmapMarkerMap.put(username, marker);
                 }
             }
+        }
+        catch(Exception e)
+        {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(this._activity, "Hello there!", Toast.LENGTH_LONG).show();
+        }
+
 
     }
 

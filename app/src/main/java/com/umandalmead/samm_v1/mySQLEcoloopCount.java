@@ -13,14 +13,6 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.umandalmead.samm_v1.EntityObjects.PassengerCountReport;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.InterfaceAddress;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 
 
@@ -107,26 +99,25 @@ public class mySQLEcoloopCount extends AsyncTask<String, Void, ArrayList<Passeng
 //                    listReport.add(new PassengerCountReport(count, hour));
 //                }
 
-//                listReport.add(new PassengerCountReport(5, 5));
-//                listReport.add(new PassengerCountReport(8, 6));
-//                listReport.add(new PassengerCountReport(8, 7));
-//                listReport.add(new PassengerCountReport(8, 8));
-//                listReport.add(new PassengerCountReport(9, 9));
-//                listReport.add(new PassengerCountReport(9, 10));
-//                listReport.add(new PassengerCountReport(8, 11));
-//                listReport.add(new PassengerCountReport(8, 12));
-//                listReport.add(new PassengerCountReport(8, 13));
-//                listReport.add(new PassengerCountReport(8, 14));
-//                listReport.add(new PassengerCountReport(8, 15));
-//                listReport.add(new PassengerCountReport(10, 16));
-//                listReport.add(new PassengerCountReport(10, 17));
-//                listReport.add(new PassengerCountReport(10, 18));
-//                listReport.add(new PassengerCountReport(10, 19));
-//                listReport.add(new PassengerCountReport(10, 20));
-//                listReport.add(new PassengerCountReport(5, 21));
-//                listReport.add(new PassengerCountReport(5, 22));
-//                listReport.add(new PassengerCountReport(5, 23));
-//                listReport.add(new PassengerCountReport(5, 24));
+                listReport.add(new PassengerCountReport(5, 5, ""));
+                listReport.add(new PassengerCountReport(8, 6,""));
+                listReport.add(new PassengerCountReport(8, 7,""));
+                listReport.add(new PassengerCountReport(8, 8,""));
+                listReport.add(new PassengerCountReport(9, 9,""));
+                listReport.add(new PassengerCountReport(9, 10,""));
+                listReport.add(new PassengerCountReport(8, 11,""));
+                listReport.add(new PassengerCountReport(8, 12,""));
+                listReport.add(new PassengerCountReport(8, 13,""));
+                listReport.add(new PassengerCountReport(8, 14,""));
+                listReport.add(new PassengerCountReport(8, 15,""));
+                listReport.add(new PassengerCountReport(10, 16,""));
+                listReport.add(new PassengerCountReport(10, 17,""));
+                listReport.add(new PassengerCountReport(10, 18,""));
+                listReport.add(new PassengerCountReport(10, 19,""));
+                listReport.add(new PassengerCountReport(10, 20,""));
+                listReport.add(new PassengerCountReport(5, 21,""));
+                listReport.add(new PassengerCountReport(5, 22,""));
+
                 return listReport;
             }
             catch(Exception e)
@@ -153,7 +144,7 @@ public class mySQLEcoloopCount extends AsyncTask<String, Void, ArrayList<Passeng
             getDataSet(listReport);
             BarData data = new BarData(this.xAxis, this.dataSet);
             chart.setData(data);
-            chart.setDescription("Ecoloop Flow");
+            chart.setDescription("Ecoloop Utilization in hours");
             chart.setDescriptionTextSize(15);
             chart.setVisibleXRange(5);
 
@@ -174,46 +165,149 @@ public class mySQLEcoloopCount extends AsyncTask<String, Void, ArrayList<Passeng
 
 
         ArrayList<BarEntry> valueSet1 = new ArrayList<>();
+
+        dataSets = new ArrayList<>();
+
         int i = 0;
-        for(PassengerCountReport report:listReport)
-        {
-//            if(i>0)
-//            {
-//                while(report.hour - 1 != Integer.parseInt(xAxis.get(i-1).replace(":00H","")))
-//                {
-//                    BarEntry v1e1 = new BarEntry(0, i);
-//                    xAxis.add(Integer.parseInt(xAxis.get(i-1).replace(":00H","")) + 1 + ":00H");
-//                    valueSet1.add(v1e1);
-//                    i++;
-//                }
-//            }
-//            else
-//            {
-//                while(i != report.hour)
-//                {
-//                    BarEntry v1e1 = new BarEntry(0, i);
-//                    xAxis.add(Integer.toString(i) + ":00H");
-//                    valueSet1.add(v1e1);
-//                    i++;
-//                }
-//            }
-            BarEntry v1e1 = new BarEntry(report.count, i); // Jan
-            xAxis.add(report.hour + ":00H");
-            valueSet1.add(v1e1);
-            i++;
-        }
-//        while(i < 25)
+//        for(PassengerCountReport report:listReport)
 //        {
-//            BarEntry v1e1 = new BarEntry(0, i);
-//            xAxis.add(Integer.toString(i) + ":00H");
+//
+//            BarEntry v1e1 = new BarEntry(report.count, i); // Jan
+//            BarEntry v2e2 = new BarEntry(report.count, i); // Jan
+//            xAxis.add(report.hour + ":00H");
 //            valueSet1.add(v1e1);
+//            valueSet.add(v2e2);
+//
+//
+//
+//            BarDataSet barDataSet1 = new BarDataSet(valueSet1, report.terminal);
+//            barDataSet1.setColor(Color.rgb(27, 163, 156));
+//            dataSets = new ArrayList<>();
+//            dataSets.add(barDataSet1);
+//
+//
 //            i++;
 //        }
 
-        BarDataSet barDataSet1 = new BarDataSet(valueSet1, "Number of Ecoloops travelling");
+        BarEntry v1e1 = new BarEntry(15, 0); // Jan
+        xAxis.add("");
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+            BarDataSet barDataSet1 = new BarDataSet(valueSet1, "ZZI 203");
         barDataSet1.setColor(Color.rgb(27, 163, 156));
-        dataSets = new ArrayList<>();
         dataSets.add(barDataSet1);
+
+
+        v1e1 = new BarEntry(10, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "ZZI 159");
+
+        barDataSet1.setColor(Color.rgb(242, 171, 235));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(15, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#6");
+        barDataSet1.setColor(Color.rgb(66, 134, 244));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(13, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#7");
+        barDataSet1.setColor(Color.rgb(229, 110, 110));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(16, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#10");
+        barDataSet1.setColor(Color.rgb(229, 145, 110));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(19, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#5");
+        barDataSet1.setColor(Color.rgb(244, 134, 66));
+        dataSets.add(barDataSet1);
+
+
+        v1e1 = new BarEntry(20, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "ZZI 157");
+        barDataSet1.setColor(Color.rgb(141, 252, 167));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(19, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#8");
+        barDataSet1.setColor(Color.rgb(250, 189, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(9, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "ZZI 225");
+        barDataSet1.setColor(Color.rgb(209, 189, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(10, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "ZZI 169");
+        barDataSet1.setColor(Color.rgb(145, 189, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(22, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#2");
+        barDataSet1.setColor(Color.rgb(145, 189, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(21, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#3");
+        barDataSet1.setColor(Color.rgb(229, 155, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(22, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#4");
+        barDataSet1.setColor(Color.rgb(229, 189, 150));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(19, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#1");
+        barDataSet1.setColor(Color.rgb(229, 200, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(7, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#9");
+        barDataSet1.setColor(Color.rgb(229, 189, 134));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(16, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "#ZZI 223");
+        barDataSet1.setColor(Color.rgb(229, 189, 119));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(19, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "ZZI 157");
+        barDataSet1.setColor(Color.rgb(229, 110, 110));
+        dataSets.add(barDataSet1);
+        v1e1 = new BarEntry(17, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "ZZI 197");
+        barDataSet1.setColor(Color.rgb(189, 189, 110));
+        dataSets.add(barDataSet1);
+
         this.dataSet = dataSets;
         this.xAxis = xAxis;
     }

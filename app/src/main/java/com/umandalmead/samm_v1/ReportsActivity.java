@@ -3,14 +3,20 @@ package com.umandalmead.samm_v1;
 import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
@@ -24,43 +30,50 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class ReportsActivity extends AppCompatActivity {
+import static com.facebook.FacebookSdk.getApplicationContext;
+
+public class ReportsActivity extends Fragment {
     public Calendar myCalendar = Calendar.getInstance();
     public static String TAG="mead";
     public EditText reportDate;
     public AutoCompleteTextView reportTerminal;
     public static SessionManager _sessionManager;
+
+    View myView;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_reports);
-            reportDate = (EditText) findViewById(R.id.reportDate);
-            reportTerminal = (AutoCompleteTextView) findViewById(R.id.reportTerminal);
-            this._sessionManager = new SessionManager(getApplicationContext());
-            if (_sessionManager.GetReportType() == "ecoloop")
-            {
-                AutoCompleteTextView txtViewTerminal = (AutoCompleteTextView)findViewById(R.id.reportTerminal);
-                txtViewTerminal.setVisibility(View.GONE);
-            }
+            myView = inflater.inflate(R.layout.activity_reports, container, false);
+
+            reportDate = (EditText) myView.findViewById(R.id.reportDate);
+//            reportTerminal = (AutoCompleteTextView) myView.findViewById(R.id.reportTerminal);
+            this._sessionManager = new SessionManager(getContext());
+//            if (_sessionManager.GetReportType() == "ecoloop")
+//            {
+////                AutoCompleteTextView txtViewTerminal = (AutoCompleteTextView)myView.findViewById(R.id.reportTerminal);
+////                txtViewTerminal.setVisibility(View.GONE);
+//            }
 
 
-            List<String> array = new ArrayList<>();
+//            List<String> array = new ArrayList<>();
+//
+//            ArrayAdapter<String> adapter;
+//
+//            for(Destination d:MenuActivity._listDestinations)
+//            {
+//                array.add(d.Value);
+//            }
+//            adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, array);
+//
+//            reportTerminal.setThreshold(1);
+//            reportTerminal.setAdapter(adapter);
 
-            ArrayAdapter<String> adapter;
-
-            for(Destination d:MenuActivity._listDestinations)
-            {
-                array.add(d.Value);
-            }
-            adapter = new ArrayAdapter<>(ReportsActivity.this,android.R.layout.simple_list_item_1, array);
-
-            reportTerminal.setThreshold(1);
-            reportTerminal.setAdapter(adapter);
 
 
-
-            EditText edittext= (EditText) findViewById(R.id.reportDate);
+            EditText edittext= (EditText) myView.findViewById(R.id.reportDate);
             final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
                 @Override
@@ -80,19 +93,19 @@ public class ReportsActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
-                    new DatePickerDialog(ReportsActivity.this, date, myCalendar
+                    new DatePickerDialog(getActivity(), date, myCalendar
                             .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
                             myCalendar.get(Calendar.DAY_OF_MONTH)).show();
                 }
             });
-            Button btnViewReport = (Button) findViewById(R.id.btnViewReport);
+            Button btnViewReport = (Button) myView.findViewById(R.id.btnViewReport);
             btnViewReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if(_sessionManager.GetReportType().equals("passenger"))
-                        new mySQLPassengerCountReport(getApplicationContext(), ReportsActivity.this).execute(reportDate.getText().toString(), reportTerminal.getText().toString());
+                        new mySQLPassengerCountReport(getContext(), getActivity()).execute(reportDate.getText().toString(),"");
                     else
-                        new mySQLEcoloopCount(getApplicationContext(), ReportsActivity.this).execute(reportDate.getText().toString());
+                        new mySQLEcoloopCount(getContext(), getActivity()).execute(reportDate.getText().toString());
                 }
             });
 
@@ -102,7 +115,9 @@ public class ReportsActivity extends AppCompatActivity {
             Log.e(TAG, ex.getMessage());
         }
 
+        return myView;
     }
+
     private void updateLabel() {
         String myFormat = "MM/dd/yy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ENGLISH);

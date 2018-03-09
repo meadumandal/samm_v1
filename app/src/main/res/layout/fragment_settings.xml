@@ -1,0 +1,83 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.umandalmead.samm_v1.SettingsFragment">
+
+    <LinearLayout
+        android:id="@+id/frmSettings"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="20dp">
+        <TextView
+            android:id="@+id/txtActionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SETTINGS"
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="20dp"
+            android:textStyle="bold" />
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/editAppSubName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorAccent"
+
+                android:gravity="center_horizontal"
+                android:hint="Application Sub Name"
+                android:inputType="text"
+
+                android:singleLine="true"
+
+                android:textColor="@color/colorBlack"
+                android:textColorHint="@color/colorAccent"
+                android:textSize="16sp" />
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:id="@+id/btnUpdateSubName"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight=".4"
+            android:background="@drawable/oval_background"
+            android:backgroundTint="@color/colorAccent"
+            android:text="Update App Sub Name"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold" />
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="2dp"-->
+            <!--android:layout_marginTop="10dp"-->
+            <!--android:background="@color/colorLightGrey"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/txtChangePassword"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Change Admin Password"-->
+            <!--android:textColor="@color/colorBlack"-->
+            <!--android:textSize="15dp"-->
+            <!--android:textStyle="bold" />-->
+        <!--<Button-->
+            <!--android:id="@+id/btnChanegPassword"-->
+            <!--style="?android:textAppearanceSmall"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="42dp"-->
+            <!--android:layout_marginTop="16dp"-->
+            <!--android:layout_weight=".4"-->
+            <!--android:background="@drawable/oval_background"-->
+            <!--android:backgroundTint="@color/colorOrange"-->
+            <!--android:text="Delete GPS"-->
+            <!--android:textColor="@color/colorWhite"-->
+            <!--android:textStyle="bold" />-->
+    </LinearLayout>
+
+</FrameLayout>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
@@ -117,7 +118,26 @@ public class Helper {
     public double ToRadians(double deg) {
         return deg * (Math.PI/180);
     }
+    public double bearingBetweenLocations(Location PrevLoc, Location CurrLoc) {
 
+        double PI = 3.14159;
+        double lat1 = PrevLoc.getLatitude() * PI / 180;
+        double long1 = PrevLoc.getLongitude() * PI / 180;
+        double lat2 = CurrLoc.getLatitude() * PI / 180;
+        double long2 = CurrLoc.getLongitude() * PI / 180;
 
+        double dLon = (long2 - long1);
+
+        double y = Math.sin(dLon) * Math.cos(lat2);
+        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
+                * Math.cos(lat2) * Math.cos(dLon);
+
+        double brng = Math.atan2(y, x);
+
+        brng = Math.toDegrees(brng);
+        brng = (brng + 360) % 360;
+
+        return brng;
+    }
 
 }

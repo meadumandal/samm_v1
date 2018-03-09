@@ -56,6 +56,7 @@ public class SessionManager {
         prefEditor.putBoolean(KEY_ISDRIVER, isDriver);
         prefEditor.putBoolean(IS_LOGIN, !isGuest);
         prefEditor.putBoolean(IS_GUEST, isGuest);
+
         prefEditor.putString(KEY_DEVICEID, deviceId);
         prefEditor.commit();
     }

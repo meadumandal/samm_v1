@@ -155,21 +155,121 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
 
 
         ArrayList<BarEntry> valueSet1 = new ArrayList<>();
-        int i = 0;
-        for(PassengerCountReport report:listReport)
-        {
 
-            BarEntry v1e1 = new BarEntry(report.count, i); // Jan
-            xAxis.add(report.hour + ":00H");
-            valueSet1.add(v1e1);
-            i++;
-        }
-
-
-        BarDataSet barDataSet1 = new BarDataSet(valueSet1, "Number of Passengers");
-        barDataSet1.setColor(Color.rgb(27, 163, 156));
         dataSets = new ArrayList<>();
+
+        int i = 0;
+//        for(PassengerCountReport report:listReport)
+//        {
+//
+//            BarEntry v1e1 = new BarEntry(report.count, i); // Jan
+//            BarEntry v2e2 = new BarEntry(report.count, i); // Jan
+//            xAxis.add(report.hour + ":00H");
+//            valueSet1.add(v1e1);
+//            valueSet.add(v2e2);
+//
+//
+//
+//            BarDataSet barDataSet1 = new BarDataSet(valueSet1, report.terminal);
+//            barDataSet1.setColor(Color.rgb(27, 163, 156));
+//            dataSets = new ArrayList<>();
+//            dataSets.add(barDataSet1);
+//
+//
+//            i++;
+//        }
+
+        BarEntry v1e1 = new BarEntry(3, 0); // Jan
+        xAxis.add("8:00H");
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        BarDataSet barDataSet1 = new BarDataSet(valueSet1, "Fastbytes");
+        barDataSet1.setColor(Color.rgb(27, 163, 156));
         dataSets.add(barDataSet1);
+
+
+        v1e1 = new BarEntry(2, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "5132");
+
+        barDataSet1.setColor(Color.rgb(242, 171, 235));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(4, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "Plaza A");
+        barDataSet1.setColor(Color.rgb(66, 134, 244));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(5, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "Bellevue Hotel");
+        barDataSet1.setColor(Color.rgb(229, 110, 110));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(1, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "Shakeys");
+        barDataSet1.setColor(Color.rgb(229, 145, 110));
+        dataSets.add(barDataSet1);
+
+        v1e1 = new BarEntry(7, 0); // Jan
+        valueSet1 = new ArrayList<BarEntry>();
+        valueSet1.add(v1e1);
+        barDataSet1 = new BarDataSet(valueSet1, "Vivere");
+        barDataSet1.setColor(Color.rgb(229, 189, 110));
+        dataSets.add(barDataSet1);
+//
+//        BarEntry v2e2 = new BarEntry(3, 0); // Jan
+//        xAxis.add("9:00H");
+//        ArrayList<BarEntry> valueSet2 = new ArrayList<BarEntry>();
+//        valueSet2.add(v2e2);
+//        BarDataSet barDataSet2 = new BarDataSet(valueSet2, "Fastbytes");
+//        barDataSet2.setColor(Color.rgb(27, 163, 156));
+//        dataSets.add(barDataSet2);
+//
+//
+//        v2e2 = new BarEntry(2, 1); // Jan
+//        valueSet2 = new ArrayList<BarEntry>();
+//        valueSet2.add(v2e2);
+//        barDataSet2 = new BarDataSet(valueSet2, "5132");
+//
+//        barDataSet2.setColor(Color.rgb(242, 171, 235));
+//        dataSets.add(barDataSet2);
+//
+//        v2e2 = new BarEntry(4, 1); // Jan
+//        valueSet2 = new ArrayList<BarEntry>();
+//        valueSet2.add(v2e2);
+//        barDataSet2 = new BarDataSet(valueSet2, "Plaza A");
+//        barDataSet2.setColor(Color.rgb(66, 134, 244));
+//        dataSets.add(barDataSet2);
+//
+//        v2e2 = new BarEntry(5, 1); // Jan
+//        valueSet2 = new ArrayList<BarEntry>();
+//        valueSet2.add(v2e2);
+//        barDataSet2 = new BarDataSet(valueSet2, "Bellevue Hotel");
+//        barDataSet2.setColor(Color.rgb(229, 110, 110));
+//        dataSets.add(barDataSet2);
+//
+//        v2e2 = new BarEntry(1, 1); // Jan
+//        valueSet2 = new ArrayList<BarEntry>();
+//        valueSet2.add(v2e2);
+//        barDataSet2 = new BarDataSet(valueSet2, "Shakeys");
+//        barDataSet2.setColor(Color.rgb(229, 145, 110));
+//        dataSets.add(barDataSet2);
+//
+//        v2e2 = new BarEntry(7, 1); // Jan
+//        valueSet2 = new ArrayList<BarEntry>();
+//        valueSet2.add(v2e2);
+//        barDataSet2 = new BarDataSet(valueSet2, "Vivere");
+//        barDataSet2.setColor(Color.rgb(229, 189, 110));
+//        dataSets.add(barDataSet2);
+
+
         this.dataSet = dataSets;
         this.xAxis = xAxis;
     }

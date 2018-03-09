@@ -2,6 +2,7 @@ package com.umandalmead.samm_v1;
 //IMPORTS
 
 //region Imports
+
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -66,11 +67,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.internal.LockOnGetVariable;
 import com.facebook.login.LoginManager;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
-import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -83,7 +82,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -95,7 +93,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -112,7 +109,6 @@ import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListene
 import com.umandalmead.samm_v1.POJO.Directions;
 import com.umandalmead.samm_v1.POJO.Setting;
 import com.umandalmead.samm_v1.POJO.Settings;
-import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.umandalmead.samm_v1.RouteTabs.Route1;
 import com.umandalmead.samm_v1.RouteTabs.Route2;
 import com.umandalmead.samm_v1.RouteTabs.Route3;
@@ -134,6 +130,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import retrofit.Call;
@@ -143,8 +140,6 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.umandalmead.samm_v1.R.id.map;
-//endregion
-
 //endregion
 
 public class MenuActivity extends AppCompatActivity implements
@@ -242,7 +237,7 @@ public class MenuActivity extends AppCompatActivity implements
 
 
     //endregion
-        //    MyBroadcastReceiver _broadcastReceiver;
+
 
             public boolean checkLocationPermission()
             {
@@ -337,7 +332,6 @@ public class MenuActivity extends AppCompatActivity implements
                             Log.d(TAG, t.toString());
                         }
                     });
-
                     toolbar = (Toolbar) findViewById(R.id.toolbar);
                     setSupportActionBar(toolbar);
                     toolbar.setTitle("SAMM");
@@ -380,15 +374,16 @@ public class MenuActivity extends AppCompatActivity implements
                     adminFloatingActionMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
 
                     NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
-                    NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest());
-                    NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(!_sessionManager.isGuest());
-                    NavView.getMenu().findItem(R.id.nav_addGPS).setVisible(!_sessionManager.isGuest());
-                    NavView.getMenu().findItem(R.id.nav_viewGPS).setVisible(!_sessionManager.isGuest());
-                    NavView.getMenu().findItem(R.id.nav_addPoint).setVisible(!_sessionManager.isGuest());
+                    NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest() && !_sessionManager.isDriver());
+                    NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getEmail().equals("admin@yahoo.com"));
+
+//                    NavView.getMenu().findItem(R.id.nav_addGPS).setVisible(!_sessionManager.isGuest());
+//                    NavView.getMenu().findItem(R.id.nav_viewGPS).setVisible(!_sessionManager.isGuest());
+//                    NavView.getMenu().findItem(R.id.nav_addPoint).setVisible(!_sessionManager.isGuest());
 
                     NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
 
-                    if(_sessionManager.getIsBeta() && !_sessionManager.getIsAdmin())
+                    if(_sessionManager.getIsBeta() && !_sessionManager.getIsAdmin() && !_sessionManager.getEmail().toLowerCase().equals("admin@yahoo.com"))
                     {
                         ((TextView) findViewById(R.id.tvcurrentlocation)).setVisibility(View.GONE);
                         ((LinearLayout) findViewById(R.id.searchlayoutcontainer)).setVisibility(View.GONE);
@@ -547,7 +542,7 @@ public class MenuActivity extends AppCompatActivity implements
                     progDialog.setMessage("Initializing...");
                     progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                     progDialog.setCancelable(false);
-                    if (_sessionManager.isGuest() || _sessionManager.isDriver())
+                    if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getEmail().toLowerCase().equals("admin@yahoo.com"))
                     {
                         LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
                         EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
@@ -634,20 +629,23 @@ public class MenuActivity extends AppCompatActivity implements
                         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                             try {
                                 final String deviceId = dataSnapshot.getKey();
+                                double lat, lng;
+
                                 Object Latitude = dataSnapshot.child("Lat").getValue();
                                 Object Longitude = dataSnapshot.child("Lng").getValue();
-                                double lat, lng;
+
                                 if (Latitude == null || Latitude.toString().equals("0"))
                                     lat = 0.0;
                                 else
                                     lat = Double.parseDouble(Latitude.toString());
+
                                 if (Longitude == null || Longitude.toString().equals("0"))
                                     lng = 0.0;
                                 else
                                     lng = Double.parseDouble(Longitude.toString());
-                                final LatLng latLng = new LatLng(lat, lng);
-                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, ""))) {
 
+                                final LatLng latLng = new LatLng(lat, lng);
+                                if (deviceId.toString().equals(_sessionManager.getKeyDeviceid())) {
                                     //move map camera
                                     _map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
                                     _map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
@@ -659,7 +657,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 prevLocation.setLongitude(Double.parseDouble(dataSnapshot.child("PrevLng").getValue().toString()));
                                 currLocation.setLatitude(lat);
                                 currLocation.setLongitude(lng);
-                                final float bearing = (float) bearingBetweenLocations(prevLocation, currLocation);//prevLocation.bearingTo(currLocation);
+                                final float bearing = (float) _helper.bearingBetweenLocations(prevLocation, currLocation);//prevLocation.bearingTo(currLocation);
 
                                 if (_map != null) {
                                     if (_chosenTerminal == null) {
@@ -674,7 +672,8 @@ public class MenuActivity extends AppCompatActivity implements
                                                 final MarkerOptions markerOptions = new MarkerOptions();
                                                 markerOptions.position(latLng);
 //                                                markerOptions.title(deviceId);
-                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, ""))) {
+                                                if (deviceId.toString().equals(
+                                                        _sessionManager.getKeyDeviceid())) {
                                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
 
 
@@ -697,7 +696,8 @@ public class MenuActivity extends AppCompatActivity implements
                                                     _markerAnimate.setRotation(bearing);
                                                     rotateMarker(_markerAnimate, bearing);
                                                 }
-                                                if (deviceId.toString().equals(_sessionManager.getUsername().replace(DRIVERPREFIX, ""))) {
+                                                if (deviceId.toString().equals(
+                                                        _sessionManager.getKeyDeviceid())) {
                                                     _markerAnimate.setTitle("HEY!");
                                                     _markerAnimate.setSnippet("It's you");
                                                     _markerAnimate.showInfoWindow();
@@ -819,27 +819,7 @@ public class MenuActivity extends AppCompatActivity implements
 
 
 
-    private double bearingBetweenLocations(Location PrevLoc,Location CurrLoc) {
 
-        double PI = 3.14159;
-        double lat1 = PrevLoc.getLatitude() * PI / 180;
-        double long1 = PrevLoc.getLongitude() * PI / 180;
-        double lat2 = CurrLoc.getLatitude() * PI / 180;
-        double long2 = CurrLoc.getLongitude() * PI / 180;
-
-        double dLon = (long2 - long1);
-
-        double y = Math.sin(dLon) * Math.cos(lat2);
-        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
-                * Math.cos(lat2) * Math.cos(dLon);
-
-        double brng = Math.atan2(y, x);
-
-        brng = Math.toDegrees(brng);
-        brng = (brng + 360) % 360;
-
-        return brng;
-    }
     private void rotateMarker(final Marker marker, final float toRotation) {
         if(!isMarkerRotating) {
             final Handler handler = new Handler();
@@ -993,71 +973,83 @@ public class MenuActivity extends AppCompatActivity implements
             }
         });
     }
-    private void saveLocation(double lat, double lng)
+    private void saveLocation(final double lat, final double lng)
     {
         final HashMap<String, Object> latitude = new HashMap<>();
         final HashMap<String, Object> longitude = new HashMap<>();
         final HashMap<String, Object> hashLastUpdated= new HashMap<>();
-        hashLastUpdated.put("lastUpdated", new Date().toString());
+        final String lastUpdated = new Date().toString();
+        hashLastUpdated.put("lastUpdated", lastUpdated);
         latitude.put("Latitude", lat);
         longitude.put("Longitude", lng);
-        _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.getValue()==null)
-                        {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude").setValue(longitude);
-                        }
-                        else
-                        {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(longitude);
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-        _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.getValue()==null)
-                        {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude").setValue(latitude);
-                        }
-                        else
-                        {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(latitude);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-        _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.getValue()==null)
-                        {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated").setValue(hashLastUpdated);
-                        }
-                        else
-                        {
-                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(hashLastUpdated);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+        Map<String, Object> nodes = new HashMap<>();
+        nodes.put(_sessionManager.getUsername() + "/Longitude", lng);
+        nodes.put(_sessionManager.getUsername() + "/Latitude", lat);
+        nodes.put(_sessionManager.getUsername() + "/lastUpdated", lastUpdated);
+        _userDatabaseReference.updateChildren(nodes);
+//
+//        _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude")
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        if(dataSnapshot.getValue()==null)
+//                        {
+////                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude").setValue(longitude);
+//                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Longitude").setValue(lng);
+//                        }
+//                        else
+//                        {
+//                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(longitude);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
+//        _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude")
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        if(dataSnapshot.getValue()==null)
+//                        {
+////                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude").setValue(latitude);
+//                            _userDatabaseReference.child(_sessionManager.getUsername()).child("Latitude").setValue(lat);
+//                        }
+//                        else
+//                        {
+//                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(latitude);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
+//        _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated")
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        if(dataSnapshot.getValue()==null)
+//                        {
+////                            _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated").setValue(hashLastUpdated);
+//                            _userDatabaseReference.child(_sessionManager.getUsername()).child("lastUpdated").setValue(lastUpdated);
+//                        }
+//                        else
+//                        {
+//                            _userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(hashLastUpdated);
+//
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
 
     }
     @Override
@@ -1079,7 +1071,7 @@ public class MenuActivity extends AppCompatActivity implements
         _map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (_sessionManager.getIsAdmin())
+                if (_sessionManager.getIsAdmin() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
                 {
                     //if admin only:
                     AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
@@ -1255,52 +1247,74 @@ public class MenuActivity extends AppCompatActivity implements
             else if (id == R.id.nav_passengerpeakandlean)
             {
                 _sessionManager.PassReportType("passenger");
-                Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
-                startActivity(i);
+                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                MapsHolder_LinearLayout.setVisibility(View.GONE);
+                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                lp.height = 156;
+                SearchLinearLayout.setVisibility(View.GONE);
+                editDestinations.setVisibility(View.GONE);
+                CurrentLocation.setVisibility(View.GONE);
+
+                fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+
+//                Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
+//                startActivity(i);
             }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
                 _sessionManager.PassReportType("ecoloop");
-                Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
-                startActivity(i);
-//              fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
-            } else if (id == R.id.nav_addGPS)
-            {
-                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
-                lp.height = 156;
+
                 MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                 MapsHolder_LinearLayout.setVisibility(View.GONE);
+                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+                lp.height = 156;
+                SearchLinearLayout.setVisibility(View.GONE);
                 editDestinations.setVisibility(View.GONE);
                 CurrentLocation.setVisibility(View.GONE);
+
+                fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+//                Intent i = new Intent(MenuActivity.this, ReportsActivity.class);
+//                startActivity(i);
+//              fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
-            else if(id == R.id.nav_addPoint)
-            {
-                LinearLayout maps = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                maps.setVisibility(View.GONE);
-                fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
-            }
+//            else if (id == R.id.nav_addGPS)
+//            {
+//                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
+//                lp.height = 156;
+//                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+//                MapsHolder_LinearLayout.setVisibility(View.GONE);
+//                editDestinations.setVisibility(View.GONE);
+//                CurrentLocation.setVisibility(View.GONE);
+//            }
+//            else if(id == R.id.nav_addPoint)
+//            {
+//                LinearLayout maps = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+//                maps.setVisibility(View.GONE);
+//                fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
+//            }
             else if(id == R.id.menu_home){
 //                AddGPSHolder_LinearLayout = (LinearLayout) findViewById(R.id.addGPSLinearLayout);
 //                AddGPSHolder_LinearLayout.setVisibility(View.GONE);
                 MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                 MapsHolder_LinearLayout.setVisibility(View.VISIBLE);
 
-                if(!_sessionManager.isGuest())
+                if(!_sessionManager.isGuest() && !_sessionManager.getEmail().toLowerCase().equals("admin@yahoo.com"))
                 {
                     CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
                     lp.height = 235;
+                    SearchLinearLayout.setVisibility(View.VISIBLE);
                     editDestinations.setVisibility(View.VISIBLE);
                     CurrentLocation.setVisibility(View.VISIBLE);
                 }
 
 
             }
-            else if(id==R.id.nav_viewGPS)
-            {
-                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                MapsHolder_LinearLayout.setVisibility(  View.GONE);
-                fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
-            }
+//            else if(id==R.id.nav_viewGPS)
+//            {
+//                MapsHolder_LinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+//                MapsHolder_LinearLayout.setVisibility(  View.GONE);
+//                fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
+//            }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             drawer.closeDrawer(GravityCompat.START);
             return true;

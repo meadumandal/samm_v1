@@ -1,5 +1,6 @@
 package com.umandalmead.samm_v1;
 
+import android.media.tv.TvInputService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -24,9 +25,20 @@ public class AboutActivity extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myView = inflater.inflate(R.layout.activity_about, container, false);
+        SessionManager sessionManager = new SessionManager(getContext());
 
         SammTV = (TextView) myView.findViewById(R.id.SAMM_text);
-        SammTV.setText(Html.fromHtml("This application is designed for Filinvest City 360 Ecoloop. This is a beta version and some features are not yet available. <br><br> <i>Developed by: E & M <i>"));
+
+        if(sessionManager.getIsAdmin())
+        {
+            SammTV.setText(Html.fromHtml("<i>Developed by: E & M <i>"));
+        }
+        else
+        {
+            SammTV.setText(Html.fromHtml("This application is designed for Filinvest City 360 Ecoloop. This is a beta version and some features are not yet available. <br><br> <i>Developed by: E & M <i>"));
+        }
+
+
         return myView;
     }
 }

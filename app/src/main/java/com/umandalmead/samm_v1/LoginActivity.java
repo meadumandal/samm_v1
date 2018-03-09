@@ -287,16 +287,16 @@ public class LoginActivity extends AppCompatActivity{
                                                 FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
                                                 ;
                                                 DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
-                                                _driverDatabaseReference.child(response.body().getLastName()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                _driverDatabaseReference.child(response.body().getDeviceId()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         if (dataSnapshot != null) {
                                                             if (dataSnapshot.child("connections") == null)
-                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId());
                                                             else if (dataSnapshot.child("connections").getValue() == null)
-                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId());
                                                             else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
-                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId());
                                                             else {
                                                                 progressBar.setVisibility(View.GONE);
                                                                 Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
