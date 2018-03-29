@@ -4,9 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:background="@color/colorWhite"
     tools:context="com.umandalmead.samm_v1.MenuActivity">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvSAMM"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <include layout="@layout/content_menu" />
 
@@ -18,116 +21,48 @@
         android:backgroundTint="@color/colorDarkGrey"
         android:paddingRight="10dp"
         android:paddingTop="10dp"
+        android:visibility="gone"
         android:theme="@style/AppTheme.AppBarOverlay">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorDarkGrey"
-            android:elevation="1dp"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            android:tint="@color/colorBlack"
-            app:contentInsetLeft="0dp"
-            app:contentInsetStart="0dp"
-            app:contentInsetStartWithNavigation="0dp"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/colorDarkGrey"
-                android:gravity="center|right"
-                android:orientation="vertical">
-                <ImageView
-                    android:layout_width="102dp"
-                    android:layout_height="20dp"
-                    android:src="@drawable/text_samm"
-                    android:id="@+id/text_samm"
-                    android:layout_gravity="center"
-                    android:layout_marginRight="20dp"
-                    />
-
-                <EditText
-                    android:layout_width="189dp"
-                    android:layout_height="35dp"
-                    android:layout_marginTop="10dp"
-                    android:text="Current location"
-                    android:drawableLeft="@drawable/ic_my_location_black_24dp"
-                    android:textColor="@color/colorWhite"
-                    android:textSize="20dp"
-                    android:textStyle="italic"
-                    android:id="@+id/tvcurrentlocation"
-                    android:drawablePadding="13dp"
-                    android:paddingLeft="5dp"
-                    android:scaleX="0.9"
-                    android:scaleY="0.8"
-                    android:inputType="none"
-                    android:editable="false"
-                    android:layout_gravity="left"
-                    android:background="@drawable/rounded_corner"
-
-
-                />
-
-                <LinearLayout
-                    android:id="@+id/searchlayoutcontainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:paddingTop="15dp"
-                    android:background="@color/colorDarkGrey"
-                    android:gravity="center|right"
-                    android:orientation="horizontal">
-                    <fragment
-                        android:id="@+id/place_autocomplete_fragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-
-                        />
-
-                    <com.umandalmead.samm_v1.ClearableAutoCompleteTextView
-                        android:id="@+id/edit_destinations"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:layout_margin="5dp"
-                        android:layout_marginTop="100dp"
-                        android:width="100dp"
-                        android:drawablePadding="5dp"
-                        android:ems="12"
-                        android:gravity="center|left"
-                        android:hint="Where are you going?"
-                        android:maxLines="1"
-                        android:paddingLeft="10dp"
-                        android:textColor="@color/colorWhite"
-                        android:textColorHint="@color/colorWhite"
-                        android:visibility="visible">
-
-                        <requestFocus />
-                    </com.umandalmead.samm_v1.ClearableAutoCompleteTextView>
-
-                </LinearLayout>
-
-            </LinearLayout>
-        </android.support.v7.widget.Toolbar>
+        <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/toolbar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@color/colorDarkGrey"-->
+            <!--android:elevation="1dp"-->
+            <!--android:theme="@style/ThemeOverlay.AppCompat.ActionBar"-->
+            <!--android:tint="@color/colorBlack"-->
+            <!--app:contentInsetLeft="0dp"-->
+            <!--app:contentInsetStart="0dp"-->
+            <!--app:contentInsetStartWithNavigation="0dp"-->
+            <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light">-->
+        <!--</android.support.v7.widget.Toolbar>-->
 
         <android.support.design.widget.TabLayout
             android:id="@+id/route_tablayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorBlack"
+            android:background="@color/colorDarkGrey"
             android:visibility="gone"
-            app:tabBackground="@color/colorBlack"
+            app:tabBackground="@color/colorDarkGrey"
             app:tabSelectedTextColor="@color/colorWhite"
             app:tabTextColor="@color/colorWhite">
-
+            <!--<ImageButton-->
+                <!--android:id="@+id/SAMMLogoFAB"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_margin="16dp"-->
+                <!--android:src="@mipmap/ic_sammtrans"-->
+                <!--android:background="@android:color/transparent"-->
+                <!--/>-->
         </android.support.design.widget.TabLayout>
 
         <android.support.v4.view.ViewPager
             android:id="@+id/routepager"
             android:layout_width="match_parent"
             android:layout_height="fill_parent"></android.support.v4.view.ViewPager>
+
 
     </android.support.design.widget.AppBarLayout>
 

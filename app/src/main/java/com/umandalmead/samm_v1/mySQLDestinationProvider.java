@@ -197,11 +197,11 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         DestinationAdapter adapter = null;
         ArrayList<Destination> destinationArrayList = new ArrayList<>(destinations);
         adapter =  new DestinationAdapter((MenuActivity)this._activity, destinationArrayList);
-        ClearableAutoCompleteTextView editDestination = (ClearableAutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
+        //ClearableAutoCompleteTextView editDestination = (ClearableAutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
         //ArrayAdapter<Destination> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, destinations);
-        editDestination.setThreshold(1);
-        editDestination.setAdapter(adapter);
-        editDestination.setDropDownAnchor(MenuActivity.AppBar.getId());
+//        editDestination.setThreshold(1);
+//        editDestination.setAdapter(adapter);
+//        editDestination.setDropDownAnchor(MenuActivity.AppBar.getId());
         _googleMap.clear();
         ((MenuActivity)this._activity)._destinationMarkers = new HashMap<>();
 

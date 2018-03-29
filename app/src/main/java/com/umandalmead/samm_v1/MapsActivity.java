@@ -24,6 +24,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -218,4 +221,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //You can add here other case statements according to your requirement.
         }
     }
+
 }

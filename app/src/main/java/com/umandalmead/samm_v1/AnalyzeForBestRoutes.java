@@ -277,16 +277,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             createRouteTabs(_AllTotalTime, _AllDirectionsSteps, _topTerminals, _AllTerminalPoints, ctr);
             progDialog.dismiss();
 
-            //hide keyboard on search ~
-            InputMethodManager mgr = (InputMethodManager) _context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            mgr.hideSoftInputFromWindow(MenuActivity.editDestinations.getWindowToken(), 0);
+
 
             //show route tabs and slide up panel ~
             RouteTabLayout.setVisibility(View.VISIBLE);
             RoutePane.setVisibility(View.VISIBLE);
             SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
             TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-            MenuActivity.editDestinations.setCursorVisible(false);
+            //MenuActivity.editDestinations.setCursorVisible(false);
 
             RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
@@ -350,6 +348,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 }
             });
 
+            MenuActivity.AppBar.setVisibility(View.VISIBLE);
+            MenuActivity.FAB_SammIcon.setVisibility(View.GONE);
+            MenuActivity.FrameSearchBarHolder.setVisibility(View.GONE);
             TimeOfArrivalTextView.setVisibility(View.VISIBLE);
             //Set first route in the UI~
             RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
@@ -364,10 +365,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
             //Adjust AppBarLayoutHeight
             CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity.AppBar.getLayoutParams();
-            MenuActivity.editDestinations.setVisibility(View.GONE);
+            //MenuActivity.editDestinations.setVisibility(View.GONE);
             MenuActivity.CurrentLocation.setVisibility(View.GONE);
-            MenuActivity.SearchLinearLayout.setPadding(0, 0, 0, 0);
-            MenuActivity.editDestinations.setVisibility(View.VISIBLE);
+            //MenuActivity.SearchLinearLayout.setPadding(0, 0, 0, 0);
+            //MenuActivity.editDestinations.setVisibility(View.VISIBLE);
+
 
             //Get nearest loop time of arrival~
             LoopArrivalProgress.setVisibility(View.VISIBLE);
@@ -395,7 +397,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     @Override
                     public Transaction.Result doTransaction(MutableData currentData) {
 
-                        return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+                        return Transaction.success(currentData);
                     }
 
                     @Override
@@ -458,6 +460,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                                         String StationName = v.getKey().toString();
                                         if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             _loopIds = v.child("LoopIds").getValue().toString();
+                                            if(_loopIds.equals("")){
+                                                _loopIds = v.child("Dwell").getValue().toString();
+                                            }
                                             if (!_loopIds.equals("") && !found) {
                                                 _IsAllLoopParked = false;
                                                 found = true;

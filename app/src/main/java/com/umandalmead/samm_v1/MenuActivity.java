@@ -48,6 +48,8 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
+import android.view.DragEvent;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -57,9 +59,11 @@ import android.view.Window;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
+import android.widget.ActionMenuView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -82,6 +86,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -93,6 +98,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -127,6 +133,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -140,6 +147,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.umandalmead.samm_v1.R.id.map;
+import static com.umandalmead.samm_v1.R.id.visible;
 //endregion
 
 public class MenuActivity extends AppCompatActivity implements
@@ -193,6 +201,7 @@ public class MenuActivity extends AppCompatActivity implements
             public Destination _chosenDestination;
             public static ValueAnimator valueAnimator;
 
+
         //Declared as public so that they can be accessed on other context.
 
         public static LinearLayout RoutePane;
@@ -202,7 +211,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static ImageView Slide_Expand;
         public static ImageView Slide_Collapse;
         public static ScrollView StepsScroller;
-        public static ClearableAutoCompleteTextView editDestinations;
+        //public static ClearableAutoCompleteTextView editDestinations;
         public static TextView TimeOfArrivalTextView;
         public static MenuItem UserNameMenuItem;
         public static NavigationView NavView;
@@ -212,13 +221,15 @@ public class MenuActivity extends AppCompatActivity implements
         public static TextView HeaderUserFullName;
         public static TextView HeaderUserEmail;
         public static AppBarLayout AppBar;
-        public static Toolbar toolbar;
-        public static LinearLayout SearchLinearLayout;
+        //public static Toolbar toolbar;
+        //public static LinearLayout SearchLinearLayout;
         public  static EditText CurrentLocation;
         public static LinearLayout MapsHolder_LinearLayout;
         public static LinearLayout AddGPSHolder_LinearLayout;
         FloatingActionButton addGPS,addPoint, viewGPS;
         FloatingActionMenu adminFloatingActionMenu;
+        public static ImageView FAB_SammIcon;
+        public static FrameLayout FrameSearchBarHolder;
 
 
         private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
@@ -332,9 +343,9 @@ public class MenuActivity extends AppCompatActivity implements
                             Log.d(TAG, t.toString());
                         }
                     });
-                    toolbar = (Toolbar) findViewById(R.id.toolbar);
-                    setSupportActionBar(toolbar);
-                    toolbar.setTitle("SAMM");
+//                    toolbar = (Toolbar) findViewById(R.id.toolbar);
+//                    setSupportActionBar(toolbar);
+//                    toolbar.setTitle("SAMM");
 
                     if (_firebaseDatabase == null && _userDatabaseReference == null) {
                         _firebaseDatabase = FirebaseDatabase.getInstance();
@@ -345,7 +356,7 @@ public class MenuActivity extends AppCompatActivity implements
                         _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
 
                     //Instantiate ~
-                    editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
+                    //editDestinations = (ClearableAutoCompleteTextView) findViewById(R.id.edit_destinations);
                     AppBar = (AppBarLayout) findViewById(R.id.appBarLayout);
 
                     RoutePane = (LinearLayout) findViewById(R.id.route_content);
@@ -362,8 +373,8 @@ public class MenuActivity extends AppCompatActivity implements
                     ProfilePictureImg = (ImageView) NavHeaderView.findViewById(R.id.imgLogo);
                     HeaderUserFullName = (TextView) NavHeaderView.findViewById(R.id.HeaderUserFullName);
                     HeaderUserEmail = (TextView) NavHeaderView.findViewById(R.id.HeaderUserEmail);
-                    SearchLinearLayout = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
-                    CurrentLocation = (EditText) findViewById(R.id.tvcurrentlocation);
+                    //SearchLinearLayout = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
+                    //CurrentLocation = (EditText) findViewById(R.id.tvcurrentlocation);
 
                     UserNameMenuItem.setTitle(_sessionManager.getFullName());
                     HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
@@ -372,6 +383,8 @@ public class MenuActivity extends AppCompatActivity implements
                     addPoint = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
                     viewGPS = (FloatingActionButton) findViewById(R.id.subFloatingViewGPS);
                     adminFloatingActionMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
+                    FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
+                    FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
 
                     NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                     NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest() && !_sessionManager.isDriver());
@@ -385,8 +398,8 @@ public class MenuActivity extends AppCompatActivity implements
 
                     if(_sessionManager.getIsBeta() && !_sessionManager.getIsAdmin() && !_sessionManager.getEmail().toLowerCase().equals("admin@yahoo.com"))
                     {
-                        ((TextView) findViewById(R.id.tvcurrentlocation)).setVisibility(View.GONE);
-                        ((LinearLayout) findViewById(R.id.searchlayoutcontainer)).setVisibility(View.GONE);
+                        //((TextView) findViewById(R.id.tvcurrentlocation)).setVisibility(View.GONE);
+                        //((LinearLayout) findViewById(R.id.searchlayoutcontainer)).setVisibility(View.GONE);
                     }
 
 
@@ -395,7 +408,12 @@ public class MenuActivity extends AppCompatActivity implements
                     else
                         adminFloatingActionMenu.setVisibility(View.GONE);
 
-
+                    FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                            drawer.openDrawer(Gravity.LEFT);
+                        }
+                    });
                     addGPS.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -465,9 +483,14 @@ public class MenuActivity extends AppCompatActivity implements
 
                     ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextColor(Color.parseColor("#FFFFFF"));
                     ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextSize(14);
+
+                    AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
+                            .setTypeFilter(Place.TYPE_COUNTRY)
+                            .setCountry("PH")
+                            .build();
                     PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                             getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-
+                    autocompleteFragment.setFilter(autocompleteFilter);
                     //set bounds to search within bounds only~
                     //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
 
@@ -512,9 +535,12 @@ public class MenuActivity extends AppCompatActivity implements
                                     RoutePane.setVisibility(View.INVISIBLE);
                                     AnalyzeForBestRoutes.clearLines();
                                     _chosenTerminal = null;
-                                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
-                                    lp.height = 156;
+                                    CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)AppBar.getLayoutParams();
+                                    lp.height = 0;
                                     view.setVisibility(View.GONE);
+                                    FAB_SammIcon.setVisibility(View.GONE);
+                                    AppBar.setLayoutParams(lp);
+                                    FrameSearchBarHolder.setVisibility(View.VISIBLE);
                                 }
                             });
                     addGPS = (FloatingActionButton) findViewById(R.id.subFloatingAddGPS);
@@ -544,15 +570,15 @@ public class MenuActivity extends AppCompatActivity implements
                     progDialog.setCancelable(false);
                     if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getEmail().toLowerCase().equals("admin@yahoo.com"))
                     {
-                        LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
-                        EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
+                       // LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
+                       // EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
 
-                        searchContainer.setVisibility(View.GONE);
-                        tvcurrentlocation.setVisibility(View.GONE);
+                        //searchContainer.setVisibility(View.GONE);
+                        //tvcurrentlocation.setVisibility(View.GONE);
                         AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appBarLayout);
 
-                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
-                        lp.height = 150;
+//                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
+//                        lp.height = 150;
                     }
                     if (_sessionManager.isDriver())
                     {
@@ -591,20 +617,23 @@ public class MenuActivity extends AppCompatActivity implements
                         }
                     });
 
-                    editDestinations.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            editDestinations.showDropDown();
-                            editDestinations.setCursorVisible(true);
-                        }
-                    });
+//                    editDestinations.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            editDestinations.showDropDown();
+//                            editDestinations.setCursorVisible(true);
+//                        }
+//                    });
 
 
-                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-                    drawer.setDrawerListener(toggle);
-                    toggle.syncState();
+
+
+//                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//                    //drawer.openDrawer(Gravity.LEFT);
+//                    ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+//                            this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//                    drawer.setDrawerListener(toggle);
+//                    toggle.syncState();
 
                     NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
                     navigationView.setNavigationItemSelectedListener(this);
@@ -616,6 +645,7 @@ public class MenuActivity extends AppCompatActivity implements
                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                             .findFragmentById(map);
                     mapFragment.getMapAsync(this);
+
 
 
                     _userDatabaseReference.addChildEventListener(new AddUserMarkersListener(getApplicationContext(), this));
@@ -806,7 +836,14 @@ public class MenuActivity extends AppCompatActivity implements
                     registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
                     registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
                     initialiseOnlinePresence();
-
+                    CustomFrameLayout mapRoot = (CustomFrameLayout) findViewById(R.id.mapCFL);
+                    mapRoot.setOnDragListener(new View.OnDragListener(){
+                        @Override
+                        public boolean onDrag(View view, DragEvent dragEvent) {
+                            _map.getUiSettings().setMyLocationButtonEnabled(true);
+                            return true;
+                        }
+                    });
 
                 }
             }catch(Exception ex)
@@ -863,6 +900,7 @@ public class MenuActivity extends AppCompatActivity implements
                     == PackageManager.PERMISSION_GRANTED) {
                 buildGoogleApiClient();
                 _map.setMyLocationEnabled(true);
+                _map.getUiSettings().setMyLocationButtonEnabled(false);
             }
         }
         else {
@@ -870,6 +908,15 @@ public class MenuActivity extends AppCompatActivity implements
 
             _map.setMyLocationEnabled(true);
         }
+        Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
+        boolean success = _map.setMapStyle(
+                MapStyleOptions.loadRawResourceStyle(
+                        this, mapsStyle));
+
+        if (!success) {
+            Log.e(TAG, "Style parsing failed.");
+        }
+
     }
 
 
@@ -1251,8 +1298,8 @@ public class MenuActivity extends AppCompatActivity implements
                 MapsHolder_LinearLayout.setVisibility(View.GONE);
                 CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
                 lp.height = 156;
-                SearchLinearLayout.setVisibility(View.GONE);
-                editDestinations.setVisibility(View.GONE);
+                //SearchLinearLayout.setVisibility(View.GONE);
+                //editDestinations.setVisibility(View.GONE);
                 CurrentLocation.setVisibility(View.GONE);
 
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
@@ -1268,8 +1315,8 @@ public class MenuActivity extends AppCompatActivity implements
                 MapsHolder_LinearLayout.setVisibility(View.GONE);
                 CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
                 lp.height = 156;
-                SearchLinearLayout.setVisibility(View.GONE);
-                editDestinations.setVisibility(View.GONE);
+                //SearchLinearLayout.setVisibility(View.GONE);
+                //editDestinations.setVisibility(View.GONE);
                 CurrentLocation.setVisibility(View.GONE);
 
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
@@ -1302,8 +1349,8 @@ public class MenuActivity extends AppCompatActivity implements
                 {
                     CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) AppBar.getLayoutParams();
                     lp.height = 235;
-                    SearchLinearLayout.setVisibility(View.VISIBLE);
-                    editDestinations.setVisibility(View.VISIBLE);
+                    //SearchLinearLayout.setVisibility(View.VISIBLE);
+                    //editDestinations.setVisibility(View.VISIBLE);
                     CurrentLocation.setVisibility(View.VISIBLE);
                 }
 
@@ -2269,6 +2316,10 @@ public class MenuActivity extends AppCompatActivity implements
         public void onClick(View view) {
 
         }
+    }
+    public static Boolean IsNight(){
+        Integer currentTime = Calendar.getInstance().getTime().getHours();
+        return (currentTime >= 18 || currentTime <=5)? true: false;
     }
 
 
