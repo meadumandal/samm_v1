@@ -12,7 +12,7 @@ import java.util.Comparator;
 
 //MySQL Entity
 
-public class Destination implements Comparable<Destination>{
+public class Terminal implements Comparable<Terminal>{
     public int ID;
     public String Value;
     public String Description;
@@ -25,11 +25,11 @@ public class Destination implements Comparable<Destination>{
     public int DestinationPicture = -1;
 
 
-    public Destination()
+    public Terminal()
     {
 
     }
-    public Destination(int ID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture)
+    public Terminal(int ID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture)
     {
         this.ID =ID;
         this.Value = Value;
@@ -54,12 +54,12 @@ public class Destination implements Comparable<Destination>{
         return DestinationPicture;
     }
 //    @Override
-//    public int compareTo(@NonNull Destination destination) {
+//    public int compareTo(@NonNull Terminal terminal) {
 //        //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
-//        if (this.OrderOfArrival > destination.OrderOfArrival) {
+//        if (this.OrderOfArrival > terminal.OrderOfArrival) {
 //            return -1;
 //        }
-//        else if (this.OrderOfArrival < destination.OrderOfArrival) {
+//        else if (this.OrderOfArrival < terminal.OrderOfArrival) {
 //            return 1;
 //        }
 //        else {
@@ -68,13 +68,13 @@ public class Destination implements Comparable<Destination>{
 //
 //    }
     @Override
-    public int compareTo(@NonNull Destination destination) {
-       // return DestinationComparators.DEFAULT.compare(this, destination);
+    public int compareTo(@NonNull Terminal terminal) {
+       // return DestinationComparators.DEFAULT.compare(this, terminal);
         //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
-        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
+        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
             return 1;
         }
-        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
             return -1;
         }
         else {
@@ -83,15 +83,15 @@ public class Destination implements Comparable<Destination>{
 
     }
     public static class DestinationComparators{
-        public static Comparator<Destination> ORDER_OF_ARRIVAL = new Comparator<Destination>() {
+        public static Comparator<Terminal> ORDER_OF_ARRIVAL = new Comparator<Terminal>() {
             @Override
-            public int compare(Destination dest1, Destination dest2) {
+            public int compare(Terminal dest1, Terminal dest2) {
                 return dest2.OrderOfArrival - dest1.OrderOfArrival;
             }
         };
-//        public static Comparator<Destination> DEFAULT = new Comparator<Destination>() {
+//        public static Comparator<Terminal> DEFAULT = new Comparator<Terminal>() {
 //            @Override
-//            public int compare(Destination destination, Destination t1) {
+//            public int compare(Terminal destination, Terminal t1) {
 //                if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > destination.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
 //                    return 1;
 //                }

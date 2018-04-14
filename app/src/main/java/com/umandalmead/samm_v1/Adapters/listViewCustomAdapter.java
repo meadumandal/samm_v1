@@ -105,8 +105,8 @@ public class listViewCustomAdapter extends ArrayAdapter<GPS> implements View.OnC
                     apn = "http.globe.com.ph";
                 else
                     apn = "internet";
-                ((MenuActivity)mContext).apn = apn;
-                ((MenuActivity)mContext).isRefresh = true;
+                ((MenuActivity)mContext)._smsAPN = apn;
+                ((MenuActivity)mContext)._isGPSReconnect = true;
                 ((MenuActivity)mContext).sendSMSMessage("apn123456 "+apn, gps.getGPSPhone(), viewHolder.btnReconnectGPS);
 
 

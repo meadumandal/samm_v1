@@ -29,7 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.umandalmead.samm_v1.EntityObjects.Destination;
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.POJO.Directions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -52,21 +52,20 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import static com.umandalmead.samm_v1.MenuActivity.RoutePane;
-import static com.umandalmead.samm_v1.MenuActivity.RouteStepsText;
-import static com.umandalmead.samm_v1.MenuActivity.RouteTabLayout;
-import static com.umandalmead.samm_v1.MenuActivity.SlideUpPanelContainer;
-import static com.umandalmead.samm_v1.MenuActivity.StepsScroller;
-import static com.umandalmead.samm_v1.MenuActivity.TimeOfArrivalTextView;
-import static com.umandalmead.samm_v1.MenuActivity.menuNav;
-
+import static com.umandalmead.samm_v1.MenuActivity._RoutesPane;
+import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
+import static com.umandalmead.samm_v1.MenuActivity._RouteTabLayout;
+import static com.umandalmead.samm_v1.MenuActivity._SlideUpPanelContainer;
+import static com.umandalmead.samm_v1.MenuActivity._StepsScroller;
+import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
+import static com.umandalmead.samm_v1.MenuActivity._MenuNav;
 
 /**
  * Created by MeadRoseAnn on 01/07/2018.
  */
 
 
-public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination>> {
+public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> {
     public static Polyline _line;
     final String TAG = "mead";
     Context _context;
@@ -75,11 +74,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     GoogleMap _map;
     String progressMessage;
     LatLng _currentLocation;
-    List<Destination> _possibleTerminals;
+    List<Terminal> _possibleTerminals;
     FragmentManager _supportFragmentManager;
-    List<Destination> _topTerminals;
+    List<Terminal> _topTerminals;
     List<String> _AllSteps = new ArrayList<String>();
-    Destination _SelectedDestination;
+    Terminal _SelectedTerminal;
     List<String> _AllPoints = new ArrayList<String>();
     List<Polyline> _AllPoly = new ArrayList<Polyline>();
     List<String> _AllTotalTime = new ArrayList<String>();
@@ -101,7 +100,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
      * @param context
      * @param activity
      */
-    public AnalyzeForBestRoutes(Context context, Activity activity, GoogleMap map, LatLng currentLocation, FragmentManager supportFragmentManager, List<Destination> possibleTerminals, Destination choseDestination) {
+    public AnalyzeForBestRoutes(Context context, Activity activity, GoogleMap map, LatLng currentLocation, FragmentManager supportFragmentManager, List<Terminal> possibleTerminals, Terminal choseTerminal) {
         this._context = context;
         this._activity = activity;
         this._map = map;
@@ -110,7 +109,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         progDialog.setMessage(progressMessage);
         this._currentLocation = currentLocation;
         this._possibleTerminals = possibleTerminals;
-        this._SelectedDestination = choseDestination;
+        this._SelectedTerminal = choseTerminal;
 
     }
 
@@ -139,7 +138,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
     }
 
     @Override
-    protected List<Destination> doInBackground(Void... voids) {
+    protected List<Terminal> doInBackground(Void... voids) {
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context)) {
             HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
@@ -149,8 +148,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-            List<Destination> topTerminals = new ArrayList<>();
-            for (Destination d : _possibleTerminals) {
+            List<Terminal> topTerminals = new ArrayList<>();
+            for (Terminal d : _possibleTerminals) {
                 Call<Directions> call = service.getDistanceDuration("metric", _currentLocation.latitude + "," + _currentLocation.longitude, d.Lat + "," + d.Lng, "walking");
                 try {
                     Directions directions = call.execute().body();
@@ -248,7 +247,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
 
     @Override
-    protected void onPostExecute(List<Destination> topTerminals) {
+    protected void onPostExecute(List<Terminal> topTerminals) {
         //"topTerminals" contains the top 3 nearest terminal from user's CURRENT location
 
         try {
@@ -256,7 +255,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             if (_line != null) {
                 _line.setVisible(false);
             }
-            for (Destination terminal : topTerminals) {
+            for (Terminal terminal : topTerminals) {
                 String TotalTime = "";
                 List<String> DirectionSteps = new ArrayList<String>();
                 for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
@@ -277,22 +276,20 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             createRouteTabs(_AllTotalTime, _AllDirectionsSteps, _topTerminals, _AllTerminalPoints, ctr);
             progDialog.dismiss();
 
-
-
             //show route tabs and slide up panel ~
-            RouteTabLayout.setVisibility(View.VISIBLE);
-            RoutePane.setVisibility(View.VISIBLE);
-            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-            //MenuActivity.editDestinations.setCursorVisible(false);
+            _RouteTabLayout.setVisibility(View.VISIBLE);
+            _RoutesPane.setVisibility(View.VISIBLE);
+            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+            //MenuActivity._TerminalsAutoCompleteTextView.setCursorVisible(false);
 
-            RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
+            _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
             viewPager.setCurrentItem(0);
-            RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
-            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            MenuActivity._chosenTerminal = _topTerminals.get(0);
-            StepsScroller.scrollTo(0, 0);
+            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            MenuActivity._selectedPickUpPoint = _topTerminals.get(0);
+            _StepsScroller.scrollTo(0, 0);
             clearLines();
             drawLines(_AllTerminalPoints.get(0).get(0));
 
@@ -304,14 +301,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
     }
 
-    public void createRouteTabs(final List<String> TotalTimeList, final List<List<String>> DirectionStepsList, final List<Destination> AllPossibleTerminals, final List<List<String>> TerminalPointsList, final int ctr) {
+    public void createRouteTabs(final List<String> TotalTimeList, final List<List<String>> DirectionStepsList, final List<Terminal> AllPossibleTerminals, final List<List<String>> TerminalPointsList, final int ctr) {
         //For Route Tabs
         try {
             if (AllPossibleTerminals.size() == 0 || AllPossibleTerminals == null)
                 throw new Exception("Unable to find route for this destination.");
             final TabLayout RouteTabs = (TabLayout) this._activity.findViewById(R.id.route_tablayout);
             RouteTabs.removeAllTabs();
-            for (Destination entry : AllPossibleTerminals) {
+            for (Terminal entry : AllPossibleTerminals) {
                 RouteTabs.addTab(RouteTabs.newTab().setText(entry.Description));
             }
             RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
@@ -326,15 +323,15 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     viewPager.setCurrentItem(tab.getPosition());
-                    RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
-                    SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-                    MenuActivity._chosenTerminal = AllPossibleTerminals.get(tab.getPosition());
-                    StepsScroller.scrollTo(0, 0);
+                    _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
+                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(tab.getPosition());
+                    _StepsScroller.scrollTo(0, 0);
                     clearLines();
                     drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                     LoopArrivalProgress.setVisibility(View.VISIBLE);
                     GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(tab.getPosition()));
-                    MenuActivity.valueAnimator.start();
+                    MenuActivity._markerAnimator.start();
                 }
 
                 @Override
@@ -348,34 +345,33 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                 }
             });
 
-            MenuActivity.AppBar.setVisibility(View.VISIBLE);
+            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+            MenuActivity._AppBar.setVisibility(View.VISIBLE);
             MenuActivity.FAB_SammIcon.setVisibility(View.GONE);
             MenuActivity.FrameSearchBarHolder.setVisibility(View.GONE);
-            TimeOfArrivalTextView.setVisibility(View.VISIBLE);
             //Set first route in the UI~
-            RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
+            _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             viewPager.setCurrentItem(0);
-            RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
-            SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            MenuActivity._chosenTerminal = AllPossibleTerminals.get(0);
+            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(0);
             LoopArrivalProgress = (ProgressBar) this._activity.findViewById(R.id.progressBarLoopArrival);
-            StepsScroller.scrollTo(0, 0);
+            _StepsScroller.scrollTo(0, 0);
             clearLines();
             drawLines(TerminalPointsList.get(0).get(0));
 
             //Adjust AppBarLayoutHeight
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity.AppBar.getLayoutParams();
-            //MenuActivity.editDestinations.setVisibility(View.GONE);
-            MenuActivity.CurrentLocation.setVisibility(View.GONE);
-            //MenuActivity.SearchLinearLayout.setPadding(0, 0, 0, 0);
-            //MenuActivity.editDestinations.setVisibility(View.VISIBLE);
-
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
+            //MenuActivity._TerminalsAutoCompleteTextView.setVisibility(View.GONE);
+            MenuActivity._CurrentLocationEditText.setVisibility(View.GONE);
+            //MenuActivity._SearchLinearLayout.setPadding(0, 0, 0, 0);
+            //MenuActivity._TerminalsAutoCompleteTextView.setVisibility(View.VISIBLE);
 
             //Get nearest loop time of arrival~
             LoopArrivalProgress.setVisibility(View.VISIBLE);
             GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
             // tvlp.setMargins(0,0,0,0);
-            MenuActivity.valueAnimator.start();
+            MenuActivity._markerAnimator.start();
 
             lp.height = 235;
         } catch (Exception e) {
@@ -385,12 +381,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
 
     }
 
-    public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Destination currentDest) {
+    public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal currentDest) {
         try {
             String res = "";
             if (currentDest != null) {
-                final List<Destination> DestList = MenuActivity._listDestinations;
-                Collections.sort(DestList, Destination.DestinationComparators.ORDER_OF_ARRIVAL);
+                final List<Terminal> DestList = MenuActivity._terminalList;
+                Collections.sort(DestList, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 FireDatabase = FirebaseDatabase.getInstance();
                 VehicleDestinationDatabaseReference = FireDatabase.getReference("vehicle_destinations");
                 VehicleDestinationDatabaseReference.runTransaction(new Transaction.Handler() {
@@ -406,14 +402,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                             Boolean found = false, loopAwaiting = false;
                             int ctr = 0;
                             _IsAllLoopParked = true;
-                            for (Destination dl : DestList) {
+                            for (Terminal dl : DestList) {
                                 if (dl.OrderOfArrival == currentDest.OrderOfArrival) {
                                     for (DataSnapshot v : dataSnapshot.getChildren()) {
                                         String StationName = v.getKey().toString();
                                         if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
                                             if (loopAwaiting) {
-                                                TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
+                                                _TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
                                                 LoopArrivalProgress.setVisibility(View.GONE);
                                                 loopAwaiting = true;
                                                 break;
@@ -425,7 +421,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                                     if (loopAwaiting)
                                         break;
                                 } else if (dl.OrderOfArrival == 1 || currentDest.OrderOfArrival == 1) {
-                                    for (Destination dl2 : DestList) {
+                                    for (Terminal dl2 : DestList) {
                                         for (DataSnapshot v : dataSnapshot.getChildren()) {
                                             String StationName = v.getKey().toString();
                                             if (dl2.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
@@ -489,7 +485,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                             }
                         }
                         if (_IsAllLoopParked) {
-                            TimeOfArrivalTextView.setText(Html.fromHtml("<b style=\"color:#7F0000;\">Unfortunately, all E-loops are parked.</b>"));
+                            _TimeOfArrivalTextView.setText(Html.fromHtml("<b style=\"color:#7F0000;\">Unfortunately, all E-loops are parked.</b>"));
                             LoopArrivalProgress.setVisibility(View.GONE);
                         }
                     }
@@ -503,7 +499,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         }
     }
 
-    public void GetTimeRemainingFromGoogle(Integer LoopId, final Destination dest) {
+    public void GetTimeRemainingFromGoogle(Integer LoopId, final Terminal dest) {
         if (LoopId != null) {
             FireDatabase = FirebaseDatabase.getInstance();
             VehicleDestinationDatabaseReference = FireDatabase.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
@@ -526,7 +522,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    TimeOfArrivalTextView.setText(Html.fromHtml("<i>E-Loop " + _AssignedELoop + " (" + Distance + " away) will arrive within: </i><b>" + TimeofArrival.toString() + ".</b>"));
+                                    _TimeOfArrivalTextView.setText(Html.fromHtml("<i>E-Loop " + _AssignedELoop + " (" + Distance + " away) will arrive within: </i><b>" + TimeofArrival.toString() + ".</b>"));
 
                                 }
 
@@ -552,7 +548,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         }
     }
 
-    public String SelectedTabInstructions(List<String> StepsList, String TT, Destination Terminal) {
+    public String SelectedTabInstructions(List<String> StepsList, String TT, Terminal Terminal) {
         String Step =
                 "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><img style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
 //                        "<td style='padding-left:7%;'><medium style='background:#2196F3; color:white;border-radius:10%; padding: 7px;'>WALK</medium></td></tr>" +
@@ -563,7 +559,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
             for (int x = 0; x < StepsList.size(); x++) {
                 Step += "<tr><td></td><td>" + (x + 1) + ". " + CleanDirectionStep(StepsList.get(x)) + ".</td><tr>";
                 if ((x + 1) == StepsList.size()) {
-                    Step += "<tr><td></td><td>" + (x + 2) + ". " + GenerateFinalStep(_SelectedDestination, Terminal);
+                    Step += "<tr><td></td><td>" + (x + 2) + ". " + GenerateFinalStep(_SelectedTerminal, Terminal);
                 }
             }
         }
@@ -599,7 +595,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Destination
         return str;
     }
 
-    public String GenerateFinalStep(Destination end, Destination start) {
+    public String GenerateFinalStep(Terminal end, Terminal start) {
         int dist = end.OrderOfArrival - start.OrderOfArrival;
         return "Ride the e-loop and alight after <b>" + dist + " stop" + (dist > 1 ? "s" : "") + "</b>.</td><tr>";
     }

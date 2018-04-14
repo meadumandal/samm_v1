@@ -23,11 +23,11 @@ public class ClearableAutoCompleteTextView extends AutoCompleteTextView {
 
             ClearableAutoCompleteTextView et = ClearableAutoCompleteTextView.this;
             et.setText("");
-            MenuActivity.RouteTabLayout.setVisibility(View.GONE);
-            MenuActivity.RoutePane.setVisibility(View.GONE);
+            MenuActivity._RouteTabLayout.setVisibility(View.GONE);
+            MenuActivity._RoutesPane.setVisibility(View.GONE);
             AnalyzeForBestRoutes.clearLines();
-            MenuActivity._chosenTerminal = null;
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity.AppBar.getLayoutParams();
+            MenuActivity._selectedPickUpPoint = null;
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
             lp.height = 156;
 
         }

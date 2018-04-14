@@ -19,6 +19,7 @@ public class SessionManager {
     Context _context;
     int PRIVATE_MODE = 0;
     FirebaseAuth firebaseAuth;
+    private Constants _constants = new Constants();
     private static final String PREF_NAME = "UserPref";
 
     public static final String KEY_FNAME = "FirstName";
@@ -33,11 +34,8 @@ public class SessionManager {
     public static final String ERROR_MSG = "ErrorMsg";
     public static final String REPORT_TYPE = "ReportType";
     public static final String IS_BETA = "IsBeta";
+    public static final String IS_DEVELOPER = "IsDeveloper";
     public static final String IS_ADMIN = "IsAdmin";
-
-
-
-
 
     public SessionManager(Context context)
     {
@@ -56,8 +54,8 @@ public class SessionManager {
         prefEditor.putBoolean(KEY_ISDRIVER, isDriver);
         prefEditor.putBoolean(IS_LOGIN, !isGuest);
         prefEditor.putBoolean(IS_GUEST, isGuest);
-
         prefEditor.putString(KEY_DEVICEID, deviceId);
+        setIsAdmin(email.toLowerCase().equals(_constants.ADMIN_EMAILADDRESS));
         prefEditor.commit();
     }
 
@@ -93,6 +91,16 @@ public class SessionManager {
     public void setIsBeta(Boolean IsBeta)
     {
         prefEditor.putBoolean(IS_BETA, IsBeta);
+        prefEditor.commit();
+    }
+
+    public Boolean getIsDeveloper()
+    {
+        return pref.getBoolean(IS_DEVELOPER, false);
+    }
+    public void setIsDeveloper(Boolean IsDeveloper)
+    {
+        prefEditor.putBoolean(IS_DEVELOPER, IsDeveloper);
         prefEditor.commit();
     }
     public Boolean getIsAdmin()

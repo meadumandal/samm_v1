@@ -19,13 +19,13 @@ import com.umandalmead.samm_v1.SessionManager;
  * Created by MeadRoseAnn on 1/17/2018.
  */
 
-public class AddUserMarkersListener implements
+public class AddUserMarkers implements
         ChildEventListener{
     Activity _activity;
     SessionManager _sessionManager;
     public String TAG = "mead";
 
-    public AddUserMarkersListener(Context context, Activity activity) {
+    public AddUserMarkers(Context context, Activity activity) {
         _activity = activity;
         _sessionManager = new SessionManager(context);
 
@@ -43,11 +43,11 @@ public class AddUserMarkersListener implements
             if (!username.equals(((MenuActivity)this._activity)._sessionManager.getUsername()))
             {
                 Marker marker;
-                marker = (Marker) ((MenuActivity)this._activity)._hashmapMarkerMap.get(username);
+                marker = (Marker) ((MenuActivity)this._activity)._userMarkerHashmap.get(username);
                 if(marker !=null)
                 {
                     marker.remove();
-                    ((MenuActivity)this._activity)._hashmapMarkerMap.remove(username);
+                    ((MenuActivity)this._activity)._userMarkerHashmap.remove(username);
                 }
                 Object Latitude = dataSnapshot.child("Latitude").getValue();
                 Object Longitude = dataSnapshot.child("Longitude").getValue();
@@ -62,15 +62,15 @@ public class AddUserMarkersListener implements
                     lng = (double) Longitude;
 
                 LatLng latLng = new LatLng(lat, lng);
-                if (((MenuActivity)this._activity)._map !=null)
+                if (((MenuActivity)this._activity)._googleMap !=null)
                 {
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
                     markerOptions.title(username);
                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                    marker = ((MenuActivity)this._activity)._map.addMarker(markerOptions);
+                    marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
                     marker.showInfoWindow();
-                    ((MenuActivity)this._activity)._hashmapMarkerMap.put(username, marker);
+                    ((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
                 }
             }
         }

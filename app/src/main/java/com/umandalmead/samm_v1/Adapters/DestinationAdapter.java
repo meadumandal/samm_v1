@@ -9,7 +9,7 @@ import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.umandalmead.samm_v1.EntityObjects.Destination;
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.R;
 
 import java.util.ArrayList;
@@ -18,20 +18,20 @@ import java.util.ArrayList;
  * Created by eleazerarcilla on 03/02/2018.
  */
 
-public class DestinationAdapter extends ArrayAdapter<Destination>{
-    ArrayList<Destination> _destination, _tempDestination, _suggestions;
+public class DestinationAdapter extends ArrayAdapter<Terminal>{
+    ArrayList<Terminal> _terminal, _tempTerminal, _suggestions;
 
-    public DestinationAdapter(Context context, ArrayList<Destination> objects) {
+    public DestinationAdapter(Context context, ArrayList<Terminal> objects) {
         super(context, android.R.layout.simple_list_item_1, objects);
-        this._destination = objects;
-        this._tempDestination = new ArrayList<Destination>(objects);
-        this._suggestions = new ArrayList<Destination>(objects);
+        this._terminal = objects;
+        this._tempTerminal = new ArrayList<Terminal>(objects);
+        this._suggestions = new ArrayList<Terminal>(objects);
 
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        Destination dest = getItem(position);
+        Terminal dest = getItem(position);
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.destination_list, parent, false);
         }
@@ -59,7 +59,7 @@ public class DestinationAdapter extends ArrayAdapter<Destination>{
     Filter myFilter = new Filter() {
         @Override
         public CharSequence convertResultToString(Object resultValue) {
-            Destination dest = (Destination) resultValue;
+            Terminal dest = (Terminal) resultValue;
             return dest.toString();
         }
 
@@ -67,7 +67,7 @@ public class DestinationAdapter extends ArrayAdapter<Destination>{
         protected FilterResults performFiltering(CharSequence constraint) {
             if (constraint != null) {
                 _suggestions.clear();
-                for (Destination _destentry : _tempDestination) {
+                for (Terminal _destentry : _tempTerminal) {
                     if (_destentry.toString().toLowerCase().startsWith(constraint.toString().toLowerCase())) {
                         _suggestions.add(_destentry);
                     }
@@ -84,10 +84,10 @@ public class DestinationAdapter extends ArrayAdapter<Destination>{
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            ArrayList<Destination> c = (ArrayList<Destination>) results.values;
+            ArrayList<Terminal> c = (ArrayList<Terminal>) results.values;
             if (results != null && results.count > 0) {
                 clear();
-                for (Destination dest : c) {
+                for (Terminal dest : c) {
                     add(dest);
                     notifyDataSetChanged();
                 }

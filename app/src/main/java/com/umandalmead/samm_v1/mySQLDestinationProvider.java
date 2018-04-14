@@ -13,7 +13,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.Adapters.DestinationAdapter;
-import com.umandalmead.samm_v1.EntityObjects.Destination;
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.Geofence;
@@ -44,7 +44,7 @@ import java.util.UUID;
  * Created by MeadRoseAnn on 10/1/2017.
  */
 
-public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destination>>{
+public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal>>{
     Context _context;
     Activity _activity;
     GoogleMap _googleMap;
@@ -59,7 +59,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
     public static float RADIUS = 10;
     public static final int LOITERINGDELAY = 10000;
     private GeofencingApi mGeofenceApi;
-    private List<Destination> mDestinations;
+    private List<Terminal> mTerminals;
     ProgressDialog _progDialog;
 
 
@@ -117,10 +117,10 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
 
     }
     @Override
-    protected List<Destination> doInBackground(Void... voids)
+    protected List<Terminal> doInBackground(Void... voids)
     {
         Helper helper = new Helper();
-        List<Destination> listDestinations = new ArrayList<>();
+        List<Terminal> listTerminals = new ArrayList<>();
         if (helper.isConnectedToInternet(this._context))
         {
             try{
@@ -142,9 +142,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                     String Direction = jsonobject.getString("Direction");
                     double Lat  = jsonobject.getDouble("Lat");
                     double Lng = jsonobject.getDouble("Lng");
-                    listDestinations.add(new Destination(ID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description)));
+                    listTerminals.add(new Terminal(ID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description)));
                 }
-                return listDestinations;
+                return listTerminals;
             }
             catch(Exception e)
             {
@@ -183,60 +183,60 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         return  drawableID == 0? R.drawable.ic_dest_bldg : drawableID ;
     }
     @Override
-    protected void onPostExecute(List<Destination> destinations)
+    protected void onPostExecute(List<Terminal> terminals)
     {
         Log.i(TAG,"mySQLDestinationProvider(onPostExecute)");
         List<String> strDestinations = new ArrayList<>();
-        ((MenuActivity)this._activity)._listDestinations = destinations;
-        for (Destination d:destinations)
+        ((MenuActivity)this._activity)._terminalList = terminals;
+        for (Terminal d: terminals)
         {
             if(!strDestinations.contains(d.Description))
                 strDestinations.add(d.Description);
         }
 
         DestinationAdapter adapter = null;
-        ArrayList<Destination> destinationArrayList = new ArrayList<>(destinations);
-        adapter =  new DestinationAdapter((MenuActivity)this._activity, destinationArrayList);
+        ArrayList<Terminal> terminalArrayList = new ArrayList<>(terminals);
+        adapter =  new DestinationAdapter((MenuActivity)this._activity, terminalArrayList);
         //ClearableAutoCompleteTextView editDestination = (ClearableAutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
-        //ArrayAdapter<Destination> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, destinations);
-//        editDestination.setThreshold(1);
-//        editDestination.setAdapter(adapter);
-//        editDestination.setDropDownAnchor(MenuActivity.AppBar.getId());
+        //ArrayAdapter<Terminal> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, terminals);
+        //editDestination.setThreshold(1);
+        //editDestination.setAdapter(adapter);
+        //editDestination.setDropDownAnchor(MenuActivity._AppBar.getId());
         _googleMap.clear();
-        ((MenuActivity)this._activity)._destinationMarkers = new HashMap<>();
+        ((MenuActivity)this._activity)._terminalMarkerHashmap = new HashMap<>();
 
-        for (Destination destination:destinations)
+        for (Terminal terminal : terminals)
         {
-            if(destination.Lat >0 && destination.Lng >0)
+            if(terminal.Lat >0 && terminal.Lng >0)
             {
-                double lat = destination.Lat;
-                double lng = destination.Lng;
+                double lat = terminal.Lat;
+                double lng = terminal.Lng;
                 LatLng latLng = new LatLng(lat, lng);
                 MarkerOptions markerOptions = new MarkerOptions();
                 markerOptions.position(latLng);
 
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
                 markerOptions.snippet("0 passenger/s waiting");
-                markerOptions.title(destination.Value);
+                markerOptions.title(terminal.Value);
                 Marker marker = _googleMap.addMarker(markerOptions);
 
                 marker.showInfoWindow();
 
-                ((MenuActivity)this._activity)._destinationMarkers.put(destination.Value, marker);
+                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(terminal.Value, marker);
             }
         }
 
-        startGeofence(destinations);
+        startGeofence(terminals);
         _progDialog.dismiss();
     }
 
     // Start Geofence creation process
-    private void startGeofence(List<Destination> listDestinations) {
+    private void startGeofence(List<Terminal> listTerminals) {
 
 
         Log.i(TAG, "startGeofence()");
-        mDestinations = listDestinations;
-        List<Geofence> geofences = createGeoFence(listDestinations);
+        mTerminals = listTerminals;
+        List<Geofence> geofences = createGeoFence(listTerminals);
         GeofencingRequest geofenceRequest = createGeofenceRequest(geofences);
         addGeofence( geofenceRequest );
     }
@@ -248,15 +248,15 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
         builder.addGeofences(geofence);
         return builder.build();
     }
-    public List<Geofence> createGeoFence(List<Destination> listDestinations)
+    public List<Geofence> createGeoFence(List<Terminal> listTerminals)
     {
         Log.i(TAG, "createGeoFence");
         int i = 0;
         String geofenceRequestId = "";
         List<Geofence> geofenceList = new ArrayList<>();
-        if (listDestinations != null)
-            for (Destination destination:listDestinations) {
-                if(destination.Lat>0 && destination.Lng>0) {
+        if (listTerminals != null)
+            for (Terminal terminal : listTerminals) {
+                if(terminal.Lat>0 && terminal.Lng>0) {
                     try
                     {
                         geofenceRequestId = UUID.randomUUID().toString();
@@ -264,11 +264,11 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                                 .setRequestId(geofenceRequestId)
                                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
 //                                .setLoiteringDelay(5000)
-                                .setCircularRegion(destination.Lat, destination.Lng, RADIUS)
+                                .setCircularRegion(terminal.Lat, terminal.Lng, RADIUS)
                                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                                 .build());
 
-                        listDestinations.get(i).GeofenceId = geofenceRequestId;
+                        listTerminals.get(i).GeofenceId = geofenceRequestId;
                     }
                     catch(Exception e)
                     {
@@ -279,7 +279,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
 
 //                if(i==1)
 //                    break;
-                //drawGeofence(new LatLng(destination.Lat, destination.Lng));
+                //drawGeofence(new LatLng(terminal.Lat, terminal.Lng));
             }
 
         return geofenceList;
@@ -304,7 +304,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
                     public void onResult(com.google.android.gms.common.api.Status status) {
                         if (status.isSuccess()) {
                             Log.i(TAG, "Success Saving Geofence");
-                            drawGeofence(mDestinations);
+                            drawGeofence(mTerminals);
                         } else {
                             Log.e(TAG, "Registering geofence failed: " + status.getStatusMessage() +
                                     " : " + status.getStatusCode());
@@ -337,9 +337,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Destinat
 
 
     }
-    private void drawGeofence(List<Destination> destinations) {
+    private void drawGeofence(List<Terminal> terminals) {
         Log.d(TAG, "drawGeofence()");
-        for(Destination d:destinations)
+        for(Terminal d: terminals)
         {
             CircleOptions circleOptions = new CircleOptions()
                     .center(new LatLng(d.Lat, d.Lng))

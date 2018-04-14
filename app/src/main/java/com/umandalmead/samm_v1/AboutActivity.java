@@ -1,10 +1,8 @@
 package com.umandalmead.samm_v1;
 
-import android.media.tv.TvInputService;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +27,7 @@ public class AboutActivity extends Fragment {
 
         SammTV = (TextView) myView.findViewById(R.id.SAMM_text);
 
-        if(sessionManager.getIsAdmin())
+        if(sessionManager.getIsDeveloper())
         {
             SammTV.setText(Html.fromHtml("<i>Developed by: E & M <i>"));
         }

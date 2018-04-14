@@ -2,27 +2,24 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.telephony.SmsManager;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -37,9 +34,26 @@ public class Helper {
      * @return
      * @throws JSONException
      */
+
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     private String _smsMessage;
     private String _smsPhoneNo;
+
+    public MenuActivity _activity;
+    public Context _context;
+    public SessionManager _sessionManager;
+
+    public Helper(MenuActivity activity, Context context)
+    {
+        this._activity = activity;
+        this._context = context;
+        this._sessionManager = new SessionManager(_context);
+    }
+    public Helper()
+    {
+
+    }
+
     public HashMap<String, Object> jsonToMap(String jsonString) throws JSONException
     {
         HashMap<String, Object> map = new HashMap<String, Object>();
@@ -138,6 +152,62 @@ public class Helper {
         brng = (brng + 360) % 360;
 
         return brng;
+    }
+    public static boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        }
+        catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
+    }
+
+    /**
+     * This method gets the nearest "PICK-UP" points based on the chosen DROP-OFF point
+     * @param dropOffPoint This is the chosen drop-off point
+     */
+    public void FindNearestPickUpPoints(Terminal dropOffPoint) {
+
+        if(MenuActivity.isOnline())
+        {
+            Terminal chosenTerminal =dropOffPoint;
+            saveDestination(chosenTerminal.Value);
+
+            (this._activity)._possiblePickUpPointList = new ArrayList<>();
+            for(Terminal terminal : (this._activity)._terminalList)
+            {
+                if (terminal.Direction.equals(chosenTerminal.Direction))
+                {
+                    if(terminal.OrderOfArrival < chosenTerminal.OrderOfArrival)
+                        (this._activity)._possiblePickUpPointList.add(terminal);
+                }
+            }
+            new AnalyzeForBestRoutes(_context, _activity,
+                    (this._activity)._googleMap, (this._activity)._userCurrentLoc,
+                    (this._activity).getSupportFragmentManager(),
+                    (this._activity)._possiblePickUpPointList, chosenTerminal)
+                    .execute();
+        }
+        else
+        {
+            showNoInternetPrompt(this._activity);
+        }
+
+    }
+    private void saveDestination(String destinationValue)
+    {
+        final HashMap<String, Object> currentDestination = new HashMap<>();
+        currentDestination.put("currentDestination", destinationValue);
+
+        (this._activity)._usersDBRef
+                .child(_sessionManager.getUsername())
+                .child("currentDestination")
+                .addListenerForSingleValueEvent(
+                        new SaveCurrentDestination(this._activity, this._context, currentDestination));
     }
 
 }

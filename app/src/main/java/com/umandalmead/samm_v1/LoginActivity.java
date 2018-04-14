@@ -94,6 +94,7 @@ public class LoginActivity extends AppCompatActivity{
 
 
         if(MenuActivity.isOnline()) {
+
             Log.i(TAG, "device is online");
             FacebookSdk.sdkInitialize(getApplicationContext());
             setContentView(R.layout.activity_login);
@@ -346,14 +347,14 @@ public class LoginActivity extends AppCompatActivity{
 //                                    }
 //                                    //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
 //                                catch (Exception e) {
-//                                    Log.d(TAG, "There is an error");
+//                                    Log._drawable(LOG_TAG, "There is an error");
 //                                    e.printStackTrace();
 //                                }
 //                            }
 //
 //                            @Override
 //                            public void onFailure(Throwable t) {
-//                                Log.d(TAG, t.toString());
+//                                Log._drawable(LOG_TAG, t.toString());
 //                            }
 //                        });
                     }

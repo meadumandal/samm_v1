@@ -96,7 +96,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 String link = "";
                 if(_action.equals("add"))
 
-                    link = "http://meadumandal.website/sammAPI/addPoint.php?name=" +name
+                    link = "http://meadumandal.website/sammAPI/_AddPointFloatingButton.php?name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
                             + "&preposition=" + preposition

@@ -1,6 +1,6 @@
 package com.umandalmead.samm_v1.Interfaces;
 
-import com.umandalmead.samm_v1.EntityObjects.Destination;
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
 import java.util.List;
 
@@ -9,5 +9,5 @@ import java.util.List;
  */
 
 public interface IDestination {
-    void act(List<Destination> models);
+    void act(List<Terminal> models);
 }

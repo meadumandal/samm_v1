@@ -1,36 +1,21 @@
 package com.umandalmead.samm_v1;
 
 import android.app.DatePickerDialog;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
-
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
-import com.umandalmead.samm_v1.EntityObjects.Destination;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ReportsActivity extends Fragment {
     public Calendar myCalendar = Calendar.getInstance();
@@ -62,9 +47,9 @@ public class ReportsActivity extends Fragment {
 //
 //            ArrayAdapter<String> adapter;
 //
-//            for(Destination d:MenuActivity._listDestinations)
+//            for(Terminal _drawable:MenuActivity._terminalList)
 //            {
-//                array.add(d.Value);
+//                array.add(_drawable.Value);
 //            }
 //            adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, array);
 //

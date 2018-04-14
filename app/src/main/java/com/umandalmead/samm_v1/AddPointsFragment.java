@@ -1,7 +1,5 @@
 package com.umandalmead.samm_v1;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -12,10 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.umandalmead.samm_v1.EntityObjects.Destination;
-
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
 
 public class AddPointsFragment extends Fragment {
@@ -57,7 +53,7 @@ public class AddPointsFragment extends Fragment {
 
             spinnerPrePosition = (Spinner) myView.findViewById(R.id.spinner_preposition);
             spinnerTerminalReference = (Spinner) myView.findViewById(R.id.spinner_terminalReference);
-            ArrayAdapter<Destination> terminalReferencesAdapter = new ArrayAdapter<Destination>(getActivity(), R.layout.spinner_item, MenuActivity._listDestinations);
+            ArrayAdapter<Terminal> terminalReferencesAdapter = new ArrayAdapter<Terminal>(getActivity(), R.layout.spinner_item, MenuActivity._terminalList);
             spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
 
 
@@ -68,14 +64,14 @@ public class AddPointsFragment extends Fragment {
                     String lat = editLat.getText().toString();
                     String lng = editLng.getText().toString();
                     String preposition = spinnerPrePosition.getSelectedItem().toString();
-                    Destination terminalReference = (Destination) spinnerTerminalReference.getSelectedItem();
+                    Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
 //                    if (name.trim().length() == 0 || location.trim().length() == 0)
 //                    {
 //                        Toast.makeText(getActivity(), "Please supply all fields", Toast.LENGTH_LONG).show();
 //                    }
 //                    else
 //                    {
-//                        addPoint(name, location);
+//                        _AddPointFloatingButton(name, location);
 //                    }
 
                 }

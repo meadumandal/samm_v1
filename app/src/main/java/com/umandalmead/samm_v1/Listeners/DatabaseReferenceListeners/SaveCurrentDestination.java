@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.EventListeners;
+package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.content.Context;
 
@@ -33,11 +33,11 @@ public class SaveCurrentDestination implements ValueEventListener {
     public void onDataChange(DataSnapshot dataSnapshot) {
         if(dataSnapshot.getValue()==null)
         {
-            (this._activity)._userDatabaseReference.child(_sessionManager.getUsername()).child("currentDestination").setValue(_currentDestination.get("currentDestination"));
+            (this._activity)._usersDBRef.child(_sessionManager.getUsername()).child("currentDestination").setValue(_currentDestination.get("currentDestination"));
         }
         else
         {
-            (this._activity)._userDatabaseReference.child(_sessionManager.getUsername()).updateChildren(_currentDestination);
+            (this._activity)._usersDBRef.child(_sessionManager.getUsername()).updateChildren(_currentDestination);
         }
     }
 

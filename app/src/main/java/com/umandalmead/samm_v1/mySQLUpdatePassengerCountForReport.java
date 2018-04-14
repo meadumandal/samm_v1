@@ -20,7 +20,7 @@ import java.net.URLEncoder;
  */
 
 
-public class mySQLUpdatePassengerCounter extends AsyncTask<String, Void, Void>{
+public class mySQLUpdatePassengerCountForReport extends AsyncTask<String, Void, Void>{
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -31,7 +31,7 @@ public class mySQLUpdatePassengerCounter extends AsyncTask<String, Void, Void>{
      */
     Context _context;
     Activity _activity;
-    public mySQLUpdatePassengerCounter(Context context, Activity activity)
+    public mySQLUpdatePassengerCountForReport(Context context, Activity activity)
     {
         this._context = context;
         this._activity = activity;
