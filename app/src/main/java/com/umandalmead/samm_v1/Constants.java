@@ -26,6 +26,8 @@ public class Constants {
     public static final String GLOBE_APN = "http.globe.com.ph";
     public static final String SMART_APN = "internet";
     public static final String TRACCAR_SERVER = "http://139.59.246.6/";
+    public static final String TRACCAR_USERNAME="admin";
+    public static final String TRACCAR_PASSWORD="admin";
     public static final String TRACCAR_PORT = "5002";
 
     public static final String SMS_BEGIN = "begin" + GPS_PASSWORD;

@@ -12,15 +12,85 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-    <include
-        layout="@layout/report_bar_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <include
+            layout="@layout/report_bar_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
         <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/chart"
+            android:id="@+id/reportChart"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scrollbars="none"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
+
+                <TableLayout
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/reportTable"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:shrinkColumns="*"
+                    android:stretchColumns="*"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone">
+                    <TableRow
+                        android:id="@+id/tableRow_header"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:gravity="center_horizontal">
+                        <TextView
+                            android:id="@+id/textView_TableName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:typeface="serif"
+                            android:textSize="18dp"
+                            android:textColor="@color/colorBlack"
+                            android:text="Total KM traveled"
+                            android:gravity="center"
+                            android:layout_span="6"></TextView>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/tableRow_columnHeader"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:gravity="center_horizontal">
+                        <TextView
+                            android:id="@+id/textView_PlateNo"
+                            android:text="Plate No."
+                            android:textColor="@color/colorBlack"
+                            android:textStyle="bold"
+                            android:typeface="serif"></TextView>
+                        <TextView
+                            android:id="@+id/textView_Distance"
+                            android:text="Distance Traveled"
+                            android:textColor="@color/colorBlack"
+                            android:textStyle="bold"
+                            android:typeface="serif"
+                            android:gravity="right"
+                            ></TextView>
+                        <TextView
+                            android:id="@+id/textView_MaxSpeed"
+                            android:text="Max Speed"
+                            android:textColor="@color/colorBlack"
+                            android:textStyle="bold"
+                            android:typeface="serif"
+                            android:gravity="right"></TextView>
+
+                    </TableRow>
+
+                </TableLayout>
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
 

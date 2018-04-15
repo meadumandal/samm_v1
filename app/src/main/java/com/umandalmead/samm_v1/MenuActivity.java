@@ -98,6 +98,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddPassengerCountLabel;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkers;
@@ -168,6 +169,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static HashMap<String, Marker> _terminalMarkerHashmap = new HashMap<>();
         public HashMap _userMarkerHashmap = new HashMap();
         public HashMap<String, Long> _passengerCount = new HashMap<>();
+        public static List<Eloop> _eloopList;
 
         //Put here all global variables related to sending SMS
         private UserMovementBroadcastReceiver _userMovementBroadcastReceiver;
@@ -266,12 +268,17 @@ public class MenuActivity extends AppCompatActivity implements
             Log.i(_constants.LOG_TAG, "Creating MenuActivity...");
             setTheme(R.style.SplashTheme);
             super.onCreate(savedInstanceState);
-            _helper = new Helper();
+            _context = getApplicationContext();
+            _helper = new Helper(MenuActivity.this, this._context);
             _constants = new Constants();
             if (_helper.isOnline()) {
                 _isAppFirstLoad = true;
-                _context = getApplicationContext();
+
                 displayLocationSettingsRequest(_context);
+                //region EloopList
+                new mySQLGetEloopList(_context).execute();
+                //endregion
+
 
                 if (_sessionManager == null)
                     _sessionManager = new SessionManager(_context);
@@ -957,20 +964,19 @@ public class MenuActivity extends AppCompatActivity implements
                 appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 //_SearchLinearLayout.setVisibility(View.GONE);
                 //_TerminalsAutoCompleteTextView.setVisibility(View.GONE);
-                _CurrentLocationEditText.setVisibility(View.GONE);
+                //_CurrentLocationEditText.setVisibility(View.GONE);
 
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
                 _sessionManager.PassReportType(_constants.VEHICLE_REPORT_TYPE);
-
                 _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                 _MapsHolderLinearLayout.setVisibility(View.GONE);
                 appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 //_SearchLinearLayout.setVisibility(View.GONE);
                 //_TerminalsAutoCompleteTextView.setVisibility(View.GONE);
-                _CurrentLocationEditText.setVisibility(View.GONE);
+                //_CurrentLocationEditText.setVisibility(View.GONE);
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if(id == R.id.menu_home){
@@ -982,7 +988,7 @@ public class MenuActivity extends AppCompatActivity implements
                     appBarLayoutParam.height = _constants.APPBAR_MAX_HEIGHT;
                     //_SearchLinearLayout.setVisibility(View.VISIBLE);
                     //_TerminalsAutoCompleteTextView.setVisibility(View.VISIBLE);
-                    _CurrentLocationEditText.setVisibility(View.VISIBLE);
+                    //_CurrentLocationEditText.setVisibility(View.VISIBLE);
                 }
             }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

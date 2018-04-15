@@ -18,7 +18,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.InterfaceAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -87,10 +86,10 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
         {
             try{
                 String reportDate = params[0];
-//                String reportTerminal = params[1];
-                String link = "http://meadumandal.website/sammAPI/getPassengerCountReport.php?reportDate="
+//                String _terminalAutoComplete = params[1];
+                String link = "http://meadumandal.website/sammAPI/getPassengerCountReport.php?fromDate="
                         + reportDate.toString()
-                        + "&reportTerminal=";
+                        + "&_terminalAutoComplete=";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -129,7 +128,7 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
     {
         try
         {
-            BarChart chart = (BarChart) this._activity.findViewById(R.id.chart);
+            BarChart chart = (BarChart) this._activity.findViewById(R.id.reportChart);
 
             getDataSet(listReport);
             BarData data = new BarData(this.xAxis, this.dataSet);
