@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -46,6 +47,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
+import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -350,6 +352,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             MenuActivity.FAB_SammIcon.setVisibility(View.GONE);
             MenuActivity.Search_BackBtn.setVisibility(View.VISIBLE);
             MenuActivity.FrameSearchBarHolder.setVisibility(View.GONE);
+
             //Set first route in the UI~
             _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             viewPager.setCurrentItem(0);
@@ -369,6 +372,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             LoopArrivalProgress.setVisibility(View.VISIBLE);
             GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
             MenuActivity._markerAnimator.start();
+            ((MenuActivity)this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
 
         } catch (Exception e) {
             progDialog.dismiss();

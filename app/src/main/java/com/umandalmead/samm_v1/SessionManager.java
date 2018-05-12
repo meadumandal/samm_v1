@@ -36,7 +36,8 @@ public class SessionManager {
     public static final String IS_BETA = "IsBeta";
     public static final String IS_DEVELOPER = "IsDeveloper";
     public static final String IS_ADMIN = "IsAdmin";
-
+    public static final String  IS_MAINTOOLTIP_SHOWN = "IsMainToolTopShown";
+    public static final String  IS_ROUTETOOLTIP_SHOWN = "IsRouteToolTipShown";
     public SessionManager(Context context)
     {
         this._context = context;
@@ -58,7 +59,18 @@ public class SessionManager {
         setIsAdmin(email.toLowerCase().equals(_constants.ADMIN_EMAILADDRESS));
         prefEditor.commit();
     }
-
+    public Boolean getMainTutorialStatus()
+    {
+        return pref.getBoolean(IS_MAINTOOLTIP_SHOWN,false);
+    }
+    public Boolean getRouteTutorialStatus() {return pref.getBoolean(IS_ROUTETOOLTIP_SHOWN, false);}
+    public void TutorialStatus(Enums.UIType type, Boolean isShown){
+        switch(type){
+            case MAIN:prefEditor.putBoolean(IS_MAINTOOLTIP_SHOWN, isShown); break;
+            case SHOWING_ROUTES: prefEditor.putBoolean(IS_ROUTETOOLTIP_SHOWN, isShown); break;
+        }
+        prefEditor.commit();
+    }
     public void PassReportType(String reportType)
     {
         prefEditor.putString(REPORT_TYPE, reportType);

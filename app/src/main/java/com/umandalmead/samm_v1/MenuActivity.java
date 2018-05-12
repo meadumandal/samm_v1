@@ -40,8 +40,10 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
@@ -133,6 +135,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import io.github.douglasjunior.androidSimpleTooltip.OverlayView;
+import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -210,6 +214,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static FrameLayout FrameSearchBarHolder;
         public static ImageView Search_BackBtn;
         public  static TextView _DestinationTextView;
+        public static CardView _RoutesContainer_CardView;
 
 
         //Put here other global variables
@@ -236,6 +241,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Boolean _isGPSReconnect = false;
         private String _gpsIMEI;
         public Constants _constants;
+
 
         /**
          * This method checks if the app has permission to access user lcoation
@@ -376,6 +382,7 @@ public class MenuActivity extends AppCompatActivity implements
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
                 Search_BackBtn = (ImageView) findViewById(id.Search_BackBtn);
                 _DestinationTextView = (TextView) findViewById(id.DestinationTV);
+                _RoutesContainer_CardView = (CardView) findViewById(id.Routes_CardView);
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
                 {
@@ -647,6 +654,7 @@ public class MenuActivity extends AppCompatActivity implements
                 Log.w(_constants.LOG_TAG, "Device is not online");
                 _helper.showNoInternetPrompt(this);
             }
+            UpdateUI(Enums.UIType.MAIN);
 
         }catch(Exception ex)
         {
@@ -1833,6 +1841,38 @@ public class MenuActivity extends AppCompatActivity implements
     public static Boolean IsNight(){
         Integer currentTime = Calendar.getInstance().getTime().getHours();
         return (currentTime >= 18 || currentTime <=5)? true: false;
+    }
+    public void GenerateToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay){
+        new SimpleTooltip.Builder(activity)
+                .anchorView(view)
+                .text(text)
+                .gravity(gravity)
+                .animated(true)
+                .transparentOverlay(hasOverlay)
+                .backgroundColor(Color.WHITE)
+                .arrowColor(Color.WHITE)
+                .highlightShape(highlightShape)
+                .build()
+                .show();
+    }
+    public void UpdateUI(Enums.UIType type){
+       switch(type){
+           case MAIN:
+               if(!_sessionManager.getMainTutorialStatus()){
+                   GenerateToolTip("Tap to show menu options",this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
+                   GenerateToolTip("Search here",this, FrameSearchBarHolder, Gravity.BOTTOM ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false  );
+                   _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
+               }
+               break;
+           case SHOWING_ROUTES:
+               if(!_sessionManager.getRouteTutorialStatus()){
+                   GenerateToolTip("Tap to search again",this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
+                   GenerateToolTip("Pull up to show navigation instructions",this, _RoutesContainer_CardView, Gravity.TOP ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR ,false );
+                   _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
+               }
+               break;
+           default: break;
+       }
     }
 
 
