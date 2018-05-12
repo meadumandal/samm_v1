@@ -12,6 +12,8 @@
     <color name="colorGreen">#c9fddd</color>
     <color name="colorRed">#ffcbd1</color>
     <color name="colorOrange">#E26A6A</color>
+    <color name="colorGrassGreen">#00740e</color>
+    <color name="colorErrorRed">#bd0101</color>
 
 
 </resources>

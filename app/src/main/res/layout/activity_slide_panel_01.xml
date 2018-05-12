@@ -6,39 +6,34 @@
     android:clickable="true"
     android:id="@+id/route_wrapper"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite">
+   >
 
 
     <ImageView
         android:id="@+id/ev_panel_collapse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:src="@drawable/ic_expand_less_black_24dp"/>
+        android:visibility="visible"
+        android:src="@drawable/pulltab"/>
 
-
-    <ImageView
-        android:id="@+id/ev_panel_expand"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_expand_more_black_24dp"
-        android:visibility="visible" />
 
     <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="5dp"
+        >
         <TextView
             android:id="@+id/toatextview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="left"
             android:text="Searching for E-Loop..."
-            android:paddingLeft="15dp"
             android:textSize="15dp"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:textStyle="bold"
-            android:paddingRight="10dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:background="@drawable/pill_shaped_eloop_status"
+            />
         <ProgressBar
             android:id="@+id/progressBarLoopArrival"
             style="?android:attr/progressBarStyle"

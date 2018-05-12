@@ -25,6 +25,7 @@ import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -207,6 +208,8 @@ public class MenuActivity extends AppCompatActivity implements
         public ProgressDialog _ProgressDialog;
         public static ImageView FAB_SammIcon;
         public static FrameLayout FrameSearchBarHolder;
+        public static ImageView Search_BackBtn;
+        public  static TextView _DestinationTextView;
 
 
         //Put here other global variables
@@ -346,7 +349,6 @@ public class MenuActivity extends AppCompatActivity implements
                 _SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
                 _RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
                 _Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
-                _Slide_Expand = (ImageView) findViewById(R.id.ev_panel_expand);
                 _StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
                 _TimeOfArrivalTextView = (TextView) findViewById(R.id.toatextview);
                 _NavView = (NavigationView) findViewById(R.id.nav_view);
@@ -372,6 +374,8 @@ public class MenuActivity extends AppCompatActivity implements
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
+                Search_BackBtn = (ImageView) findViewById(id.Search_BackBtn);
+                _DestinationTextView = (TextView) findViewById(id.DestinationTV);
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
                 {
@@ -395,6 +399,20 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onClick(View v) {
                         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                         drawer.openDrawer(Gravity.LEFT);
+                    }
+                });
+                Search_BackBtn.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        _RouteTabLayout.setVisibility(View.GONE);
+                        _RoutesPane.setVisibility(View.GONE);
+                        AnalyzeForBestRoutes.clearLines();
+                        _selectedPickUpPoint = null;
+                        Search_BackBtn.setVisibility(View.GONE);
+                        FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                        FAB_SammIcon.setVisibility(View.VISIBLE);
+                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
+                        lp.height = 0;
+                        _AppBar.setLayoutParams(lp);
                     }
                 });
 
@@ -457,7 +475,9 @@ public class MenuActivity extends AppCompatActivity implements
 
                 autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                     @Override
+                    //GO-2R
                     public void onPlaceSelected(Place place) {
+                        _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
                         double prevDistance = 0.0;
                         int ctr=0;
                         for (Terminal dest: _terminalList){
@@ -492,18 +512,22 @@ public class MenuActivity extends AppCompatActivity implements
                             @Override
                             public void onClick(View view) {
                                 _RouteTabLayout.setVisibility(View.GONE);
-                                _RoutesPane.setVisibility(View.INVISIBLE);
+                                _RoutesPane.setVisibility(View.GONE);
                                 AnalyzeForBestRoutes.clearLines();
                                 _selectedPickUpPoint = null;
                                 CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
                                 lp.height = 0;
                                 view.setVisibility(View.GONE);
-                                FAB_SammIcon.setVisibility(View.GONE);
                                 _AppBar.setLayoutParams(lp);
                                 FrameSearchBarHolder.setVisibility(View.VISIBLE);
                             }
                         });
-
+                FrameSearchBarHolder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
+                    }
+                });
 
                 _ProgressDialog = new ProgressDialog(this);
                 _ProgressDialog.setTitle("Adding Vehicle GPS");
@@ -531,7 +555,7 @@ public class MenuActivity extends AppCompatActivity implements
                     _TimeOfArrivalTextView.setText("You are approaching FASTBYTES terminal, there are NO PASSENGER WAITING");
                 }
 
-                _RouteTabLayout.setMinimumWidth(150);
+               // _RouteTabLayout.setMinimumWidth(150);
                 _facebookImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
                 try {
                     FetchFBDPTask dptask = new FetchFBDPTask();
@@ -617,18 +641,20 @@ public class MenuActivity extends AppCompatActivity implements
                         return true;
                     }
                 });
-
             }
             else
             {
                 Log.w(_constants.LOG_TAG, "Device is not online");
                 _helper.showNoInternetPrompt(this);
             }
+
         }catch(Exception ex)
         {
             Log.e(_constants.LOG_TAG, ex.getMessage());
         }
+
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.i(_constants.LOG_TAG,"Google Map is Ready...");

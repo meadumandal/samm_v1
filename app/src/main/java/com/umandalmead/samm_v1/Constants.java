@@ -21,6 +21,7 @@ public class Constants {
     public static final int APPBAR_MIN_HEIGHT = 156;
     public static final int APPBAR_MAX_HEIGHT = 235;
     public static final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/";
+    public static final String DESTINATION_PREFIX = "Going to: ";
 
     public static final String GPS_PASSWORD = "123456";
     public static final String GLOBE_APN = "http.globe.com.ph";

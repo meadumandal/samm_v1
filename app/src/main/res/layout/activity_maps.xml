@@ -1,8 +1,10 @@
 <com.umandalmead.samm_v1.CustomFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/mapCFL"
+    android:clickable="true"
     xmlns:fab="http://schemas.android.com/apk/res-auto">
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,6 +25,18 @@
         android:src="@mipmap/ic_sammtrans"
         android:background="@android:color/transparent"
         />
+    <ImageButton
+        android:id="@+id/Search_BackBtn"
+        android:layout_margin="16dp"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:visibility="gone"
+        android:src="@drawable/ic_chevron_left_black_24dp"
+        android:background="@drawable/circular_buttons"
+        android:padding="1dp"
+        />
+
+
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/AdminFloatingActionMenu"
         android:layout_width="wrap_content"
@@ -97,7 +111,7 @@
         android:layout_width="290dp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corners"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="80dp"
         android:layout_marginLeft="40dp">
         <fragment
             android:id="@+id/place_autocomplete_fragment"

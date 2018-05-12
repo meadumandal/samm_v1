@@ -348,6 +348,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
             MenuActivity._AppBar.setVisibility(View.VISIBLE);
             MenuActivity.FAB_SammIcon.setVisibility(View.GONE);
+            MenuActivity.Search_BackBtn.setVisibility(View.VISIBLE);
             MenuActivity.FrameSearchBarHolder.setVisibility(View.GONE);
             //Set first route in the UI~
             _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
@@ -361,19 +362,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             drawLines(TerminalPointsList.get(0).get(0));
 
             //Adjust AppBarLayoutHeight
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
-            //MenuActivity._TerminalsAutoCompleteTextView.setVisibility(View.GONE);
-            MenuActivity._CurrentLocationEditText.setVisibility(View.GONE);
-            //MenuActivity._SearchLinearLayout.setPadding(0, 0, 0, 0);
-            //MenuActivity._TerminalsAutoCompleteTextView.setVisibility(View.VISIBLE);
-
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
+            lp.height = 130;
+            MenuActivity._AppBar.setLayoutParams(lp);
             //Get nearest loop time of arrival~
             LoopArrivalProgress.setVisibility(View.VISIBLE);
             GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
-            // tvlp.setMargins(0,0,0,0);
             MenuActivity._markerAnimator.start();
 
-            lp.height = 235;
         } catch (Exception e) {
             progDialog.dismiss();
             Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
@@ -485,7 +481,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                             }
                         }
                         if (_IsAllLoopParked) {
-                            _TimeOfArrivalTextView.setText(Html.fromHtml("<b style=\"color:#7F0000;\">Unfortunately, all E-loops are parked.</b>"));
+                            _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
+                            _TimeOfArrivalTextView.setText(Html.fromHtml("Unfortunately, all E-loops are parked."));
                             LoopArrivalProgress.setVisibility(View.GONE);
                         }
                     }
