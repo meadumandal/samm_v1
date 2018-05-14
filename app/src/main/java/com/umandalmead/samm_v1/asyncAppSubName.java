@@ -16,8 +16,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -57,9 +61,9 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             super.onPreExecute();
 
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -118,7 +122,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
                         returnString= "Error encountered upon updating GPS. Please re-try";
                     }
                 }
-                catch(Exception e){
+                catch(Exception ex){
                     _progDialog.dismiss();
                     String errorMessage = jsonResponse.toString();
                     if(errorMessage.substring(0,15).equals("Duplicate entry"))
@@ -129,7 +133,13 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
                     {
                         errorMessage="Server exceeded maximum number of GPS!";
                     }
-                    Log.e(TAG, e.getLocalizedMessage() +":"+ e.getMessage());
+                    else
+                    {
+                        StringWriter sw = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sw));
+                        errorMessage = ex.getMessage();
+                        Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+                    }
                     _progDialog.dismiss();
                     returnString= "Error encountered upon adding GPS: "+errorMessage+". Please re-try";
                 }
@@ -141,10 +151,10 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             }
             return returnString + "/" + name + "/" +deviceId.toString();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Log.e(TAG, e.getLocalizedMessage() + e.getMessage());
-            return e.getMessage();
+            Helper.logger(ex);
+            return ex.getMessage();
 
         }
 
@@ -178,10 +188,9 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             alertDialogBuilder.show();
 //        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-
-            Log.e(TAG, e.getMessage());
+            Helper.logger(ex);
 
         }
 

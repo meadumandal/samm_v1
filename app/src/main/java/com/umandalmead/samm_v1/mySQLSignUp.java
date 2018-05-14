@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONObject;
@@ -10,9 +11,13 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -46,9 +51,9 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         {
             super.onPreExecute();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -85,9 +90,11 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
                 JSONObject json = new JSONObject(jsonResponse);
 
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
-                Toast.makeText(this._context,e.getMessage(), Toast.LENGTH_LONG).show();
+                StringWriter sw = new StringWriter();
+                ex.printStackTrace(new PrintWriter(sw));
+                Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
 
             }
         }

@@ -16,8 +16,13 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
+
+import static com.squareup.okhttp.internal.Internal.logger;
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -57,9 +62,10 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
             super.onPreExecute();
 
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
+
         }
 
 
@@ -103,11 +109,11 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
             _progDialog.dismiss();
             return "GPS deleted!";
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
             _progDialog.dismiss();
-            Log.e(TAG, e.getLocalizedMessage() + e.getMessage());
-            return e.getMessage();
+            Helper.logger(ex);
+            return ex.getMessage();
         }
     }
 
@@ -127,9 +133,9 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
             alertDialogBuilder.show();
 
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Log.e(TAG, e.getMessage());
+            Helper.logger(ex);
         }
     }
 

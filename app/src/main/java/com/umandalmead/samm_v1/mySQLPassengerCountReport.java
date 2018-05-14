@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -18,9 +19,13 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -66,9 +71,9 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
             progDialog.setTitle("Fetching Data");
             progDialog.show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -110,9 +115,9 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
                 }
                 return listReport;
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
-                Toast.makeText(this._context,e.getMessage(), Toast.LENGTH_LONG).show();
+                Helper.logger(ex);
                 return null;
             }
         }
@@ -142,9 +147,9 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
             chart.invalidate();
             progDialog.dismiss();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
     }

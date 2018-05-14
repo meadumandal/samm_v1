@@ -13,7 +13,11 @@ import android.view.ViewGroup;
 import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 public class ViewGPSFragment extends android.support.v4.app.Fragment {
@@ -94,7 +98,7 @@ public class ViewGPSFragment extends android.support.v4.app.Fragment {
         }
         catch(Exception ex)
         {
-            Log.e(TAG, ex.getMessage());
+            Helper.logger(ex);
         }
 
 

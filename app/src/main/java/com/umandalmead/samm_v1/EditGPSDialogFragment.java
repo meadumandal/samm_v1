@@ -109,7 +109,7 @@ public class EditGPSDialogFragment extends DialogFragment
                                     }
                                     catch(Exception ex)
                                     {
-
+                                        Helper.logger(ex);
                                     }
 
 
@@ -184,9 +184,9 @@ public class EditGPSDialogFragment extends DialogFragment
             builder.setContentView(view);
 
         }
-        catch(Exception e )
+        catch(Exception ex)
         {
-            Log.e(TAG, e.getMessage());
+            Helper.logger(ex);
         }
         return builder;
 

@@ -18,6 +18,9 @@ import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
 import com.umandalmead.samm_v1.mySQLUpdateWaitingPassengerHistory;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
@@ -58,7 +61,7 @@ public class AddPassengerCountLabel implements ChildEventListener {
                 new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(dataSnapshot.getChildrenCount()));
             }
         } catch (Exception ex) {
-            Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_SHORT).show();
+            Helper.logger(ex);
         }
     }
 
@@ -89,7 +92,7 @@ public class AddPassengerCountLabel implements ChildEventListener {
             }
 
         } catch (Exception ex) {
-            Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_SHORT).show();
+            Helper.logger(ex);
         }
     }
 
@@ -102,7 +105,7 @@ public class AddPassengerCountLabel implements ChildEventListener {
                 terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
             }
         } catch (Exception ex) {
-            Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_SHORT).show();
+            Helper.logger(ex);
         }
     }
 

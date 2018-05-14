@@ -16,8 +16,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -57,9 +61,9 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             super.onPreExecute();
 
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -134,12 +138,11 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                         return json.get("msg").toString();
                     }
                 }
-                catch(Exception e){
+                catch(Exception ex){
 
+                    Helper.logger(ex);
 
-                    Log.e(_constants.LOG_TAG, e.getLocalizedMessage() +":"+ e.getMessage());
-
-                    return "Error encountered : "+e.getMessage()+". Please re-try";
+                    return "Error encountered : "+ex.getMessage()+". Please re-try";
                 }
             }
             else
@@ -148,10 +151,10 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 return  "Looks like you're offline";
             }
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Log.e(_constants.LOG_TAG, e.getLocalizedMessage() + e.getMessage());
-            return e.getMessage();
+            Helper.logger(ex);
+            return ex.getMessage();
 
         }
 
@@ -186,10 +189,10 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             alertDialogBuilder.show();
 //        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
 
-            Log.e(_constants.LOG_TAG, e.getMessage());
+            Helper.logger(ex);
 
         }
     }

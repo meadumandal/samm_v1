@@ -190,9 +190,9 @@ public class LoginActivity extends AppCompatActivity{
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                             dialog.show();
                         }
-                        catch(Exception e)
+                        catch(Exception ex)
                         {
-                                Log.e(TAG, e.getMessage());
+                            Helper.logger(ex);
                         }
 
                     }
@@ -208,7 +208,7 @@ public class LoginActivity extends AppCompatActivity{
                                             }
                                             else
                                             {
-                                                Log.e(TAG,task.getException().toString());
+                                                Helper.logger(task.getException());
                                             }
                                         }
                                     })
@@ -233,9 +233,9 @@ public class LoginActivity extends AppCompatActivity{
                                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                 dialog.show();
                             }
-                            catch(Exception e)
+                            catch(Exception ex)
                             {
-                                Log.e(TAG, e.getMessage());
+                                Helper.logger(ex);
                             }
                         }
 
@@ -319,11 +319,10 @@ public class LoginActivity extends AppCompatActivity{
                                         }
                                 }
                                 //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
-                                catch (Exception e) {
+                                catch (Exception ex) {
                                     progressBar.setVisibility(View.GONE);
                                     Toast.makeText(LoginActivity.this, "Error Occurred", Toast.LENGTH_LONG).show();
-                                    Log.d(TAG, "There is an error");
-                                    e.printStackTrace();
+                                    Helper.logger(ex);
                                 }
                             }
 
@@ -380,6 +379,7 @@ public class LoginActivity extends AppCompatActivity{
                         if(!task.isSuccessful())
                         {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Helper.logger(task.getException());
                         }
                         else
                         {
@@ -402,7 +402,7 @@ public class LoginActivity extends AppCompatActivity{
                             }
                             catch(Exception ex)
                             {
-                                Log.e(TAG, ex.getMessage());
+                                Helper.logger(ex);
                             }
 
 

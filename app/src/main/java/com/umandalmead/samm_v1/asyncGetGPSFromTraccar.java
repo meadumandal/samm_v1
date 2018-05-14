@@ -30,11 +30,13 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 
-
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -99,17 +101,17 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                     try {
 
                         return new JSONArray(jsonResponse);
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         _progDialog.dismiss();
-                        Log.e(_constants.LOG_TAG, e.getMessage());
+                        Helper.logger(ex);
                         return null;
                     }
                 } else {
                     _progDialog.dismiss();
                     return null;
                 }
-            } catch (Exception e) {
-                Log.e(_constants.LOG_TAG, e.getLocalizedMessage() + e.getMessage());
+            } catch (Exception ex) {
+                Helper.logger(ex);
                 _progDialog.dismiss();
                 return null;
 
@@ -154,9 +156,9 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                         editGPSDialog.show(_fragmentManager ,"EditGPSDialogFragment");
 
                     }
-                    catch(Exception e)
+                    catch(Exception ex)
                     {
-                        Log.e(_constants.LOG_TAG, e.getMessage());
+                        Helper.logger(ex);
                     }
 
                 }
@@ -166,10 +168,10 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
             _progDialog.dismiss();
 
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
 
-            Log.e(_constants.LOG_TAG, e.getMessage());
+            Helper.logger(ex);
 
         }
 

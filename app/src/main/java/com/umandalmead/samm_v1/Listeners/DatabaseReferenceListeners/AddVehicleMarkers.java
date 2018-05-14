@@ -6,6 +6,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
@@ -24,7 +25,11 @@ import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
  * Created by MeadRoseAnn on 3/25/2018.
@@ -157,7 +162,8 @@ public class AddVehicleMarkers implements ChildEventListener {
                                 }
 
                             } catch (Exception ex) {
-                                Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_LONG).show();
+                                Helper.logger(ex);
+
                             }
                         }
                     });
@@ -169,7 +175,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                 }
             }
         } catch (Exception ex) {
-            Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
     }
     private void rotateMarker(final MarkerOptions marker, final float toRotation) {

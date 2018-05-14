@@ -32,12 +32,16 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -102,9 +106,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
             _progDialog.setCancelable(false);
             _progDialog.show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -139,9 +143,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
                 }
                 return listTerminals;
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
-                Toast.makeText(this._context,e.getMessage(), Toast.LENGTH_LONG).show();
+                Helper.logger(ex);
                 return null;
             }
         }
@@ -263,9 +267,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
 
                         listTerminals.get(i).GeofenceId = geofenceRequestId;
                     }
-                    catch(Exception e)
+                    catch(Exception ex)
                     {
-                        Log.e(TAG, e.getMessage());
+                        Helper.logger(ex);
                     }
                 }
                 i++;
@@ -305,9 +309,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
                     }
                 });
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.e(TAG, e.getMessage());
+                Helper.logger(ex);
             }
 
 

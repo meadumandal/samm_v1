@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
@@ -30,6 +31,8 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
@@ -38,6 +41,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -86,9 +91,9 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
             _progressDialog.setTitle("Fetching Data");
             _progressDialog.show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
     }
 
@@ -154,9 +159,9 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
 
                 return listReport;
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
-                Toast.makeText(this._context,e.getMessage(), Toast.LENGTH_LONG).show();
+                Helper.logger(ex);
                 return null;
             }
         }
@@ -227,9 +232,10 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
             }
             _progressDialog.dismiss();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
+
         }
 
     }

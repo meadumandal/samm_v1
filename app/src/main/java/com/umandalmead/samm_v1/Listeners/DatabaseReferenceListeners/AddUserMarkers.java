@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -14,6 +15,11 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.umandalmead.samm_v1.SessionManager;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
  * Created by MeadRoseAnn on 1/17/2018.
@@ -74,9 +80,9 @@ public class AddUserMarkers implements
                 }
             }
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Log.e(TAG, e.getMessage());
+            Helper.logger(ex);
             Toast.makeText(this._activity, "Hello there!", Toast.LENGTH_LONG).show();
         }
 

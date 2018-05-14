@@ -11,11 +11,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.VehicleDestination;
+import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.SessionManager;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
  * Created by MeadRoseAnn on 4/16/2018.
@@ -99,7 +104,7 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
             }
         } catch(Exception ex)
         {
-            Log.e(_constants.LOG_TAG, "Vehicle_DestinationsListener.java onChildChanged() : " +  ex.getMessage());
+            Helper.logger(ex);
         }
 
     }

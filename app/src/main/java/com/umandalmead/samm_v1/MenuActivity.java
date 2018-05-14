@@ -126,6 +126,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -333,8 +335,8 @@ public class MenuActivity extends AppCompatActivity implements
 
                                 }
                             }
-                        } catch (Exception e) {
-                            Log.d(_constants.LOG_TAG, e.getMessage());
+                        } catch (Exception ex) {
+                            Helper.logger(ex);
                         }
                     }
                     @Override
@@ -459,9 +461,9 @@ public class MenuActivity extends AppCompatActivity implements
                                 }
                             } );
                         }
-                        catch(Exception e)
+                        catch(Exception ex)
                         {
-                            Log.e(_constants.LOG_TAG, e.getMessage());
+                            Helper.logger(ex);
                         }
 
                     }
@@ -1047,7 +1049,8 @@ _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
         catch(Exception ex)
         {
-            Toast.makeText(MenuActivity.this,ex.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
+
         }
         return true;
     }
@@ -1323,7 +1326,9 @@ _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 //return _selectedPickUpPoint.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
             }
         } catch(Exception ex){
-            Toast.makeText(MenuActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
         }
 
     }

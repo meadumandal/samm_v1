@@ -26,11 +26,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -167,9 +172,9 @@ public class SignUpActivity extends AppCompatActivity {
                                             }
                                         }
                                         //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
-                                        catch (Exception e) {
-                                            Log.d(TAG, "There is an error");
-                                            e.printStackTrace();
+                                        catch (Exception ex) {
+                                            Helper.logger(ex);
+
                                         }
                                     }
 

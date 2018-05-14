@@ -8,6 +8,7 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -19,10 +20,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
  * Created by MeadRoseAnn on 10/8/2017.
@@ -94,7 +99,8 @@ public class Helper {
             InetAddress ipAddr = InetAddress.getByName("google.com");
             return !ipAddr.equals("");
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
+            Helper.logger(ex);
             return false;
         }
     }
@@ -215,6 +221,12 @@ public class Helper {
         float fpixels = metrics.density * dp;
         int pixels = (int) (fpixels + 0.5f);
         return pixels;
+    }
+    public static void logger(Exception ex)
+    {
+        StringWriter sw = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sw));
+        Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
     }
 
 }

@@ -5,11 +5,14 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -17,6 +20,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -53,9 +58,9 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
             progDialog.setCancelable(false);
             progDialog.show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -112,11 +117,14 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
                 String line = null;
                 return helper.jsonToMap(reader.readLine());
             }
-            catch(Exception e)
+            catch(Exception ex)
             {
                 HashMap<String, Object> returnValues = new HashMap<String,Object>();
                 returnValues.put("IsValid", 0);
                 returnValues.put("Message", "Problem contacting the server. Please try again later.");
+
+                Helper.logger(ex);
+
                 return returnValues;
             }
         }
@@ -160,9 +168,9 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
             super.onPostExecute(result);
             progDialog.dismiss();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
     }

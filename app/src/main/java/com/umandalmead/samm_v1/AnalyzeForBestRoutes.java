@@ -40,6 +40,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +57,10 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import static com.umandalmead.samm_v1.MenuActivity._RoutesPane;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
+import static com.umandalmead.samm_v1.MenuActivity._RouteTabLayout;
 import static com.umandalmead.samm_v1.MenuActivity._SlideUpPanelContainer;
 import static com.umandalmead.samm_v1.MenuActivity._StepsScroller;
 import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
@@ -130,8 +135,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             progDialog.setCancelable(false);
             progDialog.show();
 
-        } catch (Exception e) {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+        } catch (Exception ex) {
+            Helper.logger(ex);
         }
 
 
@@ -167,8 +172,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             }
             try {
                 Collections.sort(_possibleTerminals);
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
+            } catch (Exception ex) {
+                Helper.logger(ex);
             }
 
             Integer counter = 0;
@@ -182,10 +187,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 for (counter = 0; counter < limit; counter++) {
                     topTerminals.add(_possibleTerminals.get(counter));
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 HashMap<String, Object> returnValues = new HashMap<String, Object>();
                 returnValues.put("IsValid", 0);
-                returnValues.put("Message", e.getMessage());
+                returnValues.put("Message", ex.getMessage());
+                Helper.logger(ex);
                 return null;
             }
             _topTerminals = topTerminals;
@@ -282,9 +288,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             drawLines(_AllTerminalPoints.get(0).get(0));
 
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
             progDialog.dismiss();
-            Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
     }
@@ -338,9 +344,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
 
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
             progDialog.dismiss();
-            Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
     }
@@ -460,7 +466,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             }
         } catch (Exception ex) {
 
-            Toast.makeText(this._context, ex.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
     }
 
@@ -492,9 +498,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                 }
 
                                 _LoopArrivalProgress.setVisibility(View.GONE);
-                            } catch (Exception e) {
+                            } catch (Exception ex) {
                                 Log.d("onResponse", "There is an error");
-                                e.printStackTrace();
+                                Helper.logger(ex);
                             }
                         }
 

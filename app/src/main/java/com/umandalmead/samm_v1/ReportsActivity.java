@@ -27,11 +27,15 @@ import android.widget.TextView;
 import com.github.mikephil.charting.charts.BarChart;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 public class ReportsActivity extends Fragment {
     public Calendar _calendar = Calendar.getInstance();
@@ -244,7 +248,7 @@ public class ReportsActivity extends Fragment {
         }
         catch(Exception ex)
         {
-            Log.e(_constants.LOG_TAG, ex.getMessage());
+            Helper.logger(ex);
         }
 
         return _view;

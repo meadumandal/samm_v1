@@ -14,8 +14,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -51,9 +55,9 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             super.onPreExecute();
 
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, e.getMessage(), Toast.LENGTH_LONG).show();
+            Helper.logger(ex);
         }
 
 
@@ -106,7 +110,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
                         returnString= "Error encountered upon adding GPS. Please re-try";
                     }
                 }
-                catch(Exception e){
+                catch(Exception ex){
                     _progDialog.dismiss();
                     String errorMessage = jsonResponse.toString();
                     if(errorMessage.substring(0,15).equals("Duplicate entry"))
@@ -117,7 +121,12 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
                     {
                         errorMessage="Server exceeded maximum number of GPS!";
                     }
-                    Log.e(TAG, e.getLocalizedMessage() +":"+ e.getMessage());
+                    else
+                    {
+                        Helper.logger(ex);
+                        errorMessage = ex.getMessage();
+                    }
+
                     _progDialog.dismiss();
                     returnString= "Error encountered upon adding GPS: "+errorMessage+". Please re-try";
                 }
@@ -129,10 +138,10 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             }
             return returnString + "/" + name + "/" +deviceId.toString();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
-            Log.e(TAG, e.getLocalizedMessage() + e.getMessage());
-            return e.getMessage();
+            Helper.logger(ex);
+            return ex.getMessage();
 
         }
 
@@ -167,10 +176,10 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             alertDialogBuilder.show();
 //        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
 
-            Log.e(TAG, e.getMessage());
+            Helper.logger(ex);
 
         }
 
