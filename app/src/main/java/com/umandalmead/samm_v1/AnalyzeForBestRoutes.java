@@ -14,6 +14,7 @@ import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
@@ -54,13 +55,11 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import static com.umandalmead.samm_v1.MenuActivity._RoutesPane;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
-import static com.umandalmead.samm_v1.MenuActivity._RouteTabLayout;
 import static com.umandalmead.samm_v1.MenuActivity._SlideUpPanelContainer;
 import static com.umandalmead.samm_v1.MenuActivity._StepsScroller;
 import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
-import static com.umandalmead.samm_v1.MenuActivity._MenuNav;
+import static  com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
 
 /**
  * Created by MeadRoseAnn on 01/07/2018.
@@ -93,7 +92,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     private List<Integer> _ListOfLoops = new ArrayList<Integer>();
     private String _AssignedELoop = "";
     private ValueEventListener LoopArrivalEventListener;
-    private ProgressBar LoopArrivalProgress;
     private Boolean _IsAllLoopParked = true;
 
     /**
@@ -278,21 +276,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             createRouteTabs(_AllTotalTime, _AllDirectionsSteps, _topTerminals, _AllTerminalPoints, ctr);
             progDialog.dismiss();
 
-            //show route tabs and slide up panel ~
-            _RouteTabLayout.setVisibility(View.VISIBLE);
-            _RoutesPane.setVisibility(View.VISIBLE);
-            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-            //MenuActivity._TerminalsAutoCompleteTextView.setCursorVisible(false);
-
-            _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
-            final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
-            viewPager.setCurrentItem(0);
+            ((MenuActivity)this._activity).ShowRouteTabsAndSlidingPanel();
             _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
-            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
             MenuActivity._selectedPickUpPoint = _topTerminals.get(0);
-            _StepsScroller.scrollTo(0, 0);
-            clearLines();
             drawLines(_AllTerminalPoints.get(0).get(0));
 
 
@@ -324,16 +310,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
+                    ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                     viewPager.setCurrentItem(tab.getPosition());
                     _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
-                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
                     MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(tab.getPosition());
-                    _StepsScroller.scrollTo(0, 0);
-                    clearLines();
                     drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
-                    LoopArrivalProgress.setVisibility(View.VISIBLE);
                     GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(tab.getPosition()));
-                    MenuActivity._markerAnimator.start();
+
                 }
 
                 @Override
@@ -347,32 +330,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 }
             });
 
-            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-            MenuActivity._AppBar.setVisibility(View.VISIBLE);
-            MenuActivity.FAB_SammIcon.setVisibility(View.GONE);
-            MenuActivity.Search_BackBtn.setVisibility(View.VISIBLE);
-            MenuActivity.FrameSearchBarHolder.setVisibility(View.GONE);
-
-            //Set first route in the UI~
-            _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
-            viewPager.setCurrentItem(0);
-            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
-            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(0);
-            LoopArrivalProgress = (ProgressBar) this._activity.findViewById(R.id.progressBarLoopArrival);
-            _StepsScroller.scrollTo(0, 0);
-            clearLines();
-            drawLines(TerminalPointsList.get(0).get(0));
-
-            //Adjust AppBarLayoutHeight
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
-            lp.height = 130;
-            MenuActivity._AppBar.setLayoutParams(lp);
-            //Get nearest loop time of arrival~
-            LoopArrivalProgress.setVisibility(View.VISIBLE);
-            GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
-            MenuActivity._markerAnimator.start();
             ((MenuActivity)this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+            drawLines(TerminalPointsList.get(0).get(0));
+            MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(0);
+            GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
+            _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
+            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+
 
         } catch (Exception e) {
             progDialog.dismiss();
@@ -410,7 +374,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                             loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
                                             if (loopAwaiting) {
                                                 _TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
-                                                LoopArrivalProgress.setVisibility(View.GONE);
+                                                _LoopArrivalProgress.setVisibility(View.GONE);
                                                 loopAwaiting = true;
                                                 break;
                                             } else continue;
@@ -487,7 +451,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                         if (_IsAllLoopParked) {
                             _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
                             _TimeOfArrivalTextView.setText(Html.fromHtml("Unfortunately, all E-loops are parked."));
-                            LoopArrivalProgress.setVisibility(View.GONE);
+                            _LoopArrivalProgress.setVisibility(View.GONE);
                         }
                     }
                 });
@@ -527,7 +491,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
                                 }
 
-                                LoopArrivalProgress.setVisibility(View.GONE);
+                                _LoopArrivalProgress.setVisibility(View.GONE);
                             } catch (Exception e) {
                                 Log.d("onResponse", "There is an error");
                                 e.printStackTrace();

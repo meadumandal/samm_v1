@@ -6,7 +6,9 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +18,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -41,6 +44,7 @@ public class ReportsActivity extends Fragment {
     public static LinearLayout _initialReportLayout,_layoutTerminalSelection;
     private int _selectedIndex;
     public Spinner _spinner;
+    public static ImageView _SAMMLogoFAB;
 
     View _view;
 
@@ -59,9 +63,16 @@ public class ReportsActivity extends Fragment {
             _initialTextView = (TextView) _view.findViewById(R.id.textView_initialText);
             _passengerReportTable_history = (TableLayout) _view.findViewById(R.id.passengerReportTable_history);
             _passengerReportTable_summary = (TableLayout) _view.findViewById(R.id.passengerReportTable_summary);
+            _SAMMLogoFAB = (ImageView) _view.findViewById(R.id.SAMMLogoFAB);
 
 
             _spinner = (Spinner) _view.findViewById(R.id.spinner_terminal);
+//            _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
+//                public void onClick(View v) {
+//                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//                    drawer.openDrawer(Gravity.LEFT);
+//                }
+//            });
             this._sessionManager = new SessionManager(getContext());
             List<String> terminals = new ArrayList<>();
             terminals.add("--ALL--");

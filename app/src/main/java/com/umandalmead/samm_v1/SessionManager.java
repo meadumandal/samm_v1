@@ -38,6 +38,7 @@ public class SessionManager {
     public static final String IS_ADMIN = "IsAdmin";
     public static final String  IS_MAINTOOLTIP_SHOWN = "IsMainToolTopShown";
     public static final String  IS_ROUTETOOLTIP_SHOWN = "IsRouteToolTipShown";
+    public static final String CURRENT_MAPS_STYLE = "CurrentMapStyle";
     public SessionManager(Context context)
     {
         this._context = context;
@@ -69,6 +70,11 @@ public class SessionManager {
             case MAIN:prefEditor.putBoolean(IS_MAINTOOLTIP_SHOWN, isShown); break;
             case SHOWING_ROUTES: prefEditor.putBoolean(IS_ROUTETOOLTIP_SHOWN, isShown); break;
         }
+        prefEditor.commit();
+    }
+    public String getMapStylePreference() {return pref.getString(CURRENT_MAPS_STYLE, null);}
+    public void SetMapStylePreference(Enums.GoogleMapType type){
+        prefEditor.putString(CURRENT_MAPS_STYLE, type.toString());
         prefEditor.commit();
     }
     public void PassReportType(String reportType)

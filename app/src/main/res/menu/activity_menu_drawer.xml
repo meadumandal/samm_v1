@@ -42,6 +42,21 @@
                 android:title="Ecoloop Flow"/>
         </menu>
     </item>
+    <item android:id="@+id/map_style_items"
+        android:title="MAP STYLE" >
+        <menu>
+            <item android:id="@+id/nav_map_normal"
+                android:title="Normal"
+                />
+            <item android:id="@+id/nav_map_satellite"
+                android:title="Satellite"/>
+            <item android:id="@+id/nav_map_hybrid"
+                android:title="Hybrid"/>
+            <item android:id="@+id/nav_map_terrain"
+                android:title="Terrain"/>
+        </menu>
+
+    </item>
     <item android:title="SAMM HELP">
         <menu>
             <!--<item-->

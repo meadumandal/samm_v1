@@ -39,6 +39,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -61,6 +62,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -217,6 +219,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static ImageView Search_BackBtn;
         public  static TextView _DestinationTextView;
         public static CardView _RoutesContainer_CardView;
+        public static ProgressBar _LoopArrivalProgress;
 
 
         //Put here other global variables
@@ -387,6 +390,8 @@ public class MenuActivity extends AppCompatActivity implements
                 Search_BackBtn = (ImageView) findViewById(id.Search_BackBtn);
                 _DestinationTextView = (TextView) findViewById(id.DestinationTV);
                 _RoutesContainer_CardView = (CardView) findViewById(id.Routes_CardView);
+                _LoopArrivalProgress = (ProgressBar) findViewById(R.id.progressBarLoopArrival);
+
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
                 {
@@ -414,16 +419,7 @@ public class MenuActivity extends AppCompatActivity implements
                 });
                 Search_BackBtn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        _RouteTabLayout.setVisibility(View.GONE);
-                        _RoutesPane.setVisibility(View.GONE);
-                        AnalyzeForBestRoutes.clearLines();
-                        _selectedPickUpPoint = null;
-                        Search_BackBtn.setVisibility(View.GONE);
-                        FrameSearchBarHolder.setVisibility(View.VISIBLE);
-                        FAB_SammIcon.setVisibility(View.VISIBLE);
-                        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
-                        lp.height = 0;
-                        _AppBar.setLayoutParams(lp);
+                     HideRouteTabsAndSlidingPanel();
                     }
                 });
 
@@ -522,15 +518,7 @@ public class MenuActivity extends AppCompatActivity implements
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                _RouteTabLayout.setVisibility(View.GONE);
-                                _RoutesPane.setVisibility(View.GONE);
-                                AnalyzeForBestRoutes.clearLines();
-                                _selectedPickUpPoint = null;
-                                CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
-                                lp.height = 0;
-                                view.setVisibility(View.GONE);
-                                _AppBar.setLayoutParams(lp);
-                                FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                              HideRouteTabsAndSlidingPanel();
                             }
                         });
                 FrameSearchBarHolder.setOnClickListener(new View.OnClickListener() {
@@ -674,7 +662,12 @@ public class MenuActivity extends AppCompatActivity implements
     public void onMapReady(GoogleMap googleMap) {
         Log.i(_constants.LOG_TAG,"Google Map is Ready...");
         _googleMap = googleMap;
-        _googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        Enums.GoogleMapType mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
+        try{
+           mapType = Enums.GoogleMapType.valueOf(_sessionManager.getMapStylePreference());
+        }catch (Exception ex){
+        }
+        SetMapType(_googleMap, mapType);
         //Initialize Google Play Services
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
@@ -690,18 +683,19 @@ public class MenuActivity extends AppCompatActivity implements
             buildGoogleApiClient();
             _googleMap.setMyLocationEnabled(true);
         }
+        if(mapType == Enums.GoogleMapType.MAP_TYPE_NORMAL){
+            Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
+            boolean success = _googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, mapsStyle));
 
-        Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
-        boolean success = _googleMap.setMapStyle(
-                MapStyleOptions.loadRawResourceStyle(
-                        this, mapsStyle));
-
-        if (!success) {
-            Log.e(Constants.LOG_TAG, "Style parsing failed.");
+            if (!success) {
+                Log.e(Constants.LOG_TAG, "Style parsing failed.");
+            }
         }
-        _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
-        _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 
+        _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
+_googleMap.getUiSettings().setMyLocationButtonEnabled(true);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -1034,6 +1028,18 @@ public class MenuActivity extends AppCompatActivity implements
                     //_TerminalsAutoCompleteTextView.setVisibility(View.VISIBLE);
                     //_CurrentLocationEditText.setVisibility(View.VISIBLE);
                 }
+            }
+            else if(id==R.id.nav_map_normal){
+                SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_NORMAL);
+            }
+            else if(id==R.id.nav_map_hybrid){
+                SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_HYBRID);
+            }
+            else if(id==R.id.nav_map_satellite){
+                SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_SATELLITE);
+            }
+            else if(id==R.id.nav_map_terrain){
+                SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_TERRAIN);
             }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             drawer.closeDrawer(GravityCompat.START);
@@ -1943,7 +1949,7 @@ public class MenuActivity extends AppCompatActivity implements
         Integer currentTime = Calendar.getInstance().getTime().getHours();
         return (currentTime >= 18 || currentTime <=5)? true: false;
     }
-    public void GenerateToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay){
+    public void BuildToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay){
         new SimpleTooltip.Builder(activity)
                 .anchorView(view)
                 .text(text)
@@ -1960,22 +1966,109 @@ public class MenuActivity extends AppCompatActivity implements
        switch(type){
            case MAIN:
                if(!_sessionManager.getMainTutorialStatus()){
-                   GenerateToolTip("Tap to show menu options",this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
-                   GenerateToolTip("Search here",this, FrameSearchBarHolder, Gravity.BOTTOM ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false  );
+                   BuildToolTip("Tap to show menu options",this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
+                   BuildToolTip("Search here",this, FrameSearchBarHolder, Gravity.BOTTOM ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false  );
                    _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
                }
                break;
            case SHOWING_ROUTES:
                if(!_sessionManager.getRouteTutorialStatus()){
-                   GenerateToolTip("Tap to search again",this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
-                   GenerateToolTip("Pull up to show navigation instructions",this, _RoutesContainer_CardView, Gravity.TOP ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR ,false );
+                   ShowRouteTabsAndSlidingPanel();
+                   BuildToolTip("Tap to search again",this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
+                   BuildToolTip("Pull up to show navigation instructions",this, _RoutesContainer_CardView, Gravity.TOP ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR ,false );
                    _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
                }
                break;
            default: break;
        }
     }
+    public void ShowRouteTabsAndSlidingPanel(){
+        _RouteTabLayout.setVisibility(View.VISIBLE);
+        _RoutesPane.setVisibility(View.VISIBLE);
+        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        _StepsScroller.scrollTo(0, 0);
+        AnalyzeForBestRoutes.clearLines();
+        _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+        _AppBar.setVisibility(View.VISIBLE);
+        FAB_SammIcon.setVisibility(View.GONE);
+        Search_BackBtn.setVisibility(View.VISIBLE);
+        FrameSearchBarHolder.setVisibility(View.GONE);
+        final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
+        viewPager.setCurrentItem(0);
+        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+        _StepsScroller.scrollTo(0, 0);
+        AnalyzeForBestRoutes.clearLines();
+        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
+        lp.height = 130;
+        _AppBar.setLayoutParams(lp);
+        //Get nearest loop time of arrival~
+        _LoopArrivalProgress.setVisibility(View.VISIBLE);
+        _markerAnimator.start();
+    }
+    public void HideRouteTabsAndSlidingPanel(){
+        _RouteTabLayout.setVisibility(View.GONE);
+        _RoutesPane.setVisibility(View.GONE);
+        AnalyzeForBestRoutes.clearLines();
+        _selectedPickUpPoint = null;
+        Search_BackBtn.setVisibility(View.GONE);
+        FrameSearchBarHolder.setVisibility(View.VISIBLE);
+        FAB_SammIcon.setVisibility(View.VISIBLE);
+        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
+        lp.height = 0;
+        _AppBar.setLayoutParams(lp);
+    }
+    public void SetMapType(GoogleMap gmap, Enums.GoogleMapType mapType){
+        switch(mapType){
+            case MAP_TYPE_NORMAL: gmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
+                boolean success = _googleMap.setMapStyle(
+                        MapStyleOptions.loadRawResourceStyle(
+                                this, mapsStyle));
 
+                if (!success) {
+                    Log.e(Constants.LOG_TAG, "Style parsing failed.");
+                }
+                _NavView.getMenu().findItem(id.nav_map_normal).setIcon(R.drawable.ic_check_black_24dp);
+                break;
+            case MAP_TYPE_HYBRID: gmap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                _NavView.getMenu().findItem(id.nav_map_hybrid).setIcon(R.drawable.ic_check_black_24dp);
+                break;
+            case MAP_TYPE_TERRAIN:   gmap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+                _NavView.getMenu().findItem(id.nav_map_terrain).setIcon(R.drawable.ic_check_black_24dp);
+                break;
+            case MAP_TYPE_SATELLITE:gmap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                _NavView.getMenu().findItem(id.nav_map_satellite).setIcon(R.drawable.ic_check_black_24dp);
+                break;
+            default:gmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);  _NavView.getMenu().findItem(id.nav_map_normal).setIcon(R.drawable.ic_check_black_24dp);
+
+        }
+        UnselectMapTypes(mapType);
+        _sessionManager.SetMapStylePreference(mapType);
+
+    }
+    public void UnselectMapTypes(Enums.GoogleMapType SelectedMapType) {
+        List<MenuItem> MenuItems = new ArrayList<MenuItem>();
+        MenuItems.add(_NavView.getMenu().findItem(id.nav_map_hybrid));
+        MenuItems.add(_NavView.getMenu().findItem(id.nav_map_terrain));
+        MenuItems.add(_NavView.getMenu().findItem(id.nav_map_satellite));
+        MenuItems.add(_NavView.getMenu().findItem(id.nav_map_normal));
+        for (MenuItem item : MenuItems) {
+            if (!String.valueOf(SelectedMapType).contains(item.getTitle().toString().toUpperCase())) {
+                item.setIcon(null);
+            }
+        }
+        //  Enums.GoogleMapType MapTypes[] = Enums.GoogleMapType.values();
+//        for (MenuItem menu_item_entry:MenuItems) {
+//            for (Enums.GoogleMapType type: MapTypes) {
+//                if(!SelectedMapType.equals(type) && String.valueOf(SelectedMapType).contains(menu_item_entry.getTitle().toString().split("_")[2].toUpperCase())){
+//                    menu_item_entry.setIcon(null);
+//                }
+//            }
+//        }
+        //  }
+    }
 
 }
 

@@ -21,4 +21,22 @@ public class Enums {
         }
 
     }
+    public enum GoogleMapType{
+        MAP_TYPE_NORMAL("MAP_TYPE_NORMAL", 0),
+        MAP_TYPE_SATELLITE("MAP_TYPE_SATELLITE", 1),
+        MAP_TYPE_HYBRID("MAP_TYPE_HYBRID", 2),
+        MAP_TYPE_TERRAIN("MAP_TYPE_TERRAIN", 3);
+
+        private String stringValue;
+        private int intValue;
+        private GoogleMapType(String toString, int value) {
+            stringValue = toString;
+            intValue = value;
+        }
+        @Override
+        public String toString() {
+            return stringValue;
+        }
+
+    }
 }
