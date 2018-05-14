@@ -36,6 +36,7 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
     ArrayList<PassengerCountReport> _listReport;
     ArrayList<BarDataSet> dataSet;
     ArrayList<String> xAxis;
+    private Constants _constants = new Constants();
 
     /**
      *This is the generic format in accessing data from mySQL
@@ -85,11 +86,11 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String reportDate = params[0];
-//                String _terminalAutoComplete = params[1];
-                String link = "http://meadumandal.website/sammAPI/getPassengerCountReport.php?fromDate="
-                        + reportDate.toString()
-                        + "&_terminalAutoComplete=";
+                String fromDate = params[0];
+                String toDate = params[1];
+//                String _terminalAutoComplete =
+                String link = _constants.WEB_API_URL + "getPassengerCountReport.php?fromDate="
+                        + fromDate.toString() + "&_toDate=" + toDate.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -101,11 +102,11 @@ public class mySQLPassengerCountReport extends AsyncTask<String, Void, ArrayList
                 ArrayList<PassengerCountReport> listReport = new ArrayList<>();
                 for(int index=0; index < jsonArray.length(); index++) {
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
-                    String terminal = jsonobject.getString("TERMINAL");
+                    //String terminal = jsonobject.getString("TERMINAL");
                     int count = jsonobject.getInt("COUNT");
                     int hour = jsonobject.getInt("HOUR");
 
-                    listReport.add(new PassengerCountReport(count, hour, terminal));
+                    listReport.add(new PassengerCountReport(count, hour));//, terminal));
                 }
                 return listReport;
             }

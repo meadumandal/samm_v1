@@ -15,6 +15,7 @@ public class Constants {
     public static final String GUEST_FIRSTNAME = "Guest";
     public static final String GUEST_LASTNAME = "User";
     public static final String APP_TITLE = "SAMM";
+    public static final String DRIVER_EMAILADDRESS="sammdriver@yahoo.com";
     public static final String ADMIN_EMAILADDRESS = "admin@yahoo.com";
     public static final String PASSENGER_REPORT_TYPE = "passenger";
     public static final String VEHICLE_REPORT_TYPE = "ecoloop";
@@ -26,9 +27,9 @@ public class Constants {
     public static final String GPS_PASSWORD = "123456";
     public static final String GLOBE_APN = "http.globe.com.ph";
     public static final String SMART_APN = "internet";
-    public static final String TRACCAR_SERVER = "http://139.59.246.6/";
-    public static final String TRACCAR_USERNAME="admin";
-    public static final String TRACCAR_PASSWORD="admin";
+    public static final String TRACCAR_SERVER = "http://demo4.traccar.org/";
+    public static final String TRACCAR_USERNAME="meadumandal@yahoo.com";
+    public static final String TRACCAR_PASSWORD="password";
     public static final String TRACCAR_PORT = "5002";
 
     public static final String SMS_BEGIN = "begin" + GPS_PASSWORD;

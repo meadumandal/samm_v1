@@ -43,6 +43,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextView link_driver;
     private static String TAG = "mead";
     private ProgressDialog SignUpProgDiag;
+    private Constants _constants = new Constants();
 
 
     @Override
@@ -127,9 +128,9 @@ public class SignUpActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), getString(R.string.error_passwordnotmatch), Toast.LENGTH_LONG).show();
                                     return;
                                 }
-                                String url = "http://meadumandal.website/sammAPI/";
+
                                 Retrofit retrofit = new Retrofit.Builder()
-                                        .baseUrl(url)
+                                        .baseUrl(_constants.WEB_API_URL)
                                         .addConverterFactory(GsonConverterFactory.create())
                                         .build();
                                 RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);

@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.DisplayMetrics;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -43,9 +44,9 @@ public class Helper {
     public Context _context;
     public SessionManager _sessionManager;
 
-    public Helper(MenuActivity activity, Context context)
+    public Helper(Activity activity, Context context)
     {
-        this._activity = activity;
+        this._activity = (MenuActivity) activity;
         this._context = context;
         this._sessionManager = new SessionManager(_context);
     }
@@ -208,6 +209,12 @@ public class Helper {
                 .child("currentDestination")
                 .addListenerForSingleValueEvent(
                         new SaveCurrentDestination(this._activity, this._context, currentDestination));
+    }
+    public int dpToPx(float dp) {
+        DisplayMetrics metrics = _context.getResources().getDisplayMetrics();
+        float fpixels = metrics.density * dp;
+        int pixels = (int) (fpixels + 0.5f);
+        return pixels;
     }
 
 }

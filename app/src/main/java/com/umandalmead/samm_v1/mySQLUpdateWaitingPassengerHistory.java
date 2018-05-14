@@ -20,7 +20,7 @@ import java.net.URLEncoder;
  */
 
 
-public class mySQLUpdatePassengerCountForReport extends AsyncTask<String, Void, Void>{
+public class mySQLUpdateWaitingPassengerHistory extends AsyncTask<String, Void, Void>{
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -31,7 +31,8 @@ public class mySQLUpdatePassengerCountForReport extends AsyncTask<String, Void, 
      */
     Context _context;
     Activity _activity;
-    public mySQLUpdatePassengerCountForReport(Context context, Activity activity)
+    private Constants _constants = new Constants();
+    public mySQLUpdateWaitingPassengerHistory(Context context, Activity activity)
     {
         this._context = context;
         this._activity = activity;
@@ -55,16 +56,16 @@ public class mySQLUpdatePassengerCountForReport extends AsyncTask<String, Void, 
     @Override
     protected Void doInBackground(String... params)
     {
-        String username = params[0];
-        String terminal = params[1];
+        String terminal = params[0];
+        String numberOfWaitingPassengers =params[1];
 
         String data = "";
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = "http://meadumandal.website/sammAPI/updatePassengerCounter.php?";
-                data += "username=" + URLEncoder.encode(username, "UTF-8")
+                String link = _constants.WEB_API_URL + "updatePassengerCounter.php?";
+                data += "numberOfWaitingPassengers=" + URLEncoder.encode(numberOfWaitingPassengers, "UTF-8")
                         + "&terminal=" + URLEncoder.encode(terminal, "UTF-8");
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();

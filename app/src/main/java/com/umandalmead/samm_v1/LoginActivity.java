@@ -76,6 +76,7 @@ public class LoginActivity extends AppCompatActivity{
     private static String TAG = "mead";
     ProgressDialog LoginProgDiag;
     private static Helper _helper = new Helper();
+    private Constants _constants = new Constants();
 
 
 
@@ -281,7 +282,7 @@ public class LoginActivity extends AppCompatActivity{
                                         progressBar.setVisibility(View.GONE);
                                         Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
                                     } else {
-                                        if (!response.body().getEmailAddress().toLowerCase().equals("sammdriver@yahoo.com")) {
+                                        if (!response.body().getEmailAddress().toLowerCase().equals(_constants.DRIVER_EMAILADDRESS)) {
                                             signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId());
                                         }
                                         else{
@@ -368,10 +369,10 @@ public class LoginActivity extends AppCompatActivity{
             _helper.showNoInternetPrompt(this);
         }
     }
-    private void signIn(final String email, String password, final String _lastName, final String _firstName, final String _username, final String _deviceId)
+    private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final String param_deviceId)
     {
         userDatabaseRef = userDatabase.getReference();
-        auth.signInWithEmailAndPassword(email, password)
+        auth.signInWithEmailAndPassword(param_email, param_password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -384,16 +385,16 @@ public class LoginActivity extends AppCompatActivity{
                         {
                             try{
 
-                                String firstName = _firstName;
-                                String lastName = _lastName;
-                                String username =  _username;
-                                String deviceId = _deviceId;
+                                String firstName = param_firstname;
+                                String lastName = param_lastname;
+                                String username =  param_username;
+                                String deviceId = param_deviceId;
                                 boolean isDriver = false;
-                                if(email.equals("sammdriver@yahoo.com"))
+                                if(param_email.equals(_constants.DRIVER_EMAILADDRESS))
                                     isDriver = true;
 
                                 userDatabaseRef.child(sessionManager.getUsername()).removeValue();
-                                sessionManager.CreateLoginSession(firstName,lastName, username,email,isDriver, false, deviceId);
+                                sessionManager.CreateLoginSession(firstName,lastName, username,param_email,isDriver, false, deviceId);
                                 Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                 startActivity(intent);
                                 finish();

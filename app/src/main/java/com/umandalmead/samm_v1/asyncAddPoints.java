@@ -35,10 +35,11 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
     Integer _destinationIDForEdit;
     String _action;
     public static String TAG = "mead";
+    private Constants _constants = new Constants();
 
 
     public asyncAddPoints(Context context, ProgressDialog progDialog, Activity activity, GoogleMap map, GoogleApiClient apiClient, String action, Integer destinationIDForEdit) {
-        Log.i(TAG, "asyncAddPoints");
+        Log.i(_constants.LOG_TAG, "asyncAddPoints");
         this._context = context;
         this._progDialog = progDialog;
         this._activity = activity;
@@ -73,7 +74,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
     protected String doInBackground(String... params)
     {
 
-        Log.i(TAG, "asyncAddPoints doInBackground");
+        Log.i(_constants.LOG_TAG, "asyncAddPoints doInBackground");
         try{
             String name="";
             String lat="";
@@ -96,20 +97,20 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 String link = "";
                 if(_action.equals("add"))
 
-                    link = "http://meadumandal.website/sammAPI/_AddPointFloatingButton.php?name=" +name
+                    link = _constants.WEB_API_URL + "_AddPointFloatingButton.php?name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
                             + "&preposition=" + preposition
                             + "&terminalreferenceid="+terminalreferenceid;
                 else if (_action.equals("update"))
-                    link = "http://meadumandal.website/sammAPI/updatePoint.php?id="+_destinationIDForEdit.toString()
+                    link = _constants.WEB_API_URL + "updatePoint.php?id="+_destinationIDForEdit.toString()
                             + "&name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
                             + "&preposition=" + preposition
                             + "&terminalreferenceid="+terminalreferenceid;
                 else
-                    link = "http://meadumandal.website/sammAPI/removePoint.php?destinationid="+_destinationIDForEdit.toString();
+                    link = _constants.WEB_API_URL + "removePoint.php?destinationid="+_destinationIDForEdit.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -136,7 +137,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 catch(Exception e){
 
 
-                    Log.e(TAG, e.getLocalizedMessage() +":"+ e.getMessage());
+                    Log.e(_constants.LOG_TAG, e.getLocalizedMessage() +":"+ e.getMessage());
 
                     return "Error encountered : "+e.getMessage()+". Please re-try";
                 }
@@ -149,7 +150,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
         }
         catch(Exception e)
         {
-            Log.e(TAG, e.getLocalizedMessage() + e.getMessage());
+            Log.e(_constants.LOG_TAG, e.getLocalizedMessage() + e.getMessage());
             return e.getMessage();
 
         }
@@ -188,7 +189,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
         catch(Exception e)
         {
 
-            Log.e(TAG, e.getMessage());
+            Log.e(_constants.LOG_TAG, e.getMessage());
 
         }
     }

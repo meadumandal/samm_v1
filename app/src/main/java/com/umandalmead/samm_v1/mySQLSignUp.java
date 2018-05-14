@@ -31,6 +31,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
      */
     Context _context;
     Activity _activity;
+    private Constants _constants = new Constants();
     public mySQLSignUp(Context context, Activity activity)
     {
         this._context = context;
@@ -63,8 +64,9 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context))
         {
+
             try{
-                String link = "http://meadumandal.website/sammAPI/signUp.php?";
+                String link = _constants.WEB_API_URL + "signUp.php?";
                 data += "username=" + URLEncoder.encode(username, "UTF-8")
                         + "&firstName=" + URLEncoder.encode(firstName, "UTF-8")
                         + "&lastName=" + URLEncoder.encode(lastName, "UTF-8")

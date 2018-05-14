@@ -2,16 +2,23 @@ package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
+import com.umandalmead.samm_v1.mySQLUpdateWaitingPassengerHistory;
+
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
  * Created by MeadRoseAnn on 3/25/2018.
@@ -34,8 +41,21 @@ public class AddPassengerCountLabel implements ChildEventListener {
         try {
             Marker terminalEntered = MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey());
             if (terminalEntered != null) {
-                terminalEntered.showInfoWindow();
-                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+                LatLng markerPosition = terminalEntered.getPosition();
+                terminalEntered.remove();
+                MenuActivity._terminalMarkerHashmap.remove(dataSnapshot.getKey());
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(markerPosition);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
+                markerOptions.snippet(dataSnapshot.getChildrenCount() + " passenger/s waiting");
+                markerOptions.title(dataSnapshot.getKey());
+                Marker newTerminalMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                newTerminalMarker.showInfoWindow();
+
+                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
+                Log.i(LOG_TAG, "Updating waiting passenger history for reports...");
+
+                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(dataSnapshot.getChildrenCount()));
             }
         } catch (Exception ex) {
             Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -48,8 +68,24 @@ public class AddPassengerCountLabel implements ChildEventListener {
             Marker terminalEntered = MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey());
             if (terminalEntered != null)
             {
-                terminalEntered.showInfoWindow();
-                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
+
+                LatLng markerPosition = terminalEntered.getPosition();
+                terminalEntered.remove();
+                MenuActivity._terminalMarkerHashmap.remove(dataSnapshot.getKey());
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(markerPosition);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
+                markerOptions.snippet(dataSnapshot.getChildrenCount() + " passenger/s waiting");
+                markerOptions.title(dataSnapshot.getKey());
+                Marker newTerminalMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                newTerminalMarker.showInfoWindow();
+
+                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
+                Log.i(LOG_TAG, "Updating passenger count for reports...");
+
+                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(dataSnapshot.getChildrenCount()));
+
+
             }
 
         } catch (Exception ex) {

@@ -3,16 +3,13 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.Menu;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
 import org.json.JSONObject;
@@ -38,6 +35,7 @@ public class asyncUpdateTraccarGPS extends AsyncTask<Void, Void, String>{
     String _putData;
     GPS _dataModel;
     DialogFragment _dialogFragment;
+    private Constants _constants = new Constants();
 
 
     public asyncUpdateTraccarGPS(Context context, ProgressDialog progDialog, Activity activity, GPS dataModel)
@@ -92,7 +90,8 @@ public class asyncUpdateTraccarGPS extends AsyncTask<Void, Void, String>{
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
-                String link="http://meadumandal.website/sammAPI/updateDevice.php?id="+id+"&name="+name+"&uniqueId="+uniqueId
+
+                String link=_constants.WEB_API_URL + "updateDevice.php?id="+id+"&name="+name+"&uniqueId="+uniqueId
                         +"&phone="+phone+"&model="+networkProvider;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();

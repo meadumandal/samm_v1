@@ -100,6 +100,7 @@
                 android:backgroundTint="@color/colorAccent"
                 android:focusable="false"/>
 
+
                 <Button
                     android:id="@+id/btnViewReport"
                     style="?android:textAppearanceSmall"
@@ -111,6 +112,28 @@
                     android:text="View"
                     android:textColor="@color/colorPrimaryDark"
                     android:textStyle="bold" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:id="@+id/layout_terminalSelection"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Terminal: "
+                android:textSize="15dp"
+                android:textColor="@color/colorWhiteEC"/>
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_terminal"
+                android:textColor="@color/colorWhite"
+                ></Spinner>
 
         </LinearLayout>
 

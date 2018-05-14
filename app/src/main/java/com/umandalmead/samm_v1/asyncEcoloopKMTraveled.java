@@ -1,13 +1,18 @@
 package com.umandalmead.samm_v1;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -106,18 +111,18 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 fromDate = parser.parse(params[0]);
                 toDate = parser.parse(params[1]);
 
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(fromDate);
-                cal.add(cal.DATE, -1);
-                fromDate = cal.getTime();
+//                Calendar cal = Calendar.getInstance();
+//                cal.setTime(fromDate);
+//                cal.add(cal.DATE, -1);
+//                fromDate = cal.getTime();
 
-                String fromDateStr = date_format.format(fromDate) + "T16:00:00Z";
-                String toDateStr = date_format.format(toDate) + "T16:00:00Z";
-                String link = _constants.TRACCAR_SERVER+"api/reports/summary?groupId=1&from="+fromDateStr+"&to="+toDateStr;
+                String fromDateStr = date_format.format(fromDate);
+                String toDateStr = date_format.format(toDate);
+                String link = _constants.WEB_API_URL+"getEcoloopSummary.php?fromDate="+fromDateStr+"&toDate="+toDateStr;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
-                conn.setRequestProperty("Authorization", "Basic " + BasicAuth.encode(_constants.TRACCAR_USERNAME, _constants.TRACCAR_PASSWORD));
-                conn.setRequestProperty("Content-Type", "application/json");
+//                conn.setRequestProperty("Authorization", "Basic " + BasicAuth.encode(_constants.TRACCAR_USERNAME, _constants.TRACCAR_PASSWORD));
+//                conn.setRequestProperty("Content-Type", "application/json");
 
 
 
@@ -137,7 +142,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                     String plateNumber = "";
                     for (Eloop eloop : MenuActivity._eloopList)
                     {
-                        if (eloop.DeviceId == deviceId)
+                        if (eloop.DeviceId == deviceId || eloop.DeviceName.toLowerCase().equals(deviceName.toLowerCase()))
                         {
                             plateNumber = eloop.PlateNumber;
                             break;
@@ -166,6 +171,8 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
     @Override
     protected void onPostExecute(ArrayList<SummaryReport> listReport)
     {
+        Helper helper = new Helper(_activity,_context);
+        clearTable();
         try
         {
             ReportsActivity._reportChart.setVisibility(View.GONE);
@@ -175,25 +182,41 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 TableRow row = new TableRow(_context);
                 row.setGravity(Gravity.CENTER_HORIZONTAL);
                 TableLayout.LayoutParams tableRowParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.WRAP_CONTENT);
-                int topMargin = 5;
-                tableRowParams.setMargins(0,topMargin,0,0);
                 row.setLayoutParams(tableRowParams);
-
 
                 TextView plateNumber = new TextView(_context);
                 plateNumber.setText(summary.plateNumber);
-                plateNumber.setGravity(Gravity.LEFT);
                 plateNumber.setTextColor(Color.BLACK);
+                plateNumber.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
+                plateNumber.setPadding(helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5));
+                plateNumber.setTypeface(null, Typeface.BOLD);
+                TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(helper.dpToPx(120), ActionBar.LayoutParams.WRAP_CONTENT);
+                textViewParams.setMargins(helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1));
+
+                plateNumber.setLayoutParams(textViewParams);
+
 
                 TextView distance = new TextView(_context);
                 distance.setText(Double.toString(summary.distance) + " km");
                 distance.setGravity(Gravity.RIGHT);
                 distance.setTextColor(Color.BLACK);
+                distance.setBackgroundResource(R.color.colorWhite);
+                distance.setPadding(helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5));
+                textViewParams = new TableRow.LayoutParams(helper.dpToPx(110), ActionBar.LayoutParams.WRAP_CONTENT);
+                textViewParams.setMargins(helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1));
+                distance.setLayoutParams(textViewParams);
+
 
                 TextView maxSpeed = new TextView(_context);
                 maxSpeed.setText(Double.toString(summary.maxSpeed) + " kn");
                 maxSpeed.setGravity(Gravity.RIGHT);
                 maxSpeed.setTextColor(Color.BLACK);
+                maxSpeed.setBackgroundResource(R.color.colorWhite);
+                maxSpeed.setPadding(helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5));
+                textViewParams = new TableRow.LayoutParams(helper.dpToPx(100), ActionBar.LayoutParams.WRAP_CONTENT);
+                textViewParams.setMargins(helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1));
+                maxSpeed.setLayoutParams(textViewParams);
+
 
                 row.addView(plateNumber);
                 row.addView(distance);
@@ -209,6 +232,16 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
             Toast.makeText(this._context, e.getMessage().toString(), Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    private void clearTable()
+    {
+        int childCount = ReportsActivity._reportTable.getChildCount();
+        if (childCount>0)
+        {
+            ReportsActivity._reportTable.removeViews(2, childCount - 2);
+
+        }
     }
 
 

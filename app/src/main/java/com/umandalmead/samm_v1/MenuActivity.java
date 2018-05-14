@@ -25,7 +25,6 @@ import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.Image;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -40,7 +39,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -98,7 +96,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
@@ -106,6 +106,7 @@ import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddPassengerCountLabel;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkers;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddVehicleMarkers;
+import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.Vehicle_DestinationsListener;
 import com.umandalmead.samm_v1.POJO.Directions;
 import com.umandalmead.samm_v1.POJO.Setting;
 import com.umandalmead.samm_v1.POJO.Settings;
@@ -167,6 +168,7 @@ public class MenuActivity extends AppCompatActivity implements
         public DatabaseReference _usersDBRef;
         public DatabaseReference _terminalsDBRef;
         public DatabaseReference _driversDBRef;
+        public DatabaseReference _vehicle_destinationsDBRef;
 
         //Put here all global Collection Variables
         public static List<Terminal> _possiblePickUpPointList;
@@ -241,6 +243,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Boolean _isGPSReconnect = false;
         private String _gpsIMEI;
         public Constants _constants;
+        public Boolean terminalsNodeExists = false;
 
 
         /**
@@ -340,10 +343,11 @@ public class MenuActivity extends AppCompatActivity implements
                 //setSupportActionBar(_Toolbar);
                 //_Toolbar.setTitle(_constants.APP_TITLE);
 
-                if (_firebaseDB == null && _usersDBRef == null) {
+                if (_firebaseDB == null || _usersDBRef == null || _vehicle_destinationsDBRef == null) {
                     _firebaseDB = FirebaseDatabase.getInstance();
                     _usersDBRef = _firebaseDB.getReference("users");
                     _terminalsDBRef = _firebaseDB.getReference("terminals");
+                    _vehicle_destinationsDBRef = _firebaseDB.getReference("vehicle_destinations");
                 }
                 if (_driversDBRef == null)
                     _driversDBRef = _firebaseDB.getReference("drivers");
@@ -544,6 +548,8 @@ public class MenuActivity extends AppCompatActivity implements
 
                 if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getIsAdmin())
                 {
+
+
                     //LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
                     //EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
 
@@ -556,6 +562,7 @@ public class MenuActivity extends AppCompatActivity implements
                 }
                 if (_sessionManager.isDriver())
                 {
+                    _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
                     _RoutesPane.setVisibility(View.VISIBLE);
                     _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
@@ -673,6 +680,7 @@ public class MenuActivity extends AppCompatActivity implements
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
+
                 buildGoogleApiClient();
                 _googleMap.setMyLocationEnabled(true);
                 _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
@@ -682,6 +690,7 @@ public class MenuActivity extends AppCompatActivity implements
             buildGoogleApiClient();
             _googleMap.setMyLocationEnabled(true);
         }
+
         Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
         boolean success = _googleMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
@@ -691,6 +700,7 @@ public class MenuActivity extends AppCompatActivity implements
             Log.e(Constants.LOG_TAG, "Style parsing failed.");
         }
         _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
+        _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 
     }
 
@@ -1078,10 +1088,15 @@ public class MenuActivity extends AppCompatActivity implements
         });
     }
 
-    private void updatePassengerCountForReport(String username, String terminal)
+//    private void updatePassengerCountForReport(String username, String terminal)
+//    {
+//        Log.i(LOG_TAG, "Updating passenger count for reports...");
+//        new mySQLUpdateWaitingPassengerHistory(getApplicationContext(), this).execute(username, terminal);
+//    }
+    public void updatePassengerCountForReport(String terminal, long numberOfWaitingPassengers)
     {
         Log.i(LOG_TAG, "Updating passenger count for reports...");
-        new mySQLUpdatePassengerCountForReport(getApplicationContext(), this).execute(username, terminal);
+        new mySQLUpdateWaitingPassengerHistory(getApplicationContext(), this).execute(terminal,  Long.toString(numberOfWaitingPassengers));
     }
     private void passengerMovement(final String destinationValue, final String movement)
     {
@@ -1098,18 +1113,104 @@ public class MenuActivity extends AppCompatActivity implements
                 if(movement.toLowerCase().equals("entered"))
                 {
                     _terminalsDBRef.child(destinationValue).child(uid).setValue(true);
-                    updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
+                    //updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
                 }
 
 //                }
                 else if(movement.toLowerCase().equals("exit")){
-                        _terminalsDBRef.child(destinationValue).child(uid).removeValue();
+                    _terminalsDBRef.child(destinationValue).child(uid).removeValue();
                 }
                 else if (movement.toLowerCase().equals("entered"))
                 {
-                    updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
+                    //updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
                 }
+                _passengerCount.remove(destinationValue);
                 _passengerCount.put(destinationValue, dataSnapshot.getChildrenCount());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+    }
+    private void passengerMovement_withNoRunTransaction(final String destinationValue, final String movement)
+    {
+        Log.i(LOG_TAG, "Saving passenger movement to firebase...");
+        final HashMap<String, Object> count = new HashMap<>();
+        final HashMap<String, Object> hashmapCount = new HashMap<>();
+        final String uid = _sessionManager.getUsername();
+
+        _firebaseDB.getReference().child("terminals").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists())
+                {
+                    _terminalsDBRef.runTransaction(new Transaction.Handler()
+                    {
+
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            return null;
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
+                        }
+                    });
+                }
+                else
+                {
+                    _firebaseDB.getReference("terminals").runTransaction(new Transaction.Handler()
+                    {
+
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            try
+                            {
+                                HashMap<String, HashMap<String, Boolean>> test = new HashMap<>();
+                                HashMap<String, Boolean> test2 = new HashMap<>();
+                                test2.put("samm", true);
+                                test.put("terminals", test2);
+                                mutableData.child("terminals").child("CapitalOne").setValue(test2);
+                                return Transaction.success(mutableData);
+                            }
+                            catch(Exception e) {
+                                Log.e(LOG_TAG, e.getMessage());
+                            }
+                            return null;
+
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                            DataSnapshot d = dataSnapshot;
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        _terminalsDBRef.child(destinationValue).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+//                if(dataSnapshot == null || dataSnapshot.getValue() == null)
+//                {
+
+
             }
 
             @Override

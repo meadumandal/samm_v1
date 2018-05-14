@@ -31,6 +31,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     String progressMessage;
     public static String TAG="mead";
     JSONObject postData;
+    private Constants _constants = new Constants();
 
 
     public asyncAddTraccarGPS(Context context, ProgressDialog progDialog, Activity activity)
@@ -79,7 +80,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             if (helper.isConnectedToInternet(this._context))
             {
 
-                String link = "http://meadumandal.website/sammAPI/createDevices.php?name="+name+"&uniqueId="+uniqueId+"&phoneNo="+phoneNo;
+                String link = _constants.WEB_API_URL + "createDevices.php?name="+name+"&uniqueId="+uniqueId+"&phoneNo="+phoneNo;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -156,7 +157,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
 
                 alertDialogBuilder.setTitle("Success");
                 alertDialogBuilder.setMessage("Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.");
-                new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
+                new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, _constants.DRIVER_EMAILADDRESS);
             }
             else
             {

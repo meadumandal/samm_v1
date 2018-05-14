@@ -35,6 +35,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
     String _putData;
     GPS _dataModel;
     DialogFragment _dialogFragment;
+    private Constants _constants = new Constants();
 
 
     public asyncAppSubName(Context context, ProgressDialog progDialog, Activity activity, GPS dataModel)
@@ -89,7 +90,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
-                String link="http://meadumandal.website/sammAPI/updateDevice.php?id="+id+"&name="+name+"&uniqueId="+uniqueId
+                String link=_constants.WEB_API_URL + "updateDevice.php?id="+id+"&name="+name+"&uniqueId="+uniqueId
                         +"&phone="+phone+"&model="+networkProvider;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();

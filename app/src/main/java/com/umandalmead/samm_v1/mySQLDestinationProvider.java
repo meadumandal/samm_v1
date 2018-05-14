@@ -50,20 +50,13 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
     GoogleMap _googleMap;
     GoogleApiClient mGoogleApiClient;
     PendingIntent mGeofencePendingIntent;
-
-
-
-
-
     protected static final String TAG = "Mead";
     public static float RADIUS = 10;
     public static final int LOITERINGDELAY = 10000;
     private GeofencingApi mGeofenceApi;
     private List<Terminal> mTerminals;
     ProgressDialog _progDialog;
-
-
-
+    private Constants _constants = new Constants();
     /**
      *
      * This gets destination value, description, order of arrival, lat and lng
@@ -124,7 +117,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = "http://meadumandal.website/sammAPI/getDestinations.php?";
+                String link = _constants.WEB_API_URL + "getDestinations.php?";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

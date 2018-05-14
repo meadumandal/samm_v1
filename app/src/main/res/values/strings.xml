@@ -28,6 +28,12 @@
         <item>After</item>
     </string-array>
 
+    <string-array name = "array_terminals">
+        <item>Terminal1</item>
+        <item>Terminal2</item>
+    </string-array>
+    <string name="prompt_terminals">Select a terminal</string>
+
 
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

@@ -54,8 +54,9 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
                     int id       = jsonobject.getInt("ID");
                     int deviceId       = jsonobject.getInt("DeviceId");
+                    String deviceName = jsonobject.getString("DeviceName");
                     String plateNumber    = jsonobject.getString("PlateNumber");
-                    listEloops.add(new Eloop(id,deviceId, plateNumber));
+                    listEloops.add(new Eloop(id,deviceId, deviceName, plateNumber));
                 }
                 return listEloops;
             }

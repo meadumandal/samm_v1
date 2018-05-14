@@ -51,7 +51,8 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
     public FragmentManager _fragmentManager;
     public SwipeRefreshLayout _swipeRefreshGPS;
     public listViewCustomAdapter customAdapter;
-    public static String TAG="mead";
+
+    private Constants _constants = new Constants();
 
 
     public asyncGetGPSFromTraccar(Context context,
@@ -60,7 +61,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                                   FragmentManager fm,
                                   SwipeRefreshLayout swipeRefreshGPS)
     {
-        Log.i(TAG, "asyncGetGPSFromTraccar");
+        Log.i(_constants.LOG_TAG, "asyncGetGPSFromTraccar");
         this._context = context;
         this._progDialog = progDialog;
         this._listView = listView;
@@ -78,13 +79,14 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
      */
     @Override
     protected JSONArray doInBackground(Void... voids) {
-            Log.i(TAG, "asyncGetGPSFromTraccar doInBackground");
+            Log.i(_constants.LOG_TAG, "asyncGetGPSFromTraccar doInBackground");
             try {
 
                 Helper helper = new Helper();
                 if (helper.isConnectedToInternet(this._context)) {
 
-                    String link = "http://meadumandal.website/sammAPI/getDevices.php";
+
+                    String link = _constants.WEB_API_URL + "getDevices.php";
                     URL url = new URL(link);
                     URLConnection conn = url.openConnection();
 
@@ -99,7 +101,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                         return new JSONArray(jsonResponse);
                     } catch (Exception e) {
                         _progDialog.dismiss();
-                        Log.e(TAG, e.getMessage());
+                        Log.e(_constants.LOG_TAG, e.getMessage());
                         return null;
                     }
                 } else {
@@ -107,7 +109,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                     return null;
                 }
             } catch (Exception e) {
-                Log.e(TAG, e.getLocalizedMessage() + e.getMessage());
+                Log.e(_constants.LOG_TAG, e.getLocalizedMessage() + e.getMessage());
                 _progDialog.dismiss();
                 return null;
 
@@ -154,7 +156,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                     }
                     catch(Exception e)
                     {
-                        Log.e(TAG, e.getMessage());
+                        Log.e(_constants.LOG_TAG, e.getMessage());
                     }
 
                 }
@@ -167,7 +169,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
         catch(Exception e)
         {
 
-            Log.e(TAG, e.getMessage());
+            Log.e(_constants.LOG_TAG, e.getMessage());
 
         }
 
