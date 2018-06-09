@@ -3,12 +3,15 @@ package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -20,6 +23,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.maps.android.ui.IconGenerator;
+import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
@@ -104,7 +109,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                 MenuActivity._googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
                 MenuActivity._googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             }
-
+            final String vehicle_Plate = GetEloopEntry(deviceId);
             final Location prevLocation = new Location("");
             final Location currLocation = new Location("");
             prevLocation.setLatitude(Double.parseDouble(dataSnapshot.child("PrevLat").getValue().toString()));
@@ -123,10 +128,26 @@ public class AddVehicleMarkers implements ChildEventListener {
                         public void onAnimationUpdate(ValueAnimator valueAnimator) {
                             try {
                                 MarkerOptions markerOptions = new MarkerOptions();
+
+
                                 if (deviceId.toString().equals(_sessionManager.getKeyDeviceid()))
                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
-                                else
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop_blue));
+                                else{
+                                    IconGenerator iconFactory = new IconGenerator(_context);
+                                    TextView text = new TextView(_context);
+                                    text.setText(vehicle_Plate);
+                                    text.setTextSize(10);
+                                    text.setBackgroundResource(R.drawable.rounded_corners);
+                                    text.setTypeface(null, Typeface.BOLD);
+                                    text.setPadding(8,8,8,8);
+                                    text.setTextColor(_context.getResources().getColor(R.color.colorBlack));
+                                    //iconFactory.setContentPadding(20,20,20,20);
+                                    iconFactory.setBackground(_context.getDrawable(R.mipmap.ic_ecoloop_blue));
+                                    iconFactory.setContentView(text);
+                                    Bitmap icon = iconFactory.makeIcon();
+                                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+                                }
+
 
                                 float v = valueAnimator.getAnimatedFraction();
                                 double lng = v * currLocation.getLongitude() + (1 - v)
@@ -154,6 +175,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                                 {
                                     _vehicleAnimatedMarker.remove();
                                     _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                                    _vehicleAnimatedMarker.showInfoWindow();
                                     _driverMarkerHashmap.remove(deviceId);
                                     _driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
                                 }
@@ -161,6 +183,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                                     _vehicleAnimatedMarker.showInfoWindow();
                                 }
 
+                               // _vehicleAnimatedMarker.showInfoWindow();
                             } catch (Exception ex) {
                                 Helper.logger(ex);
 
@@ -207,5 +230,15 @@ public class AddVehicleMarkers implements ChildEventListener {
                 }
             });
         }
+    }
+    private String GetEloopEntry(String vehicle_ID){
+        String _result = "";
+        for (Eloop e: MenuActivity._eloopList) {
+            if(e.DeviceId == Integer.parseInt(vehicle_ID)){
+                _result = e.PlateNumber;
+                break;
+            }
+        }
+        return _result;
     }
 }
