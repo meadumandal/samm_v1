@@ -6,16 +6,20 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
@@ -72,22 +76,37 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
 
             try{
                 String link = _constants.WEB_API_URL + "signUp.php?";
-                data += "username=" + URLEncoder.encode(username, "UTF-8")
-                        + "&firstName=" + URLEncoder.encode(firstName, "UTF-8")
-                        + "&lastName=" + URLEncoder.encode(lastName, "UTF-8")
-                        + "&emailAddress=" + URLEncoder.encode(emailAddress, "UTF-8");
-                URL url = new URL(link);
-                URLConnection conn = url.openConnection();
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost(link);
+                List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
+                postParameters.add(new BasicNameValuePair("username", username));
+                postParameters.add(new BasicNameValuePair("firstName", firstName));
+                postParameters.add(new BasicNameValuePair("lastName", lastName));
+                postParameters.add(new BasicNameValuePair("emailAddress", emailAddress));
+                httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
+                HttpResponse response = httpClient.execute(httpPost);
+                String strResponse = EntityUtils.toString(response.getEntity());
 
-                conn.setDoOutput(true);
 
-                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-                wr.write(data);
-                wr.flush();
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String jsonResponse = reader.readLine();
-                JSONObject json = new JSONObject(jsonResponse);
+//                String link = _constants.WEB_API_URL + "signUp.php?";
+//                data += "username=" + URLEncoder.encode(username, "UTF-8")
+//                        + "&firstName=" + URLEncoder.encode(firstName, "UTF-8")
+//                        + "&lastName=" + URLEncoder.encode(lastName, "UTF-8")
+//                        + "&emailAddress=" + URLEncoder.encode(emailAddress, "UTF-8");
+//                URL url = new URL(link);
+//                URLConnection conn = url.openConnection();
+//
+//
+//                conn.setDoOutput(true);
+//
+//                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+//                wr.write(data);
+//                wr.flush();
+//
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//                String jsonResponse = reader.readLine();
+//                JSONObject json = new JSONObject(jsonResponse);
+                JSONObject json = new JSONObject(strResponse);
 
             }
             catch(Exception ex)

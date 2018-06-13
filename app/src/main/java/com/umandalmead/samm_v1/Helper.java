@@ -13,6 +13,8 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
 
@@ -26,6 +28,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
@@ -48,6 +51,7 @@ public class Helper {
     public MenuActivity _activity;
     public Context _context;
     public SessionManager _sessionManager;
+
 
     public Helper(Activity activity, Context context)
     {
@@ -227,6 +231,10 @@ public class Helper {
         StringWriter sw = new StringWriter();
         ex.printStackTrace(new PrintWriter(sw));
         Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+    }
+    public String getEmojiByUnicode(int unicode)
+    {
+        return new String(Character.toChars(unicode));
     }
 
 }

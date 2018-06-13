@@ -134,6 +134,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -170,7 +171,7 @@ public class MenuActivity extends AppCompatActivity implements
         //Put here all global variables related to Firebase
         public FirebaseDatabase _firebaseDB;
         public DatabaseReference _usersDBRef;
-        public DatabaseReference _terminalsDBRef;
+        public static DatabaseReference _terminalsDBRef;
         public DatabaseReference _driversDBRef;
         public DatabaseReference _vehicle_destinationsDBRef;
 
@@ -249,6 +250,13 @@ public class MenuActivity extends AppCompatActivity implements
         private String _gpsIMEI;
         public Constants _constants;
         public Boolean terminalsNodeExists = false;
+
+
+        public  boolean _IsAllLoopParked;
+        private String _loopIds = "";
+        private List<Integer> _ListOfLoops = new ArrayList<Integer>();
+        private String _AssignedELoop = "";
+        private int passengerCountInTerminal =0;
 
 
         /**
@@ -697,7 +705,7 @@ public class MenuActivity extends AppCompatActivity implements
         }
 
         _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
-_googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -838,8 +846,22 @@ _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                 if(_passengerCount.containsKey(marker.getTitle())) {
                     passengercount = _passengerCount.get(marker.getTitle());
                 }
-                marker.setSnippet(String.valueOf(passengercount) + " passengers waiting");
+                Terminal clickedTerminal = new Terminal();
+                for(Terminal terminal:_terminalList)
+                {
+                    if (terminal.Value.toLowerCase().equals(marker.getTitle().toLowerCase()))
+                    {
+                        clickedTerminal = terminal;
+                    }
+
+                }
+                passengerCountInTerminal = (int) passengercount;
+                marker.setSnippet("Fetching Data...");
                 marker.showInfoWindow();
+                GetAndDisplayEloopETA(clickedTerminal, marker);
+
+               //marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + String.valueOf(passengercount) + " | " + _helper.getEmojiByUnicode(0x1F68C) + " : 2 mins");
+
                 return true;
             }
         });
@@ -853,6 +875,176 @@ _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+    public void GetAndDisplayEloopETA(final Terminal currentDest, final Marker marker) {
+        try {
+            String res = "";
+            if (currentDest != null) {
+                final List<Terminal> DestList = MenuActivity._terminalList;
+                Collections.sort(DestList, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
+                _vehicle_destinationsDBRef.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData currentData) {
+
+                        return Transaction.success(currentData);
+                    }
+
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.getChildren() != null) {
+                            Boolean found = false, loopAwaiting = false;
+                            int ctr = 0;
+                            _IsAllLoopParked = true;
+                            for (Terminal dl : DestList) {
+                                if (dl.OrderOfArrival == currentDest.OrderOfArrival) {
+                                    for (DataSnapshot v : dataSnapshot.getChildren()) {
+                                        String StationName = v.getKey().toString();
+                                        if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                            loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
+                                            if (loopAwaiting) {
+                                                marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting");
+                                                marker.hideInfoWindow();
+                                                marker.showInfoWindow();
+                                                loopAwaiting = true;
+                                                break;
+                                            } else continue;
+
+                                        }
+
+                                    }
+                                    if (loopAwaiting)
+                                        break;
+                                } else if (dl.OrderOfArrival == 1 || currentDest.OrderOfArrival == 1) {
+                                    for (Terminal dl2 : DestList) {
+                                        for (DataSnapshot v : dataSnapshot.getChildren()) {
+                                            String StationName = v.getKey().toString();
+                                            if (dl2.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+
+                                                if (!_loopIds.equals("") && !found) {
+                                                    _IsAllLoopParked = false;
+                                                    found = true;
+                                                    List<String> temploopids = Arrays.asList(_loopIds.split(","));
+                                                    for (String tli : temploopids
+                                                            ) {
+                                                        _ListOfLoops.add(Integer.parseInt(tli));
+                                                    }
+                                                    Collections.sort(_ListOfLoops);
+                                                    if (_ListOfLoops.size() > 0) {
+                                                        //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
+                                                        GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest, marker);
+                                                        Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
+                                                        // LoopArrivalProgress.setVisibility(View.INVISIBLE);
+                                                    }
+                                                    _ListOfLoops.clear();
+                                                    break;
+                                                } else continue;
+                                            } else continue;
+
+                                        }
+                                    }
+                                    if (found)
+                                        break;
+
+                                } else if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
+                                    for (DataSnapshot v : dataSnapshot.getChildren()) {
+                                        String StationName = v.getKey().toString();
+                                        if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                            _loopIds = v.child("LoopIds").getValue().toString();
+                                            if(_loopIds.equals("")){
+                                                _loopIds = v.child("Dwell").getValue().toString();
+                                            }
+                                            if (!_loopIds.equals("") && !found) {
+                                                _IsAllLoopParked = false;
+                                                found = true;
+                                                List<String> temploopids = Arrays.asList(_loopIds.split(","));
+                                                for (String tli : temploopids) {
+                                                    _ListOfLoops.add(Integer.parseInt(tli));
+                                                }
+                                                Collections.sort(_ListOfLoops);
+                                                if (_ListOfLoops.size() > 0) {
+                                                    // VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
+                                                    GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest, marker);
+                                                    Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
+                                                }
+                                                _ListOfLoops.clear();
+                                                break;
+                                            } else continue;
+                                        } else continue;
+
+                                    }
+                                    if (found)
+                                        break;
+
+                                } else continue;
+                            }
+                        }
+                        if (_IsAllLoopParked) {
+                            marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A");
+                            marker.hideInfoWindow();
+                            marker.showInfoWindow();
+
+                        }
+                    }
+                });
+
+
+            }
+        } catch (Exception ex) {
+
+            Helper.logger(ex);
+        }
+    }
+
+    public void GetTimeRemainingFromGoogle(Integer LoopId, final Terminal dest, final Marker marker) {
+        if (LoopId != null) {
+
+            _vehicle_destinationsDBRef = _firebaseDB.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+            _vehicle_destinationsDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
+                    String url = "https://maps.googleapis.com/maps/";
+                    Retrofit retrofit = new Retrofit.Builder()
+                            .baseUrl(url)
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .build();
+                    RetrofitMaps service = retrofit.create(RetrofitMaps.class);
+                    _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
+                    Call<Directions> call = service.getDistanceDuration("metric", dest.Lat + "," + dest.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
+                    call.enqueue(new Callback<Directions>() {
+                        @Override
+                        public void onResponse(Response<Directions> response, Retrofit retrofit) {
+                            try {
+                                for (int i = 0; i < response.body().getRoutes().size(); i++) {
+                                    String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
+                                    marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString());
+                                    marker.setSnippet(TimeofArrival.toString());
+                                    marker.hideInfoWindow();
+                                    marker.showInfoWindow();
+
+                                }
+
+                                _LoopArrivalProgress.setVisibility(View.GONE);
+                            } catch (Exception ex) {
+                                Log.d("onResponse", "There is an error");
+                                Helper.logger(ex);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.d("onFailure", t.toString());
+                        }
+                    });
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -2010,7 +2202,8 @@ _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
         _AppBar.setLayoutParams(lp);
         //Get nearest loop time of arrival~
         _LoopArrivalProgress.setVisibility(View.VISIBLE);
-        _markerAnimator.start();
+        if(_markerAnimator!=null)
+            _markerAnimator.start();
     }
     public void HideRouteTabsAndSlidingPanel(){
         _RouteTabLayout.setVisibility(View.GONE);

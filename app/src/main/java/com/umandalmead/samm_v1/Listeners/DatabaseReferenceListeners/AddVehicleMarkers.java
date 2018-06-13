@@ -60,7 +60,7 @@ public class AddVehicleMarkers implements ChildEventListener {
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        plotVehicleMarkers(dataSnapshot);
+        //plotVehicleMarkers(dataSnapshot);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class AddVehicleMarkers implements ChildEventListener {
 
     @Override
     public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-        plotVehicleMarkers(dataSnapshot);
+        //plotVehicleMarkers(dataSnapshot);
     }
 
     @Override

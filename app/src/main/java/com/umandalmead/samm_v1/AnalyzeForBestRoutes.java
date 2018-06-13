@@ -5,25 +5,16 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.support.annotation.IntegerRes;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,32 +28,22 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-import static com.umandalmead.samm_v1.MenuActivity._RoutesPane;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
-import static com.umandalmead.samm_v1.MenuActivity._RouteTabLayout;
-import static com.umandalmead.samm_v1.MenuActivity._SlideUpPanelContainer;
-import static com.umandalmead.samm_v1.MenuActivity._StepsScroller;
 import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
 import static  com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
 
@@ -91,13 +72,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     List<List<String>> _AllDirectionsSteps = new ArrayList<List<String>>();
     List<List<String>> _AllTerminalPoints = new ArrayList<List<String>>();
     List<Polyline> polyLines = new ArrayList<>();
-    private FirebaseDatabase FireDatabase;
+    private FirebaseDatabase FB;
     private DatabaseReference VehicleDestinationDatabaseReference;
     private String _loopIds = "";
     private List<Integer> _ListOfLoops = new ArrayList<Integer>();
     private String _AssignedELoop = "";
     private ValueEventListener LoopArrivalEventListener;
     private Boolean _IsAllLoopParked = true;
+    private Boolean _IsLoopResultsFound = false;
 
     /**
      * This is the generic format in accessing data from mySQL
@@ -357,13 +339,15 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             if (currentDest != null) {
                 final List<Terminal> DestList = MenuActivity._terminalList;
                 Collections.sort(DestList, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
-                FireDatabase = FirebaseDatabase.getInstance();
-                VehicleDestinationDatabaseReference = FireDatabase.getReference("vehicle_destinations");
+                FB = FirebaseDatabase.getInstance();
+                VehicleDestinationDatabaseReference = FB.getReference("vehicle_destinations");
                 VehicleDestinationDatabaseReference.runTransaction(new Transaction.Handler() {
                     @Override
                     public Transaction.Result doTransaction(MutableData currentData) {
+                        //if (currentData.getValue()!=null)
+                            return Transaction.success(currentData);
 
-                        return Transaction.success(currentData);
+                        //return Transaction.abort();
                     }
 
                     @Override
@@ -381,6 +365,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                             if (loopAwaiting) {
                                                 _TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
                                                 _LoopArrivalProgress.setVisibility(View.GONE);
+                                                _IsLoopResultsFound = true;
                                                 loopAwaiting = true;
                                                 break;
                                             } else continue;
@@ -409,6 +394,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                                         //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
                                                         GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
                                                         Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
+                                                        _IsLoopResultsFound = true;
                                                         // LoopArrivalProgress.setVisibility(View.INVISIBLE);
                                                     }
                                                     _ListOfLoops.clear();
@@ -441,6 +427,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                                     // VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
                                                     GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
                                                     Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
+                                                    _IsLoopResultsFound = true;
                                                 }
                                                 _ListOfLoops.clear();
                                                 break;
@@ -456,12 +443,18 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                         }
                         if (_IsAllLoopParked) {
                             _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
-                            _TimeOfArrivalTextView.setText(Html.fromHtml("Unfortunately, all E-loops are parked."));
+                            _TimeOfArrivalTextView.setText(Html.fromHtml("Unfortunately, all E-loops are parked (or offline)"));
                             _LoopArrivalProgress.setVisibility(View.GONE);
+                            _IsLoopResultsFound = true;
                         }
                     }
                 });
 
+//                if (!_IsLoopResultsFound)
+//                {
+//                    _TimeOfArrivalTextView.setText(Html.fromHtml("It seems like all e-loops are offline!"));
+//                    _LoopArrivalProgress.setVisibility(View.GONE);
+//                }
 
             }
         } catch (Exception ex) {
@@ -472,8 +465,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
     public void GetTimeRemainingFromGoogle(Integer LoopId, final Terminal dest) {
         if (LoopId != null) {
-            FireDatabase = FirebaseDatabase.getInstance();
-            VehicleDestinationDatabaseReference = FireDatabase.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+            FB = FirebaseDatabase.getInstance();
+            VehicleDestinationDatabaseReference = FB.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
             VehicleDestinationDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {

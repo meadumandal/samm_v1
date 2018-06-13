@@ -11,6 +11,7 @@
     <string name="error_create_account">Error encountered in creating account</string>
     <string name="error_field_required">%1$s is required</string>
     <string name="error_passwordnotmatch">Passwords do not match!</string>
+    <string name="error_shortpassword">Passwords should be composed of %1$s-characters</string>
     <string name="error_username_not_exist">Username do not exists</string>
     <string name="error_username_alreadyexists">Username is already taken!</string>
     <string name="title_activity_maps">Map</string>

@@ -2,6 +2,7 @@ package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.app.Activity;
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
@@ -33,6 +35,7 @@ public class AddPassengerCountLabel implements ChildEventListener {
     Context _context;
     SessionManager _sessionManager;
     Helper _helper = new Helper();
+    int childrenCount=0;
 
     public AddPassengerCountLabel(Context context, Activity activity) {
         _activity = activity;
@@ -41,72 +44,17 @@ public class AddPassengerCountLabel implements ChildEventListener {
     }
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-        try {
-            Marker terminalEntered = MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey());
-            if (terminalEntered != null) {
-                LatLng markerPosition = terminalEntered.getPosition();
-                terminalEntered.remove();
-                MenuActivity._terminalMarkerHashmap.remove(dataSnapshot.getKey());
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(markerPosition);
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
-                markerOptions.snippet(dataSnapshot.getChildrenCount() + " passenger/s waiting");
-                markerOptions.title(dataSnapshot.getKey());
-                Marker newTerminalMarker = MenuActivity._googleMap.addMarker(markerOptions);
-                newTerminalMarker.showInfoWindow();
-
-                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
-                Log.i(LOG_TAG, "Updating waiting passenger history for reports...");
-
-                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(dataSnapshot.getChildrenCount()));
-            }
-        } catch (Exception ex) {
-            Helper.logger(ex);
-        }
+        updateWaitingPassengerCount_initialJob(dataSnapshot, false);
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-        try {
-            Marker terminalEntered = MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey());
-            if (terminalEntered != null)
-            {
-
-                LatLng markerPosition = terminalEntered.getPosition();
-                terminalEntered.remove();
-                MenuActivity._terminalMarkerHashmap.remove(dataSnapshot.getKey());
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(markerPosition);
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
-                markerOptions.snippet(dataSnapshot.getChildrenCount() + " passenger/s waiting");
-                markerOptions.title(dataSnapshot.getKey());
-                Marker newTerminalMarker = MenuActivity._googleMap.addMarker(markerOptions);
-                newTerminalMarker.showInfoWindow();
-
-                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
-                Log.i(LOG_TAG, "Updating passenger count for reports...");
-
-                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(dataSnapshot.getChildrenCount()));
-
-
-            }
-
-        } catch (Exception ex) {
-            Helper.logger(ex);
-        }
+        updateWaitingPassengerCount_initialJob(dataSnapshot, false);
     }
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
-        try {
-            Marker terminalEntered = MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey());
-            if (terminalEntered != null) {
-                terminalEntered.showInfoWindow();
-                terminalEntered.setSnippet(String.valueOf(dataSnapshot.getChildrenCount()) + " passenger/s waiting");
-            }
-        } catch (Exception ex) {
-            Helper.logger(ex);
-        }
+        updateWaitingPassengerCount_initialJob(dataSnapshot, true);
     }
 
     @Override
@@ -118,4 +66,59 @@ public class AddPassengerCountLabel implements ChildEventListener {
     public void onCancelled(DatabaseError databaseError) {
 
     }
+    private void updateWaitingPassengerCount_initialJob(DataSnapshot dataSnapshot, Boolean isRemoved)
+    {
+        if (isRemoved)
+        {
+            MenuActivity._terminalsDBRef.child(dataSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    childrenCount = (int) dataSnapshot.getChildrenCount();
+                    updateWaitingPassengerCount_MainJob(dataSnapshot, childrenCount);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+        else
+        {
+            childrenCount = (int) dataSnapshot.getChildrenCount();
+            updateWaitingPassengerCount_MainJob(dataSnapshot, childrenCount);
+        }
+    }
+    private void updateWaitingPassengerCount_MainJob(DataSnapshot dataSnapshot, int childrenCount)
+    {
+
+        try {
+            Marker terminalEntered = MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey());
+            if (terminalEntered != null)
+            {
+
+                LatLng markerPosition = terminalEntered.getPosition();
+                terminalEntered.remove();
+                MenuActivity._terminalMarkerHashmap.remove(dataSnapshot.getKey());
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(markerPosition);
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
+                markerOptions.snippet(childrenCount + " passenger/s waiting");
+                markerOptions.title(dataSnapshot.getKey());
+                Marker newTerminalMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                newTerminalMarker.showInfoWindow();
+
+                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
+                Log.i(LOG_TAG, "Updating passenger count for reports...");
+
+                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(childrenCount));
+
+
+            }
+
+        } catch (Exception ex) {
+            Helper.logger(ex);
+        }
+    }
+
 }

@@ -118,6 +118,11 @@ public class SignUpActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Password"), Toast.LENGTH_LONG).show();
                                     return;
                                 }
+                                if(password.length() < 6)
+                                {
+                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_shortpassword), "6"), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
                                 if(TextUtils.isEmpty(firstName))
                                 {
                                     Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "First name"), Toast.LENGTH_LONG).show();
