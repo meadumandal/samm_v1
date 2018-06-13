@@ -86,28 +86,6 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
                 httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
                 HttpResponse response = httpClient.execute(httpPost);
                 String strResponse = EntityUtils.toString(response.getEntity());
-
-
-//                String link = _constants.WEB_API_URL + "signUp.php?";
-//                data += "username=" + URLEncoder.encode(username, "UTF-8")
-//                        + "&firstName=" + URLEncoder.encode(firstName, "UTF-8")
-//                        + "&lastName=" + URLEncoder.encode(lastName, "UTF-8")
-//                        + "&emailAddress=" + URLEncoder.encode(emailAddress, "UTF-8");
-//                URL url = new URL(link);
-//                URLConnection conn = url.openConnection();
-//
-//
-//                conn.setDoOutput(true);
-//
-//                OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-//                wr.write(data);
-//                wr.flush();
-//
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//                String jsonResponse = reader.readLine();
-//                JSONObject json = new JSONObject(jsonResponse);
-                JSONObject json = new JSONObject(strResponse);
-
             }
             catch(Exception ex)
             {
