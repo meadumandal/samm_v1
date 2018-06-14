@@ -14,7 +14,11 @@
     <string name="error_shortpassword">Passwords should be composed of %1$s-characters</string>
     <string name="error_username_not_exist">Username do not exists</string>
     <string name="error_username_alreadyexists">Username is already taken!</string>
+    <string name="error_verification_email_not_sent">Unable to send verification E-mail!</string>
     <string name="title_activity_maps">Map</string>
+
+    <!--NOTIFICATION MESSAGES-->
+    <string name="success_please_verify_email">A verification E-mail has been sent!</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

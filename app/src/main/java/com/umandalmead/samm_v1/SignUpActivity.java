@@ -17,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.umandalmead.samm_v1.EntityObjects.User;
 import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -160,13 +161,27 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 SignUpProgDiag.dismiss();
                                                                 if(!task.isSuccessful())
                                                                 {
-                                                                    Toast.makeText(SignUpActivity.this, getString(R.string.error_create_account), Toast.LENGTH_LONG).show();
+                                                                    Toast.makeText(SignUpActivity.this, task.getException().getMessage().toString(), Toast.LENGTH_LONG).show();
                                                                 }
                                                                 else
                                                                 {
-                                                                    saveUserDetails(firstName, lastName, username, emailAddress);
                                                                     sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false, false, "");
-                                                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                    final FirebaseAuth.AuthStateListener _authListener = new FirebaseAuth.AuthStateListener() {
+                                                                        @Override
+                                                                        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                                                                            FirebaseUser user = firebaseAuth.getCurrentUser();
+                                                                            if (user != null) {
+                                                                               //User account creation succesded, send verification email, and redirect to log in page.
+                                                                                sendVerificationEmail();
+                                                                                saveUserDetails(firstName, lastName, username, emailAddress);
+                                                                            } else {
+                                                                                //User signed out.
+                                                                                FirebaseAuth.getInstance().removeAuthStateListener(this);
+                                                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                            }
+                                                                        }
+                                                                    };
+                                                                    FirebaseAuth.getInstance().addAuthStateListener(_authListener);
                                                                 }
 
                                                             }
@@ -209,6 +224,26 @@ public class SignUpActivity extends AppCompatActivity {
         super.onResume();
        // SignUpProgDiag.dismiss();
         progressBar.setVisibility(View.GONE);
+    }
+    private void sendVerificationEmail()
+    {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        user.sendEmailVerification()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            FirebaseAuth.getInstance().signOut();
+                            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                            Toast.makeText(getApplicationContext(), getString(R.string.success_please_verify_email), Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                        else
+                        {
+                            Toast.makeText(getApplicationContext(), getString(R.string.error_verification_email_not_sent), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
     private void saveUserDetails(String firstName, String lastName, String username, String emailAddress)
     {

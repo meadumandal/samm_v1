@@ -4,15 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark"
+
     tools:context=".SignUpActivity">
 
     <ImageView
         android:id="@+id/imgLogo"
-        android:layout_width="125dp"
-        android:layout_height="125dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_marginEnd="260dp"
+        android:layout_marginLeft="25dp"
         android:src="@drawable/samm_transparent" />
 
     <TextView
@@ -22,7 +24,7 @@
         android:layout_alignBottom="@+id/imgLogo"
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="53dp"
-        android:layout_marginLeft="115dp"
+        android:layout_marginLeft="90dp"
         android:text="NEW ACCOUNT"
         android:textAlignment="center"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -31,30 +33,38 @@
         android:textStyle="bold"
         android:typeface="sans" />
 
-
-    <android.support.design.widget.TextInputLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_firstName"
-        android:layout_below="@+id/textNewAcct"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
-
-        <EditText
-            android:id="@+id/edit_firstName"
-            android:layout_width="match_parent"
+        android:gravity="center_horizontal"
+        android:paddingLeft="45dp"
+        android:paddingRight="45dp"
+        android:paddingTop="100dp">
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:id="@+id/TIL_edit_firstName"
             android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:hint="First Name"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
+            android:layout_alignParentEnd="true"
+            >
+
+            <EditText
+                android:id="@+id/edit_firstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@android:color/white"
+                android:hint="First Name"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff"
+                android:ellipsize="start"
+                android:gravity="center_horizontal"/>
+        </android.support.design.widget.TextInputLayout>
+
+
+
     <android.support.design.widget.TextInputLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -180,52 +190,53 @@
     </android.support.design.widget.TextInputLayout>
 
 
-    <Button
-        android:id="@+id/btn_signup"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/TIL_edit_confirmpassword"
-        android:background="@drawable/signup_oval_background"
+        <Button
+            android:id="@+id/btn_signup"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_edit_confirmpassword"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/signup_oval_background"
+            android:text="Sign Up"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
 
-        android:text="Sign Up"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/textAlreadyAMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/linkDriver"
+            android:layout_below="@+id/btn_signup"
+            android:layout_marginTop="18dp"
+            android:text="Already a member?"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorWhite" />
 
-    <TextView
-        android:id="@+id/textAlreadyAMember"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Already a member?"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/colorWhite"
-        android:layout_marginTop="17dp"
-        android:layout_below="@+id/btn_signup"
-        android:layout_toStartOf="@+id/linkSignIn"
-        android:layout_marginEnd="14dp" />
+        <TextView
+            android:id="@+id/linkSignIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/textAlreadyAMember"
+            android:layout_alignBottom="@+id/textAlreadyAMember"
+            android:layout_marginStart="19dp"
+            android:layout_toEndOf="@+id/linkDriver"
+            android:text="Login"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorWhite" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Login"
-        android:id="@+id/linkSignIn"
-        android:textColor="@color/colorWhite"
-        android:layout_above="@+id/linkDriver"
-        android:layout_toEndOf="@+id/linkDriver" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="I'm a driver"
-        android:id="@+id/linkDriver"
-        android:textColor="@color/colorWhite"
-        android:layout_below="@+id/textAlreadyAMember"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="11dp" />
+        <TextView
+            android:id="@+id/linkDriver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textAlreadyAMember"
+            android:layout_centerHorizontal="true"
+            android:text="I'm a driver"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorWhite" />
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="30dp"
@@ -233,6 +244,8 @@
         android:layout_gravity="center|bottom"
         android:layout_marginBottom="20dp"
         android:visibility="gone" />
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

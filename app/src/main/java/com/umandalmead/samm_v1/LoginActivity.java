@@ -394,18 +394,22 @@ public class LoginActivity extends AppCompatActivity{
                                     isDriver = true;
 
                                 userDatabaseRef.child(sessionManager.getUsername()).removeValue();
-                                sessionManager.CreateLoginSession(firstName,lastName, username,param_email,isDriver, false, deviceId);
-                                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                                startActivity(intent);
-                                finish();
-                                Toast.makeText(LoginActivity.this, ("Logged in as "+ username ), Toast.LENGTH_LONG).show();
+                                if(checkIfEmailVerified()){
+                                    sessionManager.CreateLoginSession(firstName,lastName, username,param_email,isDriver, false, deviceId);
+                                    Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                    Toast.makeText(LoginActivity.this, ("Logged in as "+ username ), Toast.LENGTH_LONG).show();
+                                }
+                                else{
+                                    Toast.makeText(LoginActivity.this, ("Unable to log in, E-mail address is not yet verified."), Toast.LENGTH_LONG).show();
+                                }
+
                             }
                             catch(Exception ex)
                             {
                                 Helper.logger(ex);
                             }
-
-
 
                         }
                     }
@@ -481,5 +485,20 @@ public class LoginActivity extends AppCompatActivity{
         LoginProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         LoginProgDiag.setCancelable(false);
         LoginProgDiag.show();
+    }
+    private Boolean checkIfEmailVerified()
+    {
+        Boolean result =false;
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user.isEmailVerified())
+        {
+            result = true;
+        }
+        else
+        {
+            FirebaseAuth.getInstance().signOut();
+        }
+        return  result;
     }
 }
