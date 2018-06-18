@@ -1,0 +1,102 @@
+
+//Call this method every, let's say, 5 seconds:
+public void TraccarToFirebase()
+{
+	//Call Traccar Positions API, it will return a JSON file that contains the location of all your GPS devices.
+	//It also contains more details like time, speed, altitude of the device, etc..
+	//But for this example, I would be needing the Latitude and Longitude only, so I will disregard other details.
+	HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create("http://192.168.1.1/api/positions"); //replace 192.168.1.1 with your Traccar Server IP/domain
+	httpRequest.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+	httpRequest.Credentials = new NetworkCredential("traccar_username", "traccar_password"); //replace traccar_username and traccar_password with real values
+	httpRequest.Accept = "application/json";
+	List<Logger> logs = new List<Logger>();
+	HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
+	
+	//I created a  model; PositionModel.cs
+	//The attributes of this model is the same with the nodes in the JSON response.
+	//Then I create a List of PositionModel that will hold the JSON return, so we can loop thru it...
+	List<PositionModel> positions = new List<PositionModel>();
+	using (StreamReader streamReader = new StreamReader(httpResponse.GetResponseStream()))
+	{
+		resultOfPost = streamReader.ReadToEnd();
+		//Deserealize the JSON to Object
+		positions = JsonConvert.DeserializeObject<List<PositionModel>>(resultOfPost).OrderBy(x => x.deviceId).ToList();
+		streamReader.Close();
+	}
+	httpResponse.GetResponseStream().Close();
+	httpResponse.GetResponseStream().Flush();
+	
+	//Then I created a model; LatLngModel.cs
+	//The attributes of this model is the same with the nodes that I want to appear in my firebase db.
+	List<LatLngModel> LatLngList = new List<LatLngModel>();
+	
+	//Loop thru each position, get the deviceId, latitude and longitude
+	//And then save that one by one into LatLngList
+	foreach (PositionModel entry in positions)
+	{
+		LatLngModel _LatLng = new LatLngModel { deviceid = Convert.ToInt32(entry.deviceId), Lat = Convert.ToDouble(entry.latitude), Lng = Convert.ToDouble(entry.longitude) };
+		bool IsLatLngExisting = LatLngList.FirstOrDefault(x => x.deviceid == _LatLng.deviceid) == null ? false : true;
+		if (!IsLatLngExisting)
+		{
+			LatLngList.Add(_LatLng);
+		}
+	}
+
+	//Finally, save all obtained data to Firebase:
+	PushToFirebase(LatLngList.ToList(), "YourFirebaseURLhere", "YourFirebaseAuthHashKey"); 
+	//See method PushToFirebase below
+	//YourFirebaseURLhere = replace this with your firebase url
+	//YourFirebaseAuthHashKey = replace this with the hash key provided in your firebase
+}
+
+public void PushToFirebase(List<LatLngModel> LatLngList, string FireBaseURL, string FireBaseAuth)
+{
+	//Execute a straightforward job of saving to firebase
+	Parallel.ForEach(LatLngList, LatLngListEntry =>
+	{
+		url = FireBaseURL + LatLngListEntry.deviceid + "/.json?auth=" + FireBaseAuth;
+		string resultOfPost = string.Empty;
+		HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
+		httpRequest.Method = "PATCH";
+		httpRequest.ContentType = "application/json";
+
+		var buffer = Encoding.UTF8.GetBytes(CreateLatLngJson(LatLngListEntry));
+		httpRequest.ContentLength = buffer.Length;
+		httpRequest.GetRequestStream().Write(buffer, 0, buffer.Length);
+		var response = httpRequest.GetResponse();
+
+		response.Close();
+		httpRequest.GetRequestStream().Close();
+		httpRequest.GetRequestStream().Flush();
+	});
+	
+}
+
+
+public class PositionModel
+{
+	public string accuracy { get; set; }
+	public string address { get; set; }
+	public string altitude { get; set; }
+	public AttributeModel attributes { get; set; }
+	public string course { get; set; }
+	public string deviceId { get; set; }
+	public string deviceTime { get; set; }
+	public string fixTime { get; set; }
+	public string id { get; set; }
+	public string latitude { get; set; }
+	public string longitude { get; set; }
+	public string network { get; set; }
+	public string outdated { get; set; }
+	public string protocol { get; set; }
+	public string serverTime { get; set; }
+	public string speed { get; set; }
+	public string type { get; set; }
+	public string valid { get; set; }
+}
+public class LatLngModel
+{
+	public int deviceid { get; set; }
+	public double Lat { get; set; }
+	public double Lng { get; set; }
+}
