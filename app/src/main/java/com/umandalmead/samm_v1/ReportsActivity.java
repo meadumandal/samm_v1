@@ -16,9 +16,11 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
@@ -33,7 +35,8 @@ public class ReportsActivity extends Fragment {
     public Calendar _calendar = Calendar.getInstance();
     public EditText _fromDateTextBox, _toDateTextBox;
     public TextView _reportName, _initialTextView;
-    public static TableLayout _reportTable, _passengerReportTable_summary, _passengerReportTable_history;
+    public static TableLayout _vehicleReportTable, _passengerReportTable_summary, _passengerReportTable_history;
+    public static ScrollView _scrollVehicleReport;
     public static BarChart _reportChart;
     public static SessionManager _sessionManager;
     public Constants _constants;
@@ -43,6 +46,7 @@ public class ReportsActivity extends Fragment {
     public static ImageView _SAMMLogoFAB;
 
     View _view;
+
 
     @Nullable
     @Override
@@ -59,6 +63,7 @@ public class ReportsActivity extends Fragment {
             _initialTextView = (TextView) _view.findViewById(R.id.textView_initialText);
             _passengerReportTable_history = (TableLayout) _view.findViewById(R.id.passengerReportTable_history);
             _passengerReportTable_summary = (TableLayout) _view.findViewById(R.id.passengerReportTable_summary);
+            _scrollVehicleReport = (ScrollView) _view.findViewById(R.id.scrollVehicleReport);
             _SAMMLogoFAB = (ImageView) _view.findViewById(R.id.SAMMLogoFAB);
 
 
@@ -128,7 +133,7 @@ public class ReportsActivity extends Fragment {
 
 
 
-            _reportTable = (TableLayout) _view.findViewById(R.id.reportTable);
+            _vehicleReportTable = (TableLayout) _view.findViewById(R.id.reportTable);
             _reportChart = (BarChart) _view.findViewById(R.id.reportChart);
 
             if(_sessionManager.GetReportType().equals(_constants.VEHICLE_REPORT_TYPE))
@@ -216,31 +221,50 @@ public class ReportsActivity extends Fragment {
                 public void onClick(View view) {
                     if(_sessionManager.GetReportType().equals(_constants.PASSENGER_REPORT_TYPE))
                     {
-                        _passengerReportTable_history.setVisibility(View.VISIBLE);
-                        _passengerReportTable_summary.setVisibility(View.VISIBLE);
-                        _initialReportLayout.setVisibility(View.GONE);
-                        _reportTable.setVisibility(View.GONE);
-                        String terminal = "";
-                        for(Terminal t: MenuActivity._terminalList)
+                        if(_fromDateTextBox.getText().length() >0 && _toDateTextBox.getText().length()>0 && _spinner.getSelectedItemPosition() >0)
                         {
-                            if (t.Description.equals(_spinner.getSelectedItem().toString()))
+                            _passengerReportTable_history.setVisibility(View.VISIBLE);
+                            _passengerReportTable_summary.setVisibility(View.VISIBLE);
+                            _initialReportLayout.setVisibility(View.GONE);
+                            _vehicleReportTable.setVisibility(View.GONE);
+                            _scrollVehicleReport.setVisibility(View.GONE);
+                            String terminal = "";
+                            for(Terminal t: MenuActivity._terminalList)
                             {
-                                terminal = t.Value;
-                                break;
+                                if (t.Description.equals(_spinner.getSelectedItem().toString()))
+                                {
+                                    terminal = t.Value;
+                                    break;
+                                }
                             }
+
+                            new mySQLPassengerQueueingHistoryReport(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(),_toDateTextBox.getText().toString(), terminal);
+                        }
+                        else
+                        {
+                            Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
                         }
 
-                        new mySQLPassengerQueueingHistoryReport(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(),_toDateTextBox.getText().toString(), terminal);
+
                     }
 
                     else if(_sessionManager.GetReportType().equals(_constants.VEHICLE_REPORT_TYPE))
                     {
-                        _passengerReportTable_history.setVisibility(View.GONE);
-                        _passengerReportTable_summary.setVisibility(View.GONE);
-                        _reportTable.setVisibility(View.VISIBLE);
-                        _initialReportLayout.setVisibility(View.GONE);
+                        if(_fromDateTextBox.getText().length() >0 && _toDateTextBox.getText().length()>0)
+                        {
+                            _passengerReportTable_history.setVisibility(View.GONE);
+                            _passengerReportTable_summary.setVisibility(View.GONE);
+                            _scrollVehicleReport.setVisibility(View.VISIBLE);
+                            _vehicleReportTable.setVisibility(View.VISIBLE);
+                            _initialReportLayout.setVisibility(View.GONE);
 
-                        new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(), _toDateTextBox.getText().toString());
+                            new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(), _toDateTextBox.getText().toString());
+                        }
+                        else
+                        {
+                            Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                        }
+
                     }
 
                 }
@@ -263,5 +287,6 @@ public class ReportsActivity extends Fragment {
         else
             _toDateTextBox.setText(sdf.format(_calendar.getTime()));
     }
+
 
 }

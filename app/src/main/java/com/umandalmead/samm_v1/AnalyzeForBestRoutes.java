@@ -514,7 +514,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
     public String SelectedTabInstructions(List<String> StepsList, String TT, Terminal Terminal) {
         String Step =
-                "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><img style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
+                "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><userImg style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
 //                        "<td style='padding-left:7%;'><medium style='background:#2196F3; color:white;border-radius:10%; padding: 7px;'>WALK</medium></td></tr>" +
                         "<td style='padding-left:7%;'><b>Walk your way to " + Terminal.Value + " Terminal </b></td></tr>" +
                         "<tr><td width='20%' style='text-align:center'><small>" + CleanTotalTime(TT) + "</small></td><td></td></tr>";

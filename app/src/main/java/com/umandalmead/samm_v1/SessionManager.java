@@ -134,10 +134,8 @@ public class SessionManager {
     {
         return pref.getString(KEY_USERNAME,null);
     }
-    public String getFullName()
-    {
-        return pref.getString(KEY_FNAME,null) + " " + pref.getString(KEY_LNAME,null);
-    }
+    public String getFullName(){ return pref.getString(KEY_FNAME,null) + " " + pref.getString(KEY_LNAME,null); }
+    public String getFirstName() { return pref.getString(KEY_FNAME,null); }
     public String getLastName()
     {
         return pref.getString(KEY_LNAME,null);
@@ -145,6 +143,18 @@ public class SessionManager {
     public String getEmail()
     {
         return pref.getString(KEY_EMAIL,null);
+    }
+    public void setFirstName(String firstName)
+    {
+        prefEditor.remove(KEY_FNAME);
+        prefEditor.putString(KEY_FNAME, firstName);
+        prefEditor.commit();
+    }
+    public void setLastName(String lastName)
+    {
+        prefEditor.remove(KEY_LNAME);
+        prefEditor.putString(KEY_LNAME, lastName);
+        prefEditor.commit();
     }
     public boolean isLoggedIn()
     {

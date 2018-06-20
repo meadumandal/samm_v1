@@ -40,7 +40,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 str += "SMS from " + msgs[i].getOriginatingAddress() + " : ";
                 // Fetch the text message
                 str += msgs[i].getMessageBody().toString();
-                // Newline <img draggable="false" class="emoji" alt="🙂" src="https://s.w.org/images/core/emoji/72x72/1f642.png">
+                // Newline <userImg draggable="false" class="emoji" alt="🙂" src="https://s.w.org/images/core/emoji/72x72/1f642.png">
                 str += "\n";
             }
 

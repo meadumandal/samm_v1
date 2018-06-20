@@ -27,16 +27,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -57,7 +52,7 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         auth = FirebaseAuth.getInstance();
-        btn_signUp = (Button)findViewById(R.id.btn_signup);
+        btn_signUp = (Button)findViewById(R.id.btn_save);
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
         sessionManager = new SessionManager(getApplicationContext());
         link_driver = (TextView) findViewById(R.id.linkDriver);
@@ -94,9 +89,9 @@ public class SignUpActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 EditText edit_firstName = (EditText) findViewById(R.id.edit_firstName);
                                 EditText edit_lastName = (EditText) findViewById(R.id.edit_lastName);
-                                EditText edit_emailAddress = (EditText) findViewById(R.id.edit_plateNumber);
+                                EditText edit_emailAddress = (EditText) findViewById(R.id.edit_address);
                                 EditText edit_username = (EditText) findViewById(R.id.textRoute);
-                                final EditText edit_password = (EditText) findViewById(R.id.edit_driverOrigin);
+                                final EditText edit_password = (EditText) findViewById(R.id.edit_password);
                                 EditText edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
 
                                 final String firstName, lastName, emailAddress, username, confirmPassword;

@@ -57,7 +57,7 @@
         android:backgroundTint="@android:color/white" />
 
     <EditText
-        android:id="@+id/edit_plateNumber"
+        android:id="@+id/edit_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/edit_lastName"
@@ -73,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textRoute"
-        android:layout_below="@+id/edit_plateNumber"
+        android:layout_below="@+id/edit_address"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:textColor="#ffffff"
@@ -84,7 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:id="@+id/edit_driverOrigin"
+        android:id="@+id/edit_password"
         android:layout_below="@+id/textRoute"
         android:layout_alignParentStart="true"
         android:layout_alignEnd="@+id/textRoute"
@@ -98,16 +98,16 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:id="@+id/edit_driverDestination"
-        android:layout_below="@+id/edit_driverOrigin"
+        android:layout_below="@+id/edit_password"
         android:layout_alignParentStart="true"
-        android:layout_alignEnd="@+id/edit_driverOrigin"
+        android:layout_alignEnd="@+id/edit_password"
         android:hint="Destination"
         android:textColor="#ffffff"
         android:textColorHint="#ffffff"
         android:backgroundTint="@android:color/white" />
 
     <Button
-        android:id="@+id/btn_signup"
+        android:id="@+id/btn_save"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -40,28 +40,28 @@
         android:paddingLeft="45dp"
         android:paddingRight="45dp"
         android:paddingTop="100dp">
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/TIL_edit_firstName"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            >
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/TIL_edit_firstName"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        >
 
-            <EditText
-                android:id="@+id/edit_firstName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentStart="true"
-                android:backgroundTint="@android:color/white"
-                android:hint="First Name"
-                android:textAlignment="center"
-                android:textColor="#ffffff"
-                android:textColorHint="#ffffff"
-                android:ellipsize="start"
-                android:gravity="center_horizontal"/>
-        </android.support.design.widget.TextInputLayout>
+        <EditText
+            android:id="@+id/edit_firstName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:backgroundTint="@android:color/white"
+            android:hint="First Name"
+            android:textAlignment="center"
+            android:textColor="#ffffff"
+            android:textColorHint="#ffffff"
+            android:ellipsize="start"
+            android:gravity="center_horizontal"/>
+    </android.support.design.widget.TextInputLayout>
 
 
 
@@ -91,14 +91,14 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_plateNumber"
+        android:id="@+id/TIL_edit_address"
         android:layout_below="@+id/TIL_edit_lastName"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         >
 
         <EditText
-            android:id="@+id/edit_plateNumber"
+            android:id="@+id/edit_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/edit_lastName"
@@ -118,7 +118,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/TIL_textRoute"
-        android:layout_below="@+id/TIL_edit_plateNumber"
+        android:layout_below="@+id/TIL_edit_address"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         >
@@ -141,14 +141,14 @@
     <android.support.design.widget.TextInputLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_driverOrigin"
+        android:id="@+id/TIL_edit_password"
         android:layout_below="@+id/TIL_textRoute"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         >
 
         <EditText
-            android:id="@+id/edit_driverOrigin"
+            android:id="@+id/edit_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/textRoute"
@@ -167,7 +167,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/TIL_edit_confirmpassword"
-        android:layout_below="@+id/TIL_edit_driverOrigin"
+        android:layout_below="@+id/TIL_edit_password"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         >
@@ -176,7 +176,7 @@
             android:id="@+id/edit_confirmpassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/edit_driverOrigin"
+            android:layout_alignEnd="@+id/edit_password"
             android:layout_alignParentStart="true"
             android:backgroundTint="@android:color/white"
             android:ems="10"
@@ -191,7 +191,7 @@
 
 
         <Button
-            android:id="@+id/btn_signup"
+            android:id="@+id/btn_save"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -210,7 +210,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/linkDriver"
-            android:layout_below="@+id/btn_signup"
+            android:layout_below="@+id/btn_save"
             android:layout_marginTop="18dp"
             android:text="Already a member?"
             android:textAppearance="?android:attr/textAppearanceSmall"

@@ -256,7 +256,7 @@ public class MenuActivity extends AppCompatActivity implements
         private String _loopIds = "";
         private List<Integer> _ListOfLoops = new ArrayList<Integer>();
         private String _AssignedELoop = "";
-        private int passengerCountInTerminal =0;
+        private int _passengerCountInTerminal =0;
 
 
         /**
@@ -835,30 +835,37 @@ public class MenuActivity extends AppCompatActivity implements
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
+                if(_terminalMarkerHashmap.containsKey(marker.getTitle()))
                 {
-                    //if admin only:
-                    AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.show();
-                }
-                long passengercount = 0;
-                if(_passengerCount.containsKey(marker.getTitle())) {
-                    passengercount = _passengerCount.get(marker.getTitle());
-                }
-                Terminal clickedTerminal = new Terminal();
-                for(Terminal terminal:_terminalList)
-                {
-                    if (terminal.Value.toLowerCase().equals(marker.getTitle().toLowerCase()))
+                    if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
                     {
-                        clickedTerminal = terminal;
+                        //if admin only:
+                        AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
+                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                        dialog.show();
                     }
+                    else
+                    {
+                        long passengercount = 0;
+                        if(_passengerCount.containsKey(marker.getTitle())) {
+                            passengercount = _passengerCount.get(marker.getTitle());
+                        }
+                        Terminal clickedTerminal = new Terminal();
+                        for(Terminal terminal:_terminalList)
+                        {
+                            if (terminal.Value.toLowerCase().equals(marker.getTitle().toLowerCase()))
+                            {
+                                clickedTerminal = terminal;
+                            }
 
+                        }
+                        _passengerCountInTerminal = (int) passengercount;
+                        marker.setSnippet("Fetching Data...");
+                        marker.showInfoWindow();
+                        GetAndDisplayEloopETA(clickedTerminal, marker);
+                    }
                 }
-                passengerCountInTerminal = (int) passengercount;
-                marker.setSnippet("Fetching Data...");
-                marker.showInfoWindow();
-                GetAndDisplayEloopETA(clickedTerminal, marker);
+
 
                //marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + String.valueOf(passengercount) + " | " + _helper.getEmojiByUnicode(0x1F68C) + " : 2 mins");
 
@@ -901,7 +908,7 @@ public class MenuActivity extends AppCompatActivity implements
                                         if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
                                             if (loopAwaiting) {
-                                                marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting");
+                                                marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting");
                                                 marker.hideInfoWindow();
                                                 marker.showInfoWindow();
                                                 loopAwaiting = true;
@@ -978,7 +985,7 @@ public class MenuActivity extends AppCompatActivity implements
                             }
                         }
                         if (_IsAllLoopParked) {
-                            marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A");
+                            marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A");
                             marker.hideInfoWindow();
                             marker.showInfoWindow();
 
@@ -1016,7 +1023,7 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                                    marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString());
+                                    marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString());
                                     marker.setSnippet(TimeofArrival.toString());
                                     marker.hideInfoWindow();
                                     marker.showInfoWindow();
@@ -1234,6 +1241,22 @@ public class MenuActivity extends AppCompatActivity implements
             }
             else if(id==R.id.nav_map_terrain){
                 SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_TERRAIN);
+            }
+            else if(id==R.id.menu_username)
+            {
+//                Intent SignUpForm = new Intent(MenuActivity.this, UserProfileActivity.class);
+//                startActivity(SignUpForm);
+//                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//                drawer.closeDrawer(GravityCompat.START);
+
+
+                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                _MapsHolderLinearLayout.setVisibility(View.GONE);
+
+                //_SearchLinearLayout.setVisibility(View.GONE);
+                //_TerminalsAutoCompleteTextView.setVisibility(View.GONE);
+                //_CurrentLocationEditText.setVisibility(View.GONE);
+                fragment.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
             }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             drawer.closeDrawer(GravityCompat.START);

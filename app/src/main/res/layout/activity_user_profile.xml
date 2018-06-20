@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorPrimaryDark"
+    tools:context="com.umandalmead.samm_v1.UserProfileActivity">
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:id="@+id/appBarLayout2">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorBlack"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            android:textAlignment="center"
+            android:layout_gravity="center|center_vertical">
+            <ImageButton
+                android:id="@+id/SAMMLogoFAB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:src="@mipmap/ic_sammtrans"
+                android:background="@android:color/transparent"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User Profile"
+                android:textSize="20dp"
+                android:layout_gravity="center"
+                android:id="@+id/toolbar_title" />
+        </android.support.v7.widget.Toolbar>
+
+
+    </android.support.design.widget.AppBarLayout>
+
+    <ImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/profileImg"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/appBarLayout2"
+        android:src="@drawable/ic_person_black_24dp"
+
+         />
+
+    <!--<de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/profileImg"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="120dp"-->
+        <!--android:layout_alignParentStart="true"-->
+        <!--android:layout_below="@+id/profileImg2"-->
+        <!--android:src="@drawable/ic_person_black_24dp"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:scaleType="fitCenter"-->
+        <!--app:civ_border_color="@color/colorDarkGrey"-->
+        <!--app:civ_border_width="3dp" />-->
+    <TextView
+        android:id="@+id/txtUserFullname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profileImg"
+        android:layout_centerHorizontal="true"
+        android:text="Mead Umandal"
+        android:textColor="@color/colorWhiteEC"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/txtUsertype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtUserFullname"
+        android:layout_centerHorizontal="true"
+
+        android:text="SAMM Commuter"
+        android:textColor="@color/colorGrey"
+        android:textSize="10dp"
+        android:textStyle="italic" />
+
+
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/txtUsertype"
+    android:layout_marginTop="20dp">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/profileImg"
+        android:gravity="center_horizontal"
+        android:paddingLeft="45dp"
+        android:paddingRight="45dp">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_edit_firstName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true">
+
+            <EditText
+                android:id="@+id/edit_firstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@android:color/white"
+                android:ellipsize="start"
+                android:gravity="center_horizontal"
+                android:hint="First Name"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_edit_lastName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_edit_firstName">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Update Password"
+                android:textColor="@color/colorWhiteEC"
+                android:textSize="15dp"
+                android:layout_marginTop="10dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="10dp"
+                android:textStyle="italic"
+                android:textColor="@color/colorWhiteEC"
+                android:text="Leave blank if you don't wanna change your password" />
+
+            <EditText
+                android:id="@+id/edit_lastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@android:color/white"
+                android:ellipsize="start"
+                android:gravity="center_horizontal"
+                android:hint="Last Name"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_edit_plateNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_edit_lastName">
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_textRoute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_edit_plateNumber">
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_currentPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_textRoute">
+
+            <EditText
+                android:id="@+id/edit_currentPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/textRoute"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@android:color/white"
+                android:ellipsize="start"
+                android:ems="10"
+                android:gravity="center_horizontal"
+                android:hint="Current Password"
+                android:inputType="textPassword"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_edit_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_currentPassword">
+
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/textRoute"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@android:color/white"
+                android:ellipsize="start"
+                android:ems="10"
+                android:gravity="center_horizontal"
+                android:hint="New Password"
+                android:inputType="textPassword"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/TIL_edit_confirmpassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_edit_password">
+
+            <EditText
+                android:id="@+id/edit_confirmpassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/edit_password"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@android:color/white"
+                android:ellipsize="start"
+                android:ems="10"
+                android:gravity="center_horizontal"
+                android:hint="Confirm Password"
+                android:inputType="textPassword"
+                android:textAlignment="center"
+                android:textColor="#ffffff"
+                android:textColorHint="#ffffff" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <Button
+            android:id="@+id/btn_save"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/TIL_edit_confirmpassword"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/signup_oval_background"
+            android:text="Save"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center|bottom"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</ScrollView>
+
+
+
+</RelativeLayout>

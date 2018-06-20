@@ -287,7 +287,6 @@ public class LoginActivity extends AppCompatActivity{
                                         }
                                         else{
                                                 FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
-                                                ;
                                                 DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
                                                 _driverDatabaseReference.child(response.body().getDeviceId()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
@@ -488,9 +487,12 @@ public class LoginActivity extends AppCompatActivity{
     }
     private Boolean checkIfEmailVerified()
     {
+
         Boolean result =false;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
+        String userEmailAddress = user.getEmail().toLowerCase();
+        if(userEmailAddress.equals(_constants.ADMIN_EMAILADDRESS) || userEmailAddress.equals(_constants.DRIVER_EMAILADDRESS))
+            return true;
         if (user.isEmailVerified())
         {
             result = true;

@@ -98,6 +98,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
     @Override
     protected Void doInBackground(String... params)
     {
+        busiestTimes = new ArrayList<>();
         Helper helper = new Helper();
 
         if (helper.isConnectedToInternet(this._context))
@@ -117,6 +118,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 String jsonResponse = reader.readLine();
                 JSONArray jsonArray = new JSONArray(jsonResponse);
+
 
                 for(int index=0; index < jsonArray.length(); index++) {
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
@@ -187,48 +189,48 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
             TextView tv_reportTerminal = (TextView) this._activity.findViewById(R.id.tv_reportTerminal);
             tv_reportTerminal.setText(terminal);
             tv_reportCoverage.setText(fromDate + " to " + toDate);
-            String strBusiestTimes = "";
-            for(String busytime:busiestTimes)
-            {
-                strBusiestTimes += busytime + "\n";
-            }
-            strBusiestTimes = strBusiestTimes.substring(0, strBusiestTimes.length() - 1);
-            tv_busiestTimes.setText(strBusiestTimes);
-            tv_passengersWaitedDuringThisTime.setText("* " + passengersWaitedDuringThisTime + " passengers waited during this time.");
-            progDialog.hide();
 
+            if(queueingHistory.isEmpty())
+            {
+                InfoDialog dialog=new InfoDialog(this._activity, "No records found");
+                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                dialog.show();
+                progDialog.hide();
+                tv_reportTerminal.setText("");
+                tv_reportCoverage.setText("");
+                tv_passengersWaitedDuringThisTime.setText("");
+                return;
+            }
             for(PassengerQueueingHistory history: queueingHistory)
             {
                 TableRow tr = new TableRow(_context);
-                TableRow.LayoutParams params =new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams params =new LinearLayout.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
                 params.setMargins(2,1,2,1);
                 tr.setLayoutParams(params);
                 tr.setGravity(Gravity.CENTER_HORIZONTAL);
                 tr.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorBlack));
-                tr.setPadding(5,5,5,5);
                 tr.setVisibility(View.VISIBLE);
+
 
                 //TIME
                 TextView tv_dateTime = new TextView(_context);
-
+                TableRow.LayoutParams tv_dateTimeParam = new TableRow.LayoutParams(180, TableRow.LayoutParams.WRAP_CONTENT);
+                tv_dateTimeParam.setMargins(3,0,1,0);
+                tv_dateTime.setLayoutParams(tv_dateTimeParam);
                 tv_dateTime.setTextColor(ContextCompat.getColor(_context, R.color.colorBlack));
                 tv_dateTime.setBackground(new ColorDrawable(ContextCompat.getColor(_context, R.color.colorWhite)));
                 tv_dateTime.setTypeface(tv_dateTime.getTypeface(),Typeface.BOLD);
                 tv_dateTime.setTextSize(12);
                 tv_dateTime.setPadding(8,5,5,5);
-                TableRow.LayoutParams tvParams = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
-                tvParams.setMargins(10,0,1,0);
-                //tv_dateTime.setLayoutParams(tvParams);
-
-                tr.addView(tv_dateTime);
                 tv_dateTime.setText(history.time);
+                tr.addView(tv_dateTime);
+
 
                 //NUMBER OF WAITING PASSENGERS
                 TextView tv_noOfWaitingPssngr = new TextView(_context);
-
-                TableRow.LayoutParams tvParams1 = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
-                tvParams1.setMargins(2,0,3,0);
-                //tv_noOfWaitingPssngr.setLayoutParams(tvParams1);
+                TableRow.LayoutParams tv_noOfWaitingPassgrParam = new TableRow.LayoutParams(170, TableRow.LayoutParams.WRAP_CONTENT);
+                tv_noOfWaitingPassgrParam.setMargins(2,0,1,0);
+                tv_noOfWaitingPssngr.setLayoutParams(tv_noOfWaitingPassgrParam);
 
                 tv_noOfWaitingPssngr.setTextColor(ContextCompat.getColor(_context, R.color.colorBlack));
                 if (history.count>=10)
@@ -242,10 +244,24 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 else
                     tv_noOfWaitingPssngr.setText(history.count + " passenger waited");
                 tr.addView(tv_noOfWaitingPssngr);
-
-
+                cleanTable(passengerReportTable_history);
                 passengerReportTable_history.addView(tr);
             }
+
+
+
+            String strBusiestTimes = "";
+            for(String busytime:busiestTimes)
+            {
+                strBusiestTimes += busytime + "\n";
+            }
+            strBusiestTimes = strBusiestTimes.substring(0, strBusiestTimes.length() - 1);
+
+            tv_busiestTimes.setText(strBusiestTimes);
+            tv_passengersWaitedDuringThisTime.setText("* " + passengersWaitedDuringThisTime + " passengers waited during this time.");
+
+
+
 
 
 
@@ -256,6 +272,17 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         catch(Exception ex)
         {
             Helper.logger(ex);
+        }
+        progDialog.hide();
+
+    }
+
+    private void cleanTable(TableLayout table)
+    {
+        int childCount = table.getChildCount();
+        if (childCount>3)
+        {
+            table.removeViews(3, childCount - 3);
         }
 
     }

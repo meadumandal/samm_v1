@@ -8,21 +8,14 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.BarChart;
-import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.SummaryReport;
 
@@ -31,18 +24,13 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -181,7 +169,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         try
         {
             ReportsActivity._reportChart.setVisibility(View.GONE);
-            ReportsActivity._reportTable.setVisibility(View.VISIBLE);
+            ReportsActivity._vehicleReportTable.setVisibility(View.VISIBLE);
             for(SummaryReport summary:listReport)
             {
                 TableRow row = new TableRow(_context);
@@ -227,7 +215,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 row.addView(distance);
                 row.addView(maxSpeed);
 
-                ReportsActivity._reportTable.addView(row);
+                ReportsActivity._vehicleReportTable.addView(row);
 
             }
             _progressDialog.dismiss();
@@ -242,10 +230,10 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
 
     private void clearTable()
     {
-        int childCount = ReportsActivity._reportTable.getChildCount();
+        int childCount = ReportsActivity._vehicleReportTable.getChildCount();
         if (childCount>0)
         {
-            ReportsActivity._reportTable.removeViews(2, childCount - 2);
+            ReportsActivity._vehicleReportTable.removeViews(2, childCount - 2);
 
         }
     }
