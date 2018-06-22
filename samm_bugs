@@ -1,0 +1,13 @@
+1.	When clicking Guest User menu, instead of showing User Profile Page, show a message saying "You are currently not registered. Sign-up now to discover more features" and provide a button that will redirect the user to sign up page
+2.	Remove "I'm a driver" link in Sign Up Page
+3.	Login link in Sign Up page not working
+4.	MAP UI is sluggish
+5.	Add description in About Page
+6.	Add event in SAMM logo in User Profile Page that opens drawer nav
+7.	Modify Try again button in such a way that it will be obvious when it is clicked
+8.	Hide progress dialog when clicking Sign-In button and an error is encountered(i.e. When Invalid username is shown via toast, progress dialog keeps on loading)
+9.	User can signup even when a username is not provided
+10.	Special characters is accepted in First Name, Lastname, Username and Emailaddress
+11.	No prompt or notification when clicking forgot password link in SignIn Page
+12.	Fields in user profile page should be disabled when using facebook account
+13.	Facebook logout button appears right after logging out (Intermittent)
