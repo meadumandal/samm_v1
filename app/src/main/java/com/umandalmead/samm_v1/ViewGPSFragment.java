@@ -4,11 +4,16 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
@@ -20,7 +25,7 @@ import java.util.ArrayList;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
-public class ViewGPSFragment extends android.support.v4.app.Fragment {
+public class ViewGPSFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -28,6 +33,8 @@ public class ViewGPSFragment extends android.support.v4.app.Fragment {
     private String TAG = "mead";
     private String mParam1;
     private String mParam2;
+    public ImageButton FAB_SammIcon;
+    private  TextView ViewTitle;
     public SwipeRefreshLayout swipeRefreshGPS;
     View myView;
     ArrayList<GPS> dataModels;
@@ -71,6 +78,7 @@ public class ViewGPSFragment extends android.support.v4.app.Fragment {
         myView = inflater.inflate(R.layout.fragment_view_gps, container, false);
         try
         {
+            InitializeToolbar("GPS");
             final NonScrollListView gpsListview = (NonScrollListView) myView.findViewById(R.id.gpslistview);
             swipeRefreshGPS = (SwipeRefreshLayout) myView.findViewById(R.id.swipe_refresh_gps);
             swipeRefreshGPS.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -107,5 +115,16 @@ public class ViewGPSFragment extends android.support.v4.app.Fragment {
         return myView;
     }
 
-
+    public void InitializeToolbar(String fragmentName){
+        FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);
+        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
+        ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setText(fragmentName);
+    }
 }

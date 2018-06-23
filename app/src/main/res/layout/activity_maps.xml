@@ -83,6 +83,14 @@
         fab:menu_fab_label="Admin Tools">
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/subFloatingAddRoute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_route_directions"
+            fab:fab_label="Add Route"
+            fab:fab_size="mini" />
+
+        <com.github.clans.fab.FloatingActionButton
             android:id="@+id/subFloatingAddPoint"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

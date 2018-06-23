@@ -68,6 +68,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
@@ -213,7 +214,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static LinearLayout _SearchLinearLayout;
         public  static EditText _CurrentLocationEditText;
         public static LinearLayout _MapsHolderLinearLayout;
-        public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton;
+        public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton, _AddRouteFloatingButton;
         public FloatingActionMenu _AdminToolsFloatingMenu;
         public Button _ReconnectGPSButton;
         public ProgressDialog _ProgressDialog;
@@ -223,6 +224,7 @@ public class MenuActivity extends AppCompatActivity implements
         public  static TextView _DestinationTextView;
         public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
+        public static String _FragmentTitle;
 
 
         //Put here other global variables
@@ -250,6 +252,7 @@ public class MenuActivity extends AppCompatActivity implements
         private String _gpsIMEI;
         public Constants _constants;
         public Boolean terminalsNodeExists = false;
+
 
 
         public  boolean _IsAllLoopParked;
@@ -391,6 +394,7 @@ public class MenuActivity extends AppCompatActivity implements
                 _AddPointFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
                 _ViewGPSFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingViewGPS);
                 _AdminToolsFloatingMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
+                _AddRouteFloatingButton = (FloatingActionButton) findViewById(id.subFloatingAddRoute);
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest() && !_sessionManager.isDriver());
                 _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin());
@@ -441,6 +445,16 @@ public class MenuActivity extends AppCompatActivity implements
                         dialog.show();
                     }
                 });
+                _AddRouteFloatingButton.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View view) {
+                        _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                        _MapsHolderLinearLayout.setVisibility(View.GONE);
+
+                        FragmentManager fragment = getSupportFragmentManager();
+                        fragment.beginTransaction().replace(R.id.content_frame, new AddRouteFragment()).commit();
+                    }
+                });
 
 
                 _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener()
@@ -452,22 +466,7 @@ public class MenuActivity extends AppCompatActivity implements
                             _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                             _MapsHolderLinearLayout.setVisibility(View.GONE);
                             FragmentManager fragment = getSupportFragmentManager();
-                            fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).addToBackStack("tag").commit();
-                            ViewGPSFragment myFragment = (ViewGPSFragment) getSupportFragmentManager().findFragmentByTag("tag");
-                            myFragment.getView().setFocusableInTouchMode(true);
-                            myFragment.getView().requestFocus();
-                            myFragment.getView().setOnKeyListener( new View.OnKeyListener()
-                            {
-                                @Override
-                                public boolean onKey( View v, int keyCode, KeyEvent event )
-                                {
-                                    if( keyCode == KeyEvent.KEYCODE_BACK )
-                                    {
-                                        return true;
-                                    }
-                                    return false;
-                                }
-                            } );
+                            fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
                         }
                         catch(Exception ex)
                         {
@@ -1190,6 +1189,15 @@ public class MenuActivity extends AppCompatActivity implements
                     Toast.makeText(_context, "Login not available in Beta version", Toast.LENGTH_LONG).show();
                 }
                 else {
+                    try {
+                        FacebookSdk.sdkInitialize(getApplicationContext());
+                        LoginManager.getInstance().logOut();
+                    }
+                    catch(Exception ex)
+                    {
+                        Log.e(_constants.LOG_TAG, ex.getMessage());
+                    }
+
                     Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
                     startActivity(intent);
                 }
@@ -1783,6 +1791,7 @@ public class MenuActivity extends AppCompatActivity implements
             Toast.makeText(getApplicationContext(),"Error encountered" + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
     public void sendSMSMessage(String message, String phone, Button btnReconnectGPS) {
         try
         {
@@ -2005,6 +2014,7 @@ public class MenuActivity extends AppCompatActivity implements
                             } else {
 
                                 savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+                                AddPointDialog.this.dismiss();
                             }
                         }
                         else if(_action.equals("update"))
@@ -2020,6 +2030,7 @@ public class MenuActivity extends AppCompatActivity implements
                             } else {
 
                                 updatePoint(destinationID, name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+                                AddPointDialog.this.dismiss();
                             }
                         }
 
@@ -2280,15 +2291,23 @@ public class MenuActivity extends AppCompatActivity implements
                 item.setIcon(null);
             }
         }
-        //  Enums.GoogleMapType MapTypes[] = Enums.GoogleMapType.values();
-//        for (MenuItem menu_item_entry:MenuItems) {
-//            for (Enums.GoogleMapType type: MapTypes) {
-//                if(!SelectedMapType.equals(type) && String.valueOf(SelectedMapType).contains(menu_item_entry.getTitle().toString().split("_")[2].toUpperCase())){
-//                    menu_item_entry.setIcon(null);
-//                }
-//            }
-//        }
-        //  }
+    }
+
+    //Public methods for showing Dialogs from fragments which are previously attached to FABs onclick events.
+    public void AddNewStationPoint(String DialogTitle){
+            AddPointDialog dialog = new AddPointDialog(MenuActivity.this, DialogTitle);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
+    }
+    public void ModifyStationPoint(String DialogTitle, String DestinationToBeEdited){
+            AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", DestinationToBeEdited);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
+
+    }
+    public void RefreshStationPoints(){
+        FragmentManager fragment = getSupportFragmentManager();
+        fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
     }
 
 }

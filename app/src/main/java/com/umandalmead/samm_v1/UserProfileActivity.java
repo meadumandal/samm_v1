@@ -8,13 +8,17 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -47,6 +51,10 @@ public class UserProfileActivity extends Fragment {
     String _promptMessage="";
     ProgressDialog _progressDialog;
     public static String _facebookImg;
+    private TextView SammTV;
+    private View myView;
+    private ImageButton FAB_SammIcon;
+    private TextView ViewTitle;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -54,7 +62,7 @@ public class UserProfileActivity extends Fragment {
 
         _view = inflater.inflate(R.layout.activity_user_profile, container, false);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
+        InitializeToolbar("User Profile");
         tv_firstName = (EditText)_view.findViewById(R.id.edit_firstName);
         tv_lastName = (EditText)_view.findViewById(R.id.edit_lastName);
         tv_password = (EditText)_view.findViewById(R.id.edit_password);
@@ -209,5 +217,16 @@ public class UserProfileActivity extends Fragment {
         }
     }
 
-
+    public void InitializeToolbar(String fragmentName){
+        FAB_SammIcon = (ImageButton) _view.findViewById(R.id.SAMMLogoFAB);
+        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                drawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
+        ViewTitle = (TextView) _view.findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setText(fragmentName);
+    }
 }

@@ -9,7 +9,7 @@ import android.widget.ListView;
  * Created by MeadRoseAnn on 2/17/2018.
  */
 
-public class NonScrollListView extends ListView {
+public class NonScrollListView extends ProperListView {
     public NonScrollListView(Context context) {
         super(context);
     }
@@ -27,4 +27,5 @@ public class NonScrollListView extends ListView {
         ViewGroup.LayoutParams params = getLayoutParams();
         params.height = getMeasuredHeight();
     }
+
 }

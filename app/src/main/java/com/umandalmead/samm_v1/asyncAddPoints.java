@@ -2,11 +2,15 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+
 import android.util.Log;
+import android.view.Menu;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -170,6 +174,12 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 public void onClick(DialogInterface dialog, int id) {
                 }
             });
+            alertDialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    RefreshList();
+                }
+            });
             if(s.equals("Success"))
             {
                 alertDialogBuilder.setTitle("Success");
@@ -187,7 +197,9 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 alertDialogBuilder.setMessage(s);
             }
             alertDialogBuilder.show();
-//        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
+
+
+
         }
         catch(Exception ex)
         {
@@ -197,7 +209,10 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
         }
     }
 
+    public void RefreshList(){
 
+        ((MenuActivity)this._activity).RefreshStationPoints();
+    }
 
 
 
