@@ -11,3 +11,5 @@
 11.	No prompt or notification when clicking forgot password link in SignIn Page
 12.	Fields in user profile page should be disabled when using facebook account
 13.	Facebook logout button appears right after logging out (Intermittent)
+14. In Passenger Report, user can select earlier TO date than the FROM date ( "TO" date should be greater than "FROM" date)
+15. 
