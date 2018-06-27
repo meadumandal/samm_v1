@@ -95,7 +95,7 @@ public class asyncUpdateTraccarGPS extends AsyncTask<Void, Void, String>{
             if (helper.isConnectedToInternet(this._context))
             {
 
-                String link=_constants.WEB_API_URL + "updateDevice.php?id="+id+"&name="+name+"&uniqueId="+uniqueId
+                String link=_constants.WEB_API_URL + _constants.DEVICES_API_FOLDER +  "updateDevice.php?id="+id+"&name="+name+"&uniqueId="+uniqueId
                         +"&phone="+phone+"&model="+networkProvider;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();

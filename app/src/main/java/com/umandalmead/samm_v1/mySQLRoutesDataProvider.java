@@ -1,52 +1,46 @@
 package com.umandalmead.samm_v1;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
-import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-
 /**
- * Created by MeadRoseAnn on 4/15/2018.
+ * Created by MeadRoseAnn on 6/27/2018.
  */
 
-public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
+public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Routes>> {
     Context _context;
 
 
-    public mySQLGetEloopList(Context context)
+    public mySQLRoutesDataProvider(Context context)
     {
         this._context = context;
 
     }
     @Override
-    protected List<Eloop> doInBackground(Void... voids) {
+    protected ArrayList<Routes> doInBackground(Void... voids) {
 
         Helper helper = new Helper();
         Constants constants = new Constants();
-        List<Eloop> listEloops = new ArrayList<>();
+        ArrayList<Routes> listRoutes = new ArrayList<>();
         if (helper.isConnectedToInternet(this._context))
         {
             try{
 
-                String link = constants.WEB_API_URL + constants.ELOOPS_API_FOLDER + "getEloops.php";
+                String link = constants.WEB_API_URL + constants.ROUTES_API_FOLDER + "getRoutes.php";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -58,12 +52,10 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
                 for(int index=0; index < jsonArray.length(); index++) {
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
                     int id       = jsonobject.getInt("ID");
-                    int deviceId       = jsonobject.getInt("DeviceId");
-                    String deviceName = jsonobject.getString("DeviceName");
-                    String plateNumber    = jsonobject.getString("PlateNumber");
-                    listEloops.add(new Eloop(id,deviceId, deviceName, plateNumber));
+                    String routeName  = jsonobject.getString("routeName");
+                    listRoutes.add(new Routes(id,routeName));
                 }
-                return listEloops;
+                return listRoutes;
             }
             catch(Exception ex)
             {
@@ -78,8 +70,9 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
         }
     }
     @Override
-    protected void onPostExecute(List<Eloop> listEloops)
+    protected void onPostExecute(ArrayList<Routes> listRoutes)
     {
-        MenuActivity._eloopList = listEloops;
+
+        MenuActivity._routeList = listRoutes;
     }
 }

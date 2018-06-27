@@ -31,6 +31,7 @@ public class SessionManager {
     public static final String KEY_ISDRIVER = "IsDriver";
     public static final String IS_LOGIN = "IsLoggedIn";
     public static final String IS_GUEST = "IsGuest";
+    public static final String IS_FACEBOOK="IsFacebook";
     public static final String ERROR_MSG = "ErrorMsg";
     public static final String REPORT_TYPE = "ReportType";
     public static final String IS_BETA = "IsBeta";
@@ -47,7 +48,7 @@ public class SessionManager {
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    public void CreateLoginSession(String firstname, String lastname, String username, String email, boolean isDriver, boolean isGuest, String deviceId)
+    public void CreateLoginSession(String firstname, String lastname, String username, String email, boolean isDriver, boolean isGuest, String deviceId, boolean isFacebook)
     {
         prefEditor.putString(KEY_FNAME, firstname);
         prefEditor.putString(KEY_LNAME, lastname);
@@ -57,6 +58,7 @@ public class SessionManager {
         prefEditor.putBoolean(IS_LOGIN, !isGuest);
         prefEditor.putBoolean(IS_GUEST, isGuest);
         prefEditor.putString(KEY_DEVICEID, deviceId);
+        prefEditor.putBoolean(IS_FACEBOOK, isFacebook);
         setIsAdmin(email.toLowerCase().equals(_constants.ADMIN_EMAILADDRESS));
         prefEditor.commit();
     }
@@ -172,6 +174,10 @@ public class SessionManager {
     {
         return pref.getBoolean(IS_GUEST, false);
 
+    }
+    public boolean isFacebook()
+    {
+        return pref.getBoolean(IS_FACEBOOK, false);
     }
 
 

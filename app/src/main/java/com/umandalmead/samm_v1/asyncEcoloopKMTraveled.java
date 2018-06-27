@@ -111,7 +111,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
 
                 String fromDateStr = date_format.format(fromDate);
                 String toDateStr = date_format.format(toDate);
-                String link = _constants.WEB_API_URL+"getEcoloopSummary.php?fromDate="+fromDateStr+"&toDate="+toDateStr;
+                String link = _constants.WEB_API_URL+ _constants.REPORTS_API_FOLDER + "getEcoloopSummary.php?fromDate="+fromDateStr+"&toDate="+toDateStr;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 //                conn.setRequestProperty("Authorization", "Basic " + BasicAuth.encode(_constants.TRACCAR_USERNAME, _constants.TRACCAR_PASSWORD));

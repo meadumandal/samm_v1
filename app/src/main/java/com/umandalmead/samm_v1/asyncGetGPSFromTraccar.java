@@ -88,7 +88,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                 if (helper.isConnectedToInternet(this._context)) {
 
 
-                    String link = _constants.WEB_API_URL + "getDevices.php";
+                    String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER + "getDevices.php";
                     URL url = new URL(link);
                     URLConnection conn = url.openConnection();
 

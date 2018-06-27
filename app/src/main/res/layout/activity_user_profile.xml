@@ -253,6 +253,16 @@
     </RelativeLayout>
 </ScrollView>
 
+    <TextView
+        android:id="@+id/tv_isFacebook"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtUsertype"
+        android:layout_centerHorizontal="true"
+        android:text="You are using your facebook account. \nEditing profile is not allowed."
+        android:textColor="@color/colorWhiteEC"
+        android:textAlignment="center"
+        android:visibility="visible" />
 
 
 </RelativeLayout>

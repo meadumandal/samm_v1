@@ -267,7 +267,7 @@ public class LoginActivity extends AppCompatActivity{
                         Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.VISIBLE);
                     } else {
-                        String url = "http://meadumandal.website/sammAPI/";
+                        String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
                         Retrofit retrofit = new Retrofit.Builder()
                                 .baseUrl(url)
                                 .addConverterFactory(GsonConverterFactory.create())
@@ -394,7 +394,7 @@ public class LoginActivity extends AppCompatActivity{
 
                                 userDatabaseRef.child(sessionManager.getUsername()).removeValue();
                                 if(checkIfEmailVerified()){
-                                    sessionManager.CreateLoginSession(firstName,lastName, username,param_email,isDriver, false, deviceId);
+                                    sessionManager.CreateLoginSession(firstName,lastName, username,param_email,isDriver, false, deviceId, false);
                                     Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -450,7 +450,7 @@ public class LoginActivity extends AppCompatActivity{
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = auth.getCurrentUser();
                             saveUserDetails(FirstName,LastName,token.getUserId().toString(),Email);
-                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email,false, false, "");
+                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email,false, false, "", true);
                             LoginProgDiag.hide();
                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                             startActivity(intent);

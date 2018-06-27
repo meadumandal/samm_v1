@@ -108,7 +108,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 String toDate = params[1];
                 String terminal = params[2];
 //                String _terminalAutoComplete =
-                String link = _constants.WEB_API_URL + "getPassengerQueueingHistory.php?terminal=" + terminal + "&fromDate="
+                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + "getPassengerQueueingHistory.php?terminal=" + terminal + "&fromDate="
                         + fromDate.toString() + "&toDate=" + toDate.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
@@ -140,7 +140,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 toDate = params[1];
                 terminal = params[2];
 //                String _terminalAutoComplete =
-                String link = _constants.WEB_API_URL + "getTerminalBusiestTimes.php?terminal=" + terminal + "&fromDate="
+                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + "getTerminalBusiestTimes.php?terminal=" + terminal + "&fromDate="
                         + fromDate.toString() + "&toDate=" + toDate.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();

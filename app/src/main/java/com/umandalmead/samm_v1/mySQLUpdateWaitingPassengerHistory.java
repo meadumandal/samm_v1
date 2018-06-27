@@ -69,7 +69,7 @@ public class mySQLUpdateWaitingPassengerHistory extends AsyncTask<String, Void, 
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + "updatePassengerCounter.php?";
+                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + "updatePassengerCounter.php?";
                 data += "numberOfWaitingPassengers=" + URLEncoder.encode(numberOfWaitingPassengers, "UTF-8")
                         + "&terminal=" + URLEncoder.encode(terminal, "UTF-8");
                 URL url = new URL(link);

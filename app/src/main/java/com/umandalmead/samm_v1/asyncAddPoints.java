@@ -25,7 +25,10 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 
+import static com.umandalmead.samm_v1.Constants.DESTINATIONS_API_FOLDER;
+import static com.umandalmead.samm_v1.Constants.DESTINATION_PREFIX;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import static com.umandalmead.samm_v1.Constants.POINTS_API_FOLDER;
 
 
 /**
@@ -105,20 +108,20 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 String link = "";
                 if(_action.equals("add"))
 
-                    link = _constants.WEB_API_URL + "_AddPointFloatingButton.php?name=" +name
+                    link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER + "addDestination.php?name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
                             + "&preposition=" + preposition
                             + "&terminalreferenceid="+terminalreferenceid;
                 else if (_action.equals("update"))
-                    link = _constants.WEB_API_URL + "updatePoint.php?id="+_destinationIDForEdit.toString()
+                    link = _constants.WEB_API_URL + POINTS_API_FOLDER +  "updatePoint.php?id="+_destinationIDForEdit.toString()
                             + "&name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
                             + "&preposition=" + preposition
                             + "&terminalreferenceid="+terminalreferenceid;
                 else
-                    link = _constants.WEB_API_URL + "removePoint.php?destinationid="+_destinationIDForEdit.toString();
+                    link = _constants.WEB_API_URL + POINTS_API_FOLDER +  "removePoint.php?destinationid="+_destinationIDForEdit.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

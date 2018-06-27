@@ -105,6 +105,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddPassengerCountLabel;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkers;
@@ -183,6 +184,7 @@ public class MenuActivity extends AppCompatActivity implements
         public HashMap _userMarkerHashmap = new HashMap();
         public HashMap<String, Long> _passengerCount = new HashMap<>();
         public static List<Eloop> _eloopList;
+        public static ArrayList<Routes> _routeList;
 
         //Put here all global variables related to sending SMS
         private UserMovementBroadcastReceiver _userMovementBroadcastReceiver;
@@ -306,13 +308,14 @@ public class MenuActivity extends AppCompatActivity implements
                 //region EloopList
                 new mySQLGetEloopList(_context).execute();
                 //endregion
+                new mySQLRoutesDataProvider(_context).execute();
 
 
                 if (_sessionManager == null)
                     _sessionManager = new SessionManager(_context);
                 if (!_sessionManager.isLoggedIn()) {
                     String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "");
+                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "", false);
                 }
                 setContentView(R.layout.activity_menu);
 
@@ -1159,7 +1162,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                                 _sessionManager.logoutUser();
                                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "");
+                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "", false);
                                 finish();
                                 startActivity(getIntent());
                                 Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();

@@ -160,7 +160,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 }
                                                                 else
                                                                 {
-                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false, false, "");
+                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false, false, "", false);
                                                                     final FirebaseAuth.AuthStateListener _authListener = new FirebaseAuth.AuthStateListener() {
                                                                         @Override
                                                                         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {

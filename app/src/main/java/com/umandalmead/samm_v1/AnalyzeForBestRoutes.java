@@ -278,7 +278,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     }
 
     public void createRouteTabs(final List<String> TotalTimeList, final List<List<String>> DirectionStepsList, final List<Terminal> AllPossibleTerminals, final List<List<String>> TerminalPointsList, final int ctr) {
-        //For Route Tabs
+        //For Routes Tabs
         try {
             if (AllPossibleTerminals.size() == 0 || AllPossibleTerminals == null)
                 throw new Exception("Unable to find route for this destination.");

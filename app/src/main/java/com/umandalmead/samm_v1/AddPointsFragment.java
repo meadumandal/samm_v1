@@ -53,7 +53,7 @@ public class AddPointsFragment extends Fragment {
         PointScrollListView = (NonScrollListView) myView.findViewById(R.id.pointslistview);
         try
         {
-            InitializeToolbar(MenuActivity._FragmentTitle + " Route");
+            InitializeToolbar(MenuActivity._FragmentTitle + " Routes");
             SessionManager sessionManager = new SessionManager(myView.getContext());
             final NonScrollListView routeListview = (NonScrollListView) myView.findViewById(R.id.routelistview);
 

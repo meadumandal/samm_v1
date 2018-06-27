@@ -84,7 +84,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             if (helper.isConnectedToInternet(this._context))
             {
 
-                String link = _constants.WEB_API_URL + "createDevices.php?name="+name+"&uniqueId="+uniqueId+"&phoneNo="+phoneNo;
+                String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER + "createDevices.php?name="+name+"&uniqueId="+uniqueId+"&phoneNo="+phoneNo;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

@@ -11,6 +11,15 @@ public class Constants {
     public static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     public static final String LOG_TAG ="Custom_Log";
     public static final String WEB_API_URL = "http://meadumandal.website/sammAPI/";
+    public static final String DESTINATIONS_API_FOLDER = "destinations/";
+    public static final String DEVICES_API_FOLDER = "devices/";
+    public static final String ELOOPS_API_FOLDER = "eloops/";
+    public static final String POINTS_API_FOLDER = "points/";
+    public static final String REPORTGENERATORS_API_FOLDER = "reportgenerators/";
+    public static final String REPORTS_API_FOLDER = "reports/";
+    public static final String ROUTES_API_FOLDER = "routes/";
+    public static final String SETTINGS_API_FOLDER = "settings/";
+    public static final String USERS_API_FOLDER = "users/";
     public static final String GUEST_USERNAME_PREFIX = "guestuser";
     public static final String GUEST_FIRSTNAME = "Guest";
     public static final String GUEST_LASTNAME = "User";

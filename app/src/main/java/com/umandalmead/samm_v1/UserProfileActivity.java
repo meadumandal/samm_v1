@@ -45,6 +45,7 @@ public class UserProfileActivity extends Fragment {
 
     View _view;
     EditText tv_firstName, tv_lastName, tv_password, tv_confirmPassword, tv_currentPassword;
+
     public static ImageView userImage;
     Button btn_save;
     SessionManager _sessionManager;
@@ -54,7 +55,7 @@ public class UserProfileActivity extends Fragment {
     private TextView SammTV;
     private View myView;
     private ImageButton FAB_SammIcon;
-    private TextView ViewTitle;
+    private TextView ViewTitle,tv_isFacebook;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -68,6 +69,7 @@ public class UserProfileActivity extends Fragment {
         tv_password = (EditText)_view.findViewById(R.id.edit_password);
         tv_confirmPassword = (EditText)_view.findViewById(R.id.edit_confirmpassword);
         tv_currentPassword = (EditText) _view.findViewById(R.id.edit_currentPassword);
+        tv_isFacebook = (TextView) _view.findViewById(R.id.tv_isFacebook);
         userImage = (ImageView) _view.findViewById(R.id.profileImg);
         btn_save = (Button) _view.findViewById(R.id.btn_save);
         _sessionManager = new SessionManager(getContext());
@@ -80,13 +82,25 @@ public class UserProfileActivity extends Fragment {
         tv_firstName.setText(_sessionManager.getFirstName());
         tv_lastName.setText(_sessionManager.getLastName());
 
-        _facebookImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
-        try {
-            FetchFBDPTask dptask = new FetchFBDPTask();
-            dptask.execute();
-        } catch (Exception ex) {
-            Toast.makeText(getContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
+        if (_sessionManager.isFacebook())
+        {
+            tv_firstName.setEnabled(false);
+            tv_lastName.setEnabled(false);
+            tv_password.setEnabled(false);
+            tv_confirmPassword.setEnabled(false);
+            tv_currentPassword.setEnabled(false);
+            btn_save.setEnabled(false);
+            tv_isFacebook.setVisibility(View.VISIBLE);
+            _facebookImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
+            try {
+                FetchFBDPTask dptask = new FetchFBDPTask();
+                dptask.execute();
+            } catch (Exception ex) {
+                Toast.makeText(getContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
+            }
         }
+
+
 
 
         btn_save.setOnClickListener(new View.OnClickListener() {

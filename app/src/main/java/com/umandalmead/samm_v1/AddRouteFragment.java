@@ -2,31 +2,18 @@ package com.umandalmead.samm_v1;
 
 
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.umandalmead.samm_v1.Adapters.RouteViewCustomAdapter;
-import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
-import com.umandalmead.samm_v1.EntityObjects.Terminal;
-import com.umandalmead.samm_v1.POJO.Duration;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -85,19 +72,20 @@ public class AddRouteFragment extends Fragment  {
         ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
         ViewTitle.setText(fragmentName);
     }
-    public ArrayList<String> Populate(){
-        ArrayList<String> result = new ArrayList<String>();
-        result.add("Northgate");
-        result.add("Northgate-Expanded");
-        result.add("Palms");
-        result.add("RITM");
-        result.add("Add Route");
-        return  result;
-    }
+//    public ArrayList<Routes> Populate(){
+//        ArrayList<String> result = new ArrayList<String>();
+//        result.add("Northgate");
+//        result.add("Northgate-Expanded");
+//        result.add("Palms");
+//        result.add("RITM");
+//        result.add("Add Routes");
+//        return  result;
+//    }
     public void InitializeView(NonScrollListView NSRouteListView){
         swipeRefreshRoute.setRefreshing(true);
         FragmentManager fm = getActivity().getFragmentManager();
-        customAdapter =new RouteViewCustomAdapter(Populate(), getActivity(),NSRouteListView,fm, swipeRefreshRoute);
+        new mySQLRoutesDataProvider(getContext()).execute();
+        customAdapter =new RouteViewCustomAdapter(MenuActivity._routeList, getActivity(),NSRouteListView,fm, swipeRefreshRoute);
         ScrollListView.setAdapter(customAdapter);
 
 //        ScrollListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

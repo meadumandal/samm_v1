@@ -75,7 +75,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         {
 
             try{
-                String link = _constants.WEB_API_URL + "signUp.php?";
+                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "signUp.php?";
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);

@@ -121,7 +121,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + "getDestinations.php?";
+                String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + "getDestinations.php?";
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

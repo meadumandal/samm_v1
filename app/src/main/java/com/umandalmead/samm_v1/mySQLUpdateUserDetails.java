@@ -89,7 +89,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
                 return "";
             }
             try{
-                String link = _constants.WEB_API_URL + "updateUserDetails.php?";
+                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "updateUserDetails.php?";
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);

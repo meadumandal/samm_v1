@@ -90,7 +90,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
-                URL url = new URL(_constants.WEB_API_URL + "deleteDevice.php?id="+id);
+                URL url = new URL(_constants.WEB_API_URL + _constants.DEVICES_API_FOLDER+ "deleteDevice.php?id="+id);
                 URLConnection conn = url.openConnection();
 
                 conn.setDoOutput(true);
