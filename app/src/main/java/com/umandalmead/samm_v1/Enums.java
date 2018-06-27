@@ -39,4 +39,19 @@ public class Enums {
         }
 
     }
+    public enum ActionType{
+        ADD("Add", 0),
+        EDIT("Edit", 1);
+
+        private String stringValue;
+        private int intValue;
+        private ActionType(String toString, int value) {
+            stringValue = toString;
+            intValue = value;
+        }
+        @Override
+        public String toString() {
+            return stringValue;
+        }
+    }
 }

@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
+import com.umandalmead.samm_v1.POJO.Route;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -72,7 +73,8 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
     @Override
     protected void onPostExecute(ArrayList<Routes> listRoutes)
     {
-
+        Routes addrouteEntry = new Routes(0, "Add route");
+        listRoutes.add(addrouteEntry);
         MenuActivity._routeList = listRoutes;
     }
 }

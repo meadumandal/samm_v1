@@ -3,6 +3,7 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
     android:id="@+id/mapCFL"
     android:clickable="true"
     xmlns:fab="http://schemas.android.com/apk/res-auto">

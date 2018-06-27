@@ -206,13 +206,14 @@
             android:textSize="15sp"
             android:textStyle="bold" />
 
+
         <TextView
             android:id="@+id/textAlreadyAMember"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/linkDriver"
             android:layout_below="@+id/btn_save"
             android:layout_marginTop="18dp"
+            android:layout_marginStart="60dp"
             android:text="Already a member?"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/colorWhite" />
@@ -223,21 +224,22 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/textAlreadyAMember"
             android:layout_alignBottom="@+id/textAlreadyAMember"
-            android:layout_marginStart="19dp"
-            android:layout_toEndOf="@+id/linkDriver"
+            android:layout_marginStart="20dp"
+            android:layout_toEndOf="@+id/textAlreadyAMember"
             android:text="Login"
+            android:onClick="LoginLinkClicked"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/colorWhite" />
 
-        <TextView
-            android:id="@+id/linkDriver"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/textAlreadyAMember"
-            android:layout_centerHorizontal="true"
-            android:text="I'm a driver"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/colorWhite" />
+        <!--<TextView-->
+            <!--android:id="@+id/linkDriver"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@+id/textAlreadyAMember"-->
+            <!--android:layout_centerHorizontal="true"-->
+            <!--android:text="I'm a driver"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:textColor="@color/colorWhite" />-->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="30dp"

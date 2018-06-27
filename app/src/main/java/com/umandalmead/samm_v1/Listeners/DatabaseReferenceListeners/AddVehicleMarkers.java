@@ -109,7 +109,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                 MenuActivity._googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
                 MenuActivity._googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
             }
-            final String vehicle_Plate = GetEloopEntry(deviceId);
+            final String vehicle_Plate = "test";//GetEloopEntry(deviceId);
             final Location prevLocation = new Location("");
             final Location currLocation = new Location("");
             prevLocation.setLatitude(Double.parseDouble(dataSnapshot.child("PrevLat").getValue().toString()));

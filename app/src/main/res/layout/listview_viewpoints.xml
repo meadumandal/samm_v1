@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_gravity="right"
+    android:animateLayoutChanges="true"
     android:descendantFocusability="blocksDescendants">
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,6 +16,7 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingTop="8dp"
             android:src="@drawable/ic_reorder_black_24dp"
             android:background="@android:color/transparent"
             android:paddingRight="20dp"
@@ -26,7 +28,19 @@
             android:layout_width="wrap_content"
             android:text="SAMM_xxxxx"
             android:textColor="@color/colorBlack"
-            android:textSize="20dp"/>
+            android:textSize="14dp"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="0.1" />
+
+        <Button
+            android:id="@+id/btnEditPoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Edit"
+            />
 
 
 

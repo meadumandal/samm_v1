@@ -435,8 +435,13 @@ public class LoginActivity extends AppCompatActivity{
 
     public void SignUp(View v)
     {
-        Intent SignUpForm = new Intent(LoginActivity.this, SignUpActivity.class);
-        startActivity(SignUpForm);
+        try {
+            Intent SignUpForm = new Intent(LoginActivity.this, SignUpActivity.class);
+            startActivity(SignUpForm);
+            finish();
+        }catch(Exception ex){
+            String test = ex.getMessage();
+        }
     }
     private void handleFacebookAccessToken(final AccessToken token, final String LastName, final String FirstName, final String Email) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);

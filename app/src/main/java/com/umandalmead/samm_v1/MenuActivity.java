@@ -454,6 +454,7 @@ public class MenuActivity extends AppCompatActivity implements
                         _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                         _MapsHolderLinearLayout.setVisibility(View.GONE);
 
+
                         FragmentManager fragment = getSupportFragmentManager();
                         fragment.beginTransaction().replace(R.id.content_frame, new AddRouteFragment()).commit();
                     }
@@ -1255,19 +1256,16 @@ public class MenuActivity extends AppCompatActivity implements
             }
             else if(id==R.id.menu_username)
             {
-//                Intent SignUpForm = new Intent(MenuActivity.this, UserProfileActivity.class);
-//                startActivity(SignUpForm);
-//                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//                drawer.closeDrawer(GravityCompat.START);
+                if(!_sessionManager.isGuest()){
+                    _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                    _MapsHolderLinearLayout.setVisibility(View.GONE);
+                    fragment.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
+                }
+                else{
+                    InfoDialog GuestInfo =new InfoDialog(MenuActivity.this,getResources().getString(R.string.guest_nav_drawer_message));
+                    GuestInfo.show();
+                }
 
-
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.GONE);
-
-                //_SearchLinearLayout.setVisibility(View.GONE);
-                //_TerminalsAutoCompleteTextView.setVisibility(View.GONE);
-                //_CurrentLocationEditText.setVisibility(View.GONE);
-                fragment.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
             }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             drawer.closeDrawer(GravityCompat.START);
@@ -2179,6 +2177,47 @@ public class MenuActivity extends AppCompatActivity implements
 
         }
     }
+    public  class AddRouteDialog extends Dialog implements android.view.View.OnClickListener{
+        Button submitButton;
+        EditText txtRouteName;
+        TextView tvActionTitle;
+        public String TAG ="eleaz";
+        public final Activity _activity;
+        private String _routeName;
+        private Enums.ActionType _action;
+
+        public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable String RouteName) {
+            super(activity);
+            // TODO Auto-generated constructor stub
+            this._activity = activity;
+            this._action = Action;
+            this._routeName = RouteName;
+        }
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            setContentView(R.layout.dialog_addroute);
+            Boolean isNew=this._action.toString().equalsIgnoreCase("add");
+            submitButton = (Button) findViewById(id.btnNewRoute);
+            txtRouteName = (EditText) findViewById(id.textRouteName);
+            tvActionTitle = (TextView) findViewById(id.textviewActionTitle);
+            tvActionTitle.setText(isNew ? "New route name" : "Edit route name");
+            submitButton.setText(isNew ? "Save" : "Update");
+            txtRouteName.setText(this._routeName);
+            submitButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Toast.makeText(getContext(),"Event here", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @Override
+        public void onClick(View view) {
+
+        }
+    }
     public static Boolean IsNight(){
         Integer currentTime = Calendar.getInstance().getTime().getHours();
         return (currentTime >= 18 || currentTime <=5)? true: false;
@@ -2311,6 +2350,11 @@ public class MenuActivity extends AppCompatActivity implements
     public void RefreshStationPoints(){
         FragmentManager fragment = getSupportFragmentManager();
         fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
+    }
+    public void AddNewRoute(Enums.ActionType Action, @Nullable String RouteName){
+            AddRouteDialog dialog = new AddRouteDialog(MenuActivity.this, Action, RouteName);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
     }
 
 }

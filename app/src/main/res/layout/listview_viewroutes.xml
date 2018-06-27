@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_gravity="right"
+    android:animateLayoutChanges="true"
     android:descendantFocusability="blocksDescendants">
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,6 +34,13 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="0.1" />
+        <Button
+            android:id="@+id/btnEditRouteName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="Edit"
+            />
 
         <Button
             android:id="@+id/btnViewRoute"
@@ -41,6 +49,7 @@
             android:visibility="gone"
             android:text="View"
             />
+
 
 
 

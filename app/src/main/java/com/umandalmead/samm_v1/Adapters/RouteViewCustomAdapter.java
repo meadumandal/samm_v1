@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.umandalmead.samm_v1.AddPointsFragment;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
+import com.umandalmead.samm_v1.Enums;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
@@ -49,7 +50,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
         TextView textRouteName;
         LinearLayout layoutRouteItem;
         ImageButton dragger;
-        Button viewRoute;
+        Button viewRoute, editRoute;
     }
 
 
@@ -71,6 +72,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                 viewHolder.layoutRouteItem = (LinearLayout) convertView.findViewById(R.id.routeitemLinearLayout);
                 viewHolder.dragger = (ImageButton) convertView.findViewById(R.id.routeDragger);
                 viewHolder.viewRoute = (Button) convertView.findViewById(R.id.btnViewRoute);
+                viewHolder.editRoute = (Button) convertView.findViewById(R.id.btnEditRouteName);
                 result=convertView;
 
                 convertView.setTag(viewHolder);
@@ -87,13 +89,28 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
             viewHolder.textRouteName.setText(route.getRouteName());
             if(route.getRouteName().toLowerCase().contains("add route")) {
                 viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
+                if(route.getRouteName().toLowerCase().contains("add route")) {
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ((MenuActivity) _context).AddNewRoute(Enums.ActionType.ADD, null);
+                        }
+                    });
+                }
             }
             else {
                 viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorSprayBlue));
                 viewHolder.viewRoute.setVisibility(View.VISIBLE);
+                viewHolder.editRoute.setVisibility(View.VISIBLE);
                 viewHolder.dragger.setVisibility(View.GONE);
             }
 
+            viewHolder.editRoute.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    ((MenuActivity)_context).AddNewRoute(Enums.ActionType.EDIT, route.getRouteName());
+                }
+            });
             viewHolder.viewRoute.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

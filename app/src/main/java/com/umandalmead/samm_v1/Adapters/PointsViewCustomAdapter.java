@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,6 +43,7 @@ public class PointsViewCustomAdapter extends ArrayAdapter<String> implements Vie
         TextView textPointName;
         LinearLayout layoutPointItem;
         ImageButton pointDragger;
+        Button editButton;
     }
     @NonNull
     @Override
@@ -55,6 +57,7 @@ public class PointsViewCustomAdapter extends ArrayAdapter<String> implements Vie
                 viewHolder.textPointName = (TextView) convertView.findViewById(R.id.pointName);
                 viewHolder.layoutPointItem = (LinearLayout) convertView.findViewById(R.id.pointsItemLinearLayout);
                 viewHolder.pointDragger = (ImageButton) convertView.findViewById(R.id.pointDragger);
+                viewHolder.editButton = (Button) convertView.findViewById(R.id.btnEditPoint);
                 result=convertView;
 
                 convertView.setTag(viewHolder);
@@ -72,17 +75,20 @@ public class PointsViewCustomAdapter extends ArrayAdapter<String> implements Vie
             if(PointValue.toLowerCase().contains("add point")) {
                 viewHolder.layoutPointItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
                 viewHolder.pointDragger.setImageResource(R.drawable.ic_add_black_24dp);
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ((MenuActivity)_context).AddNewStationPoint("ADD");
-                    }
-                });
+                if(PointValue.toLowerCase().contains("add point")) {
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ((MenuActivity) _context).AddNewStationPoint("ADD");
+                        }
+                    });
+                }
             }
             else {
                 viewHolder.layoutPointItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorGreen));
                 viewHolder.pointDragger.setImageResource(R.drawable.ic_reorder_black_24dp);
-                convertView.setOnClickListener(new View.OnClickListener() {
+                viewHolder.editButton.setVisibility(View.VISIBLE);
+                viewHolder.editButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         ((MenuActivity)_context).ModifyStationPoint("UPDATE",PointValue);

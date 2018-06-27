@@ -41,7 +41,7 @@ public class SignUpActivity extends AppCompatActivity {
     FirebaseDatabase userDatabase;
     DatabaseReference userDatabaseReference;
     SessionManager sessionManager;
-    private TextView link_driver;
+   // private TextView link_driver;
     private static String TAG = "mead";
     private ProgressDialog SignUpProgDiag;
     private Constants _constants = new Constants();
@@ -55,7 +55,7 @@ public class SignUpActivity extends AppCompatActivity {
         btn_signUp = (Button)findViewById(R.id.btn_save);
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
         sessionManager = new SessionManager(getApplicationContext());
-        link_driver = (TextView) findViewById(R.id.linkDriver);
+       // link_driver = (TextView) findViewById(R.id.linkDriver);
 
 
 
@@ -64,14 +64,14 @@ public class SignUpActivity extends AppCompatActivity {
             userDatabase = FirebaseDatabase.getInstance();
             userDatabaseReference = userDatabase.getReference("users");
         }
-        link_driver.setOnClickListener(new View.OnClickListener(){
-
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(SignUpActivity.this, SignUpDriverActivity.class);
-                startActivity(i);
-            }
-        });
+//        link_driver.setOnClickListener(new View.OnClickListener(){
+//
+//            @Override
+//            public void onClick(View view) {
+//                Intent i = new Intent(SignUpActivity.this, SignUpDriverActivity.class);
+//                startActivity(i);
+//            }
+//        });
         btn_signUp.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -255,5 +255,9 @@ public class SignUpActivity extends AppCompatActivity {
         SignUpProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         SignUpProgDiag.setCancelable(false);
         SignUpProgDiag.show();
+    }
+    public void LoginLinkClicked(View v){
+        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+        finish();
     }
 }
