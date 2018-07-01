@@ -31,6 +31,7 @@ public class NoInternetDialog extends Dialog implements
         setContentView(R.layout.dialog_no_internet);
         btnTryAgain = (Button) findViewById(R.id.btnTryAgain);
         btnTryAgain.setOnClickListener(this);
+        MenuActivity.buttonEffect(btnTryAgain);
 
 
     }

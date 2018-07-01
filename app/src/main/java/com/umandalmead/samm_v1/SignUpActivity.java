@@ -104,6 +104,10 @@ public class SignUpActivity extends AppCompatActivity {
                                 confirmPassword = edit_confirmPassword.getText().toString();
 
                                 //VALIDATIONS
+                                if(TextUtils.isEmpty(username)){
+                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Username"), Toast.LENGTH_LONG).show();
+                                    return;
+                                }
                                 if (TextUtils.isEmpty(emailAddress))
                                 {
                                     Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "E-mail Address"), Toast.LENGTH_LONG).show();

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/Info_Layout"
+    android:animateLayoutChanges="true"
+    android:visibility="gone">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="160dp"
+        android:orientation="horizontal"
+        android:background="@android:color/transparent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:id="@+id/LinearInfoHolder"
+            android:background="@drawable/info_panel"
+            android:animateLayoutChanges="true"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/ImageView_InfoImage"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_gravity="left"
+                    android:background="@drawable/circular_image" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:animateLayoutChanges="true"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TextView_InfoTitle"
+                    android:textSize="20dp"
+                    android:visibility="gone"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorWhite"
+                    android:text="SAMM_XX"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TextView_InfoDesc"
+                    android:visibility="gone"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="14dp"
+                    android:text="SAMM_DESCCC"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/btnCloseInfoPanel"
+            android:layout_marginRight="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:adjustViewBounds="true"
+            android:scaleType="centerInside"
+            android:background="@null"
+            android:src="@drawable/error_icon"
+            android:text="CLOSE"/>
+    </RelativeLayout>
+
+</LinearLayout>

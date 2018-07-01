@@ -13,6 +13,7 @@ public class NoInternetActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_no_internet);
         Button btn_tryAgain = (Button) findViewById(R.id.btnTryAgain);
+        MenuActivity.buttonEffect(btn_tryAgain);
         btn_tryAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

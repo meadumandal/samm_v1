@@ -48,7 +48,6 @@ public class AddVehicleMarkers implements ChildEventListener {
 
     Helper _helper = new Helper();
     Marker _vehicleAnimatedMarker;
-    static HashMap _driverMarkerHashmap = new HashMap();
 
     public AddVehicleMarkers(Context context, Activity activity) {
         _activity = activity;
@@ -128,24 +127,24 @@ public class AddVehicleMarkers implements ChildEventListener {
                         public void onAnimationUpdate(ValueAnimator valueAnimator) {
                             try {
                                 MarkerOptions markerOptions = new MarkerOptions();
-
-
                                 if (deviceId.toString().equals(_sessionManager.getKeyDeviceid()))
                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
                                 else{
-                                    IconGenerator iconFactory = new IconGenerator(_context);
-                                    TextView text = new TextView(_context);
-                                    text.setText(vehicle_Plate);
-                                    text.setTextSize(10);
-                                    text.setBackgroundResource(R.drawable.rounded_corners);
-                                    text.setTypeface(null, Typeface.BOLD);
-                                    text.setPadding(8,8,8,8);
-                                    text.setTextColor(_context.getResources().getColor(R.color.colorBlack));
-                                    //iconFactory.setContentPadding(20,20,20,20);
-                                    iconFactory.setBackground(_context.getDrawable(R.mipmap.ic_ecoloop_blue));
-                                    iconFactory.setContentView(text);
-                                    Bitmap icon = iconFactory.makeIcon();
-                                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
+                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop_blue));
+                                    markerOptions.title(deviceId);
+//                                    IconGenerator iconFactory = new IconGenerator(_context);
+//                                    TextView text = new TextView(_context);
+//                                    text.setText(vehicle_Plate);
+//                                    text.setTextSize(10);
+//                                    text.setBackgroundResource(R.drawable.rounded_corners);
+//                                    text.setTypeface(null, Typeface.BOLD);
+//                                    text.setPadding(8,8,8,8);
+//                                    text.setTextColor(_context.getResources().getColor(R.color.colorBlack));
+//                                    //iconFactory.setContentPadding(20,20,20,20);
+//                                    iconFactory.setBackground(_context.getDrawable(R.mipmap.ic_ecoloop_blue));
+//                                    iconFactory.setContentView(text);
+//                                    Bitmap icon = iconFactory.makeIcon();
+//                                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
                                 }
 
 
@@ -165,24 +164,24 @@ public class AddVehicleMarkers implements ChildEventListener {
                                     markerOptions.title("HEY!");
                                     markerOptions.snippet("It's you");
                                 }
-                                _vehicleAnimatedMarker = (Marker) _driverMarkerHashmap.get(deviceId);
+
+                                _vehicleAnimatedMarker = (Marker) MenuActivity._driverMarkerHashmap.get(deviceId);
                                 if(_vehicleAnimatedMarker == null)
                                 {
                                     _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
-                                    _driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
+                                    MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
                                 }
                                 else
                                 {
                                     _vehicleAnimatedMarker.remove();
                                     _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
                                     _vehicleAnimatedMarker.showInfoWindow();
-                                    _driverMarkerHashmap.remove(deviceId);
-                                    _driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
+                                    MenuActivity._driverMarkerHashmap.remove(deviceId);
+                                    MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
                                 }
                                 if (deviceId.toString().equals(_sessionManager.getKeyDeviceid())) {
                                     _vehicleAnimatedMarker.showInfoWindow();
                                 }
-
                                // _vehicleAnimatedMarker.showInfoWindow();
                             } catch (Exception ex) {
                                 Helper.logger(ex);
@@ -231,14 +230,5 @@ public class AddVehicleMarkers implements ChildEventListener {
             });
         }
     }
-    private String GetEloopEntry(String vehicle_ID){
-        String _result = "";
-        for (Eloop e: MenuActivity._eloopList) {
-            if(e.DeviceId == Integer.parseInt(vehicle_ID)){
-                _result = e.PlateNumber;
-                break;
-            }
-        }
-        return _result;
-    }
+
 }

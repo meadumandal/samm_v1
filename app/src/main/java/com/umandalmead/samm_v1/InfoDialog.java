@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -39,6 +41,7 @@ public class InfoDialog extends Dialog implements
 
         btnOk    = (Button) findViewById(R.id.btnOK);
         btnOk.setOnClickListener(this);
+        MenuActivity.buttonEffect(btnOk);
 
 
 
@@ -47,7 +50,7 @@ public class InfoDialog extends Dialog implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnOK:
-                dismiss();
+            dismiss();
                 break;
             default:
                 break;

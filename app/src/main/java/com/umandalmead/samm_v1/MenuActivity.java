@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -49,17 +50,21 @@ import android.text.Html;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -185,6 +190,7 @@ public class MenuActivity extends AppCompatActivity implements
         public HashMap<String, Long> _passengerCount = new HashMap<>();
         public static List<Eloop> _eloopList;
         public static ArrayList<Routes> _routeList;
+        public static HashMap _driverMarkerHashmap = new HashMap();
 
         //Put here all global variables related to sending SMS
         private UserMovementBroadcastReceiver _userMovementBroadcastReceiver;
@@ -198,6 +204,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static SlidingUpPanelLayout _SlideUpPanelContainer;
         public static TabLayout _RouteTabLayout;
         public static WebView _RouteStepsText;
+        public ProgressDialog _ProgressDialog;
         public static ImageView _Slide_Expand;
         public static ImageView _Slide_Collapse;
         public static ScrollView _StepsScroller;
@@ -219,7 +226,6 @@ public class MenuActivity extends AppCompatActivity implements
         public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton, _AddRouteFloatingButton;
         public FloatingActionMenu _AdminToolsFloatingMenu;
         public Button _ReconnectGPSButton;
-        public ProgressDialog _ProgressDialog;
         public static ImageView FAB_SammIcon;
         public static FrameLayout FrameSearchBarHolder;
         public static ImageView Search_BackBtn;
@@ -227,10 +233,14 @@ public class MenuActivity extends AppCompatActivity implements
         public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
         public static String _FragmentTitle;
+        private TextView _infoTitleTV, _infoDescriptionTV;
+        private LinearLayout _infoLayout;
+        private ImageButton _infoPanelBtnClose;
+        private ImageView _infoImage;
 
 
         //Put here other global variables
-        public GoogleApiClient _googleAPI;
+        public static GoogleApiClient _googleAPI;
         public Helper _helper;
         public Context _context;
         public LatLng _userCurrentLoc;
@@ -254,6 +264,8 @@ public class MenuActivity extends AppCompatActivity implements
         private String _gpsIMEI;
         public Constants _constants;
         public Boolean terminalsNodeExists = false;
+        public static Boolean _IsOnSearchMode = false;
+        public static Terminal[] _PointsArray;
 
 
 
@@ -263,7 +275,8 @@ public class MenuActivity extends AppCompatActivity implements
         private String _AssignedELoop = "";
         private int _passengerCountInTerminal =0;
 
-
+        //button effect
+        private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
         /**
          * This method checks if the app has permission to access user lcoation
          * @return Returns true if permission granted. Otherwise, false
@@ -408,7 +421,8 @@ public class MenuActivity extends AppCompatActivity implements
                 _DestinationTextView = (TextView) findViewById(id.DestinationTV);
                 _RoutesContainer_CardView = (CardView) findViewById(id.Routes_CardView);
                 _LoopArrivalProgress = (ProgressBar) findViewById(R.id.progressBarLoopArrival);
-
+                InitializeInfoPanel();
+                MenuActivity.buttonEffect(Search_BackBtn);
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
                 {
@@ -451,12 +465,10 @@ public class MenuActivity extends AppCompatActivity implements
                 _AddRouteFloatingButton.setOnClickListener(new View.OnClickListener(){
                     @Override
                     public void onClick(View view) {
-                        _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                        _MapsHolderLinearLayout.setVisibility(View.GONE);
-
-
-                        FragmentManager fragment = getSupportFragmentManager();
-                        fragment.beginTransaction().replace(R.id.content_frame, new AddRouteFragment()).commit();
+                        Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
+                        startActivity(addRouteIntent);
+                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                        finish();
                     }
                 });
 
@@ -490,6 +502,7 @@ public class MenuActivity extends AppCompatActivity implements
                 PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                         getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
                 autocompleteFragment.setFilter(autocompleteFilter);
+
                 //set bounds to search within bounds only~
                 //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
 
@@ -838,7 +851,8 @@ public class MenuActivity extends AppCompatActivity implements
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(_terminalMarkerHashmap.containsKey(marker.getTitle()))
+                String markerTitle = marker.getTitle();
+                if(_terminalMarkerHashmap.containsKey(markerTitle))
                 {
                     if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
                     {
@@ -866,7 +880,13 @@ public class MenuActivity extends AppCompatActivity implements
                         marker.setSnippet("Fetching Data...");
                         marker.showInfoWindow();
                         GetAndDisplayEloopETA(clickedTerminal, marker);
+                        ShowInfoLayout(clickedTerminal.Description,"Fetching Data...", true);
+
                     }
+                }
+                //vehicle has been clicked instead
+                else if(_driverMarkerHashmap.containsKey(markerTitle)){
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "Desriptionxxxx" , false);
                 }
 
 
@@ -988,10 +1008,11 @@ public class MenuActivity extends AppCompatActivity implements
                             }
                         }
                         if (_IsAllLoopParked) {
-                            marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A");
+                            String SnippetText = _helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A";
+                            marker.setSnippet(SnippetText);
                             marker.hideInfoWindow();
                             marker.showInfoWindow();
-
+                            UpdateInfoPanel(marker.getTitle(), SnippetText);
                         }
                     }
                 });
@@ -1026,10 +1047,13 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                                    marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString());
+                                    String SnippetText=_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString();
+                                    marker.setSnippet(SnippetText);
                                     marker.setSnippet(TimeofArrival.toString());
                                     marker.hideInfoWindow();
                                     marker.showInfoWindow();
+                                    UpdateInfoPanel(dest.Value, SnippetText);
+
 
                                 }
 
@@ -1925,7 +1949,8 @@ public class MenuActivity extends AppCompatActivity implements
                 spinnerTerminalReference = (Spinner) findViewById(R.id.spinner_terminalReference);
                 Integer orderOfArrival = 0;
                 final Integer destinationIDforEdit=0;
-
+                MenuActivity.buttonEffect(btnAddPoints);
+                MenuActivity.buttonEffect(btnDeletePoints);
                 ArrayAdapter<Terminal> terminalReferencesAdapter = new ArrayAdapter<Terminal>(getApplicationContext(), R.layout.spinner_item, MenuActivity._terminalList);
 
                 spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
@@ -2135,6 +2160,7 @@ public class MenuActivity extends AppCompatActivity implements
             sendBtn = (Button) findViewById(R.id.btnAddGPS);
             txtphoneNo = (EditText) findViewById(R.id.GPSMobileNum);
             txtIMEI  = (EditText) findViewById(R.id.GPSIMEI);
+            MenuActivity.buttonEffect(sendBtn);
 
 
 
@@ -2177,47 +2203,7 @@ public class MenuActivity extends AppCompatActivity implements
 
         }
     }
-    public  class AddRouteDialog extends Dialog implements android.view.View.OnClickListener{
-        Button submitButton;
-        EditText txtRouteName;
-        TextView tvActionTitle;
-        public String TAG ="eleaz";
-        public final Activity _activity;
-        private String _routeName;
-        private Enums.ActionType _action;
 
-        public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable String RouteName) {
-            super(activity);
-            // TODO Auto-generated constructor stub
-            this._activity = activity;
-            this._action = Action;
-            this._routeName = RouteName;
-        }
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setContentView(R.layout.dialog_addroute);
-            Boolean isNew=this._action.toString().equalsIgnoreCase("add");
-            submitButton = (Button) findViewById(id.btnNewRoute);
-            txtRouteName = (EditText) findViewById(id.textRouteName);
-            tvActionTitle = (TextView) findViewById(id.textviewActionTitle);
-            tvActionTitle.setText(isNew ? "New route name" : "Edit route name");
-            submitButton.setText(isNew ? "Save" : "Update");
-            txtRouteName.setText(this._routeName);
-            submitButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(getContext(),"Event here", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
-        @Override
-        public void onClick(View view) {
-
-        }
-    }
     public static Boolean IsNight(){
         Integer currentTime = Calendar.getInstance().getTime().getHours();
         return (currentTime >= 18 || currentTime <=5)? true: false;
@@ -2252,6 +2238,19 @@ public class MenuActivity extends AppCompatActivity implements
                    _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
                }
                break;
+           case SHOWING_INFO:
+               FAB_SammIcon.setVisibility(View.GONE);
+               FrameSearchBarHolder.setVisibility(View.GONE);
+               break;
+           case HIDE_INFO:
+               FAB_SammIcon.setVisibility(View.VISIBLE);
+               FrameSearchBarHolder.setVisibility(View.VISIBLE);
+               _infoLayout.setVisibility(View.GONE);
+               break;
+           case HIDE_INFO_SEARCH:
+               Search_BackBtn.setVisibility(View.VISIBLE);
+               _infoLayout.setVisibility(View.GONE);
+               break;
            default: break;
        }
     }
@@ -2278,11 +2277,13 @@ public class MenuActivity extends AppCompatActivity implements
         _AppBar.setLayoutParams(lp);
         //Get nearest loop time of arrival~
         _LoopArrivalProgress.setVisibility(View.VISIBLE);
+        _IsOnSearchMode=true;
         if(_markerAnimator!=null)
             _markerAnimator.start();
     }
     public void HideRouteTabsAndSlidingPanel(){
         _RouteTabLayout.setVisibility(View.GONE);
+        _IsOnSearchMode=false;
         _RoutesPane.setVisibility(View.GONE);
         AnalyzeForBestRoutes.clearLines();
         _selectedPickUpPoint = null;
@@ -2336,26 +2337,176 @@ public class MenuActivity extends AppCompatActivity implements
     }
 
     //Public methods for showing Dialogs from fragments which are previously attached to FABs onclick events.
-    public void AddNewStationPoint(String DialogTitle){
-            AddPointDialog dialog = new AddPointDialog(MenuActivity.this, DialogTitle);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
+
+//    public void RefreshStationPoints(){
+//        FragmentManager fragment = getSupportFragmentManager();
+//        fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
+//    }
+
+    public void ShowInfoLayout(String Title, String Description, Boolean IsStation){
+        try{
+        //InitializeInfoPanel( Title, Description);
+        InfoPanelShow(Title, Description, IsStation);
+
+        }
+        catch(Exception ex){
+            Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
-    public void ModifyStationPoint(String DialogTitle, String DestinationToBeEdited){
-            AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "Update", DestinationToBeEdited);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
+    public void InitializeInfoPanel(){
+        try {
+            _infoTitleTV = (TextView) findViewById(R.id.TextView_InfoTitle);
+            _infoDescriptionTV = (TextView) findViewById(R.id.TextView_InfoDesc);
+            _infoLayout = (LinearLayout) findViewById(R.id.Info_Layout);
+            _infoPanelBtnClose = (ImageButton) findViewById(id.btnCloseInfoPanel);
+            _infoTitleTV.setVisibility(View.GONE);
+            _infoDescriptionTV.setVisibility(View.GONE);
+            _infoImage = (ImageView) findViewById(id.ImageView_InfoImage);
+            _infoPanelBtnClose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    InfoPanelHide();
+                }
+            });
+
+
+        } catch (Exception ex) {
+            Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+    public void InfoPanelShow(final String InfoTitle, final String InfoDescription,final Boolean isStation) {
+            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_web : R.drawable.eco_loop_for_info_transparent;
+            if (_infoLayout.getVisibility() == View.GONE) {
+                if(!_IsOnSearchMode)
+                    UpdateUI(Enums.UIType.SHOWING_INFO);
+                else
+                    Search_BackBtn.setVisibility(View.GONE);
+                _infoLayout.setVisibility(View.VISIBLE);
+                Animation slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
+                        R.anim.slide_down);
+                _infoLayout.startAnimation(slide_down);
+                slide_down.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        Animation slide_up_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                                R.anim.slide_up_bounce);
+                        _infoLayout.startAnimation(slide_up_bounce);
+                        _infoTitleTV.setText(InfoTitle);
+                        _infoDescriptionTV.setText(InfoDescription);
+                        _infoImage.setImageResource(imageResId);
+                        _infoTitleTV.setVisibility(View.VISIBLE);
+                        _infoDescriptionTV.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+            } else {
+                Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                        R.anim.slide_down_bounce);
+                _infoLayout.startAnimation(slide_down_bounce);
+                slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        Animation slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
+                                R.anim.slide_up);
+                        _infoLayout.startAnimation(slide_up);
+                        _infoLayout.setVisibility(View.GONE);
+                        slide_up.setAnimationListener(new Animation.AnimationListener() {
+
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                InfoPanelShow(InfoTitle, InfoDescription, isStation);
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+            }
 
     }
-    public void RefreshStationPoints(){
-        FragmentManager fragment = getSupportFragmentManager();
-        fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
+    public void UpdateInfoPanel(String Title, String Description){
+        if(_infoLayout.getVisibility() == View.VISIBLE){
+            _infoTitleTV.setText(Title);
+            _infoDescriptionTV.setText(Description);
+        }
     }
-    public void AddNewRoute(Enums.ActionType Action, @Nullable String RouteName){
-            AddRouteDialog dialog = new AddRouteDialog(MenuActivity.this, Action, RouteName);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
+    public void InfoPanelHide() {
+        Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down_bounce);
+        _infoLayout.startAnimation(slide_down_bounce);
+        slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                Animation slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
+                        R.anim.slide_up);
+                _infoLayout.startAnimation(slide_up);
+                if(!_IsOnSearchMode)
+                     UpdateUI(Enums.UIType.HIDE_INFO);
+                else{
+                    UpdateUI(Enums.UIType.HIDE_INFO_SEARCH);
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
     }
+    public static void buttonEffect(View button){
+        button.setOnTouchListener(new View.OnTouchListener() {
+
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        v.getBackground().setColorFilter(0xe0f47521, PorterDuff.Mode.SRC_ATOP);
+                        v.invalidate();
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        v.getBackground().clearColorFilter();
+                        v.invalidate();
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
 
 }
 

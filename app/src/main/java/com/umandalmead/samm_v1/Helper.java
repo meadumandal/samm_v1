@@ -15,6 +15,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
 
@@ -231,6 +232,16 @@ public class Helper {
         StringWriter sw = new StringWriter();
         ex.printStackTrace(new PrintWriter(sw));
         Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+    }
+     public static String GetEloopEntry(String vehicle_ID){
+        String _result = "";
+        for (Eloop e: MenuActivity._eloopList) {
+            if(e.DeviceId == Integer.parseInt(vehicle_ID)){
+                _result = e.PlateNumber;
+                break;
+            }
+        }
+        return _result;
     }
     public String getEmojiByUnicode(int unicode)
     {

@@ -84,10 +84,17 @@
         <!-- <action android:name="android.provider.Telephony.SMS_RECEIVED" /> -->
         <!-- </intent-filter> -->
         <!-- </receiver> -->
-        <activity android:name=".UserProfileActivity_" />
         <activity
             android:name=".UserProfileActivity"
             android:label="@string/title_activity_user_profile"
+            android:theme="@style/AppTheme"></activity>
+        <activity
+            android:name=".ManageRoutesActivity"
+            android:label="Manage Routes"
+            android:theme="@style/AppTheme"></activity>
+        <activity
+            android:name=".SortableListViewActivity"
+            android:label="Manage Points"
             android:theme="@style/AppTheme"></activity>
     </application>
 

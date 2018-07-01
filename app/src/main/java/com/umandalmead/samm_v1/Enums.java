@@ -7,7 +7,10 @@ package com.umandalmead.samm_v1;
 public class Enums {
     public enum UIType{
         MAIN("Main", 0),
-        SHOWING_ROUTES("ShowingRoutes", 1);
+        SHOWING_ROUTES("ShowingRoutes", 1),
+        SHOWING_INFO("ShowingInfo", 2),
+        HIDE_INFO("HideInfo", 3),
+        HIDE_INFO_SEARCH("HideInfoSearch",4);
 
         private String stringValue;
         private int intValue;
@@ -41,7 +44,9 @@ public class Enums {
     }
     public enum ActionType{
         ADD("Add", 0),
-        EDIT("Edit", 1);
+        EDIT("Edit", 1),
+        DELETE("Delete", 2),
+        VIEW("View", 3);
 
         private String stringValue;
         private int intValue;

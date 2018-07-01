@@ -120,6 +120,8 @@ public class LoginActivity extends AppCompatActivity{
             ForgotPasswordTV = (TextView) findViewById(R.id.txtForgotPassword);
             loginButton = (LoginButton) findViewById(R.id.login_button_fb);
             loginButton.setReadPermissions("email", "public_profile");
+            MenuActivity.buttonEffect(loginButton);
+            MenuActivity.buttonEffect(ForgotPasswordTV);
 
 
 
@@ -179,7 +181,7 @@ public class LoginActivity extends AppCompatActivity{
             passwordField = (EditText) findViewById(R.id.password);
             btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
+            MenuActivity.buttonEffect(btn_SignIn);
             ForgotPasswordTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -265,7 +267,7 @@ public class LoginActivity extends AppCompatActivity{
                     final String password = passwordField.getText().toString();
                     if (username.trim().isEmpty() || password.trim().isEmpty()) {
                         Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.VISIBLE);
+                        progressBar.setVisibility(View.GONE);
                     } else {
                         String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
                         Retrofit retrofit = new Retrofit.Builder()
@@ -435,6 +437,7 @@ public class LoginActivity extends AppCompatActivity{
 
     public void SignUp(View v)
     {
+        MenuActivity.buttonEffect(v);
         try {
             Intent SignUpForm = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(SignUpForm);

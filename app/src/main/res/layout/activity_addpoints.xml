@@ -2,25 +2,18 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/FrameLayoutPoints">
     <include layout="@layout/samm_toolbar"
         android:layout_width="match_parent" android:layout_height="match_parent" />
 
-    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipe_refresh_points"
-        android:layout_width="match_parent"
-        android:layout_marginTop="55dp"
-        android:layout_height="wrap_content">
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-
-            <com.umandalmead.samm_v1.NonScrollListView
+            <com.umandalmead.samm_v1.TouchInterceptor
+                android:id="@android:id/list"
+                android:layout_marginTop="55dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/pointslistview"></com.umandalmead.samm_v1.NonScrollListView>
+                android:layout_height="match_parent"
+                android:drawSelectorOnTop="false"
+                android:fastScrollEnabled="true"
+                android:textSize="18sp" />
 
-        </ScrollView>
-    </android.support.v4.widget.SwipeRefreshLayout>
 </FrameLayout>

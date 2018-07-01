@@ -180,7 +180,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             alertDialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
-                    RefreshList();
+                   // RefreshList();
                 }
             });
             if(s.equals("Success"))
@@ -214,7 +214,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
 
     public void RefreshList(){
 
-        ((MenuActivity)this._activity).RefreshStationPoints();
+      //  ((MenuActivity)this._activity).RefreshStationPoints();
     }
 
 

@@ -34,21 +34,31 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_weight="0.1" />
-        <Button
-            android:id="@+id/btnEditRouteName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:text="Edit"
-            />
+        <!--<Button-->
+            <!--android:id="@+id/btnEditRouteName"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:visibility="gone"-->
+            <!--android:text="Edit"-->
+            <!--/>-->
 
         <Button
             android:id="@+id/btnViewRoute"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="35dp"
             android:visibility="gone"
+            android:textColor="@color/colorBlack"
+            android:background="@drawable/rounded_corner_route_button"
             android:text="View"
             />
+        <ImageButton
+            android:id="@+id/imgbtnShowActions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:src="@drawable/ic_more_actions_24dp"
+            android:background="@android:color/transparent"
+            android:visibility="gone"/>
 
 
 

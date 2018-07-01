@@ -17,6 +17,9 @@
     <color name="colorOrange">#E26A6A</color>
     <color name="colorGrassGreen">#00740e</color>
     <color name="colorErrorRed">#bd0101</color>
+    <color name="colorTurquoise">#1abc9c</color>
+    <color name="colorBlueNights">#353b48</color>
+    <color name="colorNasturcianFlower">#e84118</color>
 
 
 </resources>

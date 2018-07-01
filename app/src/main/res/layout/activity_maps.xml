@@ -7,7 +7,6 @@
     android:id="@+id/mapCFL"
     android:clickable="true"
     xmlns:fab="http://schemas.android.com/apk/res-auto">
-
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:map="http://schemas.android.com/apk/res-auto"
             xmlns:tools="http://schemas.android.com/tools"
@@ -17,7 +16,8 @@
             android:layout_height="match_parent"
             tools:context="com.umandalmead.samm_v1.MapsActivity" />
 
-
+    <include layout="@layout/layout_info_holder"
+        android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <ImageButton
         android:id="@+id/SAMMLogoFAB"
         android:layout_width="wrap_content"

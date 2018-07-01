@@ -1,0 +1,36 @@
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+ >
+
+<item>
+    <shape android:shape="oval">
+        <!-- set the shadow color here -->
+        <stroke
+            android:width="3dp"
+            android:color="#7000" />
+
+        <!-- setting the thickness of shadow (positive value will give shadow on that side) -->
+
+        <padding
+            android:bottom="3dp"
+            android:left="-1dp"
+            android:right="-1dp"
+            android:top="-1dp" />
+
+    </shape>
+</item>
+
+<!-- Background -->
+
+<item>
+    <shape android:shape="oval">
+        <solid android:color="@color/colorNasturcianFlower" />
+        <padding
+        android:left="10dp"
+        android:right="10dp"
+        android:top="10dp"
+        android:bottom="10dp"/>
+        <corners android:radius="7dp" />
+    </shape>
+</item>
+</layer-list>
