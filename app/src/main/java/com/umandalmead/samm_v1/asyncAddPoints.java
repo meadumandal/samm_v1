@@ -114,14 +114,14 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                             + "&preposition=" + preposition
                             + "&terminalreferenceid="+terminalreferenceid;
                 else if (_action.equals("update"))
-                    link = _constants.WEB_API_URL + POINTS_API_FOLDER +  "updatePoint.php?id="+_destinationIDForEdit.toString()
+                    link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER +  "updateDestination.php?id="+_destinationIDForEdit.toString()
                             + "&name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
                             + "&preposition=" + preposition
                             + "&terminalreferenceid="+terminalreferenceid;
                 else
-                    link = _constants.WEB_API_URL + POINTS_API_FOLDER +  "removePoint.php?destinationid="+_destinationIDForEdit.toString();
+                    link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER +  "deleteDestination.php?destinationid="+_destinationIDForEdit.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 

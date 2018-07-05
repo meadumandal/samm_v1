@@ -192,7 +192,7 @@ public class Helper {
             (this._activity)._possiblePickUpPointList = new ArrayList<>();
             for(Terminal terminal : (this._activity)._terminalList)
             {
-                if (terminal.Direction.equals(chosenTerminal.Direction))
+                if (terminal.Direction.equals(chosenTerminal.Direction) && terminal.tblRouteID == chosenTerminal.tblRouteID)
                 {
                     if(terminal.OrderOfArrival < chosenTerminal.OrderOfArrival)
                         (this._activity)._possiblePickUpPointList.add(terminal);

@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -34,6 +35,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
     private RouteViewCustomAdapter customAdapter;
     private Context _context;
     private Activity _activity;
+    public AddRouteDialog dialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -98,32 +100,56 @@ public class ManageRoutesActivity extends AppCompatActivity {
         TextView tvActionTitle;
         public String TAG ="eleaz";
         public final Activity _activity;
+        private Integer _routeID;
         private String _routeName;
         private Enums.ActionType _action;
+        ProgressDialog progressDialog = new ProgressDialog(ManageRoutesActivity.this    );
 
-        public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable String RouteName) {
+
+        public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable Integer RouteID, @Nullable String RouteName) {
             super(activity);
             // TODO Auto-generated constructor stub
             this._activity = activity;
             this._action = Action;
             this._routeName = RouteName;
+            this._routeID = RouteID;
         }
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setContentView(R.layout.dialog_addroute);
-            Boolean isNew=this._action.toString().equalsIgnoreCase("add");
+            final Boolean isNew=this._action.toString().equalsIgnoreCase("add");
             submitButton = (Button) findViewById(R.id.btnNewRoute);
             txtRouteName = (EditText) findViewById(R.id.textRouteName);
             tvActionTitle = (TextView) findViewById(R.id.textviewActionTitle);
             tvActionTitle.setText(isNew ? "New route name" : "Edit route name");
             submitButton.setText(isNew ? "Save" : "Update");
             txtRouteName.setText(this._routeName);
+            progressDialog.setTitle("Adding Route...");
+            progressDialog.setMessage("Please wait...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setCancelable(false);
             submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(getContext(),"Event here", Toast.LENGTH_LONG).show();
+                    String newRouteName = txtRouteName.getText().toString();
+                    if (newRouteName.isEmpty())
+                    {
+                        Toast.makeText(_context,"Please enter a valid route name", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        if(isNew)
+                        {
+
+                            new mySQLAddRoute(_context,_activity, progressDialog, dialog,"").execute(txtRouteName.getText().toString());
+                        }
+                        else
+                        {
+                            new mySQLUpdateRoute(_context,_activity, progressDialog, dialog,"").execute(String.valueOf(_routeID), txtRouteName.getText().toString());
+                        }
+                    }
                 }
             });
             MenuActivity.buttonEffect(submitButton);
@@ -134,11 +160,11 @@ public class ManageRoutesActivity extends AppCompatActivity {
 
         }
     }
-    public void ProcessSelectedRoute(Enums.ActionType Action, @Nullable String RouteName){
+    public void ProcessSelectedRoute(Enums.ActionType Action,@Nullable Integer RouteID, @Nullable String RouteName){
         if(Action == Enums.ActionType.DELETE){
             Toast.makeText(ManageRoutesActivity.this, "Delete action here", Toast.LENGTH_LONG).show();
         }else {
-            AddRouteDialog dialog = new AddRouteDialog(ManageRoutesActivity.this, Action, RouteName);
+            dialog = new AddRouteDialog(ManageRoutesActivity.this, Action, RouteID, RouteName);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }

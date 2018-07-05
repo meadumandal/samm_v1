@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -185,64 +186,71 @@ public class LoginActivity extends AppCompatActivity{
             ForgotPasswordTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (usernameField.getText().toString().trim().length() == 0)
+                    try
                     {
-                        try {
+                        final ProgressDialog progDialog = new ProgressDialog(LoginActivity.this);
+                        progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                        progDialog.setMessage("Sending password reset link to your e-mail");
+                        progDialog.setTitle("Please wait...");
+                        progDialog.setCancelable(false);
+                        progDialog.show();
+                        if (usernameField.getText().toString().trim().length() == 0)
+                        {
+                            progDialog.dismiss();
                             ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an email address.");
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                             dialog.show();
                         }
-                        catch(Exception ex)
-                        {
-                            Helper.logger(ex);
-                        }
-
-                    }
-                    else {
-                        if (Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches())
-                        {
-                            FirebaseAuth.getInstance().sendPasswordResetEmail(usernameField.getText().toString())
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                Log.d(TAG, "Email sent.");
-                                            }
-                                            else
-                                            {
-                                                Helper.logger(task.getException());
-                                            }
-                                        }
-                                    })
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-
-
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.e(TAG, e.getMessage());
-                                }
-                            });
-
-                        }
                         else {
-                            try {
+                            if (Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches())
+                            {
+                                FirebaseAuth.getInstance().sendPasswordResetEmail(usernameField.getText().toString())
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    progDialog.dismiss();
+                                                    InfoDialog dialog=new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
+                                                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                                    dialog.show();
+                                                }
+                                                else
+                                                {
+                                                    Helper.logger(task.getException());
+                                                }
+                                            }
+                                        })
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+
+
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progDialog.dismiss();
+                                                Log.e(TAG, e.getMessage());
+                                            }
+                                        });
+
+                            }
+                            else {
+                                progDialog.dismiss();
                                 ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an e-mail address");
                                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                 dialog.show();
                             }
-                            catch(Exception ex)
-                            {
-                                Helper.logger(ex);
-                            }
+
+
                         }
-
-
                     }
+                    catch(Exception ex)
+                    {
+                        Helper.logger(ex);
+                    }
+
 
                 }
             });

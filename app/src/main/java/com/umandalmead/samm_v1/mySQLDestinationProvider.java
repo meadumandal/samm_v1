@@ -133,13 +133,14 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
                 for(int index=0; index < jsonArray.length(); index++) {
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
                     int ID       = jsonobject.getInt("ID");
+                    int tblRouteID = jsonobject.getInt("tblRouteID");
                     String Value       = jsonobject.getString("Value");
                     String Description    = jsonobject.getString("Description");
                     int OrderOfArrival  = jsonobject.getInt("OrderOfArrival");
                     String Direction = jsonobject.getString("Direction");
                     double Lat  = jsonobject.getDouble("Lat");
                     double Lng = jsonobject.getDouble("Lng");
-                    listTerminals.add(new Terminal(ID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description)));
+                    listTerminals.add(new Terminal(ID, tblRouteID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description)));
                 }
                 return listTerminals;
             }

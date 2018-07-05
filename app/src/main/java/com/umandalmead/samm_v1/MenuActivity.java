@@ -19,7 +19,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -159,6 +158,8 @@ import retrofit.Retrofit;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
+import android.graphics.PorterDuff;
+
 
 //endregion
 
@@ -274,6 +275,8 @@ public class MenuActivity extends AppCompatActivity implements
         private List<Integer> _ListOfLoops = new ArrayList<Integer>();
         private String _AssignedELoop = "";
         private int _passengerCountInTerminal =0;
+
+
 
         //button effect
         private AlphaAnimation buttonClick = new AlphaAnimation(1F, 0.8F);
@@ -851,8 +854,7 @@ public class MenuActivity extends AppCompatActivity implements
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                String markerTitle = marker.getTitle();
-                if(_terminalMarkerHashmap.containsKey(markerTitle))
+                if(_terminalMarkerHashmap.containsKey(marker.getTitle()))
                 {
                     if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
                     {
@@ -880,13 +882,7 @@ public class MenuActivity extends AppCompatActivity implements
                         marker.setSnippet("Fetching Data...");
                         marker.showInfoWindow();
                         GetAndDisplayEloopETA(clickedTerminal, marker);
-                        ShowInfoLayout(clickedTerminal.Description,"Fetching Data...", true);
-
                     }
-                }
-                //vehicle has been clicked instead
-                else if(_driverMarkerHashmap.containsKey(markerTitle)){
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "Desriptionxxxx" , false);
                 }
 
 
@@ -1008,11 +1004,10 @@ public class MenuActivity extends AppCompatActivity implements
                             }
                         }
                         if (_IsAllLoopParked) {
-                            String SnippetText = _helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A";
-                            marker.setSnippet(SnippetText);
+                            marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A");
                             marker.hideInfoWindow();
                             marker.showInfoWindow();
-                            UpdateInfoPanel(marker.getTitle(), SnippetText);
+
                         }
                     }
                 });
@@ -1047,13 +1042,10 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                                    String SnippetText=_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString();
-                                    marker.setSnippet(SnippetText);
+                                    marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString());
                                     marker.setSnippet(TimeofArrival.toString());
                                     marker.hideInfoWindow();
                                     marker.showInfoWindow();
-                                    UpdateInfoPanel(dest.Value, SnippetText);
-
 
                                 }
 
@@ -1949,8 +1941,7 @@ public class MenuActivity extends AppCompatActivity implements
                 spinnerTerminalReference = (Spinner) findViewById(R.id.spinner_terminalReference);
                 Integer orderOfArrival = 0;
                 final Integer destinationIDforEdit=0;
-                MenuActivity.buttonEffect(btnAddPoints);
-                MenuActivity.buttonEffect(btnDeletePoints);
+
                 ArrayAdapter<Terminal> terminalReferencesAdapter = new ArrayAdapter<Terminal>(getApplicationContext(), R.layout.spinner_item, MenuActivity._terminalList);
 
                 spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
@@ -2160,7 +2151,6 @@ public class MenuActivity extends AppCompatActivity implements
             sendBtn = (Button) findViewById(R.id.btnAddGPS);
             txtphoneNo = (EditText) findViewById(R.id.GPSMobileNum);
             txtIMEI  = (EditText) findViewById(R.id.GPSIMEI);
-            MenuActivity.buttonEffect(sendBtn);
 
 
 

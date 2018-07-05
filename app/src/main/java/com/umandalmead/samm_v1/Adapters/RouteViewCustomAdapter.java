@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1.Adapters;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
@@ -30,6 +31,10 @@ import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SortableListViewActivity;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * Created by eleazerarcilla on 20/06/2018.
@@ -102,7 +107,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                         @Override
                         public void onClick(View view) {
                             if(route.getRouteName().toLowerCase().contains("add route")) {
-                                ((ManageRoutesActivity) _context).ProcessSelectedRoute(Enums.ActionType.ADD, null);
+                                ((ManageRoutesActivity) _context).ProcessSelectedRoute(Enums.ActionType.ADD,null, null);
                             }
                         }
                     });
@@ -127,7 +132,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                 public void onClick(View view) {
                     MenuActivity._FragmentTitle = route.getRouteName();
                     try {
-                        PopulatePoints();
+                        PopulatePoints(route.getID());
                         Intent intent = new Intent(_context, SortableListViewActivity.class);
                         _context.startActivity(intent);
                     }catch(Exception ex){
@@ -139,7 +144,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                 public boolean onMenuItemClick(MenuItem item) {
                     Enums.ActionType action = item.getTitle().toString().equalsIgnoreCase("edit") ? Enums.ActionType.EDIT : Enums.ActionType.DELETE;
                     try {
-                        ((ManageRoutesActivity) _context).ProcessSelectedRoute(action, route.getRouteName());
+                        ((ManageRoutesActivity) _context).ProcessSelectedRoute(action, route.getID(), route.getRouteName());
                         return true;
                     }catch (Exception ex){
                        Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -154,12 +159,20 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
         }
         return convertView;
     }
-    public ArrayList<String> PopulatePoints(){
+    public ArrayList<String> PopulatePoints(Integer routeID){
         ArrayList<String> result = new ArrayList<String>();
+        List<Terminal> terminalListBasedOnRouteID = new ArrayList<>();
         for (Terminal entry: MenuActivity._terminalList) {
-            result.add(entry.Value);
+            if(entry.tblRouteID == routeID)
+            {
+                result.add(entry.Value);
+                terminalListBasedOnRouteID.add(entry);
+            }
+
+
         }
-        MenuActivity._PointsArray =  MenuActivity._terminalList.toArray(new Terminal[MenuActivity._terminalList.size()]);
+
+        MenuActivity._PointsArray =  terminalListBasedOnRouteID.toArray(new Terminal[terminalListBasedOnRouteID.size()]);
         result.add("Add Point");
         return  result;
     }

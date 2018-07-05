@@ -23,6 +23,11 @@
             android:id="@+id/routeDragger"
             android:layout_gravity="right"/>
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/routeID"
+            android:visibility="gone"/>
+        <TextView
             android:id="@+id/routeName"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"

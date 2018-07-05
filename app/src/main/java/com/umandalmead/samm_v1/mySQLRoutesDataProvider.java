@@ -4,9 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
-import com.umandalmead.samm_v1.POJO.Route;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,7 +14,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by MeadRoseAnn on 6/27/2018.

@@ -14,6 +14,7 @@ import java.util.Comparator;
 
 public class Terminal implements Comparable<Terminal>{
     public int ID;
+    public int tblRouteID;
     public String Value;
     public String Description;
     public int OrderOfArrival;
@@ -25,13 +26,15 @@ public class Terminal implements Comparable<Terminal>{
     public int DestinationPicture = -1;
 
 
+
     public Terminal()
     {
 
     }
-    public Terminal(int ID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture)
+    public Terminal(int ID,int tblRouteID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture)
     {
         this.ID =ID;
+        this.tblRouteID = tblRouteID;
         this.Value = Value;
         this.Description = Description;
         this.OrderOfArrival = OrderOfArrival;
@@ -44,15 +47,77 @@ public class Terminal implements Comparable<Terminal>{
 
     }
 
+
+    //region SETTERS
+    public void setID(int ID)
+    {
+        this.ID = ID;
+    }
+    public void setTblRouteID(int tblRouteID)
+    {
+        this.tblRouteID = tblRouteID;
+    }
+    public void setValue(String Value)
+    {
+        this.Value = Value;
+    }
+    public void setDescription(String Description)
+    {
+        this.Description = Description;
+    }
+    public void setOrderOfArrival(int OrderOfArrival)
+    {
+        this.OrderOfArrival = OrderOfArrival;
+    }
+    public void setDirection(String Direction)
+    {
+        this.Direction = Direction;
+    }
+    public void setLat(Double Lat)
+    {
+        this.Lat = Lat;
+    }
+    public void setLng(Double Lng)
+    {
+        this.Lng = Lng;
+    }
+    public void setGeofenceId(String GeofenceId)
+    {
+        this.GeofenceId = GeofenceId;
+    }
+    public void setDirectionsFromCurrentLocation(Directions DirectionsFromCurrentLocation)
+    {
+        this.directionsFromCurrentLocation = directionsFromCurrentLocation;
+    }
+    public void setDestinationPicture(int DestinationPicture)
+    {
+        this.DestinationPicture = DestinationPicture;
+    }
+    //endregion
+    //region GETTERS
+    public int getID(){return this.ID;}
+    public int getTblRouteID(){return this.tblRouteID;}
+    public String getValue(){ return this.Value; }
+    public String getDescription(){return this.Description;}
+    public int getOrderOfArrival(){return this.OrderOfArrival;}
+    public String getDirection(){return this.Direction;}
+    public Double getLat(){return this.Lat;}
+    public Double getLng(){return this.Lng;}
+    public String getGeofenceId(){return this.GeofenceId;}
+    public Directions getDirectionsFromCurrentLocation(){return this.directionsFromCurrentLocation;}
+    public int getDestinationPicture() {
+        return DestinationPicture;
+    }
+    //endregion
+
+
     @Override
     public String toString()
     {
         return Description;
     }
 
-    public int getDestinationPicture() {
-        return DestinationPicture;
-    }
+
 //    @Override
 //    public int compareTo(@NonNull Terminal terminal) {
 //        //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
