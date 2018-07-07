@@ -357,10 +357,10 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                             int ctr = 0;
                             _IsAllLoopParked = true;
                             for (Terminal dl : DestList) {
-                                if (dl.OrderOfArrival == currentDest.OrderOfArrival) {
+                                if (IsSameRoute(dl, currentDest) && (dl.OrderOfArrival == currentDest.OrderOfArrival)) {
                                     for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                        String StationName = v.getKey().toString();
-                                        if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl.Value+"_"+dl.getTblRouteID();
+                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
                                             if (loopAwaiting) {
                                                 _TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
@@ -375,11 +375,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                     }
                                     if (loopAwaiting)
                                         break;
-                                } else if (dl.OrderOfArrival == 1 || currentDest.OrderOfArrival == 1) {
+                                } else if (IsSameRoute(dl, currentDest) && (dl.OrderOfArrival == 1 || currentDest.OrderOfArrival == 1)) {
                                     for (Terminal dl2 : DestList) {
                                         for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                            String StationName = v.getKey().toString();
-                                            if (dl2.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                            String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value+"_"+dl.getTblRouteID();
+                                            if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
 
                                                 if (!_loopIds.equals("") && !found) {
                                                     _IsAllLoopParked = false;
@@ -407,10 +407,10 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                     if (found)
                                         break;
 
-                                } else if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
+                                } else if (IsSameRoute(dl, currentDest) && (dl.OrderOfArrival < currentDest.OrderOfArrival)) {
                                     for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                        String StationName = v.getKey().toString();
-                                        if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl.Value+"_"+dl.getTblRouteID();
+                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             _loopIds = v.child("LoopIds").getValue().toString();
                                             if(_loopIds.equals("")){
                                                 _loopIds = v.child("Dwell").getValue().toString();
@@ -562,6 +562,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     public String GenerateFinalStep(Terminal end, Terminal start) {
         int dist = end.OrderOfArrival - start.OrderOfArrival;
         return "Ride the e-loop and alight after <b>" + dist + " stop" + (dist > 1 ? "s" : "") + "</b>.</td><tr>";
+    }
+    private Boolean IsSameRoute(Terminal term1, Terminal term2){
+        Boolean result = false;
+        if(term1.getTblRouteID() == term2.getTblRouteID())
+            result =true;
+        return result;
     }
 
 

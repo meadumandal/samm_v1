@@ -27,6 +27,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -107,6 +110,11 @@ public class SignUpActivity extends AppCompatActivity {
                                 if(TextUtils.isEmpty(username)){
                                     Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Username"), Toast.LENGTH_LONG).show();
                                     return;
+                                }
+                                if(CheckForSpecialCharacters(username)){
+                                    Toast.makeText(getApplicationContext(), "Username must not contain special characters", Toast.LENGTH_LONG).show();
+                                    return;
+
                                 }
                                 if (TextUtils.isEmpty(emailAddress))
                                 {
@@ -263,5 +271,15 @@ public class SignUpActivity extends AppCompatActivity {
     public void LoginLinkClicked(View v){
         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
         finish();
+    }
+    private Boolean CheckForSpecialCharacters(String text){
+        Boolean result = false;
+        Pattern p = Pattern.compile("^[^<>%$]*$");
+        Matcher m = p.matcher(text);
+        if (!m.matches())
+        {
+            result = true;
+        }
+        return  result;
     }
 }

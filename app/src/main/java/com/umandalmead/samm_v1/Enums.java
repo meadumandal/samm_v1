@@ -10,7 +10,8 @@ public class Enums {
         SHOWING_ROUTES("ShowingRoutes", 1),
         SHOWING_INFO("ShowingInfo", 2),
         HIDE_INFO("HideInfo", 3),
-        HIDE_INFO_SEARCH("HideInfoSearch",4);
+        HIDE_INFO_SEARCH("HideInfoSearch",4),
+        HIDE_SEARCH_FRAGMENT_ON_SEARCH("HideSearchFragmentOnSearch", 5);
 
         private String stringValue;
         private int intValue;

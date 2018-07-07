@@ -19,6 +19,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
@@ -267,6 +268,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Boolean terminalsNodeExists = false;
         public static Boolean _IsOnSearchMode = false;
         public static Terminal[] _PointsArray;
+        public static Typeface FONT_PLATE,FONT_STATION;
 
 
 
@@ -425,6 +427,7 @@ public class MenuActivity extends AppCompatActivity implements
                 _RoutesContainer_CardView = (CardView) findViewById(id.Routes_CardView);
                 _LoopArrivalProgress = (ProgressBar) findViewById(R.id.progressBarLoopArrival);
                 InitializeInfoPanel();
+                InitializeFonts();
                 MenuActivity.buttonEffect(Search_BackBtn);
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
@@ -495,8 +498,11 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
-                ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextColor(Color.parseColor( "#FFFFFF"));
-                ((EditText)findViewById(R.id.place_autocomplete_search_input)).setTextSize(14);
+                EditText placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
+
+                placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor( "#FFFFFF"));
+                placeAutoCompleteFragmentInstance.setTextSize(14);
+
 
                 AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
                         .setTypeFilter(Place.TYPE_COUNTRY)
@@ -505,7 +511,6 @@ public class MenuActivity extends AppCompatActivity implements
                 PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                         getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
                 autocompleteFragment.setFilter(autocompleteFilter);
-
                 //set bounds to search within bounds only~
                 //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
 
@@ -553,6 +558,7 @@ public class MenuActivity extends AppCompatActivity implements
                 FrameSearchBarHolder.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        UpdateUI(Enums.UIType.SHOWING_INFO);
                         Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
                     }
                 });
@@ -854,7 +860,8 @@ public class MenuActivity extends AppCompatActivity implements
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                if(_terminalMarkerHashmap.containsKey(marker.getTitle()))
+                String markerTitle = marker.getTitle();
+                if(_terminalMarkerHashmap.containsKey(markerTitle))
                 {
                     if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
                     {
@@ -882,11 +889,17 @@ public class MenuActivity extends AppCompatActivity implements
                         marker.setSnippet("Fetching Data...");
                         marker.showInfoWindow();
                         GetAndDisplayEloopETA(clickedTerminal, marker);
+                        ShowInfoLayout(clickedTerminal.Description,"Fetching Data...", true);
+
                     }
+                }
+                //vehicle has been clicked instead
+                else if(_driverMarkerHashmap.containsKey(markerTitle)){
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "Desriptionxxxx" , false);
                 }
 
 
-               //marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + String.valueOf(passengercount) + " | " + _helper.getEmojiByUnicode(0x1F68C) + " : 2 mins");
+                //marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + String.valueOf(passengercount) + " | " + _helper.getEmojiByUnicode(0x1F68C) + " : 2 mins");
 
                 return true;
             }
@@ -2232,6 +2245,10 @@ public class MenuActivity extends AppCompatActivity implements
                FAB_SammIcon.setVisibility(View.GONE);
                FrameSearchBarHolder.setVisibility(View.GONE);
                break;
+           case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
+               FAB_SammIcon.setVisibility(View.GONE);
+               FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+               break;
            case HIDE_INFO:
                FAB_SammIcon.setVisibility(View.VISIBLE);
                FrameSearchBarHolder.setVisibility(View.VISIBLE);
@@ -2335,9 +2352,8 @@ public class MenuActivity extends AppCompatActivity implements
 
     public void ShowInfoLayout(String Title, String Description, Boolean IsStation){
         try{
-        //InitializeInfoPanel( Title, Description);
+        ClearInfoPanelDetails();
         InfoPanelShow(Title, Description, IsStation);
-
         }
         catch(Exception ex){
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -2365,7 +2381,10 @@ public class MenuActivity extends AppCompatActivity implements
         }
     }
     public void InfoPanelShow(final String InfoTitle, final String InfoDescription,final Boolean isStation) {
-            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_web : R.drawable.eco_loop_for_info_transparent;
+            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info;
+            final String finalTitle =  InfoTitle.toUpperCase();
+            final Typeface finalTitleFont = isStation ? FONT_STATION: FONT_PLATE;
+            _infoTitleTV.setTypeface(null);
             if (_infoLayout.getVisibility() == View.GONE) {
                 if(!_IsOnSearchMode)
                     UpdateUI(Enums.UIType.SHOWING_INFO);
@@ -2385,11 +2404,26 @@ public class MenuActivity extends AppCompatActivity implements
                         Animation slide_up_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
                                 R.anim.slide_up_bounce);
                         _infoLayout.startAnimation(slide_up_bounce);
-                        _infoTitleTV.setText(InfoTitle);
-                        _infoDescriptionTV.setText(InfoDescription);
-                        _infoImage.setImageResource(imageResId);
-                        _infoTitleTV.setVisibility(View.VISIBLE);
-                        _infoDescriptionTV.setVisibility(View.VISIBLE);
+                        slide_up_bounce.setAnimationListener(new Animation.AnimationListener() {
+                            @Override
+                            public void onAnimationStart(Animation animation) {
+
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animation animation) {
+                                UpdateInfoPanelDetails(finalTitle,InfoDescription);
+                                _infoImage.setImageResource(imageResId);
+                                _infoTitleTV.setTypeface(finalTitleFont);
+                                _infoTitleTV.setVisibility(View.VISIBLE);
+                                _infoDescriptionTV.setVisibility(View.VISIBLE);
+                            }
+                            @Override
+                            public void onAnimationRepeat(Animation animation) {
+
+                            }
+                        });
+
                     }
 
                     @Override
@@ -2441,11 +2475,13 @@ public class MenuActivity extends AppCompatActivity implements
             }
 
     }
-    public void UpdateInfoPanel(String Title, String Description){
-        if(_infoLayout.getVisibility() == View.VISIBLE){
+    public void UpdateInfoPanelDetails(String Title, String Description){
             _infoTitleTV.setText(Title);
             _infoDescriptionTV.setText(Description);
-        }
+    }
+    public void ClearInfoPanelDetails(){
+        _infoTitleTV.setText(null);
+        _infoDescriptionTV.setText(null);
     }
     public void InfoPanelHide() {
         Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
@@ -2463,10 +2499,11 @@ public class MenuActivity extends AppCompatActivity implements
                         R.anim.slide_up);
                 _infoLayout.startAnimation(slide_up);
                 if(!_IsOnSearchMode)
-                     UpdateUI(Enums.UIType.HIDE_INFO);
+                    UpdateUI(Enums.UIType.HIDE_INFO);
                 else{
                     UpdateUI(Enums.UIType.HIDE_INFO_SEARCH);
                 }
+
             }
 
             @Override
@@ -2495,6 +2532,16 @@ public class MenuActivity extends AppCompatActivity implements
                 return false;
             }
         });
+    }
+    private void InitializeFonts(){
+        try{
+            FONT_PLATE = Typeface.createFromAsset(_context.getAssets(),
+                    "font/Trender.ttf");
+            FONT_STATION = Typeface.createFromAsset(_context.getAssets(),
+                    "font/Trender.ttf");
+        }catch (Exception ex){
+            Log.i(_constants.LOG_TAG, "Exception: " + ex.getMessage());
+        }
     }
 
 

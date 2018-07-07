@@ -132,19 +132,6 @@ public class AddVehicleMarkers implements ChildEventListener {
                                 else{
                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop_blue));
                                     markerOptions.title(deviceId);
-//                                    IconGenerator iconFactory = new IconGenerator(_context);
-//                                    TextView text = new TextView(_context);
-//                                    text.setText(vehicle_Plate);
-//                                    text.setTextSize(10);
-//                                    text.setBackgroundResource(R.drawable.rounded_corners);
-//                                    text.setTypeface(null, Typeface.BOLD);
-//                                    text.setPadding(8,8,8,8);
-//                                    text.setTextColor(_context.getResources().getColor(R.color.colorBlack));
-//                                    //iconFactory.setContentPadding(20,20,20,20);
-//                                    iconFactory.setBackground(_context.getDrawable(R.mipmap.ic_ecoloop_blue));
-//                                    iconFactory.setContentView(text);
-//                                    Bitmap icon = iconFactory.makeIcon();
-//                                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
                                 }
 
 
@@ -175,12 +162,12 @@ public class AddVehicleMarkers implements ChildEventListener {
                                 {
                                     _vehicleAnimatedMarker.remove();
                                     _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
-                                    _vehicleAnimatedMarker.showInfoWindow();
+                                   // _vehicleAnimatedMarker.showInfoWindow();
                                     MenuActivity._driverMarkerHashmap.remove(deviceId);
                                     MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
                                 }
                                 if (deviceId.toString().equals(_sessionManager.getKeyDeviceid())) {
-                                    _vehicleAnimatedMarker.showInfoWindow();
+                                    //_vehicleAnimatedMarker.showInfoWindow();
                                 }
                                // _vehicleAnimatedMarker.showInfoWindow();
                             } catch (Exception ex) {
@@ -193,7 +180,6 @@ public class AddVehicleMarkers implements ChildEventListener {
                 }
                 else
                 {
-//                    ShowLoopTimeofArrival();
                 }
             }
         } catch (Exception ex) {
