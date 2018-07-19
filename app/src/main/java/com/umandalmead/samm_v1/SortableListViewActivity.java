@@ -21,6 +21,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.Spinner;
@@ -40,6 +41,7 @@ public class SortableListViewActivity extends ListActivity {
     private ImageButton FAB_SammIcon;
     private  TextView ViewTitle;
     public ProgressDialog _ProgressDialog;
+    private ImageView BtnAddPoint;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +67,18 @@ public class SortableListViewActivity extends ListActivity {
     public void InitializeToolbar(String fragmentName){
         FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
         FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
+        BtnAddPoint = (ImageView) findViewById(R.id.topnav_addButton);
+        BtnAddPoint.setVisibility(View.VISIBLE);
+        BtnAddPoint.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                try {
+                    AddNewStationPoint("Add");
+                }catch (Exception ex){
+                    Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
+                }
+            }
+        });
         FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -334,8 +348,8 @@ public class SortableListViewActivity extends ListActivity {
 
         }
     }
-    public void AddNewStationPoint(String DialogTitle){
-        AddPointDialog dialog = new AddPointDialog(SortableListViewActivity.this, DialogTitle);
+    public void AddNewStationPoint(String DialogAction){
+        AddPointDialog dialog = new AddPointDialog(SortableListViewActivity.this, DialogAction);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }

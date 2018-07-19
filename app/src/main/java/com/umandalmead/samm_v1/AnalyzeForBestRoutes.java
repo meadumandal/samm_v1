@@ -1,5 +1,7 @@
 package com.umandalmead.samm_v1;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -11,10 +13,15 @@ import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.SquareCap;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,6 +50,7 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
+import static com.google.android.gms.maps.model.JointType.ROUND;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
 import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
 import static  com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
@@ -73,14 +81,17 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     List<List<String>> _AllTerminalPoints = new ArrayList<List<String>>();
     List<Polyline> polyLines = new ArrayList<>();
     private FirebaseDatabase FB;
-    private DatabaseReference VehicleDestinationDatabaseReference;
+    private DatabaseReference VehicleDestinationDatabaseReference, S_VehicleDestinationDatabaseReference;
     private String _loopIds = "";
     private List<Integer> _ListOfLoops = new ArrayList<Integer>();
     private String _AssignedELoop = "";
     private ValueEventListener LoopArrivalEventListener;
+    private ChildEventListener SingleLoopChildListenerForSelectedTerminal;
     private Boolean _IsAllLoopParked = true;
     private Boolean _IsLoopResultsFound = false;
+    public static Polyline _redPolyLine, _magentaPolyLine;
 
+    private static List<LatLng> listLatLng = new ArrayList<>();
     /**
      * This is the generic format in accessing data from mySQL
      *
@@ -101,8 +112,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     }
 
     public static void clearLines() {
-        if (_line != null)
-            _line.remove();
+        if (_redPolyLine !=null &&  _magentaPolyLine != null && !listLatLng.isEmpty()) {
+            _redPolyLine.remove();
+            _magentaPolyLine.remove();
+            listLatLng.clear();
+        }
     }
 
     @Override
@@ -222,17 +236,103 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     }
 
     private void drawLines(String points) {
+        PolylineOptions magentaPolyOptions = new PolylineOptions();
         List<LatLng> list = decodePoly(points);
-        _line = this._map.addPolyline(new PolylineOptions()
-                .addAll(list)
-                .width(5f)
-                .color(Color.RED)
-                .geodesic(true)
+        magentaPolyOptions.width(10);
+        magentaPolyOptions.color(Color.MAGENTA);
+        magentaPolyOptions.startCap(new SquareCap());
+        magentaPolyOptions.endCap(new SquareCap());
+        magentaPolyOptions.jointType(ROUND);
+        _magentaPolyLine = this._map.addPolyline(magentaPolyOptions);
 
-        );
-        polyLines.add(_line);
+        PolylineOptions redPolyOptions = new PolylineOptions();
+        redPolyOptions.width(10);
+        redPolyOptions.color(Color.RED);
+        redPolyOptions.startCap(new SquareCap());
+        redPolyOptions.endCap(new SquareCap());
+        redPolyOptions.jointType(ROUND);
+        _redPolyLine = this._map.addPolyline(redPolyOptions);
+        listLatLng.addAll(list);
+        animatePolyLine();
+//        _line = this._map.addPolyline(new PolylineOptions()
+//                .addAll(list)
+//                .width(5f)
+//                .color(Color.RED)
+//                .geodesic(true)
+//
+//        );
+        //polyLines.add(_line);
     }
+    private void animatePolyLine() {
 
+        ValueAnimator animator = ValueAnimator.ofInt(0, 100);
+        animator.setDuration(1000);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+
+                List<LatLng> latLngList = _magentaPolyLine.getPoints();
+                int initialPointSize = latLngList.size();
+                int animatedValue = (int) animator.getAnimatedValue();
+                int newPoints = (animatedValue * listLatLng.size()) / 100;
+
+                if (initialPointSize < newPoints ) {
+                    latLngList.addAll(listLatLng.subList(initialPointSize, newPoints));
+                    _magentaPolyLine.setPoints(latLngList);
+                }
+
+
+            }
+        });
+
+        animator.addListener(polyLineAnimationListener);
+        animator.start();
+
+    }
+    private void addMarker(LatLng destination) {
+
+        MarkerOptions options = new MarkerOptions();
+        options.position(destination);
+        options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+        this._map.addMarker(options);
+
+    }
+    Animator.AnimatorListener polyLineAnimationListener = new Animator.AnimatorListener() {
+        @Override
+        public void onAnimationStart(Animator animator) {
+            addMarker(listLatLng.get(listLatLng.size()-1));
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animator) {
+
+            List<LatLng> _redLatLng = _magentaPolyLine.getPoints();
+            List<LatLng> _pinkLatLng = _redPolyLine.getPoints();
+
+            _pinkLatLng.clear();
+            _pinkLatLng.addAll(_redLatLng);
+            _redLatLng.clear();
+
+            _magentaPolyLine.setPoints(_redLatLng);
+            _redPolyLine.setPoints(_pinkLatLng);
+
+            _magentaPolyLine.setZIndex(2);
+
+            animator.start();
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animator) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animator) {
+
+
+        }
+    };
 
     @Override
     protected void onPostExecute(List<Terminal> topTerminals) {
@@ -302,6 +402,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                     viewPager.setCurrentItem(tab.getPosition());
                     _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
                     MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(tab.getPosition());
+                    clearLines();
                     drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                     GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(tab.getPosition()));
 
@@ -338,6 +439,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             String res = "";
             if (currentDest != null) {
                 final List<Terminal> DestList = MenuActivity._terminalList;
+
                 Collections.sort(DestList, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 FB = FirebaseDatabase.getInstance();
                 VehicleDestinationDatabaseReference = FB.getReference("vehicle_destinations");
@@ -352,6 +454,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
                     @Override
                     public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+
                         if (dataSnapshot.getChildren() != null) {
                             Boolean found = false, loopAwaiting = false;
                             int ctr = 0;
@@ -362,11 +465,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                         String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl.Value+"_"+dl.getTblRouteID();
                                         if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
+                                            String loopId = !v.child("Dwell").getValue().toString().equals("") ? CleanEloopName(v.child("Dwell").getValue().toString()) : CleanEloopName(v.child("LoopIds").getValue().toString());
                                             if (loopAwaiting) {
                                                 _TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
                                                 _LoopArrivalProgress.setVisibility(View.GONE);
                                                 _IsLoopResultsFound = true;
                                                 loopAwaiting = true;
+                                                AttachListenerToLoop(loopId);
                                                 break;
                                             } else continue;
 
@@ -395,6 +500,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                                         GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
                                                         Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
                                                         _IsLoopResultsFound = true;
+                                                        AttachListenerToLoop(_ListOfLoops.get(0).toString());
                                                         // LoopArrivalProgress.setVisibility(View.INVISIBLE);
                                                     }
                                                     _ListOfLoops.clear();
@@ -428,6 +534,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                                     GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
                                                     Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
                                                     _IsLoopResultsFound = true;
+                                                    AttachListenerToLoop(_ListOfLoops.get(0).toString());
                                                 }
                                                 _ListOfLoops.clear();
                                                 break;
@@ -567,6 +674,53 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         Boolean result = false;
         if(term1.getTblRouteID() == term2.getTblRouteID())
             result =true;
+        return result;
+    }
+    private void AttachListenerToLoop(String LoopID){
+        FB = FirebaseDatabase.getInstance();
+        S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(LoopID);
+        SingleLoopChildListenerForSelectedTerminal = S_VehicleDestinationDatabaseReference.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                //do something here
+                Toast.makeText(_context, "Listener attached!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+    private void RemoveListenerToLoop(String LoopID){
+        FB = FirebaseDatabase.getInstance();
+        S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(LoopID);
+        S_VehicleDestinationDatabaseReference.removeEventListener(SingleLoopChildListenerForSelectedTerminal);
+    }
+    private String CleanEloopName(String eloop){
+        String result = "";
+        try{
+            String[] loops = eloop.split(",");
+            result = loops[0];
+        }catch(Exception ex){
+
+        }
         return result;
     }
 

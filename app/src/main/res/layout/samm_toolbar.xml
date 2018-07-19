@@ -44,6 +44,17 @@
                     <!--android:src="@mipmap/ic_sammtrans"-->
                     <!--android:background="@android:color/transparent" />-->
             <!--</RelativeLayout>-->
+            <ImageView
+                android:id="@+id/topnav_addButton"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_add_white_24dp"
+                android:padding="16dp"
+                android:layout_gravity="top|end"
+                app:layout_collapseMode="pin"
+                />
+
 
         </android.support.v7.widget.Toolbar>
 

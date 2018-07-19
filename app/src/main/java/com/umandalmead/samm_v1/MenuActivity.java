@@ -2381,7 +2381,7 @@ public class MenuActivity extends AppCompatActivity implements
         }
     }
     public void InfoPanelShow(final String InfoTitle, final String InfoDescription,final Boolean isStation) {
-            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info;
+            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
             final String finalTitle =  InfoTitle.toUpperCase();
             final Typeface finalTitleFont = isStation ? FONT_STATION: FONT_PLATE;
             _infoTitleTV.setTypeface(null);
@@ -2480,6 +2480,7 @@ public class MenuActivity extends AppCompatActivity implements
             _infoDescriptionTV.setText(Description);
     }
     public void ClearInfoPanelDetails(){
+        _infoImage.setImageResource(0);
         _infoTitleTV.setText(null);
         _infoDescriptionTV.setText(null);
     }

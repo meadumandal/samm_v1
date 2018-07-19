@@ -120,8 +120,10 @@
         android:layout_width="290dp"
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_corners"
-        android:layout_marginTop="80dp"
-        android:layout_marginLeft="40dp">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="90dp"
+
+        >
         <fragment
             android:id="@+id/place_autocomplete_fragment"
             android:layout_width="match_parent"
