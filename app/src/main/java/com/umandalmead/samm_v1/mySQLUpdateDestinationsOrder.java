@@ -1,8 +1,10 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.text.IDNA;
@@ -55,14 +57,16 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
     SessionManager _sessionManager;
     private Constants _constants = new Constants();
     public Helper _helper = new Helper();
+    AlertDialog.Builder _alertDialogBuilder;
 
     private boolean _isSuccessful = false;
-    public mySQLUpdateDestinationsOrder(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage)
+    public mySQLUpdateDestinationsOrder(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage, AlertDialog.Builder alertDialogBuilder)
     {
         this._context = context;
         this._activity = activity;
         this._progressDialog = progressDialog;
         this._promptMessage = promptMessage;
+        this._alertDialogBuilder = alertDialogBuilder;
 
         _sessionManager = new SessionManager(_context);
     }
@@ -72,7 +76,9 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
     {
         try
         {
+
             super.onPreExecute();
+            _progressDialog.show();
         }
         catch(Exception ex)
         {
@@ -84,50 +90,59 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
     @Override
     protected String doInBackground(String... params)
     {
-        String pointsArray = params[0];
-        String tblRouteID = params[1];
-
-        if (_helper.isConnectedToInternet(this._context))
+        try
         {
 
-            try{
-                String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + "saveDestinationsOrder.php?";
-                HttpClient httpClient = new DefaultHttpClient();
-                HttpPost httpPost = new HttpPost(link);
-                List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
-                postParameters.add(new BasicNameValuePair("pointsArray", pointsArray));
-                postParameters.add(new BasicNameValuePair("tblRouteID", tblRouteID));
-                httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
-                HttpResponse response = httpClient.execute(httpPost);
-                String strResponse = EntityUtils.toString(response.getEntity());
-                JSONArray jsonArray = new JSONArray(strResponse);
-                for(int i = 0; i<jsonArray.length(); i++)
-                {
-                    JSONObject jsonObj = jsonArray.getJSONObject(i);
-                    if (!Boolean.valueOf(jsonObj.getString("IsValid")))
-                    {
-                        _isSuccessful = false;
-                        break;
-                    }
-                }
-                _isSuccessful = true;
-            }
-            catch(Exception ex)
+            String pointsArray = params[0];
+            String tblRouteID = params[1];
+
+            if (_helper.isConnectedToInternet(this._context))
             {
-                StringWriter sw = new StringWriter();
-                ex.printStackTrace(new PrintWriter(sw));
-                Helper.logger(ex);
-                _isSuccessful = false;
 
+                try{
+                    String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + "saveDestinationsOrder.php?";
+                    HttpClient httpClient = new DefaultHttpClient();
+                    HttpPost httpPost = new HttpPost(link);
+                    List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
+                    postParameters.add(new BasicNameValuePair("pointsArray", pointsArray));
+                    postParameters.add(new BasicNameValuePair("tblRouteID", tblRouteID));
+                    httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
+                    HttpResponse response = httpClient.execute(httpPost);
+                    String strResponse = EntityUtils.toString(response.getEntity());
+                    JSONArray jsonArray = new JSONArray(strResponse);
+                    for(int i = 0; i<jsonArray.length(); i++)
+                    {
+                        JSONObject jsonObj = jsonArray.getJSONObject(i);
+                        if (!Boolean.valueOf(jsonObj.getString("IsValid")))
+                        {
+                            _isSuccessful = false;
+                            break;
+                        }
+                    }
+                    _isSuccessful = true;
+                }
+                catch(Exception ex)
+                {
+                    StringWriter sw = new StringWriter();
+                    ex.printStackTrace(new PrintWriter(sw));
+                    Helper.logger(ex);
+                    _isSuccessful = false;
+
+
+                }
+            }
+            else
+            {
+                Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+                _progressDialog.hide();
 
             }
         }
-        else
+        catch(Exception ex)
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-            _progressDialog.hide();
-
+            Helper.logger(ex);
         }
+
         return _promptMessage;
     }
 
@@ -137,19 +152,34 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
 
 
         _progressDialog.hide();
+        this._alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        });
+        this._alertDialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                // RefreshList();
+            }
+        });
 
         try {
 
             if(_isSuccessful)
             {
-                Toast.makeText(_context, "Updated destinations order", Toast.LENGTH_LONG).show();
+
+                this._alertDialogBuilder.setTitle("Success");
+
+                this._alertDialogBuilder.setMessage("We have successfully updated the order of points!");
+
+
                 new mySQLDestinationProvider(_context, this._activity, "", _googleMap, _googleAPI).execute();
             }
-            else
-            {
-                Toast.makeText(_context, "Error in updating destinations order", Toast.LENGTH_LONG).show();
+            else {
+                this._alertDialogBuilder.setTitle("Error");
+                this._alertDialogBuilder.setMessage("Error in updating points");
             }
-
+            this._alertDialogBuilder.show();
 
         }
         catch(Exception ex)

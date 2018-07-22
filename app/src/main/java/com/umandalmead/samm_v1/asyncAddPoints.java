@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 
 import android.util.Log;
 import android.view.Menu;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -90,15 +91,15 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             String name="";
             String lat="";
             String lng="";
-            String preposition="";
-            String terminalreferenceid="";
+            String tblRouteID = "";
+
             if(_action.equals("add") || _action.equals("update"))
             {
                 name = params[0];
                 lat = params[1];
                 lng = params[2];
-                preposition = params[3];
-                terminalreferenceid = params[4];
+                tblRouteID = params[3];
+
             }
 
 
@@ -108,20 +109,20 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 String link = "";
                 if(_action.equals("add"))
 
-                    link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER + "addDestination.php?name=" +name
+                    link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER + "addDestination.php?value=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
-                            + "&preposition=" + preposition
-                            + "&terminalreferenceid="+terminalreferenceid;
+                            + "&tblRouteID=" +tblRouteID.toString()
+                            + "&direction=CW";
                 else if (_action.equals("update"))
                     link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER +  "updateDestination.php?id="+_destinationIDForEdit.toString()
                             + "&name=" +name
                             + "&lat=" + lat
                             + "&lng=" + lng
-                            + "&preposition=" + preposition
-                            + "&terminalreferenceid="+terminalreferenceid;
-                else
-                    link = _constants.WEB_API_URL + DESTINATIONS_API_FOLDER +  "deleteDestination.php?destinationid="+_destinationIDForEdit.toString();
+                            + "&tblRouteID=" +tblRouteID.toString()
+                            + "&direction=CW";
+
+
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -193,6 +194,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 else
                     alertDialogBuilder.setMessage("We have successfully deleted the point from the map!");
                 new mySQLDestinationProvider(_context, this._activity, "", _map, _googleAPIClient, _progDialog).execute();
+
             }
             else
             {

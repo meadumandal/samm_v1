@@ -1,10 +1,12 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -163,8 +165,44 @@ public class ManageRoutesActivity extends AppCompatActivity {
         }
     }
     public void ProcessSelectedRoute(Enums.ActionType Action,@Nullable Integer RouteID, @Nullable String RouteName){
+
+
+        final int  id = RouteID!=null?RouteID:0;
         if(Action == Enums.ActionType.DELETE){
-            Toast.makeText(ManageRoutesActivity.this, "Delete action here", Toast.LENGTH_LONG).show();
+            AlertDialog.Builder builder;
+            builder = new AlertDialog.Builder(ManageRoutesActivity.this);
+            builder.setTitle("Delete Point")
+                    .setMessage("Are you sure you want to delete this route?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                ProgressDialog progDialog = new ProgressDialog(ManageRoutesActivity.this);
+                                progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                progDialog.setTitle("Please wait...");
+                                progDialog.setMessage("Deleting route...");
+                                progDialog.setCancelable(false);
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ManageRoutesActivity.this);
+                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), ManageRoutesActivity.this, progDialog,"", alertDialogBuilder, "Route").execute(String.valueOf(id));
+                            }
+                            catch(Exception ex)
+                            {
+                                Helper.logger(ex);
+                            }
+
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+
+            //Toast.makeText(ManageRoutesActivity.this, "Delete action here", Toast.LENGTH_LONG).show();
         }else {
             dialog = new AddRouteDialog(ManageRoutesActivity.this, Action, RouteID, RouteName);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

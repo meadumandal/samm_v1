@@ -112,37 +112,37 @@
         </LinearLayout>
 
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:text="Position of Terminal:"
-            android:textAlignment="center"
-            android:textColor="@color/colorAccent" />
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="15dp"-->
+            <!--android:text="Position of Terminal:"-->
+            <!--android:textAlignment="center"-->
+            <!--android:textColor="@color/colorAccent" />-->
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_marginTop="10dp"-->
+            <!--android:orientation="horizontal">-->
 
-            <Spinner
-                android:id="@+id/spinner_preposition"
-                android:layout_width="110dp"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-                android:drawSelectorOnTop="true"
-                android:entries="@array/array_preposition"
-                android:foregroundTint="@color/colorAccent" />
+            <!--<Spinner-->
+                <!--android:id="@+id/spinner_preposition"-->
+                <!--android:layout_width="110dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:backgroundTint="@color/colorAccent"-->
+                <!--android:drawSelectorOnTop="true"-->
+                <!--android:entries="@array/array_preposition"-->
+                <!--android:foregroundTint="@color/colorAccent" />-->
 
-            <Spinner
-                android:id="@+id/spinner_terminalReference"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-                android:drawSelectorOnTop="true"
-                android:foregroundTint="@color/colorAccent" />
-        </LinearLayout>
+            <!--<Spinner-->
+                <!--android:id="@+id/spinner_terminalReference"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:backgroundTint="@color/colorAccent"-->
+                <!--android:drawSelectorOnTop="true"-->
+                <!--android:foregroundTint="@color/colorAccent" />-->
+        <!--</LinearLayout>-->
 
         <Button
             android:id="@+id/btnAddPoint"
@@ -156,18 +156,18 @@
             android:text="Add Pick-up/Drop-off Point"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
-        <Button
-            android:id="@+id/btnDeletePoint"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="42dp"
-            android:layout_marginTop="16dp"
-            android:layout_weight=".4"
-            android:background="@drawable/oval_background"
-            android:backgroundTint="@color/colorAccent"
-            android:text="Delete Pick-up/Drop-off Point"
-            android:textColor="@color/colorPrimaryDark"
-            android:textStyle="bold" />
+        <!--<Button-->
+            <!--android:id="@+id/btnDeletePoint"-->
+            <!--style="?android:textAppearanceSmall"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="42dp"-->
+            <!--android:layout_marginTop="16dp"-->
+            <!--android:layout_weight=".4"-->
+            <!--android:background="@drawable/oval_background"-->
+            <!--android:backgroundTint="@color/colorAccent"-->
+            <!--android:text="Delete Pick-up/Drop-off Point"-->
+            <!--android:textColor="@color/colorPrimaryDark"-->
+            <!--android:textStyle="bold" />-->
     </LinearLayout>
 </LinearLayout>
 

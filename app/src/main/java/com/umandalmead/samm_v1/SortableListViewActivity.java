@@ -11,8 +11,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -26,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupMenu;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,14 +57,19 @@ public class SortableListViewActivity extends ListActivity {
 
         originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
         pointsArrayInString = new String[MenuActivity._PointsArray.length];
-        String str = Arrays.toString(MenuActivity._PointsArray);
-        pointsArrayInString = str.substring(1, str.length() - 1).split(",");
+        int ctr = 0;
+        for(Terminal t: MenuActivity._PointsArray)
+        {
+            pointsArrayInString[ctr] = t.getValue();
+            ctr++;
+        }
         try {
             ArrayAdapter adp = new ArrayAdapter(this, R.layout.listview_viewpoints, MenuActivity._PointsArray);
             setListAdapter(adp);
             InitializeToolbar(MenuActivity._FragmentTitle);
             mList = (TouchInterceptor) getListView();
             mList.setDropListener(mDropListener);
+
             registerForContextMenu(mList);
             _ProgressDialog = new ProgressDialog(this);
             _ProgressDialog.setTitle("Adding Vehicle GPS");
@@ -90,7 +92,7 @@ public class SortableListViewActivity extends ListActivity {
 
                 builder.setTitle("Points have been modified.")
                         .setMessage("Save changes?")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
                                     ProgressDialog progDialog = new ProgressDialog(SortableListViewActivity.this);
@@ -99,13 +101,16 @@ public class SortableListViewActivity extends ListActivity {
                                     progDialog.setMessage("Updating order of points");
                                     progDialog.setCancelable(false);
                                     String pointsArray = Arrays.toString(pointsArrayInString);
-                                    new mySQLUpdateDestinationsOrder(getApplicationContext(), SortableListViewActivity.this,progDialog,"").execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);
+                                    new mySQLUpdateDestinationsOrder(getApplicationContext(), SortableListViewActivity.this,progDialog,"", alertDialogBuilder).execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
+
+                                    originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
 
 
-                                    Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
-                                    startActivity(routeIntent);
-                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                    finish();
+//                                    Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
+//                                    startActivity(routeIntent);
+//                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+//                                    finish();
                                 }
                                 catch(Exception ex)
                                 {
@@ -115,9 +120,12 @@ public class SortableListViewActivity extends ListActivity {
 
                             }
                         })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
+                                Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
+                                startActivity(routeIntent);
+                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                                finish();
                             }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -210,12 +218,13 @@ public class SortableListViewActivity extends ListActivity {
             android.view.View.OnClickListener {
         View myView;
         String _action;
-        Button btnAddPoints, btnDeletePoints;
+        Button btnAddPoints;
         EditText editName;
         EditText editLat;
         EditText editLng;
-        Spinner spinnerPrePosition, spinnerTerminalReference;
-        String _destinationValueForEdit = "";
+
+
+        Terminal _destinationThatWillBeEdited;
         public String TAG = "mead";
 
 
@@ -223,10 +232,11 @@ public class SortableListViewActivity extends ListActivity {
             super(activity);
             this._action = action.toLowerCase();
         }
-        public AddPointDialog(Activity activity, String action, String destinationValueforEdit) {
+        public AddPointDialog(Activity activity, String action, Terminal destinationThatWillBeEdited) {
             super(activity);
             this._action = action.toLowerCase();
-            this._destinationValueForEdit = destinationValueforEdit;
+            //this._destinationValueForEdit = destinationThatWillBeEdited;
+            _destinationThatWillBeEdited = destinationThatWillBeEdited;
         }
 
 
@@ -242,26 +252,19 @@ public class SortableListViewActivity extends ListActivity {
 
                 setContentView(R.layout.dialog_add_point);
                 btnAddPoints = (Button) findViewById(R.id.btnAddPoint);
-                btnDeletePoints = (Button) findViewById(R.id.btnDeletePoint);
                 editName = (EditText) findViewById(R.id.terminalName);
                 editLat = (EditText) findViewById(R.id.lat);
                 editLng = (EditText) findViewById(R.id.lng);
                 TextView txtAction = (TextView) findViewById(R.id.txtActionLabel);
                 final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
-                spinnerPrePosition = (Spinner) findViewById(R.id.spinner_preposition);
-                spinnerTerminalReference = (Spinner) findViewById(R.id.spinner_terminalReference);
                 Integer orderOfArrival = 0;
-                final Integer destinationIDforEdit=0;
                 MenuActivity.buttonEffect(btnAddPoints);
-                MenuActivity.buttonEffect(btnDeletePoints);
-                ArrayAdapter<Terminal> terminalReferencesAdapter = new ArrayAdapter<Terminal>(getApplicationContext(), R.layout.spinner_item, MenuActivity._terminalList);
 
-                spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
                 if(_action.equals("add"))
                 {
                     btnAddPoints.setText("ADD");
                     txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
-                    btnDeletePoints.setVisibility(View.GONE);
+
                 }
                 else {
 
@@ -269,34 +272,17 @@ public class SortableListViewActivity extends ListActivity {
 
                     for(Terminal d: MenuActivity._terminalList)
                     {
-                        if (d.Value.equals(_destinationValueForEdit))
+                        if (d.Value.equals(_destinationThatWillBeEdited.getValue()))
                         {
                             txtDestinationIDForEdit.setText(String.valueOf(d.ID));
                             editName.setText(d.Description);
                             editLat.setText(d.Lat.toString());
                             editLng.setText(d.Lng.toString());
-                            orderOfArrival = d.OrderOfArrival;
-
                             break;
                         }
                     }
                     txtAction.setText("EDIT PICKUP/DROPOFF POINT");
-                    int index = 0;
-                    for(Terminal d: MenuActivity._terminalList)
-                    {
-                        if (d.OrderOfArrival == orderOfArrival + 1)
-                        {
-                            spinnerPrePosition.setSelection(0);
-                            spinnerTerminalReference.setSelection(index);
-                            break;
-                        }else if (d.OrderOfArrival == orderOfArrival - 1)
-                        {
-                            spinnerPrePosition.setSelection(1);
-                            spinnerTerminalReference.setSelection(index);
-                            break;
-                        }
-                        index++;
-                    }
+
 
                 }
                 final DialogInterface.OnClickListener dialog_deletepoint = new DialogInterface.OnClickListener() {
@@ -313,22 +299,7 @@ public class SortableListViewActivity extends ListActivity {
                         }
                     }
                 };
-                btnDeletePoints.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                            builder.setMessage("Are you sure?").setPositiveButton("Yes", dialog_deletepoint)
-                                    .setNegativeButton("No", dialog_deletepoint).show();
 
-                        }
-                        catch(Exception ex)
-                        {
-                            Log.e(TAG,ex.getMessage());
-                        }
-
-                    }
-                });
                 btnAddPoints.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -336,13 +307,13 @@ public class SortableListViewActivity extends ListActivity {
                             String name = editName.getText().toString();
                             String lat = editLat.getText().toString();
                             String lng = editLng.getText().toString();
-                            String preposition = spinnerPrePosition.getSelectedItem().toString();
-                            Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
-                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
+
+
+                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0) {
                                 Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
                             } else {
 
-                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected);
                                 SortableListViewActivity.AddPointDialog.this.dismiss();
                             }
                         }
@@ -351,13 +322,12 @@ public class SortableListViewActivity extends ListActivity {
                             String name = editName.getText().toString();
                             String lat = editLat.getText().toString();
                             String lng = editLng.getText().toString();
-                            String preposition = spinnerPrePosition.getSelectedItem().toString();
-                            Integer destinationID = Integer.parseInt(txtDestinationIDForEdit.getText().toString());
-                            Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
-                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
+
+
+                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 ) {
                                 Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
                             } else {
-                                updatePoint(destinationID, name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+                                updatePoint(_destinationThatWillBeEdited.getID(), name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected);
                                 SortableListViewActivity.AddPointDialog.this.dismiss();
                             }
                         }
@@ -372,21 +342,21 @@ public class SortableListViewActivity extends ListActivity {
             _ProgressDialog.dismiss();
         }
 
-        private void savePoint(String name, Double lat, Double lng, String preposition, Terminal terminalReference)
+        private void savePoint(String name, Double lat, Double lng, Integer tblRouteID)
         {
             _ProgressDialog = new ProgressDialog(SortableListViewActivity.this);
             _ProgressDialog.setTitle("Adding Pickup/Dropoff Point");
             _ProgressDialog.setMessage("Please wait as we set up the points on the map");
             _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
-        private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Terminal terminalReference)
+        private void updatePoint(Integer ID, String name, Double lat, Double lng, Integer tblRouteID)
         {
             _ProgressDialog = new ProgressDialog(SortableListViewActivity.this);
             _ProgressDialog.setTitle("Updating Pickup/Dropoff Point");
             _ProgressDialog.setMessage("Please wait as we update the points on the map");
             _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void deletePoint(Integer ID)
         {
@@ -446,7 +416,7 @@ public class SortableListViewActivity extends ListActivity {
     }
     public void ModifyStationPoint(String DialogTitle, Terminal DestinationToBeEdited){
         try {
-            AddPointDialog dialog = new AddPointDialog(SortableListViewActivity.this, "Update", DestinationToBeEdited.Value);
+            AddPointDialog dialog = new AddPointDialog(SortableListViewActivity.this, "Update", DestinationToBeEdited);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }catch (Exception ex){
@@ -454,9 +424,43 @@ public class SortableListViewActivity extends ListActivity {
         }
 
     }
-    public void ProcessSelectedPointEvent(Enums.ActionType Action, @Nullable Terminal SelectedTerminal){
+    public void ProcessSelectedPointEvent(Enums.ActionType Action, final Terminal SelectedTerminal){
+        Terminal t = SelectedTerminal;
         if(Action == Enums.ActionType.DELETE){
-            Toast.makeText(getApplicationContext(), "Delete action here", Toast.LENGTH_LONG).show();
+            AlertDialog.Builder builder;
+            builder = new AlertDialog.Builder(SortableListViewActivity.this);
+
+            builder.setTitle("Delete Point")
+                    .setMessage("Are you sure you want to delete this point?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            try {
+                                ProgressDialog progDialog = new ProgressDialog(SortableListViewActivity.this);
+                                progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                progDialog.setTitle("Please wait...");
+                                progDialog.setMessage("Deleting point...");
+                                progDialog.setCancelable(false);
+
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);
+                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), SortableListViewActivity.this, progDialog,"", alertDialogBuilder, "Destination").execute(String.valueOf(SelectedTerminal.getID()));
+                            }
+                            catch(Exception ex)
+                            {
+                                Helper.logger(ex);
+                            }
+
+
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // do nothing
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+            //Toast.makeText(getApplicationContext(), "Delete action here", Toast.LENGTH_LONG).show();
         }else {
             ModifyStationPoint("UPDATE",SelectedTerminal);
         }

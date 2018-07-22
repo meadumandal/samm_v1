@@ -100,15 +100,23 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
                 HttpResponse response = httpClient.execute(httpPost);
                 String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(strResponse);
+                if(json.getString("status") == "1")
+                {
+                    _promptMessage = "Successfully added new route!";
+                }
+                else
+                {
+                    _promptMessage = json.getString("msg") +  "\n";
+                }
 
-                _promptMessage += json.getString("Message") +  "\n";
+
             }
             catch(Exception ex)
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
                 Helper.logger(ex);
-                _promptMessage += ex.getMessage() + "\n";
+                _promptMessage = ex.getMessage() + "\n";
 
             }
         }
@@ -118,7 +126,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
             _progressDialog.hide();
 
         }
-        return routeName;
+        return _promptMessage;
     }
 
     @Override

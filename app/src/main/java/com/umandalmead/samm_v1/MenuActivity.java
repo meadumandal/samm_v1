@@ -1945,7 +1945,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                 setContentView(R.layout.dialog_add_point);
                 btnAddPoints = (Button) findViewById(R.id.btnAddPoint);
-                btnDeletePoints = (Button) findViewById(R.id.btnDeletePoint);
+
                 editName = (EditText) findViewById(R.id.terminalName);
                 editLat = (EditText) findViewById(R.id.lat);
                 editLng = (EditText) findViewById(R.id.lng);
