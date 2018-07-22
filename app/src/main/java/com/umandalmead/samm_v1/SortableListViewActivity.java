@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -41,12 +43,25 @@ public class SortableListViewActivity extends ListActivity {
     private ImageButton FAB_SammIcon;
     private  TextView ViewTitle;
     public ProgressDialog _ProgressDialog;
+    public Terminal[] originalPointsArray;
+    public Boolean isItTheSame;
+    public String[] pointsArrayInString;
+    Helper _helper;
+
+
     private ImageView BtnAddPoint;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addpoints);
+        _helper = new Helper();
+        isItTheSame = true;
+        int index =0;
 
+        originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
+        pointsArrayInString = new String[MenuActivity._PointsArray.length];
+        String str = Arrays.toString(MenuActivity._PointsArray);
+        pointsArrayInString = str.substring(1, str.length() - 1).split(",");
         try {
             ArrayAdapter adp = new ArrayAdapter(this, R.layout.listview_viewpoints, MenuActivity._PointsArray);
             setListAdapter(adp);
@@ -64,6 +79,71 @@ public class SortableListViewActivity extends ListActivity {
             Toast.makeText(SortableListViewActivity.this, ex.getMessage().toString(), Toast.LENGTH_LONG).show();
         }
     }
+    private void HandleChangesInOrderOfPoints()
+    {
+        if(checkIfOrderIsModified(originalPointsArray, MenuActivity._PointsArray) == true)
+        {
+            try
+            {
+                AlertDialog.Builder builder;
+                builder = new AlertDialog.Builder(SortableListViewActivity.this);
+
+                builder.setTitle("Points have been modified.")
+                        .setMessage("Save changes?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    ProgressDialog progDialog = new ProgressDialog(SortableListViewActivity.this);
+                                    progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                                    progDialog.setTitle("Please wait...");
+                                    progDialog.setMessage("Updating order of points");
+                                    progDialog.setCancelable(false);
+                                    String pointsArray = Arrays.toString(pointsArrayInString);
+                                    new mySQLUpdateDestinationsOrder(getApplicationContext(), SortableListViewActivity.this,progDialog,"").execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
+
+
+                                    Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
+                                    startActivity(routeIntent);
+                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                                    finish();
+                                }
+                                catch(Exception ex)
+                                {
+                                    Helper.logger(ex);
+                                }
+
+
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+
+            }
+            catch(Exception ex)
+            {
+                _helper.logger(ex);
+            }
+        }
+        else
+        {
+            try {
+                Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
+                startActivity(routeIntent);
+                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                finish();
+            }catch (Exception ex){
+                Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        }
+
+
+    }
+
     public void InitializeToolbar(String fragmentName){
         FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
         FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
@@ -83,10 +163,7 @@ public class SortableListViewActivity extends ListActivity {
             @Override
             public void onClick(View view) {
                 try {
-                    Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
-                    startActivity(routeIntent);
-                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                    finish();
+                    HandleChangesInOrderOfPoints();
                 }catch (Exception ex){
                     Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
@@ -113,6 +190,20 @@ public class SortableListViewActivity extends ListActivity {
                 return true;
             }
         });
+    }
+    private boolean checkIfOrderIsModified(Terminal[] original, Terminal[] current)
+    {
+        int index = 0;
+        for(Terminal point: original)
+        {
+            if (!(point.getValue().toString().equals(current[index].getValue().toString())))
+            {
+                return true;
+
+            }
+            index++;
+        }
+        return false;
     }
 
     public class AddPointDialog extends Dialog implements
@@ -385,7 +476,8 @@ public class SortableListViewActivity extends ListActivity {
     private TouchInterceptor.DropListener mDropListener =
             new TouchInterceptor.DropListener() {
                 public void drop(int from, int to) {
-                   Toast.makeText(getApplicationContext(),"Drop listener from: "+from+" to:"+to, Toast.LENGTH_LONG).show();
+
+                    //Toast.makeText(getApplicationContext(),"Drop listener from: "+from+" to:"+to, Toast.LENGTH_LONG).show();
                     int direction = -1;
                     int loop_start = from;
                     int loop_end = to;
@@ -394,13 +486,21 @@ public class SortableListViewActivity extends ListActivity {
                     }
                     Terminal target = MenuActivity._PointsArray[from];
                     for(int i=loop_start;i!=loop_end;i=i+direction){
+
+                        pointsArrayInString[i] = MenuActivity._PointsArray[i+direction].getValue();
                         MenuActivity._PointsArray[i] = MenuActivity._PointsArray[i+direction];
+
                     }
                     MenuActivity._PointsArray[to] = target;
-                    Toast.makeText(getApplicationContext(),"New array arrangement: "+ Arrays.toString(MenuActivity._PointsArray), Toast.LENGTH_LONG).show();
+                    pointsArrayInString[to] = target.getValue();
+                    //Toast.makeText(getApplicationContext(),"New array arrangement: "+ Arrays.toString(pointsArrayInString), Toast.LENGTH_LONG).show();
                     ((BaseAdapter) mList.getAdapter()).notifyDataSetChanged();
                 }
 
 
             };
+    @Override
+    public void onBackPressed() {
+        HandleChangesInOrderOfPoints();
+    }
 }

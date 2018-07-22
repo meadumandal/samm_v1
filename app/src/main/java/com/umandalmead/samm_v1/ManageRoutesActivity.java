@@ -37,6 +37,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
     private Activity _activity;
     public AddRouteDialog dialog;
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +63,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
                     InitializeView(routeListview);
                 }
             });
+
 
         }
         catch(Exception ex)

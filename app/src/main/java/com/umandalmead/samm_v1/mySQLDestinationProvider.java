@@ -77,7 +77,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         this._activity = activity;
         this._googleMap = map;
         this.mGoogleApiClient = googleApiClient;
-        _progDialog = new ProgressDialog(this._activity);
+        _progDialog = null;
 
     }
     public mySQLDestinationProvider(Context context, Activity activity, String progressMessage, GoogleMap map, GoogleApiClient googleApiClient, ProgressDialog progDialog)
@@ -98,13 +98,17 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         try
         {
             super.onPreExecute();
-            _progDialog.setMax(100);
-            _progDialog.setMessage("The app is initializing, please wait...");
-            _progDialog.setTitle("Initializing Data");
-            _progDialog.setIndeterminate(false);
-            _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progDialog.setCancelable(false);
-            _progDialog.show();
+            if (_progDialog != null)
+            {
+                _progDialog.setMax(100);
+                _progDialog.setMessage("The app is initializing, please wait...");
+                _progDialog.setTitle("Initializing Data");
+                _progDialog.setIndeterminate(false);
+                _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                _progDialog.setCancelable(false);
+                _progDialog.show();
+            }
+
         }
         catch(Exception ex)
         {
@@ -183,49 +187,60 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
     @Override
     protected void onPostExecute(List<Terminal> terminals)
     {
-        Log.i(TAG,"mySQLDestinationProvider(onPostExecute)");
-        List<String> strDestinations = new ArrayList<>();
-        ((MenuActivity)this._activity)._terminalList = terminals;
-        for (Terminal d: terminals)
+        try
         {
-            if(!strDestinations.contains(d.Description))
-                strDestinations.add(d.Description);
-        }
-
-        DestinationAdapter adapter = null;
-        ArrayList<Terminal> terminalArrayList = new ArrayList<>(terminals);
-        adapter =  new DestinationAdapter((MenuActivity)this._activity, terminalArrayList);
-        //ClearableAutoCompleteTextView editDestination = (ClearableAutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
-        //ArrayAdapter<Terminal> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, terminals);
-        //editDestination.setThreshold(1);
-        //editDestination.setAdapter(adapter);
-        //editDestination.setDropDownAnchor(MenuActivity._AppBar.getId());
-        _googleMap.clear();
-        ((MenuActivity)this._activity)._terminalMarkerHashmap = new HashMap<>();
-
-        for (Terminal terminal : terminals)
-        {
-            if(terminal.Lat >0 && terminal.Lng >0)
+            Log.i(TAG,"mySQLDestinationProvider(onPostExecute)");
+            List<String> strDestinations = new ArrayList<>();
+            MenuActivity._terminalList = terminals;
+            //((MenuActivity)this._activity)._terminalList = terminals;
+            for (Terminal d: terminals)
             {
-                double lat = terminal.Lat;
-                double lng = terminal.Lng;
-                LatLng latLng = new LatLng(lat, lng);
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(latLng);
-
-                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
-                markerOptions.snippet("0 passenger/s waiting");
-                markerOptions.title(terminal.Value);
-                Marker marker = _googleMap.addMarker(markerOptions);
-
-                marker.showInfoWindow();
-
-                ((MenuActivity)this._activity)._terminalMarkerHashmap.put(terminal.Value, marker);
+                if(!strDestinations.contains(d.Description))
+                    strDestinations.add(d.Description);
             }
+
+            DestinationAdapter adapter = null;
+            ArrayList<Terminal> terminalArrayList = new ArrayList<>(terminals);
+            //adapter =  new DestinationAdapter((MenuActivity)this._activity, terminalArrayList);
+            //ClearableAutoCompleteTextView editDestination = (ClearableAutoCompleteTextView) (this._activity).findViewById(R.id.edit_destinations);
+            //ArrayAdapter<Terminal> adapter = new ArrayAdapter<>(this._context, R.layout.list_item, terminals);
+            //editDestination.setThreshold(1);
+            //editDestination.setAdapter(adapter);
+            //editDestination.setDropDownAnchor(MenuActivity._AppBar.getId());
+            _googleMap.clear();
+            MenuActivity._terminalMarkerHashmap = new HashMap<>();
+
+            for (Terminal terminal : terminals)
+            {
+                if(terminal.Lat >0 && terminal.Lng >0)
+                {
+                    double lat = terminal.Lat;
+                    double lng = terminal.Lng;
+                    LatLng latLng = new LatLng(lat, lng);
+                    MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.position(latLng);
+
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
+                    markerOptions.snippet("0 passenger/s waiting");
+                    markerOptions.title(terminal.Value);
+                    Marker marker = _googleMap.addMarker(markerOptions);
+
+                    marker.showInfoWindow();
+
+                    MenuActivity._terminalMarkerHashmap.put(terminal.Value, marker);
+                }
+            }
+
+            startGeofence(terminals);
+        }
+        catch(Exception ex)
+        {
+            Helper.logger(ex);
         }
 
-        startGeofence(terminals);
-        _progDialog.dismiss();
+
+        if (_progDialog != null)
+            _progDialog.dismiss();
     }
 
     // Start Geofence creation process

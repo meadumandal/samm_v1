@@ -1,8 +1,11 @@
 package com.umandalmead.samm_v1.Adapters;
 
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,6 +27,7 @@ import android.widget.Toast;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Enums;
+import com.umandalmead.samm_v1.InfoDialog;
 import com.umandalmead.samm_v1.ManageRoutesActivity;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
@@ -48,6 +52,8 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
     private FragmentManager _FragmentManager;
     private int lastPosition = -1;
 
+
+
     public RouteViewCustomAdapter(ArrayList<Routes> data, Context cont,NonScrollListView listView, FragmentManager fm,
                                   SwipeRefreshLayout swipeRefreshRoute){
         super(cont, R.layout.listview_viewroutes, data);
@@ -56,6 +62,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
         this._SwipeRefreshRoute = swipeRefreshRoute;
         this._RouteListView = listView;
         this._FragmentManager = fm;
+
     }
 
     private static class ViewHolder {
@@ -168,11 +175,9 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                 result.add(entry.Value);
                 terminalListBasedOnRouteID.add(entry);
             }
-
-
         }
-
         MenuActivity._PointsArray =  terminalListBasedOnRouteID.toArray(new Terminal[terminalListBasedOnRouteID.size()]);
+        MenuActivity._currentRouteIDSelected = routeID;
         result.add("Add Point");
         return  result;
     }

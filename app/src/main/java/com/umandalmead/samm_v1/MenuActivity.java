@@ -269,6 +269,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static Boolean _IsOnSearchMode = false;
         public static Terminal[] _PointsArray;
         public static Typeface FONT_PLATE,FONT_STATION;
+        public static int _currentRouteIDSelected;
 
 
 
