@@ -752,6 +752,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     public static void RemoveListenerFromLoop(){
         if(_S_VehicleDestinationDatabaseReference!=null) {
             _S_VehicleDestinationDatabaseReference.removeEventListener(_SingleLoopChildListenerForSelectedTerminal);
+            _S_VehicleDestinationDatabaseReference=null;
+            _SingleLoopChildListenerForSelectedTerminal=null;
         }
         //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
     }
