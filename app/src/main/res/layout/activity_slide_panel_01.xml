@@ -18,7 +18,7 @@
 
 
     <FrameLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:paddingBottom="5dp"
@@ -27,21 +27,22 @@
             android:id="@+id/toatextview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Searching for E-Loop..."
-            android:textSize="15dp"
+            android:text="Searching for nearest E-loop..."
+            android:textSize="13dp"
             android:textColor="@color/colorWhite"
             android:textStyle="bold"
+            android:layout_gravity="center_horizontal"
             android:visibility="gone"
-            android:paddingRight="10dp"
             android:background="@drawable/pill_shaped_eloop_status"
             />
         <ProgressBar
             android:id="@+id/progressBarLoopArrival"
             style="?android:attr/progressBarStyle"
-            android:layout_width="15dp"
+            android:layout_width="30dp"
             android:visibility="gone"
             android:layout_gravity="right|center_vertical"
-            android:layout_height="15dp" />
+            android:layout_marginRight="5dp"
+            android:layout_height="30dp" />
 
     </FrameLayout>
 

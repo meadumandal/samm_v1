@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -26,6 +27,7 @@ import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -237,6 +239,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
         public static String _FragmentTitle;
+        public static MediaPlayer _buttonClick;
         private TextView _infoTitleTV, _infoDescriptionTV;
         private LinearLayout _infoLayout;
         private ImageButton _infoPanelBtnClose;
@@ -435,6 +438,7 @@ public class MenuActivity extends AppCompatActivity implements
                 InitializeInfoPanel();
                 InitializeFonts();
                 MenuActivity.buttonEffect(Search_BackBtn);
+                _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
                 {
@@ -452,17 +456,20 @@ public class MenuActivity extends AppCompatActivity implements
                         AddGPSDialog dialog=new AddGPSDialog(MenuActivity.this);
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialog.show();
+                        PlayButtonClickSound();
                     }
                 });
                 FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
                         drawer.openDrawer(Gravity.LEFT);
+                        PlayButtonClickSound();
                     }
                 });
                 Search_BackBtn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                      HideRouteTabsAndSlidingPanel();
+                        PlayButtonClickSound();
                     }
                 });
 
@@ -472,6 +479,7 @@ public class MenuActivity extends AppCompatActivity implements
                         AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "ADD");
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialog.show();
+                        PlayButtonClickSound();
                     }
                 });
                 _AddRouteFloatingButton.setOnClickListener(new View.OnClickListener(){
@@ -481,6 +489,7 @@ public class MenuActivity extends AppCompatActivity implements
                         startActivity(addRouteIntent);
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
                         finish();
+                        PlayButtonClickSound();
                     }
                 });
 
@@ -490,6 +499,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                     @Override
                     public void onClick(View view) {
+                        PlayButtonClickSound();
                         try {
                             _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                             _MapsHolderLinearLayout.setVisibility(View.GONE);
@@ -558,12 +568,14 @@ public class MenuActivity extends AppCompatActivity implements
                         .setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                PlayButtonClickSound();
                               HideRouteTabsAndSlidingPanel();
                             }
                         });
                 FrameSearchBarHolder.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        PlayButtonClickSound();
                         UpdateUI(Enums.UIType.SHOWING_INFO);
                         Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
                     }
@@ -607,24 +619,24 @@ public class MenuActivity extends AppCompatActivity implements
                     Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
                 }
 
-                _SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-                    @Override
-                    public void onPanelSlide(View panel, float slideOffset) {
-
-                    }
-
-                    @Override
-                    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-                        if (previousState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                            _Slide_Expand.setVisibility(View.GONE);
-                            _Slide_Collapse.setVisibility(View.VISIBLE);
-                        }
-                        if (previousState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-                            _Slide_Expand.setVisibility(View.VISIBLE);
-                            _Slide_Collapse.setVisibility(View.GONE);
-                        }
-                    }
-                });
+//                _SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+//                    @Override
+//                    public void onPanelSlide(View panel, float slideOffset) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+//                        if (previousState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+//                            _Slide_Expand.setVisibility(View.GONE);
+//                            _Slide_Collapse.setVisibility(View.VISIBLE);
+//                        }
+//                        if (previousState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+//                            _Slide_Expand.setVisibility(View.VISIBLE);
+//                            _Slide_Collapse.setVisibility(View.GONE);
+//                        }
+//                    }
+//                });
 
 //                _TerminalsAutoCompleteTextView.setOnClickListener(new View.OnClickListener() {
 //                    @Override
@@ -1188,6 +1200,7 @@ public class MenuActivity extends AppCompatActivity implements
                         .setMessage("Are you sure you want to log out?")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                PlayButtonClickSound();
                                 try {
                                     LoginManager.getInstance().logOut();
                                 }
@@ -1206,6 +1219,7 @@ public class MenuActivity extends AppCompatActivity implements
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                PlayButtonClickSound();
                                 // do nothing
                             }
                         })
@@ -1324,8 +1338,8 @@ public class MenuActivity extends AppCompatActivity implements
                 overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
                 finish();
             }
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-
+            PlayButtonClickSound();
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
             drawer.closeDrawer(GravityCompat.START);
             return true;
         }
@@ -1963,7 +1977,7 @@ public class MenuActivity extends AppCompatActivity implements
 
         @Override
         public void onClick(View view) {
-
+            PlayButtonClickSound();
         }
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -2034,10 +2048,12 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onClick(DialogInterface dialog, int which) {
                         switch (which){
                             case DialogInterface.BUTTON_POSITIVE:
+                                PlayButtonClickSound();
                                 deletePoint(Integer.parseInt(txtDestinationIDForEdit.getText().toString()));
                                 break;
 
                             case DialogInterface.BUTTON_NEGATIVE:
+                                PlayButtonClickSound();
                                 //No button clicked
                                 break;
                         }
@@ -2063,6 +2079,7 @@ public class MenuActivity extends AppCompatActivity implements
                     @Override
                     public void onClick(View view) {
                         if(_action.equals("add")) {
+                            PlayButtonClickSound();
                             String name = editName.getText().toString();
                             String lat = editLat.getText().toString();
                             String lng = editLng.getText().toString();
@@ -2078,6 +2095,7 @@ public class MenuActivity extends AppCompatActivity implements
                         }
                         else if(_action.equals("update"))
                         {
+                            PlayButtonClickSound();
                             String name = editName.getText().toString();
                             String lat = editLat.getText().toString();
                             String lng = editLng.getText().toString();
@@ -2199,6 +2217,7 @@ public class MenuActivity extends AppCompatActivity implements
             sendBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    PlayButtonClickSound();
                     _GPSMobileNumber = txtphoneNo.getText().toString().trim();
                     _gpsIMEI = txtIMEI.getText().toString().trim();
                     if(_GPSMobileNumber.trim().length() == 0 || _gpsIMEI.trim().length() == 0 || networkProvider.getSelectedItem().toString().equals("Select GSM SIM Network Provicer"))
@@ -2329,6 +2348,7 @@ public class MenuActivity extends AppCompatActivity implements
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
         lp.height = 0;
         _AppBar.setLayoutParams(lp);
+        AnalyzeForBestRoutes.RemoveListenerFromLoop();
     }
     public void SetMapType(GoogleMap gmap, Enums.GoogleMapType mapType){
         switch(mapType){
@@ -2400,6 +2420,7 @@ public class MenuActivity extends AppCompatActivity implements
             _infoPanelBtnClose.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    PlayButtonClickSound();
                     InfoPanelHide();
                 }
             });
@@ -2572,6 +2593,9 @@ public class MenuActivity extends AppCompatActivity implements
         }catch (Exception ex){
             Log.i(_constants.LOG_TAG, "Exception: " + ex.getMessage());
         }
+    }
+    public void PlayButtonClickSound(){
+        _buttonClick.start();
     }
 
 

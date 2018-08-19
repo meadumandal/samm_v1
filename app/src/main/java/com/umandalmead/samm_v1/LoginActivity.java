@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -78,6 +79,7 @@ public class LoginActivity extends AppCompatActivity{
     ProgressDialog LoginProgDiag;
     private static Helper _helper = new Helper();
     private Constants _constants = new Constants();
+    private MediaPlayer _buttonClick;
 
 
 
@@ -123,7 +125,14 @@ public class LoginActivity extends AppCompatActivity{
             loginButton.setReadPermissions("email", "public_profile");
             MenuActivity.buttonEffect(loginButton);
             MenuActivity.buttonEffect(ForgotPasswordTV);
+            _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
+            loginButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PlayButtonClickSound();
+                }
+            });
 
 
             loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -186,6 +195,7 @@ public class LoginActivity extends AppCompatActivity{
             ForgotPasswordTV.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    PlayButtonClickSound();
                     try
                     {
                         final ProgressDialog progDialog = new ProgressDialog(LoginActivity.this);
@@ -270,6 +280,7 @@ public class LoginActivity extends AppCompatActivity{
             btn_SignIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    PlayButtonClickSound();
                     progressBar.setVisibility(View.VISIBLE);
                     final String username = usernameField.getText().toString();
                     final String password = passwordField.getText().toString();
@@ -544,5 +555,8 @@ public class LoginActivity extends AppCompatActivity{
             FirebaseAuth.getInstance().signOut();
         }
         return  result;
+    }
+    private void PlayButtonClickSound(){
+        _buttonClick.start();
     }
 }

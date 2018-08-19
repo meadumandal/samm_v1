@@ -160,13 +160,13 @@ public class AddVehicleMarkers implements ChildEventListener {
                                 }
                                 else
                                 {
-                                    //_vehicleAnimatedMarker.remove();
+                                    _vehicleAnimatedMarker.remove();
                                     //if(_vehicleAnimatedMarker==null){
-                                    //_vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                                    _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
                                     //}
                                     //else{
-                                        _vehicleAnimatedMarker.setPosition(newPos);
-                                    _vehicleAnimatedMarker.setRotation(bearing);
+//                                        _vehicleAnimatedMarker.setPosition(newPos);
+//                                    _vehicleAnimatedMarker.setRotation(bearing);
                                     //}
                                    // _vehicleAnimatedMarker.showInfoWindow();
                                     MenuActivity._driverMarkerHashmap.remove(deviceId);
