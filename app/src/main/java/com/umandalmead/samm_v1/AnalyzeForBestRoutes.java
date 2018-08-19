@@ -688,6 +688,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 //do something here
+
+
                 Toast.makeText(_context, "Listener attached!", Toast.LENGTH_SHORT).show();
             }
 

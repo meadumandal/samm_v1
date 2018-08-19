@@ -20,12 +20,16 @@ public class Constants {
     public static final String ROUTES_API_FOLDER = "routes/";
     public static final String SETTINGS_API_FOLDER = "settings/";
     public static final String USERS_API_FOLDER = "users/";
+    public static final String ADMIN_API_FOLDER = "users/admin/";
+    public static final String DRIVER_API_FOLDER = "users/driver/";
     public static final String GUEST_USERNAME_PREFIX = "guestuser";
     public static final String GUEST_FIRSTNAME = "Guest";
     public static final String GUEST_LASTNAME = "User";
     public static final String APP_TITLE = "SAMM";
-    public static final String DRIVER_EMAILADDRESS="sammdriver@yahoo.com";
-    public static final String ADMIN_EMAILADDRESS = "admin@yahoo.com";
+    public static final String DRIVER_EMAILADDRESS="driver@samm.com";
+    public static final String ADMIN_EMAILADDRESS = "admin@samm.com";
+    public static final String ADMIN_PASSWORD = "sammadmin";
+    public static final String ADMIN_USERTYPE = "Administrator";
     public static final String PASSENGER_REPORT_TYPE = "passenger";
     public static final String VEHICLE_REPORT_TYPE = "ecoloop";
     public static final int APPBAR_MIN_HEIGHT = 156;
@@ -48,3 +52,4 @@ public class Constants {
     public static final String SMS_ADMINIP = "adminip" + GPS_PASSWORD + " " + TRACCAR_SERVER + " " + TRACCAR_PORT;
     public static final String SMS_TIMEINTERVAL = "t050s***n" + GPS_PASSWORD;
 }
+

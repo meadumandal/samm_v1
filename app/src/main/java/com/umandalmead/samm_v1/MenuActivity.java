@@ -116,6 +116,8 @@ import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddPassenger
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkers;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddVehicleMarkers;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.Vehicle_DestinationsListener;
+import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersFragment;
+import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.POJO.Directions;
 import com.umandalmead.samm_v1.POJO.Setting;
 import com.umandalmead.samm_v1.POJO.Settings;
@@ -420,6 +422,9 @@ public class MenuActivity extends AppCompatActivity implements
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest() && !_sessionManager.isDriver());
                 _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(R.id.nav_routes).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
@@ -1284,20 +1289,43 @@ public class MenuActivity extends AppCompatActivity implements
             else if(id==R.id.nav_map_terrain){
                 SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_TERRAIN);
             }
-            else if(id==R.id.menu_username)
-            {
-                if(!_sessionManager.isGuest()){
-                    _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+            else if(id==R.id.menu_username) {
+                if (!_sessionManager.isGuest()) {
+                    _MapsHolderLinearLayout = (LinearLayout) findViewById(R.id.mapsLinearLayout);
                     _MapsHolderLinearLayout.setVisibility(View.GONE);
                     fragment.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
-                }
-                else{
-                    InfoDialog GuestInfo =new InfoDialog(MenuActivity.this,getResources().getString(R.string.guest_nav_drawer_message));
+                } else {
+                    InfoDialog GuestInfo = new InfoDialog(MenuActivity.this, getResources().getString(R.string.guest_nav_drawer_message));
                     GuestInfo.show();
                 }
 
             }
-            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            else if (id==R.id.nav_adminusers)
+            {
+
+                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                _MapsHolderLinearLayout.setVisibility(View.GONE);
+                appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
+                AdminUsersFragment adminUsersFragment = new AdminUsersFragment();
+                fragment.beginTransaction().replace(R.id.content_frame, adminUsersFragment).commit();
+            }
+            else if (id==R.id.nav_drivers)
+            {
+                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                _MapsHolderLinearLayout.setVisibility(View.GONE);
+                appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
+                DriverUsersFragment driverUsersFragment = new DriverUsersFragment();
+                fragment.beginTransaction().replace(R.id.content_frame, driverUsersFragment).commit();
+            }
+            else if(id==R.id.nav_routes)
+            {
+                Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
+                startActivity(addRouteIntent);
+                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                finish();
+            }
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
             drawer.closeDrawer(GravityCompat.START);
             return true;
         }

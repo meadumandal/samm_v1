@@ -45,6 +45,7 @@ public class AddUserMarkers implements
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
         try
         {
+
             String username = dataSnapshot.getKey();
             if (!username.equals(((MenuActivity)this._activity)._sessionManager.getUsername()))
             {

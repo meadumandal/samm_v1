@@ -14,11 +14,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.umandalmead.samm_v1.EntityObjects.User;
+import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
 import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -111,7 +110,7 @@ public class SignUpActivity extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Username"), Toast.LENGTH_LONG).show();
                                     return;
                                 }
-                                if(CheckForSpecialCharacters(username)){
+                                if(Helper.CheckForSpecialCharacters(username)){
                                     Toast.makeText(getApplicationContext(), "Username must not contain special characters", Toast.LENGTH_LONG).show();
                                     return;
 
@@ -161,7 +160,7 @@ public class SignUpActivity extends AppCompatActivity {
                                             {
                                                 ShowSignUpProgressDialog();
 
-                                                auth.createUserWithEmailAndPassword(emailAddress, password)
+                                                    auth.createUserWithEmailAndPassword(emailAddress, password)
                                                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -272,14 +271,5 @@ public class SignUpActivity extends AppCompatActivity {
         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
         finish();
     }
-    private Boolean CheckForSpecialCharacters(String text){
-        Boolean result = false;
-        Pattern p = Pattern.compile("^[^<>%$]*$");
-        Matcher m = p.matcher(text);
-        if (!m.matches())
-        {
-            result = true;
-        }
-        return  result;
-    }
+
 }

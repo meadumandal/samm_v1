@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
@@ -246,6 +248,16 @@ public class Helper {
     public String getEmojiByUnicode(int unicode)
     {
         return new String(Character.toChars(unicode));
+    }
+    public static Boolean CheckForSpecialCharacters(String text){
+        Boolean result = false;
+        Pattern p = Pattern.compile("^[^<>%$]*$");
+        Matcher m = p.matcher(text);
+        if (!m.matches())
+        {
+            result = true;
+        }
+        return  result;
     }
 
 }

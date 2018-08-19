@@ -63,7 +63,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                                   FragmentManager fm,
                                   SwipeRefreshLayout swipeRefreshGPS)
     {
-        Log.i(_constants.LOG_TAG, "asyncGetGPSFromTraccar");
+            Log.i(_constants.LOG_TAG, "asyncGetGPSFromTraccar");
         this._context = context;
         this._progDialog = progDialog;
         this._listView = listView;

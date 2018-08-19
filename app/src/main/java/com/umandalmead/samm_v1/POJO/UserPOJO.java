@@ -11,17 +11,26 @@ public class UserPOJO {
     @SerializedName("username")
     public String username;
 
+    @SerializedName("emailAddress")
+    public String emailAddress;
+
     @SerializedName("firstName")
     public String firstName;
 
     @SerializedName("lastName")
     public String lastName;
 
-    @SerializedName("emailAddress")
-    public String emailAddress;
-
     @SerializedName("deviceId")
     public String deviceId;
+
+    @SerializedName("userType")
+    public String userType;
+
+    @SerializedName("password")
+    public String password;
+
+    @SerializedName("IsActive")
+    public String IsActive;
 
     public String getUsername() { return this.username; }
 
@@ -31,7 +40,13 @@ public class UserPOJO {
 
     public String getEmailAddress(){ return this.emailAddress; }
 
-    public String getDeviceId(){return this.deviceId;}
+    public String getDeviceId() {return this.deviceId;}
+
+    public String getUserType(){ return this.userType; }
+
+    public String getPassword(){ return this.password; }
+
+    public String getIsActive() { return this.IsActive; }
 
     public void setUsername(String username){this.username = username;}
 
@@ -42,4 +57,10 @@ public class UserPOJO {
     public void setEmailAddress(String emailAddress){this.emailAddress = emailAddress;}
 
     public void setDeviceId(String deviceId) {this.deviceId = deviceId;}
+
+    public void setUserType(String userType) {this.userType = userType;}
+
+    public void setPassword(String password) {this.password = password;}
+
+    public void setIsActive(String IsActive) {this.IsActive = IsActive;}
 }

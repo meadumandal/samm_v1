@@ -10,6 +10,26 @@
                 android:title="Home"
                 android:icon="@drawable/ic_home_black_24dp"
                 />
+            <item
+                android:id="@+id/nav_adminusers"
+                android:title="Admin Users"
+                android:icon="@drawable/ic_person_black_10dp"
+                />
+            <item
+                android:id="@+id/nav_drivers"
+                android:title="Drivers"
+                android:icon="@drawable/ic_person_black_10dp"
+                />
+            <item
+                android:id="@+id/nav_routes"
+                android:title="Routes"
+                android:icon="@drawable/ic_home_black_24dp"
+                />
+            <item
+                android:id="@+id/nav_vehicles"
+                android:title="Vehicles"
+                android:icon="@drawable/ic_home_black_24dp"
+                />
         </menu>
     </item>
     <item android:title="ACCOUNT">

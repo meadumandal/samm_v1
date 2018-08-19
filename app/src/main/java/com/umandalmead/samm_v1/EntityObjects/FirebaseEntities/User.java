@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.EntityObjects;
+package com.umandalmead.samm_v1.EntityObjects.FirebaseEntities;
 
 import java.util.Date;
 
