@@ -91,6 +91,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     private Boolean _IsAllLoopParked = true;
     private Boolean _IsLoopResultsFound = false;
     public static Polyline _redPolyLine, _magentaPolyLine;
+    private Boolean _ISEloopIsWithinSameRoute = false;
 
     private static List<LatLng> listLatLng = new ArrayList<>();
     /**
@@ -303,7 +304,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     Animator.AnimatorListener polyLineAnimationListener = new Animator.AnimatorListener() {
         @Override
         public void onAnimationStart(Animator animator) {
-            addMarker(listLatLng.get(listLatLng.size()-1));
+           // addMarker(listLatLng.get(listLatLng.size()-1));
         }
 
         @Override
@@ -337,7 +338,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     };
 
     @Override
-    protected void onPostExecute(List<Terminal> topTerminals) {
+    protected void onPostExecute(List<Terminal> L_TM_topTerminals) {
         //"topTerminals" contains the top 3 nearest terminal from user's CURRENT location
 
         try {
@@ -345,7 +346,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             if (_line != null) {
                 _line.setVisible(false);
             }
-            for (Terminal terminal : topTerminals) {
+            for (Terminal terminal : L_TM_topTerminals) {
                 String TotalTime = "";
                 List<String> DirectionSteps = new ArrayList<String>();
                 for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
@@ -363,11 +364,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 _AllDirectionsSteps.add(DirectionSteps);
                 ctr++;
             }
-            createRouteTabs(_AllTotalTime, _AllDirectionsSteps, _topTerminals, _AllTerminalPoints, ctr);
+            createRouteTabs(_AllTotalTime, _AllDirectionsSteps, _topTerminals, _AllTerminalPoints);
             progDialog.dismiss();
 
             ((MenuActivity)this._activity).ShowRouteTabsAndSlidingPanel();
-            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+         //   _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
             MenuActivity._selectedPickUpPoint = _topTerminals.get(0);
             drawLines(_AllTerminalPoints.get(0).get(0));
 
@@ -379,14 +380,14 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
     }
 
-    public void createRouteTabs(final List<String> TotalTimeList, final List<List<String>> DirectionStepsList, final List<Terminal> AllPossibleTerminals, final List<List<String>> TerminalPointsList, final int ctr) {
+    public void createRouteTabs(final List<String> L_STR_TotalTimeList, final List<List<String>> L_L_STR_DirectionStepsList, final List<Terminal> L_TM_AllPossibleTerminals, final List<List<String>> L_L_STR_TerminalPointsList) {
         //For Routes Tabs
         try {
-            if (AllPossibleTerminals.size() == 0 || AllPossibleTerminals == null)
+            if (L_TM_AllPossibleTerminals.size() == 0 || L_TM_AllPossibleTerminals == null)
                 throw new Exception("Unable to find route for this destination.");
             final TabLayout RouteTabs = (TabLayout) this._activity.findViewById(R.id.route_tablayout);
             RouteTabs.removeAllTabs();
-            for (Terminal entry : AllPossibleTerminals) {
+            for (Terminal entry : L_TM_AllPossibleTerminals) {
                 RouteTabs.addTab(RouteTabs.newTab().setText(entry.Description));
             }
             RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
@@ -402,14 +403,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 public void onTabSelected(TabLayout.Tab tab) {
                     ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                     viewPager.setCurrentItem(tab.getPosition());
-                    _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(tab.getPosition()), TotalTimeList.get(tab.getPosition()), AllPossibleTerminals.get(tab.getPosition())), "text/html; charset=utf-8", "UTF-8", null);
-                    MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(tab.getPosition());
+                    MenuActivity._RouteTabSelectedIndex = tab.getPosition();
+                    _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
+                    MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(tab.getPosition());
                     clearLines();
-                    drawLines(TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
-                    GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(tab.getPosition()));
-                    _TimeOfArrivalTextView.setText("Searching for nearest E-loop...");
-                    _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
-                    _LoopArrivalProgress.setVisibility(View.VISIBLE);
+                    drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
+                    GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
                     PlayButtonClickSound();
 
@@ -425,13 +424,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
                 }
             });
-
             ((MenuActivity)this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
-            drawLines(TerminalPointsList.get(0).get(0));
-            MenuActivity._selectedPickUpPoint = AllPossibleTerminals.get(0);
-            GetArrivalTimeOfLoopBasedOnSelectedStation(AllPossibleTerminals.get(0));
+            drawLines(L_L_STR_TerminalPointsList.get(0).get(0));
+            MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
+            GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
             _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
-            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(DirectionStepsList.get(0), TotalTimeList.get(0), AllPossibleTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+            _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
 
 
         } catch (Exception ex) {
@@ -440,14 +438,130 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         }
 
     }
+    private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
+        try{
+            FB = FirebaseDatabase.getInstance();
+            VehicleDestinationDatabaseReference = FB.getReference("drivers");
+            VehicleDestinationDatabaseReference.runTransaction(new Transaction.Handler() {
+                @Override
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    return Transaction.success(mutableData);
+                }
 
-    public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal currentDest) {
+                @Override
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Drivers) {
+                    if (DS_Vehicle_Destination.getChildren() != null && DS_Drivers.getChildren() != null) {
+                        Boolean found = false, loopAwaiting = false;
+                        int ctr = 0;
+                        _IsAllLoopParked = true;
+                        for (Terminal TM_Entry : L_TM_DestList_Sorted) {
+                            if (IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
+                                for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
+                                    String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
+                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? CleanEloopName(v.child("Dwell").getValue().toString()) : CleanEloopName(v.child("LoopIds").getValue().toString());
+                                        if (loopAwaiting && IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
+                                                    InitializeSearchingRouteUI(true, false, "An E-loop is already waiting!");
+                                                    _IsLoopResultsFound = true;
+                                                    loopAwaiting = true;
+                                                    _IsAllLoopParked = false;
+                                                    found = true;
+                                                    GetTimeRemainingFromGoogle(Integer.parseInt(loopId), TM_CurrentDest);
+                                                    AttachListenerToLoop(Integer.parseInt(loopId), TM_CurrentDest);
+                                        } else continue;
+
+                                    }
+
+                                }
+                                if (loopAwaiting)
+                                    break;
+                            } else if (IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == 1 || TM_CurrentDest.OrderOfArrival == 1)) {
+                                for (Terminal dl2 : L_TM_DestList_Sorted) {
+                                    for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
+                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value + "_" + TM_Entry.getTblRouteID();
+                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                            String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? CleanEloopName(v.child("Dwell").getValue().toString()) : CleanEloopName(v.child("LoopIds").getValue().toString());
+                                            if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
+                                                List<String> temploopids = Arrays.asList(loopId.split(","));
+                                                for (String tli : temploopids
+                                                        ) {
+                                                    if (!tli.equals(""))
+                                                        _ListOfLoops.add(Integer.parseInt(tli));
+                                                }
+                                                Collections.sort(_ListOfLoops);
+                                                if (_ListOfLoops.size() > 0 && IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
+                                                            _IsAllLoopParked = false;
+                                                            found = true;
+                                                            //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
+                                                            //Jul-22
+                                                            GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
+                                                           // Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
+                                                            _IsLoopResultsFound = true;
+                                                            AttachListenerToLoop(_ListOfLoops.get(0), TM_CurrentDest);
+                                                }
+                                                _ListOfLoops.clear();
+                                                break;
+                                            } else continue;
+                                        } else continue;
+
+                                    }
+                                }
+                                if (found)
+                                    break;
+
+                            } else if (IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
+                                for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
+                                    String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? CleanEloopName(v.child("Dwell").getValue().toString()) : CleanEloopName(v.child("LoopIds").getValue().toString());
+                                        if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
+                                            List<String> temploopids = Arrays.asList(loopId.split(","));
+                                            for (String tli : temploopids) {
+                                                if (!tli.equals(""))
+                                                    _ListOfLoops.add(Integer.parseInt(tli));
+                                            }
+                                            Collections.sort(_ListOfLoops);
+                                            if (_ListOfLoops.size() > 0 && IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
+                                                found = true;
+                                                _IsAllLoopParked = false;
+                                                GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
+                                                //Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
+                                                _IsLoopResultsFound = true;
+                                                AttachListenerToLoop(_ListOfLoops.get(0), TM_CurrentDest);
+                                                break;
+                                            }
+                                            _ListOfLoops.clear();
+                                            break;
+                                        } else continue;
+                                    } else continue;
+
+                                }
+                                if (found)
+                                    break;
+
+                            } else continue;
+
+                        }
+                    }
+                    if (_IsAllLoopParked) {
+                        InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)");
+                        _IsLoopResultsFound = true;
+                    }
+
+                }
+            });
+        }
+        catch(Exception ex){
+
+        }
+    }
+    public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal TM_CurrentDest) {
         try {
-            String res = "";
-            if (currentDest != null) {
-                final List<Terminal> DestList = MenuActivity._terminalList;
-
-                Collections.sort(DestList, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
+            if (TM_CurrentDest != null) {
+                InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...");
+                final List<Terminal> LTM_DestList_Sorted = MenuActivity._terminalList;
+                Collections.sort(LTM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 FB = FirebaseDatabase.getInstance();
                 VehicleDestinationDatabaseReference = FB.getReference("vehicle_destinations");
                 VehicleDestinationDatabaseReference.runTransaction(new Transaction.Handler() {
@@ -460,122 +574,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                     }
 
                     @Override
-                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Vehicle_Destinantions) {
+                        ValidateIfEloopIsWithinSameRoute(TM_CurrentDest, DS_Vehicle_Destinantions, LTM_DestList_Sorted);
 
-                        if (dataSnapshot.getChildren() != null) {
-                            Boolean found = false, loopAwaiting = false;
-                            int ctr = 0;
-                            _IsAllLoopParked = true;
-                            for (Terminal dl : DestList) {
-                                if (IsSameRoute(dl, currentDest) && (dl.OrderOfArrival == currentDest.OrderOfArrival)) {
-                                    for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl.Value+"_"+dl.getTblRouteID();
-                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                            loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(","))  ? true : false;
-                                            String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? CleanEloopName(v.child("Dwell").getValue().toString()) : CleanEloopName(v.child("LoopIds").getValue().toString());
-                                            if (loopAwaiting) {
-                                                _TimeOfArrivalTextView.setText(Html.fromHtml("An E-loop is already waiting!"));
-                                                _LoopArrivalProgress.setVisibility(View.GONE);
-                                                _IsLoopResultsFound = true;
-                                                loopAwaiting = true;
-                                                _IsAllLoopParked = false;
-                                                AttachListenerToLoop(Integer.parseInt(loopId), currentDest);
-                                                break;
-                                            } else continue;
-
-                                        }
-
-                                    }
-                                    if (loopAwaiting)
-                                        break;
-                                }
-                                else if (IsSameRoute(dl, currentDest) && (dl.OrderOfArrival == 1 || currentDest.OrderOfArrival == 1)) {
-                                    for (Terminal dl2 : DestList) {
-                                        for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                            String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value+"_"+dl.getTblRouteID();
-                                            if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                                _loopIds = v.child("LoopIds").getValue().toString();
-                                                if ((!_loopIds.equals("") && !_loopIds.equals(",")) && !found) {
-                                                    _IsAllLoopParked = false;
-                                                    found = true;
-                                                    List<String> temploopids = Arrays.asList(_loopIds.split(","));
-                                                    for (String tli : temploopids
-                                                            ) {
-                                                        if(!tli.equals(""))
-                                                            _ListOfLoops.add(Integer.parseInt(tli));
-                                                    }
-                                                    Collections.sort(_ListOfLoops);
-                                                    if (_ListOfLoops.size() > 0) {
-                                                        //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
-                                                        //Jul-22
-                                                        GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
-                                                        Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
-                                                        _IsLoopResultsFound = true;
-                                                        AttachListenerToLoop(_ListOfLoops.get(0), currentDest);
-                                                        // LoopArrivalProgress.setVisibility(View.INVISIBLE);
-                                                    }
-                                                    _ListOfLoops.clear();
-                                                    break;
-                                                } else continue;
-                                            } else continue;
-
-                                        }
-                                    }
-                                    if (found)
-                                        break;
-
-                                }
-                                else if (IsSameRoute(dl, currentDest) && (dl.OrderOfArrival < currentDest.OrderOfArrival)) {
-                                    for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl.Value+"_"+dl.getTblRouteID();
-                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                            _loopIds = v.child("LoopIds").getValue().toString();
-                                            if(_loopIds.equals("")){
-                                                _loopIds = v.child("Dwell").getValue().toString();
-                                            }
-                                            if ((!_loopIds.equals("") && !_loopIds.equals(",")) && !found) {
-                                                _IsAllLoopParked = false;
-                                                found = true;
-                                                List<String> temploopids = Arrays.asList(_loopIds.split(","));
-                                                for (String tli : temploopids) {
-                                                    if(!tli.equals(""))
-                                                        _ListOfLoops.add(Integer.parseInt(tli));
-                                                }
-                                                Collections.sort(_ListOfLoops);
-                                                if (_ListOfLoops.size() > 0) {
-                                                    // VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
-                                                    //Jul 22
-                                                    GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest);
-                                                    Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
-                                                    _IsLoopResultsFound = true;
-                                                    AttachListenerToLoop(_ListOfLoops.get(0), currentDest);
-                                                }
-                                                _ListOfLoops.clear();
-                                                break;
-                                            } else continue;
-                                        } else continue;
-
-                                    }
-                                    if (found)
-                                        break;
-
-                                } else continue;
-                            }
-                        }
-                        if (_IsAllLoopParked) {
-                            _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
-                            _TimeOfArrivalTextView.setText(Html.fromHtml("Unfortunately, all E-loops are parked (or offline)"));
-                            _LoopArrivalProgress.setVisibility(View.GONE);
-                            _IsLoopResultsFound = true;
-                        }
                     }
                 });
-
-//                if (!_IsLoopResultsFound)
-//                {
-//                    _TimeOfArrivalTextView.setText(Html.fromHtml("It seems like all e-loops are offline!"));
-//                    _LoopArrivalProgress.setVisibility(View.GONE);
-//                }
 
             }
         } catch (Exception ex) {
@@ -584,10 +587,10 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         }
     }
 
-    public void GetTimeRemainingFromGoogle(Integer LoopId, final Terminal dest) {
-        if (LoopId != null) {
+    public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Destination) {
+        if (INT_LoopID != null) {
             FB = FirebaseDatabase.getInstance();
-            VehicleDestinationDatabaseReference = FB.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
+            VehicleDestinationDatabaseReference = FB.getReference("drivers").child(INT_LoopID.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
             VehicleDestinationDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -599,7 +602,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                             .build();
                     RetrofitMaps service = retrofit.create(RetrofitMaps.class);
                     _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
-                    Call<Directions> call = service.getDistanceDuration("metric", dest.Lat + "," + dest.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
+                    Call<Directions> call = service.getDistanceDuration("metric", TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
                     call.enqueue(new Callback<Directions>() {
                         @Override
                         public void onResponse(Response<Directions> response, Retrofit retrofit) {
@@ -607,11 +610,8 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    _TimeOfArrivalTextView.setText(Html.fromHtml("<i>E-Loop " + Helper.GetEloopEntry(_AssignedELoop)+ " (" + Distance + " away) will arrive within: </i><b>" + TimeofArrival.toString() + ".</b>"));
-                                    _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+                                    InitializeSearchingRouteUI(true,false, "<i>E-Loop " + Helper.GetEloopEntry(_AssignedELoop)+ " (" + Distance + " away) will arrive within: </i><b>" + TimeofArrival.toString() + ".</b>");
                                 }
-
-                                _LoopArrivalProgress.setVisibility(View.GONE);
                             } catch (Exception ex) {
                                 Log.d("onResponse", "There is an error");
                                 Helper.logger(ex);
@@ -633,69 +633,77 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         }
     }
 
-    public String SelectedTabInstructions(List<String> StepsList, String TT, Terminal Terminal) {
+    public String SelectedTabInstructions(List<String> STR_StepsList, String STR_TotalTime, Terminal TM_Terminal) {
         String Step =
                 "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><userImg style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
 //                        "<td style='padding-left:7%;'><medium style='background:#2196F3; color:white;border-radius:10%; padding: 7px;'>WALK</medium></td></tr>" +
-                        "<td style='padding-left:7%;'><b>Walk your way to " + Terminal.Value + " Terminal </b></td></tr>" +
-                        "<tr><td width='20%' style='text-align:center'><small>" + CleanTotalTime(TT) + "</small></td><td></td></tr>";
+                        "<td style='padding-left:7%;'><b>Walk your way to " + TM_Terminal.Value + " Terminal </b></td></tr>" +
+                        "<tr><td width='20%' style='text-align:center'><small>" + CleanTotalTime(STR_TotalTime) + "</small></td><td></td></tr>";
 
-        if (StepsList != null) {
-            for (int x = 0; x < StepsList.size(); x++) {
-                Step += "<tr><td></td><td>" + (x + 1) + ". " + CleanDirectionStep(StepsList.get(x)) + ".</td><tr>";
-                if ((x + 1) == StepsList.size()) {
-                    Step += "<tr><td></td><td>" + (x + 2) + ". " + GenerateFinalStep(_SelectedTerminal, Terminal);
+        if (STR_StepsList != null) {
+            for (int x = 0; x < STR_StepsList.size(); x++) {
+                Step += "<tr><td></td><td>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".</td><tr>";
+                if ((x + 1) == STR_StepsList.size()) {
+                    Step += "<tr><td></td><td>" + (x + 2) + ". " + GenerateFinalStep(_SelectedTerminal, TM_Terminal);
                 }
             }
         }
         return Step + "</table></body>";
     }
 
-    public String CleanDirectionStep(String str) {
-        if (str != null) {
-            if (str.contains("onto")) {
-                str = str.replace("onto", "on to");
+    public String CleanDirectionStep(String STR_Step) {
+        if (STR_Step != null) {
+            if (STR_Step.contains("onto")) {
+                STR_Step = STR_Step.replace("onto", "on to");
             }
-            if (str.contains("<div style=\"font-size:0.9em\">")) {
-                str = str.replace("<div style=\"font-size:0.9em\">", " ");
+            if (STR_Step.contains("<div style=\"font-size:0.9em\">")) {
+                STR_Step = STR_Step.replace("<div style=\"font-size:0.9em\">", " ");
             }
-            if (str.contains("</div>")) {
-                str = str.replace("</div>", "");
-            }
-        }
-
-        return str;
-    }
-
-    public String CleanTotalTime(String str) {
-        if (str != null) {
-            if (str.contains("hours")) {
-                str = str.replace("hours", "h");
-            }
-            if (str.contains("mins")) {
-                str = str.replace("mins", "min");
+            if (STR_Step.contains("</div>")) {
+                STR_Step = STR_Step.replace("</div>", "");
             }
         }
 
-        return str;
+        return STR_Step;
     }
 
-    public String GenerateFinalStep(Terminal end, Terminal start) {
-        int dist = end.OrderOfArrival - start.OrderOfArrival;
-        return "Ride the e-loop and alight after <b>" + dist + " stop" + (dist > 1 ? "s" : "") + "</b>.</td><tr>";
+    public String CleanTotalTime(String STR_TotalTime_Unlean) {
+        if (STR_TotalTime_Unlean != null) {
+            if (STR_TotalTime_Unlean.contains("hours")) {
+                STR_TotalTime_Unlean = STR_TotalTime_Unlean.replace("hours", "h");
+            }
+            if (STR_TotalTime_Unlean.contains("mins")) {
+                STR_TotalTime_Unlean = STR_TotalTime_Unlean.replace("mins", "min");
+            }
+        }
+
+        return STR_TotalTime_Unlean;
     }
-    private Boolean IsSameRoute(Terminal term1, Terminal term2){
-        Boolean result = false;
-        if(term1.getTblRouteID() == term2.getTblRouteID())
-            result =true;
-        return result;
+
+    public String GenerateFinalStep(Terminal TM_DropOff, Terminal TM_PickUp) {
+        ArrayList<Terminal> DropOffList = Helper.GetAllDestinationRegardlessOfTheirTableRouteIds(TM_DropOff);
+        for (Terminal entry: DropOffList) {
+            if(entry.getTblRouteID()==TM_PickUp.getTblRouteID()){
+                int dist = entry.OrderOfArrival - TM_PickUp.OrderOfArrival;
+                return "Ride the e-loop and alight after <b>" + dist + " stop" + (dist > 1 ? "s" : "") + "</b>.</td><tr>";
+            }
+        }
+        return "";
+
     }
-    private void AttachListenerToLoop(final Integer LoopID, final Terminal currentDestination){
+
+    private Boolean IsSameRoute(Terminal TM_Terminal_1, Terminal TM_Terminal_2){
+        Boolean BOOL_LOC_Result = false;
+        if(TM_Terminal_1.getTblRouteID() == TM_Terminal_2.getTblRouteID())
+            BOOL_LOC_Result =true;
+        return BOOL_LOC_Result;
+    }
+    private void AttachListenerToLoop(final Integer INT_LoopID, final Terminal TM_CurrentDestination){
        // if(currentDestination != null)// && currentDestination.tblRouteID){
         FB = FirebaseDatabase.getInstance();
-        _S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(LoopID.toString());//.child("routeIDs");
+        _S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(INT_LoopID.toString());//.child("routeIDs");
         if(_S_VehicleDestinationDatabaseReference !=null){
-            Toast.makeText(this._context, "Listener Attached to: " + LoopID.toString(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, "Listener Attached to: " + INT_LoopID.toString(), Toast.LENGTH_LONG).show();
         }
         _SingleLoopChildListenerForSelectedTerminal = _S_VehicleDestinationDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
@@ -707,13 +715,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 if(dataSnapshot.getKey().toUpperCase().equals("ROUTEIDS")) {
                     String Firebase_routeIDs = dataSnapshot.getValue().toString();
-                    String routeId = String.valueOf(currentDestination.getTblRouteID());
+                    String routeId = String.valueOf(TM_CurrentDestination.getTblRouteID());
                     if (!Firebase_routeIDs.contains(routeId)) {
                         _S_VehicleDestinationDatabaseReference.removeEventListener(this);
                         Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
-                        GetArrivalTimeOfLoopBasedOnSelectedStation(currentDestination);
-                    } else {
-                        GetTimeRemainingFromGoogle(LoopID, currentDestination);
+                        GetArrivalTimeOfLoopBasedOnSelectedStation(TM_CurrentDestination);
+                    } else if(!MenuActivity._HasExitedInfoLayout) {
+                        GetTimeRemainingFromGoogle(INT_LoopID, TM_CurrentDestination);
                         Toast.makeText(_context, "Listener attached! RouteID:" + routeId + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -738,10 +746,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         }
 
 
-    private String GetRouteIDFromDestination(Terminal Destination){
+    private String GetRouteIDFromDestination(Terminal TM_Destination){
         String result = null;
         try{
-            result = Destination.getValue().split("_")[1];
+            if(TM_Destination != null){
+                result = TM_Destination.getValue().split("_")[1];
+            }
+
         }
         catch (Exception ex){
             Toast.makeText(_context, "Error in getting Route ID", Toast.LENGTH_SHORT).show();
@@ -757,18 +768,56 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         }
         //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
     }
-    private String CleanEloopName(String eloop){
-        String result = "";
+    private String CleanEloopName(String STR_EloopName){
+        String STR_LOC_Result = "";
         try{
-            String[] loops = eloop.split(",");
-            result = loops[0];
+            String[] ARR_STR_LOC_Loops = STR_EloopName.split(",");
+            STR_LOC_Result = ARR_STR_LOC_Loops[0];
         }catch(Exception ex){
 
         }
-        return result;
+        return STR_LOC_Result;
     }
     public void PlayButtonClickSound(){
         MenuActivity._buttonClick.start();
+    }
+    public static void InitializeSearchingRouteUI(Boolean BOOL_IsSearchingDone, Boolean BOOL_IsResultNegative, String STR_HTMLMessage){
+        if(BOOL_IsSearchingDone)
+            _LoopArrivalProgress.setVisibility(View.INVISIBLE);
+        else
+            _LoopArrivalProgress.setVisibility(View.VISIBLE);
+        if(BOOL_IsSearchingDone && !BOOL_IsResultNegative){
+            _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
+            _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+
+        }
+        else if(BOOL_IsSearchingDone && BOOL_IsResultNegative){
+            _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
+            _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
+        }
+        else{
+            _TimeOfArrivalTextView.setBackgroundResource(0);
+            _TimeOfArrivalTextView.setText(null);
+
+        }
+    }
+    private Boolean IsEloopWithinSameRouteID(final DataSnapshot DS_Drivers, final Terminal TM_CurrentDest, final String STR_LoopID){
+        Boolean BOOL_Result = false;
+        try{
+            for (DataSnapshot DS_Entry: DS_Drivers.getChildren()) {
+                if(DS_Entry.getKey().equals(STR_LoopID)) {
+                    String S_LoopTblRoutes = DS_Entry.child("routeIDs").getValue().toString();
+                    Integer INT_CurrentDestRouteID = TM_CurrentDest.getTblRouteID();
+                    if (!S_LoopTblRoutes.equals("") && S_LoopTblRoutes.contains(INT_CurrentDestRouteID.toString())) {
+                        BOOL_Result = true;
+                        break;
+                    }
+                }
+            }
+        }catch (Exception ex){
+
+        }
+        return BOOL_Result;
     }
 
 

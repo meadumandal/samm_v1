@@ -31,7 +31,7 @@
         android:layout_margin="16dp"
         android:layout_width="50dip"
         android:layout_height="50dip"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:src="@drawable/ic_chevron_left_black_24dp"
         android:background="@drawable/circular_buttons"
         android:padding="1dp"

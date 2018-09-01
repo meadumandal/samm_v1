@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -184,10 +185,21 @@ public class Helper {
      * This method gets the nearest "PICK-UP" points based on the chosen DROP-OFF point
      * @param dropOffPoint This is the chosen drop-off point
      */
+
+    public static ArrayList<Terminal> GetAllDestinationRegardlessOfTheirTableRouteIds(Terminal dropOffPoint){
+        ArrayList<Terminal> result = new ArrayList<Terminal>();
+        for (Terminal dest:MenuActivity._terminalList) {
+            if(dropOffPoint.getValue().equals(dest.getValue())){
+                result.add(dest);
+            }
+        }
+        return result;
+    }
     public void FindNearestPickUpPoints(Terminal dropOffPoint) {
 
         if(MenuActivity.isOnline())
         {
+           // ArrayList<Terminal> dropOffPointList = GetAllDestinationRegardlessOfTheirTableRouteIds(dropOffPoint);
             Terminal chosenTerminal =dropOffPoint;
             saveDestination(chosenTerminal.Value);
 

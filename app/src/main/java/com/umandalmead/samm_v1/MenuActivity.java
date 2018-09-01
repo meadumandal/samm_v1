@@ -99,6 +99,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -244,6 +245,7 @@ public class MenuActivity extends AppCompatActivity implements
         private LinearLayout _infoLayout;
         private ImageButton _infoPanelBtnClose;
         private ImageView _infoImage;
+        private Animation  slide_down, slide_down_bounce, slide_up, slide_up_bounce;
 
 
         //Put here other global variables
@@ -275,6 +277,8 @@ public class MenuActivity extends AppCompatActivity implements
         public static Terminal[] _PointsArray;
         public static Typeface FONT_PLATE,FONT_STATION;
         public static int _currentRouteIDSelected;
+        public static Boolean _HasExitedInfoLayout = false;
+        public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
 
 
 
@@ -437,6 +441,7 @@ public class MenuActivity extends AppCompatActivity implements
                 _LoopArrivalProgress = (ProgressBar) findViewById(R.id.progressBarLoopArrival);
                 InitializeInfoPanel();
                 InitializeFonts();
+                InitializeAnimations();
                 MenuActivity.buttonEffect(Search_BackBtn);
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
@@ -514,7 +519,7 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
-                EditText placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
+                final EditText placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
 
                 placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor( "#FFFFFF"));
                 placeAutoCompleteFragmentInstance.setTextSize(14);
@@ -529,7 +534,13 @@ public class MenuActivity extends AppCompatActivity implements
                 autocompleteFragment.setFilter(autocompleteFilter);
                 //set bounds to search within bounds only~
                 //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
-
+//                placeAutoCompleteFragmentInstance.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        view.setVisibility(View.INVISIBLE);
+//
+//                    }
+//                });
                 autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                     @Override
                     //GO-2R
@@ -618,40 +629,6 @@ public class MenuActivity extends AppCompatActivity implements
                 } catch (Exception ex) {
                     Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
                 }
-
-//                _SlideUpPanelContainer.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
-//                    @Override
-//                    public void onPanelSlide(View panel, float slideOffset) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-//                        if (previousState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-//                            _Slide_Expand.setVisibility(View.GONE);
-//                            _Slide_Collapse.setVisibility(View.VISIBLE);
-//                        }
-//                        if (previousState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-//                            _Slide_Expand.setVisibility(View.VISIBLE);
-//                            _Slide_Collapse.setVisibility(View.GONE);
-//                        }
-//                    }
-//                });
-
-//                _TerminalsAutoCompleteTextView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        _TerminalsAutoCompleteTextView.showDropDown();
-//                        _TerminalsAutoCompleteTextView.setCursorVisible(true);
-//                    }
-//                });
-
-
-//                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-//                        this, drawer, _Toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-//                drawer.setDrawerListener(toggle);
-//                toggle.syncState();
 
                 NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
                 navigationView.setNavigationItemSelectedListener(this);
@@ -904,11 +881,10 @@ public class MenuActivity extends AppCompatActivity implements
 
                         }
                         _passengerCountInTerminal = (int) passengercount;
-                        marker.setSnippet("Fetching Data...");
-                        marker.showInfoWindow();
-                        GetAndDisplayEloopETA(clickedTerminal, marker);
-                        ShowInfoLayout(clickedTerminal.Description,"Fetching Data...", true);
-
+                        //marker.setSnippet("Fetching Data...");
+                       // marker.showInfoWindow();
+                     //   GetAndDisplayEloopETA(clickedTerminal, marker);
+                        ShowInfoLayout(clickedTerminal.Description, "Fetching Data.." , true);
                     }
                 }
                 //vehicle has been clicked instead
@@ -958,9 +934,7 @@ public class MenuActivity extends AppCompatActivity implements
                                         if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                             loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
                                             if (loopAwaiting) {
-                                                marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting");
-                                                marker.hideInfoWindow();
-                                                marker.showInfoWindow();
+                                                ShowInfoLayout(currentDest.Description,_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting", true);
                                                 loopAwaiting = true;
                                                 break;
                                             } else continue;
@@ -1073,10 +1047,7 @@ public class MenuActivity extends AppCompatActivity implements
                             try {
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                                    marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival.toString());
-                                    marker.setSnippet(TimeofArrival.toString());
-                                    marker.hideInfoWindow();
-                                    marker.showInfoWindow();
+                                    ShowInfoLayout(dest.Description,_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting", true);
 
                                 }
 
@@ -2287,24 +2258,26 @@ public class MenuActivity extends AppCompatActivity implements
                    BuildToolTip("Tap to search again",this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
                    BuildToolTip("Pull up to show navigation instructions",this, _RoutesContainer_CardView, Gravity.TOP ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR ,false );
                    _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
+                   _HasExitedInfoLayout = false;
                }
                break;
            case SHOWING_INFO:
-               FAB_SammIcon.setVisibility(View.GONE);
-               FrameSearchBarHolder.setVisibility(View.GONE);
+               FAB_SammIcon.setVisibility(View.INVISIBLE);
+               FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                break;
            case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
-               FAB_SammIcon.setVisibility(View.GONE);
+               FAB_SammIcon.setVisibility(View.INVISIBLE);
                FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                break;
            case HIDE_INFO:
                FAB_SammIcon.setVisibility(View.VISIBLE);
                FrameSearchBarHolder.setVisibility(View.VISIBLE);
-               _infoLayout.setVisibility(View.GONE);
+               _infoLayout.setVisibility(View.INVISIBLE);
+               _infoPanelBtnClose.setVisibility(View.VISIBLE);
                break;
            case HIDE_INFO_SEARCH:
                Search_BackBtn.setVisibility(View.VISIBLE);
-               _infoLayout.setVisibility(View.GONE);
+               _infoLayout.setVisibility(View.INVISIBLE);
                break;
            default: break;
        }
@@ -2319,9 +2292,9 @@ public class MenuActivity extends AppCompatActivity implements
         AnalyzeForBestRoutes.clearLines();
         _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
         _AppBar.setVisibility(View.VISIBLE);
-        FAB_SammIcon.setVisibility(View.GONE);
+        FAB_SammIcon.setVisibility(View.INVISIBLE);
         Search_BackBtn.setVisibility(View.VISIBLE);
-        FrameSearchBarHolder.setVisibility(View.GONE);
+        FrameSearchBarHolder.setVisibility(View.INVISIBLE);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
         viewPager.setCurrentItem(0);
         _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
@@ -2337,18 +2310,20 @@ public class MenuActivity extends AppCompatActivity implements
             _markerAnimator.start();
     }
     public void HideRouteTabsAndSlidingPanel(){
-        _RouteTabLayout.setVisibility(View.GONE);
+        _RouteTabLayout.setVisibility(View.INVISIBLE);
         _IsOnSearchMode=false;
-        _RoutesPane.setVisibility(View.GONE);
+        _RoutesPane.setVisibility(View.INVISIBLE);
         AnalyzeForBestRoutes.clearLines();
         _selectedPickUpPoint = null;
-        Search_BackBtn.setVisibility(View.GONE);
+        Search_BackBtn.setVisibility(View.INVISIBLE);
         FrameSearchBarHolder.setVisibility(View.VISIBLE);
         FAB_SammIcon.setVisibility(View.VISIBLE);
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
         lp.height = 0;
         _AppBar.setLayoutParams(lp);
         AnalyzeForBestRoutes.RemoveListenerFromLoop();
+        _HasExitedInfoLayout = true;
+        AnalyzeForBestRoutes.InitializeSearchingRouteUI(false, false, "" );
     }
     public void SetMapType(GoogleMap gmap, Enums.GoogleMapType mapType){
         switch(mapType){
@@ -2414,8 +2389,8 @@ public class MenuActivity extends AppCompatActivity implements
             _infoDescriptionTV = (TextView) findViewById(R.id.TextView_InfoDesc);
             _infoLayout = (LinearLayout) findViewById(R.id.Info_Layout);
             _infoPanelBtnClose = (ImageButton) findViewById(id.btnCloseInfoPanel);
-            _infoTitleTV.setVisibility(View.GONE);
-            _infoDescriptionTV.setVisibility(View.GONE);
+            _infoTitleTV.setVisibility(View.INVISIBLE);
+            _infoDescriptionTV.setVisibility(View.INVISIBLE);
             _infoImage = (ImageView) findViewById(id.ImageView_InfoImage);
             _infoPanelBtnClose.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -2431,18 +2406,16 @@ public class MenuActivity extends AppCompatActivity implements
         }
     }
     public void InfoPanelShow(final String InfoTitle, final String InfoDescription,final Boolean isStation) {
-            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
+            final int imageResId =  isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
             final String finalTitle =  InfoTitle.toUpperCase();
             final Typeface finalTitleFont = isStation ? FONT_STATION: FONT_PLATE;
             _infoTitleTV.setTypeface(null);
-            if (_infoLayout.getVisibility() == View.GONE) {
+            if (_infoLayout.getVisibility() == View.INVISIBLE) {
                 if(!_IsOnSearchMode)
                     UpdateUI(Enums.UIType.SHOWING_INFO);
                 else
-                    Search_BackBtn.setVisibility(View.GONE);
+                    Search_BackBtn.setVisibility(View.INVISIBLE);
                 _infoLayout.setVisibility(View.VISIBLE);
-                Animation slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
-                        R.anim.slide_down);
                 _infoLayout.startAnimation(slide_down);
                 slide_down.setAnimationListener(new Animation.AnimationListener() {
                     @Override
@@ -2451,8 +2424,6 @@ public class MenuActivity extends AppCompatActivity implements
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        Animation slide_up_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
-                                R.anim.slide_up_bounce);
                         _infoLayout.startAnimation(slide_up_bounce);
                         slide_up_bounce.setAnimationListener(new Animation.AnimationListener() {
                             @Override
@@ -2482,8 +2453,6 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
             } else {
-                Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
-                        R.anim.slide_down_bounce);
                 _infoLayout.startAnimation(slide_down_bounce);
                 slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
                     @Override
@@ -2493,12 +2462,9 @@ public class MenuActivity extends AppCompatActivity implements
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        Animation slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
-                                R.anim.slide_up);
                         _infoLayout.startAnimation(slide_up);
-                        _infoLayout.setVisibility(View.GONE);
+                        _infoLayout.setVisibility(View.INVISIBLE);
                         slide_up.setAnimationListener(new Animation.AnimationListener() {
-
                             @Override
                             public void onAnimationStart(Animation animation) {
 
@@ -2535,8 +2501,6 @@ public class MenuActivity extends AppCompatActivity implements
         _infoDescriptionTV.setText(null);
     }
     public void InfoPanelHide() {
-        Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.slide_down_bounce);
         _infoLayout.startAnimation(slide_down_bounce);
         slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -2546,14 +2510,14 @@ public class MenuActivity extends AppCompatActivity implements
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                Animation slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
-                        R.anim.slide_up);
                 _infoLayout.startAnimation(slide_up);
                 if(!_IsOnSearchMode)
                     UpdateUI(Enums.UIType.HIDE_INFO);
                 else{
                     UpdateUI(Enums.UIType.HIDE_INFO_SEARCH);
                 }
+
+
 
             }
 
@@ -2593,6 +2557,17 @@ public class MenuActivity extends AppCompatActivity implements
         }catch (Exception ex){
             Log.i(_constants.LOG_TAG, "Exception: " + ex.getMessage());
         }
+    }
+    private void InitializeAnimations(){
+        slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down_bounce);
+        slide_up = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_up);
+        slide_up_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_up_bounce);
+        slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
+                R.anim.slide_down);
+
     }
     public void PlayButtonClickSound(){
         _buttonClick.start();

@@ -6,70 +6,73 @@
     android:clickable="true"
     android:id="@+id/route_wrapper"
     android:layout_height="match_parent"
+    android:background="#00ffffff"
    >
-
-
     <ImageView
         android:id="@+id/ev_panel_collapse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        android:src="@drawable/pulltab"/>
-
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:paddingBottom="5dp"
-        >
-        <TextView
-            android:id="@+id/toatextview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Searching for nearest E-loop..."
-            android:textSize="13dp"
-            android:textColor="@color/colorWhite"
-            android:textStyle="bold"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone"
-            android:background="@drawable/pill_shaped_eloop_status"
-            />
-        <ProgressBar
-            android:id="@+id/progressBarLoopArrival"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="30dp"
-            android:visibility="gone"
-            android:layout_gravity="right|center_vertical"
-            android:layout_marginRight="5dp"
-            android:layout_height="30dp" />
-
-    </FrameLayout>
-
-
-    <ScrollView
+        android:src="@drawable/pulltab"
+        android:background="#00ffffff"/>
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/step_scroll_view">
+        android:orientation="vertical"
+        android:background="#00ffffff">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dp"
+                >
+                <TextView
+                    android:id="@+id/toatextview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Searching for nearest E-loop..."
+                    android:textSize="13dp"
+                    android:textColor="@color/colorWhite"
+                    android:textStyle="bold"
+                    android:layout_gravity="center_horizontal"
+                    android:visibility="gone"
+                    android:background="@drawable/pill_shaped_eloop_status"
+                    />
+                <ProgressBar
+                    android:id="@+id/progressBarLoopArrival"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="30dp"
+                    android:visibility="gone"
+                    android:layout_gravity="right|center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_height="30dp" />
 
-            <WebView
+            </FrameLayout>
+
+
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="vertical"
-                android:id="@+id/route_steps"
-                >
+                android:id="@+id/step_scroll_view">
 
-            </WebView>
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-    </ScrollView>
+                    <WebView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scrollbars="vertical"
+                        android:id="@+id/route_steps"
+                        >
 
+                    </WebView>
+                </LinearLayout>
 
+            </ScrollView>
 
+    </LinearLayout>
 
 </LinearLayout>
