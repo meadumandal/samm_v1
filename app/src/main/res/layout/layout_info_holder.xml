@@ -68,6 +68,7 @@
             android:adjustViewBounds="true"
             android:scaleType="centerInside"
             android:background="@null"
+            android:focusable="false"
             android:src="@drawable/error_icon"
             android:text="CLOSE"/>
     </RelativeLayout>

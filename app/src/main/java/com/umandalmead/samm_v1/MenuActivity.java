@@ -32,6 +32,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
@@ -143,6 +144,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -187,7 +189,7 @@ public class MenuActivity extends AppCompatActivity implements
         public DatabaseReference _usersDBRef;
         public static DatabaseReference _terminalsDBRef;
         public DatabaseReference _driversDBRef;
-        public DatabaseReference _vehicle_destinationsDBRef;
+        public DatabaseReference _vehicle_destinationsDBRef, _DriversDatabaseReference;
 
         //Put here all global Collection Variables
         public static List<Terminal> _possiblePickUpPointList;
@@ -272,8 +274,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Boolean _isGPSReconnect = false;
         private String _gpsIMEI;
         public Constants _constants;
-        public Boolean terminalsNodeExists = false;
-        public static Boolean _IsOnSearchMode = false;
+        public static Boolean _IsOnSearchMode = false, _BOOL_IsTerminalDataFetchDone = false;
         public static Terminal[] _PointsArray;
         public static Typeface FONT_PLATE,FONT_STATION;
         public static int _currentRouteIDSelected;
@@ -395,6 +396,7 @@ public class MenuActivity extends AppCompatActivity implements
                     _usersDBRef = _firebaseDB.getReference("users");
                     _terminalsDBRef = _firebaseDB.getReference("terminals");
                     _vehicle_destinationsDBRef = _firebaseDB.getReference("vehicle_destinations");
+                    _DriversDatabaseReference = _firebaseDB.getReference("drivers");
                 }
                 if (_driversDBRef == null)
                     _driversDBRef = _firebaseDB.getReference("drivers");
@@ -871,25 +873,39 @@ public class MenuActivity extends AppCompatActivity implements
                         if(_passengerCount.containsKey(marker.getTitle())) {
                             passengercount = _passengerCount.get(marker.getTitle());
                         }
-                        Terminal clickedTerminal = new Terminal();
+                        Terminal TM_ClickedTerminal = new Terminal();
                         for(Terminal terminal:_terminalList)
                         {
                             if (terminal.Value.toLowerCase().equals(marker.getTitle().toLowerCase()))
                             {
-                                clickedTerminal = terminal;
+                                TM_ClickedTerminal = terminal;
                             }
 
                         }
                         _passengerCountInTerminal = (int) passengercount;
-                        //marker.setSnippet("Fetching Data...");
-                       // marker.showInfoWindow();
-                     //   GetAndDisplayEloopETA(clickedTerminal, marker);
-                        ShowInfoLayout(clickedTerminal.Description, "Fetching Data.." , true);
+                        ShowInfoLayout(TM_ClickedTerminal.Description, "\nFetching Data.." , true);
+                        final Handler HND_Loc_DataFetchDelay = new Handler();
+                        final Handler HND_Loc_DataFetchTooLong = new Handler();
+                        final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
+                        HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                GetAndDisplayEloopETA(F_TM_ClickedTerminal);
+                            }
+                        }, 3000);
+                        HND_Loc_DataFetchTooLong.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(!_BOOL_IsTerminalDataFetchDone)
+                                    UpdateInfoPanelDetails(F_TM_ClickedTerminal.Description, "Data fetch taking longer than usual...");
+                            }
+                        }, 10000);
+
                     }
                 }
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "Desriptionxxxx" , false);
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "\nDescription not yet available" , false);
                 }
 
 
@@ -908,12 +924,13 @@ public class MenuActivity extends AppCompatActivity implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-    public void GetAndDisplayEloopETA(final Terminal currentDest, final Marker marker) {
+
+    public void GetAndDisplayEloopETA(final Terminal TM_CurrentDestination) {
         try {
             String res = "";
-            if (currentDest != null) {
-                final List<Terminal> DestList = MenuActivity._terminalList;
-                Collections.sort(DestList, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
+            if (TM_CurrentDestination != null) {
+                final List<Terminal> L_TM_DestList_Sorted = MenuActivity._terminalList;
+                Collections.sort(L_TM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 _vehicle_destinationsDBRef.runTransaction(new Transaction.Handler() {
                     @Override
                     public Transaction.Result doTransaction(MutableData currentData) {
@@ -922,98 +939,8 @@ public class MenuActivity extends AppCompatActivity implements
                     }
 
                     @Override
-                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.getChildren() != null) {
-                            Boolean found = false, loopAwaiting = false;
-                            int ctr = 0;
-                            _IsAllLoopParked = true;
-                            for (Terminal dl : DestList) {
-                                if (dl.OrderOfArrival == currentDest.OrderOfArrival) {
-                                    for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                        String StationName = v.getKey().toString();
-                                        if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                            loopAwaiting = !v.child("Dwell").getValue().toString().equals("") ? true : false;
-                                            if (loopAwaiting) {
-                                                ShowInfoLayout(currentDest.Description,_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting", true);
-                                                loopAwaiting = true;
-                                                break;
-                                            } else continue;
-
-                                        }
-
-                                    }
-                                    if (loopAwaiting)
-                                        break;
-                                } else if (dl.OrderOfArrival == 1 || currentDest.OrderOfArrival == 1) {
-                                    for (Terminal dl2 : DestList) {
-                                        for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                            String StationName = v.getKey().toString();
-                                            if (dl2.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-
-                                                if (!_loopIds.equals("") && !found) {
-                                                    _IsAllLoopParked = false;
-                                                    found = true;
-                                                    List<String> temploopids = Arrays.asList(_loopIds.split(","));
-                                                    for (String tli : temploopids
-                                                            ) {
-                                                        _ListOfLoops.add(Integer.parseInt(tli));
-                                                    }
-                                                    Collections.sort(_ListOfLoops);
-                                                    if (_ListOfLoops.size() > 0) {
-                                                        //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
-                                                        GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest, marker);
-                                                        Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
-                                                        // LoopArrivalProgress.setVisibility(View.INVISIBLE);
-                                                    }
-                                                    _ListOfLoops.clear();
-                                                    break;
-                                                } else continue;
-                                            } else continue;
-
-                                        }
-                                    }
-                                    if (found)
-                                        break;
-
-                                } else if (dl.OrderOfArrival < currentDest.OrderOfArrival) {
-                                    for (DataSnapshot v : dataSnapshot.getChildren()) {
-                                        String StationName = v.getKey().toString();
-                                        if (dl.Value.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                            _loopIds = v.child("LoopIds").getValue().toString();
-                                            if(_loopIds.equals("")){
-                                                _loopIds = v.child("Dwell").getValue().toString();
-                                            }
-                                            if (!_loopIds.equals("") && !found) {
-                                                _IsAllLoopParked = false;
-                                                found = true;
-                                                List<String> temploopids = Arrays.asList(_loopIds.split(","));
-                                                for (String tli : temploopids) {
-                                                    _ListOfLoops.add(Integer.parseInt(tli));
-                                                }
-                                                Collections.sort(_ListOfLoops);
-                                                if (_ListOfLoops.size() > 0) {
-                                                    // VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
-                                                    GetTimeRemainingFromGoogle(_ListOfLoops.get(0), currentDest, marker);
-                                                    Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
-                                                }
-                                                _ListOfLoops.clear();
-                                                break;
-                                            } else continue;
-                                        } else continue;
-
-                                    }
-                                    if (found)
-                                        break;
-
-                                } else continue;
-                            }
-                        }
-                        if (_IsAllLoopParked) {
-                            marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : N/A");
-                            marker.hideInfoWindow();
-                            marker.showInfoWindow();
-
-                        }
+                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Vehicle_Destinations) {
+                        ValidateIfEloopIsWithinSameRoute(TM_CurrentDestination, DS_Vehicle_Destinations, L_TM_DestList_Sorted);
                     }
                 });
 
@@ -1024,55 +951,162 @@ public class MenuActivity extends AppCompatActivity implements
             Helper.logger(ex);
         }
     }
-
-    public void GetTimeRemainingFromGoogle(Integer LoopId, final Terminal dest, final Marker marker) {
-        if (LoopId != null) {
-
-            _vehicle_destinationsDBRef = _firebaseDB.getReference("drivers").child(LoopId.toString()); //database.getReference("users/"+ _sessionManager.getUsername() + "/connections");
-            _vehicle_destinationsDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
+        try{
+            _DriversDatabaseReference.runTransaction(new Transaction.Handler() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
-                    String url = "https://maps.googleapis.com/maps/";
-                    Retrofit retrofit = new Retrofit.Builder()
-                            .baseUrl(url)
-                            .addConverterFactory(GsonConverterFactory.create())
-                            .build();
-                    RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-                    _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
-                    Call<Directions> call = service.getDistanceDuration("metric", dest.Lat + "," + dest.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
-                    call.enqueue(new Callback<Directions>() {
-                        @Override
-                        public void onResponse(Response<Directions> response, Retrofit retrofit) {
-                            try {
-                                for (int i = 0; i < response.body().getRoutes().size(); i++) {
-                                    String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                                    ShowInfoLayout(dest.Description,_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + "    " + _helper.getEmojiByUnicode(0x1F68C) + " : waiting", true);
-
-                                }
-
-                                _LoopArrivalProgress.setVisibility(View.GONE);
-                            } catch (Exception ex) {
-                                Log.d("onResponse", "There is an error");
-                                Helper.logger(ex);
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Throwable t) {
-                            Log.d("onFailure", t.toString());
-                        }
-                    });
+                public Transaction.Result doTransaction(MutableData mutableData) {
+                    return Transaction.success(mutableData);
                 }
 
                 @Override
-                public void onCancelled(DatabaseError databaseError) {
+                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Drivers) {
+                    if (DS_Vehicle_Destination.getChildren() != null && DS_Drivers.getChildren() != null) {
+                        Boolean found = false, loopAwaiting = false;
+                        int ctr = 0;
+                        _IsAllLoopParked = true;
+                        for (Terminal TM_Entry : L_TM_DestList_Sorted) {
+                            if (AnalyzeForBestRoutes.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
+                                for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
+                                    String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
+                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? AnalyzeForBestRoutes.CleanEloopName(v.child("Dwell").getValue().toString()) : AnalyzeForBestRoutes.CleanEloopName(v.child("LoopIds").getValue().toString());
+                                        if (loopAwaiting && AnalyzeForBestRoutes.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
+                                            loopAwaiting = true;
+                                            _IsAllLoopParked = false;
+                                            found = true;
+                                            GetTimeRemainingFromGoogle(Integer.parseInt(loopId), TM_CurrentDest);
+                                        } else continue;
+
+                                    }
+
+                                }
+                                if (loopAwaiting)
+                                    break;
+                            } else if (AnalyzeForBestRoutes.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == 1 || TM_CurrentDest.OrderOfArrival == 1)) {
+                                for (Terminal dl2 : L_TM_DestList_Sorted) {
+                                    for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
+                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value + "_" + TM_Entry.getTblRouteID();
+                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                            String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? AnalyzeForBestRoutes.CleanEloopName(v.child("Dwell").getValue().toString()) : AnalyzeForBestRoutes.CleanEloopName(v.child("LoopIds").getValue().toString());
+                                            if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
+                                                List<String> temploopids = Arrays.asList(loopId.split(","));
+                                                for (String tli : temploopids
+                                                        ) {
+                                                    if (!tli.equals(""))
+                                                        _ListOfLoops.add(Integer.parseInt(tli));
+                                                }
+                                                Collections.sort(_ListOfLoops);
+                                                if (_ListOfLoops.size() > 0 && AnalyzeForBestRoutes.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
+                                                    _IsAllLoopParked = false;
+                                                    found = true;
+                                                    //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
+                                                    //Jul-22
+                                                    GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
+                                                    // Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
+
+                                                }
+                                                _ListOfLoops.clear();
+                                                break;
+                                            } else continue;
+                                        } else continue;
+
+                                    }
+                                }
+                                if (found)
+                                    break;
+
+                            } else if (AnalyzeForBestRoutes.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
+                                for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
+                                    String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? AnalyzeForBestRoutes.CleanEloopName(v.child("Dwell").getValue().toString()) : AnalyzeForBestRoutes.CleanEloopName(v.child("LoopIds").getValue().toString());
+                                        if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
+                                            List<String> temploopids = Arrays.asList(loopId.split(","));
+                                            for (String tli : temploopids) {
+                                                if (!tli.equals(""))
+                                                    _ListOfLoops.add(Integer.parseInt(tli));
+                                            }
+                                            Collections.sort(_ListOfLoops);
+                                            if (_ListOfLoops.size() > 0 && AnalyzeForBestRoutes.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
+                                                found = true;
+                                                _IsAllLoopParked = false;
+                                                GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
+                                                //Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
+
+                                                break;
+                                            }
+                                            _ListOfLoops.clear();
+                                            break;
+                                        } else continue;
+                                    } else continue;
+
+                                }
+                                if (found)
+                                    break;
+
+                            } else continue;
+
+                        }
+                    }
+                    if (_IsAllLoopParked) {
+                        UpdateInfoPanelDetails(TM_CurrentDest.Description,"\n"+_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : No nearby E-loop found");
+                    }
 
                 }
             });
         }
+        catch(Exception ex){
+
+        }
     }
 
+public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Destination) {
+    if (INT_LoopID != null) {
+        _DriversDatabaseReference = _firebaseDB.getReference("drivers").child(INT_LoopID.toString());
+        _DriversDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
+                String url = "https://maps.googleapis.com/maps/";
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(url)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                RetrofitMaps service = retrofit.create(RetrofitMaps.class);
+                _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
+                Call<Directions> call = service.getDistanceDuration("metric", TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
+                call.enqueue(new Callback<Directions>() {
+                    @Override
+                    public void onResponse(Response<Directions> response, Retrofit retrofit) {
+                        try {
+                            for (int i = 0; i < response.body().getRoutes().size(); i++) {
+                                String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
+                                String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
+                                UpdateInfoPanelDetails(TM_Destination.Description,"\n"+_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " ("+Distance+" away)");
+                                _BOOL_IsTerminalDataFetchDone = true;
+                            }
+                        } catch (Exception ex) {
+                            Log.d("onResponse", "There is an error");
+                            Helper.logger(ex);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.d("onFailure", t.toString());
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+}
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -2278,6 +2312,7 @@ public class MenuActivity extends AppCompatActivity implements
            case HIDE_INFO_SEARCH:
                Search_BackBtn.setVisibility(View.VISIBLE);
                _infoLayout.setVisibility(View.INVISIBLE);
+               _infoPanelBtnClose.setVisibility(View.VISIBLE);
                break;
            default: break;
        }
@@ -2452,7 +2487,7 @@ public class MenuActivity extends AppCompatActivity implements
 
                     }
                 });
-            } else {
+            } else if(_infoLayout.getVisibility() == View.VISIBLE) {
                 _infoLayout.startAnimation(slide_down_bounce);
                 slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
                     @Override
@@ -2516,7 +2551,14 @@ public class MenuActivity extends AppCompatActivity implements
                 else{
                     UpdateUI(Enums.UIType.HIDE_INFO_SEARCH);
                 }
-
+//                final Handler HND_Loc_RemoverAnimationDelay = new Handler();
+//                HND_Loc_RemoverAnimationDelay.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                    }
+//                }, 500);
+                _infoLayout.clearAnimation();
 
 
             }
