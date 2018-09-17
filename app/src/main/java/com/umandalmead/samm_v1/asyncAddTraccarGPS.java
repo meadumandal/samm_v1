@@ -7,19 +7,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.Menu;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -30,22 +24,20 @@ import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     Context _context;
     Activity _activity;
-    ProgressDialog _progDialog;
-    AlertDialog.Builder _alertDialogBuilder;
-    String progressMessage;
-    public static String TAG="mead";
-    JSONObject postData;
+    ProgressDialog _ProgressDialog;
+    String progressMessage, _GPSMobileNumber;
+
     private Constants _constants = new Constants();
+    MenuActivity.AddGPSDialog _dialog;
 
 
-    public asyncAddTraccarGPS(Context context, ProgressDialog progDialog, Activity activity)
+    public asyncAddTraccarGPS(Context context, ProgressDialog progDialog, Activity activity, MenuActivity.AddGPSDialog dialog)
     {
-        Log.i(TAG, "asyncAddTraccarGPS");
+        Log.i(_constants.LOG_TAG, "asyncAddTraccarGPS");
         this._context = context;
-        this._progDialog = progDialog;
+        this._ProgressDialog = progDialog;
         this._activity = activity;
-
-
+        this._dialog = dialog;
     }
     @Override
     protected void onPreExecute()
@@ -53,14 +45,13 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
+            _ProgressDialog.show();
 
         }
         catch(Exception ex)
         {
             Helper.logger(ex);
         }
-
-
     }
 
     /**
@@ -71,20 +62,26 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     @Override
     protected String doInBackground(String... params)
     {
-
-        Log.i(TAG, "asyncAddTraccarGPS doInBackground");
+        Log.i(_constants.LOG_TAG, "asyncAddTraccarGPS doInBackground");
         try{
             String name = params[0];
             String uniqueId = params[1];
             String phoneNo = params[2];
+            String network = params[3];
+            String plateNumber = params[4];
+            String tblRoutesID = params[5];
+            String tblUsersID = params[6];
             String returnString  ="";
             Integer deviceId = 0;
+            _GPSMobileNumber = phoneNo;
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
 
-                String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER + "createDevices.php?name="+name+"&uniqueId="+uniqueId+"&phoneNo="+phoneNo;
+
+                String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER + "createDevices.php?name="+name+"&uniqueId="+uniqueId
+                        +"&phoneNo="+phoneNo + "&model=" + network+ "&plateNumber=" + plateNumber + "&tblRoutesID=" + tblRoutesID + "&tblUsersID=" + tblUsersID;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -97,46 +94,29 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
                 try
                 {
                     json = new JSONObject(jsonResponse);
-                    deviceId=Integer.parseInt(json.get("id").toString());
-                    if (deviceId>0)
+                    Boolean status = json.getBoolean("status");
+                    String message = json.getString("message");
+                    if(status)
                     {
-
-                        _progDialog.dismiss();
                         returnString= "Success";
                     }
                     else
                     {
-                        _progDialog.dismiss();
-                        returnString= "Error encountered upon adding GPS. Please re-try";
+                        returnString= message;
                     }
                 }
                 catch(Exception ex){
-                    _progDialog.dismiss();
-                    String errorMessage = jsonResponse.toString();
-                    if(errorMessage.substring(0,15).equals("Duplicate entry"))
-                    {
-                        errorMessage="GPS IMEI already exists.";
-                    }
-                    else if(errorMessage.substring(0,15).equals("User device lim"))
-                    {
-                        errorMessage="Server exceeded maximum number of GPS!";
-                    }
-                    else
-                    {
-                        Helper.logger(ex);
-                        errorMessage = ex.getMessage();
-                    }
-
-                    _progDialog.dismiss();
-                    returnString= "Error encountered upon adding GPS: "+errorMessage+". Please re-try";
+                    _ProgressDialog.dismiss();
+                    Helper.logger(ex);
+                    returnString= "Error encountered upon adding GPS. Please re-try";
                 }
             }
             else
             {
-                _progDialog.dismiss();
+                _ProgressDialog.dismiss();
                 returnString=  "Looks like you're offline";
             }
-            return returnString + "/" + name + "/" +deviceId.toString();
+            return returnString;
         }
         catch(Exception ex)
         {
@@ -152,41 +132,29 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     {
         try
         {
-            String[] parts = returnMessage.split("/");
-            String message = parts[0];
-            String gpsname = parts[1];
-            String deviceId = parts[2];
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this._activity);
-            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
-            if(message.equals("Success"))
+            if(returnMessage.equals("Success"))
             {
+                _dialog.dismiss();
+                _ProgressDialog.setMessage("Starting to configure GPS");
+                ((MenuActivity)_activity).sendSMSMessage(_constants.SMS_BEGIN, _GPSMobileNumber);
 
-                alertDialogBuilder.setTitle("Success");
-                alertDialogBuilder.setMessage("Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.");
-                new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, _constants.DRIVER_EMAILADDRESS);
             }
             else
             {
-                alertDialogBuilder.setTitle("Error");
-                alertDialogBuilder.setMessage(message);
+                AlertDialog.Builder errorAlertDialogBuilder = new AlertDialog.Builder(this._activity);
+                errorAlertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                    }
+                });
+                errorAlertDialogBuilder.setTitle("Error encountered");
+                errorAlertDialogBuilder.setMessage(returnMessage);
+                errorAlertDialogBuilder.show();
+                _ProgressDialog.dismiss();
             }
-            alertDialogBuilder.show();
-//        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
         }
         catch(Exception ex)
         {
-
             Helper.logger(ex);
-
         }
-
     }
-
-
-
-
-
 }

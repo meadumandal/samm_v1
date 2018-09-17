@@ -13,12 +13,12 @@ public class SerializableRefreshLayoutComponents  implements Serializable
 {
     public SwipeRefreshLayout _swipeRefreshLayoutSerializable;
     public FragmentManager _fragmentManager;
-    public NonScrollListView _adminUsersListView;
+    public NonScrollListView _listView;
 
-    public SerializableRefreshLayoutComponents(SwipeRefreshLayout swipeRefreshLayout, FragmentManager fragmentManager, NonScrollListView adminUsersListView)
+    public SerializableRefreshLayoutComponents(SwipeRefreshLayout swipeRefreshLayout, FragmentManager fragmentManager, NonScrollListView listView)
     {
         this._swipeRefreshLayoutSerializable = swipeRefreshLayout;
         this._fragmentManager = fragmentManager;
-        this._adminUsersListView =  adminUsersListView;
+        this._listView =  listView;
     }
 }

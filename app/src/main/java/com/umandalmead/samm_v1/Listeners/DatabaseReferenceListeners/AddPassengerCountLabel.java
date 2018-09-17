@@ -34,13 +34,14 @@ public class AddPassengerCountLabel implements ChildEventListener {
     Activity _activity;
     Context _context;
     SessionManager _sessionManager;
-    Helper _helper = new Helper();
+    Helper _helper;
     int childrenCount=0;
 
     public AddPassengerCountLabel(Context context, Activity activity) {
         _activity = activity;
         _sessionManager = new SessionManager(context);
         _context = context;
+        _helper = new Helper(_activity,_context);
     }
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {

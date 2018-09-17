@@ -1,7 +1,6 @@
 package com.umandalmead.samm_v1;
 
-import com.umandalmead.samm_v1.POJO.Setting;
-import com.umandalmead.samm_v1.POJO.Settings;
+import com.umandalmead.samm_v1.POJO.HTMLDirections.Settings;
 import com.umandalmead.samm_v1.POJO.UserPOJO;
 
 import retrofit.Call;

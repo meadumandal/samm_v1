@@ -44,7 +44,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
 
     public asyncAppSubName(Context context, ProgressDialog progDialog, Activity activity, GPS dataModel)
     {
-        Log.i(TAG, "asyncUpdateTraccarGPS");
+        Log.i(TAG, "asyncUpdateTraccarGPSandMySQLEloop");
         this._context = context;
         this._progDialog = progDialog;
         this._activity = activity;
@@ -78,7 +78,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
     protected String doInBackground(Void... voids)
     {
 
-        Log.i(TAG, "asyncUpdateTraccarGPS doInBackground");
+        Log.i(TAG, "asyncUpdateTraccarGPSandMySQLEloop doInBackground");
         try{
             String returnString;
             Integer deviceId = 0;
@@ -135,10 +135,8 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
                     }
                     else
                     {
-                        StringWriter sw = new StringWriter();
-                        ex.printStackTrace(new PrintWriter(sw));
-                        errorMessage = ex.getMessage();
-                        Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+                        helper.logger(ex);
+
                     }
                     _progDialog.dismiss();
                     returnString= "Error encountered upon adding GPS: "+errorMessage+". Please re-try";

@@ -10,21 +10,23 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
+import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.URL;
-import java.net.URLConnection;
-
-import static com.squareup.okhttp.internal.Internal.logger;
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -32,7 +34,7 @@ import static com.umandalmead.samm_v1.Constants.LOG_TAG;
  */
 
 
-public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
+public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, String>{
     Context _context;
     Activity _activity;
     ProgressDialog _progDialog;
@@ -40,23 +42,28 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
     String progressMessage;
     public static String TAG="mead";
     String _putData;
-    GPS _dataModel;
+    GPS _dataModelGPS;
+    Eloop _dataModelEloop;
     DialogFragment _dialogFragment;
     private Constants _constants = new Constants();
+    EditGPSDialogFragment _dialog;
     SwipeRefreshLayout _swipeRefreshLayout;
     NonScrollListView _gpsListView;
 
 
-    public asyncDeleteTraccarGPS(Context context, ProgressDialog progDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModel, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView gpsListView)
+    public asyncUpdateTraccarGPSandMySQLEloop(Context context, ProgressDialog progDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModelGPS, Eloop dataModelEloop,SwipeRefreshLayout swipeRefreshLayout, NonScrollListView GPSListView)
     {
-        Log.i(TAG, "asyncDeleteTraccarGPS");
+        Log.i(TAG, "asyncUpdateTraccarGPSandMySQLEloop");
         this._context = context;
         this._progDialog = progDialog;
         this._activity = activity;
-        this._dataModel = dataModel;
+        this._dataModelGPS = dataModelGPS;
+        this._dataModelEloop = dataModelEloop;
+        this._dialog = dialog;
         this._swipeRefreshLayout = swipeRefreshLayout;
-        this._gpsListView = gpsListView;
-        this._dialogFragment = dialog;
+        this._gpsListView = GPSListView;
+
+
 
     }
     @Override
@@ -70,7 +77,6 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
         catch(Exception ex)
         {
             Helper.logger(ex);
-
         }
 
 
@@ -84,61 +90,64 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
     @Override
     protected String doInBackground(Void... voids)
     {
+        Log.i(TAG, "asyncUpdateTraccarGPSandMySQLEloop doInBackground");
         String returnString;
-        Log.i(TAG, "asyncDeleteTraccarGPS doInBackground");
         try{
-
-            //api parameters
-            String id=_dataModel.getID().toString();
+           //api parameters
+            String id= _dataModelGPS.getID().toString();
+            String uniqueId = _dataModelGPS.getGPSIMEI().toString();
+            String name = _dataModelGPS.getGPSName();
+            String phone = _dataModelGPS.getGPSPhone();
+            String networkProvider = _dataModelGPS.getGPSNetworkProvider();
+            String plateNumber = _dataModelEloop.PlateNumber;
+            String tblRoutesID = String.valueOf(_dataModelEloop.tblRoutesID);
+            String tblUsersID = String.valueOf(_dataModelEloop.tblUsersID);
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
-                URL url = new URL(_constants.WEB_API_URL + _constants.DEVICES_API_FOLDER+ "deleteDevice.php?id="+id);
-                URLConnection conn = url.openConnection();
-
-                conn.setDoOutput(true);
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String jsonResponse = reader.readLine();
+                String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER +  "updateDevice.php";
+                HttpClient httpClient = new DefaultHttpClient();
+                HttpPost httpPost = new HttpPost(link);
+                List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
+                postParameters.add(new BasicNameValuePair("deviceID", id));
+                postParameters.add(new BasicNameValuePair("name", name));
+                postParameters.add(new BasicNameValuePair("uniqueId", uniqueId));
+                postParameters.add(new BasicNameValuePair("phoneNo", phone));
+                postParameters.add(new BasicNameValuePair("model", networkProvider));
+                postParameters.add(new BasicNameValuePair("plateNumber", plateNumber));
+                postParameters.add(new BasicNameValuePair("tblRoutesID", tblRoutesID));
+                postParameters.add(new BasicNameValuePair("tblUsersID", tblUsersID));
+                httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
+                HttpResponse response = httpClient.execute(httpPost);
+                String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json;
 
-                try
+                json = new JSONObject(strResponse);
+                if (json.getBoolean("status"))
                 {
-                    json = new JSONObject(jsonResponse);
-                    Boolean status = json.getBoolean("status");
-                    String message = json.getString("message");
-                    if(status)
-                    {
-                        returnString= "Success";
-                    }
-                    else
-                    {
-                        returnString= message;
-                    }
+                    _progDialog.dismiss();
+                    returnString= "Success";
                 }
-                catch(Exception ex){
-
-                    Helper.logger(ex);
-                    returnString= "Error encountered upon deleting GPS. Please re-try";
+                else
+                {
+                    _progDialog.dismiss();
+                    returnString= json.getString("message");
                 }
-
-
             }
             else
             {
-
-                returnString =  "Looks like you're offline";
+                _progDialog.dismiss();
+                returnString=  "Looks like you're offline";
             }
 
         }
         catch(Exception ex)
         {
-
             Helper.logger(ex);
-            returnString =  ex.getMessage();
+            returnString = ex.getMessage();
+
         }
-        _progDialog.dismiss();
         return returnString;
     }
 
@@ -157,9 +166,8 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
             if(message.equals("Success"))
             {
                 alertDialogBuilder.setTitle("Success");
-                alertDialogBuilder.setMessage("Successfully deleted GPS!");
-                _dialogFragment.dismiss();
-                _progDialog.dismiss();
+                alertDialogBuilder.setMessage("Successfully updated GPS!");
+                _dialog.dismiss();
                 _swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {

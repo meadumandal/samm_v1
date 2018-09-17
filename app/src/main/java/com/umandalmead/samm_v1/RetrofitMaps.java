@@ -1,6 +1,6 @@
 package com.umandalmead.samm_v1;
 
-import com.umandalmead.samm_v1.POJO.Directions;
+import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import retrofit.Call;
 import retrofit.http.GET;
 import retrofit.http.Query;

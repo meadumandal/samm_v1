@@ -61,6 +61,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
     private List<Terminal> mTerminals;
     ProgressDialog _progDialog;
     private Constants _constants = new Constants();
+    Helper _helper = new Helper();
     /**
      *
      * This gets destination value, description, order of arrival, lat and lng
@@ -319,8 +320,9 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
                             Log.i(TAG, "Success Saving Geofence");
                             drawGeofence(mTerminals);
                         } else {
-                            Log.e(TAG, "Registering geofence failed: " + status.getStatusMessage() +
-                                    " : " + status.getStatusCode());
+                            _helper.logger("Registering geofence failed: " + status.getStatusMessage() +
+                                            " : " + status.getStatusCode());
+
                         }
                     }
                 });

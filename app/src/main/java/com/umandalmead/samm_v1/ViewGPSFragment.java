@@ -78,7 +78,7 @@ public class ViewGPSFragment extends Fragment {
         myView = inflater.inflate(R.layout.fragment_view_gps, container, false);
         try
         {
-            InitializeToolbar("GPS");
+            InitializeToolbar("Tracked Vehicles");
             final NonScrollListView gpsListview = (NonScrollListView) myView.findViewById(R.id.gpslistview);
             swipeRefreshGPS = (SwipeRefreshLayout) myView.findViewById(R.id.swipe_refresh_gps);
             swipeRefreshGPS.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {

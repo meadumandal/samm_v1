@@ -70,8 +70,7 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
     @Override
     protected void onPostExecute(ArrayList<Routes> listRoutes)
     {
-        Routes addrouteEntry = new Routes(0, "Add route");
-        listRoutes.add(addrouteEntry);
+
         MenuActivity._routeList = listRoutes;
     }
 }

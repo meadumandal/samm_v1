@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.POJO;
+package com.umandalmead.samm_v1.POJO.HTMLDirections;
 
 /**
  * Created by MeadRoseAnn on 11/15/2017.

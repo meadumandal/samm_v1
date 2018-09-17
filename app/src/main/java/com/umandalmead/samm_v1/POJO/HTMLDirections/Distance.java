@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.POJO;
+package com.umandalmead.samm_v1.POJO.HTMLDirections;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

@@ -102,9 +102,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
             }
             catch(Exception ex)
             {
-                StringWriter sw = new StringWriter();
-                ex.printStackTrace(new PrintWriter(sw));
-                Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+                helper.logger(ex);
                 _promptMessage += ex.getMessage() + "\n";
 
             }

@@ -88,7 +88,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                 SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable =(SerializableRefreshLayoutComponents) argumentsBundle.getSerializable("swipeRefreshLayoutSerializable");
                 _swipeRefresh = swipeRefreshLayoutSerializable._swipeRefreshLayoutSerializable;
                 _fragmentManager = swipeRefreshLayoutSerializable._fragmentManager;
-                _adminUserListView = swipeRefreshLayoutSerializable._adminUsersListView;
+                _adminUserListView = swipeRefreshLayoutSerializable._listView;
 
             }
 

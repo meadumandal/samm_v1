@@ -1,6 +1,4 @@
-package com.umandalmead.samm_v1.POJO;
-
-import android.content.pm.PackageManager;
+package com.umandalmead.samm_v1.POJO.HTMLDirections;
 
 import com.google.gson.annotations.SerializedName;
 

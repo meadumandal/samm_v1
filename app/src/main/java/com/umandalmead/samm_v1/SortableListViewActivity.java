@@ -336,7 +336,8 @@ public class SortableListViewActivity extends ListActivity {
                 });
             }catch(Exception e)
             {
-                Log.e(TAG, e.getMessage());
+                _helper.logger(e);
+
             }
 
             _ProgressDialog.dismiss();

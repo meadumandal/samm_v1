@@ -50,7 +50,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
 
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -73,8 +72,8 @@ public class LoginActivity extends AppCompatActivity{
     public ProgressDialog InitialLoading;
     private CallbackManager callbackManager;
     private static final String EMAIL = "email";
-    private TextView ForgotPasswordTV;
-    private LoginButton loginButton;
+    private TextView forgotPasswordTextView;
+    private LoginButton facebookLoginButton;
     private static String TAG = "mead";
     ProgressDialog LoginProgDiag;
     private static Helper _helper = new Helper();
@@ -112,22 +111,22 @@ public class LoginActivity extends AppCompatActivity{
                     Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
                 }
             } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, e.getMessage());
+                _helper.logger(e);
 
             } catch (NoSuchAlgorithmException e) {
-                Log.e(TAG, e.getMessage());
+                _helper.logger(e);
             }
 
             callbackManager = CallbackManager.Factory.create();
 
-            ForgotPasswordTV = (TextView) findViewById(R.id.txtForgotPassword);
-            loginButton = (LoginButton) findViewById(R.id.login_button_fb);
-            loginButton.setReadPermissions("email", "public_profile");
-            MenuActivity.buttonEffect(loginButton);
-            MenuActivity.buttonEffect(ForgotPasswordTV);
+            forgotPasswordTextView = (TextView) findViewById(R.id.txtForgotPassword);
+            facebookLoginButton = (LoginButton) findViewById(R.id.login_button_fb);
+            facebookLoginButton.setReadPermissions("email", "public_profile");
+            MenuActivity.buttonEffect(facebookLoginButton);
+            MenuActivity.buttonEffect(forgotPasswordTextView);
             _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
-            loginButton.setOnClickListener(new View.OnClickListener() {
+            facebookLoginButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
@@ -135,7 +134,7 @@ public class LoginActivity extends AppCompatActivity{
             });
 
 
-            loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
                 @Override
                 public void onSuccess(final LoginResult loginResult) {
                     ShowLogInProgressDialog("Facebook");
@@ -192,7 +191,7 @@ public class LoginActivity extends AppCompatActivity{
             btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
             progressBar = (ProgressBar) findViewById(R.id.progressBar);
             MenuActivity.buttonEffect(btn_SignIn);
-            ForgotPasswordTV.setOnClickListener(new View.OnClickListener() {
+            forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
@@ -241,7 +240,7 @@ public class LoginActivity extends AppCompatActivity{
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
                                                 progDialog.dismiss();
-                                                Log.e(TAG, e.getMessage());
+                                                _helper.logger(e);
                                             }
                                         });
 

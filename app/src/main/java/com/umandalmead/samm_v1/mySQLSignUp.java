@@ -14,7 +14,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -40,6 +39,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
      */
     Context _context;
     Activity _activity;
+    Helper _helper = new Helper();
     private Constants _constants = new Constants();
     public mySQLSignUp(Context context, Activity activity)
     {
@@ -91,7 +91,8 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
-                Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+                _helper.logger(ex);
+
 
             }
         }

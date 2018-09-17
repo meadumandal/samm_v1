@@ -10,7 +10,7 @@ public class Constants {
     public static final int MY_PERMISSION_REQUEST_LOCATION=99;
     public static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     public static final String LOG_TAG ="Custom_Log";
-    public static final String WEB_API_URL = "http://meadumandal.website/sammAPI/";
+    public static final String WEB_API_URL = "http://samm.website/sammAPI/";
     public static final String DESTINATIONS_API_FOLDER = "destinations/";
     public static final String DEVICES_API_FOLDER = "devices/";
     public static final String ELOOPS_API_FOLDER = "eloops/";

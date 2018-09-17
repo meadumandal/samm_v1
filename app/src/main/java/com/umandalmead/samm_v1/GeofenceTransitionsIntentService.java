@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1;
 /**
  * Created by MeadRoseAnn on 12/3/2017.
  */
+
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,11 +18,6 @@ import com.google.android.gms.location.GeofencingEvent;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-
 public class GeofenceTransitionsIntentService extends IntentService {
 
     private static final String TAG = "Mead";
@@ -35,6 +31,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     String extraIn;
     String eventType;
     String geofenceRequestId;
+    Helper _helper = new Helper();
 
     private static final String SUPER = GeofenceTransitionsIntentService.class.getSimpleName();
 
@@ -54,7 +51,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
         Log.i(TAG, "OnHandleIntent");
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            Log.e(TAG, "Goefencing Error " + geofencingEvent.getErrorCode());
+            _helper.logger("Goefencing Error " + geofencingEvent.getErrorCode());
+
             return;
         }
 

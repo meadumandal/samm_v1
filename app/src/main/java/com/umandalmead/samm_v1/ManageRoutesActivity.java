@@ -23,6 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.Adapters.RouteViewCustomAdapter;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
+
+import java.util.ArrayList;
 
 /**
  * Created by eleazerarcilla on 01/07/2018.
@@ -94,7 +97,8 @@ public class ManageRoutesActivity extends AppCompatActivity {
         swipeRefreshRoute.setRefreshing(true);
         FragmentManager fm = _activity.getFragmentManager();
         new mySQLRoutesDataProvider(_activity).execute();
-        customAdapter =new RouteViewCustomAdapter(MenuActivity._routeList, _activity,NSRouteListView,fm, swipeRefreshRoute);
+        ArrayList<Routes> routeListCopy = new ArrayList<Routes>(MenuActivity._routeList);
+        customAdapter =new RouteViewCustomAdapter(routeListCopy, _activity,NSRouteListView,fm, swipeRefreshRoute);
         ScrollListView.setAdapter(customAdapter);
         swipeRefreshRoute.setRefreshing(false);
     }

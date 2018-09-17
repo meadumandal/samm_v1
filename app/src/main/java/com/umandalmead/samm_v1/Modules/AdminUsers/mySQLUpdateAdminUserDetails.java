@@ -52,6 +52,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
     SwipeRefreshLayout _swipeRefreshLayout;
     NonScrollListView _adminUserListView;
     String _action;
+    Helper _helper = new Helper();
     private Constants _constants = new Constants();
     public mySQLUpdateAdminUserDetails(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage, EditAdminUserDialogFragment editDialog, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView adminUserListView, String action)
     {
@@ -153,12 +154,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
             }
             catch(Exception ex)
             {
-                StringWriter sw = new StringWriter();
-                ex.printStackTrace(new PrintWriter(sw));
-                Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
-                _promptMessage += ex.getMessage() + "\n";
-
-
+                _helper.logger(ex);
             }
         }
         else

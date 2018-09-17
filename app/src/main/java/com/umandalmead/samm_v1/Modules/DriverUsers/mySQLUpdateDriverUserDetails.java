@@ -54,6 +54,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
     NonScrollListView _adminUserListView;
     String _action;
     private Constants _constants = new Constants();
+    Helper _helper = new Helper();
     public mySQLUpdateDriverUserDetails(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage, EditDriverUserDialogFragment editDialog, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView adminUserListView, String action)
     {
         this._context = context;
@@ -156,7 +157,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
-                Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+
                 _promptMessage += ex.getMessage() + "\n";
 
 

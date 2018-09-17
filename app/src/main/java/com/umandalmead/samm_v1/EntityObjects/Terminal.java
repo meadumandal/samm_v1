@@ -2,7 +2,7 @@ package com.umandalmead.samm_v1.EntityObjects;
 
 import android.support.annotation.NonNull;
 
-import com.umandalmead.samm_v1.POJO.Directions;
+import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 
 import java.util.Comparator;
 

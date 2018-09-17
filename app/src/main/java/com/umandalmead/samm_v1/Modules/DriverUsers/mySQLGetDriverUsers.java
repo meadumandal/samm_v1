@@ -16,6 +16,7 @@ import com.umandalmead.samm_v1.Adapters.adminUsersListViewCustomerAdapter;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
 
@@ -27,6 +28,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 /**
@@ -63,6 +65,16 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
         this._swipeRefreshDriverUsers = swipeRefreshDriverUsers;
 
     }
+    public mySQLGetDriverUsers(Context context)
+    {
+        Log.i(_constants.LOG_TAG, "mySQLGetDriverUsers");
+        this._context = context;
+        this._progDialog = null;
+        this._listView = null;
+        this._fragmentManager = null;
+        this._swipeRefreshDriverUsers = null;
+
+    }
 
 
 
@@ -92,17 +104,20 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
 
                     return new JSONArray(jsonResponse);
                 } catch (Exception ex) {
-                    _progDialog.dismiss();
+                    if (_progDialog != null)
+                        _progDialog.dismiss();
                     Helper.logger(ex);
                     return null;
                 }
             } else {
-                _progDialog.dismiss();
+                if (_progDialog != null)
+                    _progDialog.dismiss();
                 return null;
             }
         } catch (Exception ex) {
             Helper.logger(ex);
-            _progDialog.dismiss();
+            if (_progDialog != null)
+                _progDialog.dismiss();
             return null;
 
         }
@@ -132,42 +147,47 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                 _dataModels.add(new Users(ID, username, emailAddress, firstName, lastName, userType, password, IsActive));
             }
 
-            _dataModels.add(new Users(0,"Add new driver", "","","","","",1));
+            MenuActivity._driverList = new ArrayList<>(_dataModels);
+            if(_listView!=null)
+            {
+                _dataModels.add(new Users(0,"Add new driver", "","","","","",1));
 
-            customAdapter =new adminUsersListViewCustomerAdapter(_dataModels, _context);
-            _listView.setAdapter(customAdapter);
+                customAdapter =new adminUsersListViewCustomerAdapter(_dataModels, _context);
+                _listView.setAdapter(customAdapter);
 
-            _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    try {
-                        Boolean isAdd;
-                        if (_dataModels.get(position).username.substring(0, 7).equals("Add new"))
-                            isAdd = true;
-                        else
-                            isAdd = false;
-                        Gson gson = new Gson();
-                        String json = gson.toJson(_dataModels.get(position));
-                        Bundle bundle = new Bundle();
-                        bundle.putString("datamodel", json);
-                        SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable = new SerializableRefreshLayoutComponents(_swipeRefreshDriverUsers, _fragmentManager, _listView);
-                        bundle.putSerializable("swipeRefreshLayoutSerializable", swipeRefreshLayoutSerializable);
-                        bundle.putBoolean("isAdd", isAdd);
+                _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        try {
+                            Boolean isAdd;
+                            if (_dataModels.get(position).username.substring(0, 7).equals("Add new"))
+                                isAdd = true;
+                            else
+                                isAdd = false;
+                            Gson gson = new Gson();
+                            String json = gson.toJson(_dataModels.get(position));
+                            Bundle bundle = new Bundle();
+                            bundle.putString("datamodel", json);
+                            SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable = new SerializableRefreshLayoutComponents(_swipeRefreshDriverUsers, _fragmentManager, _listView);
+                            bundle.putSerializable("swipeRefreshLayoutSerializable", swipeRefreshLayoutSerializable);
+                            bundle.putBoolean("isAdd", isAdd);
 
-                        EditDriverUserDialogFragment editDriverUserDialog = new EditDriverUserDialogFragment();
-                        editDriverUserDialog.setArguments(bundle);
-                        editDriverUserDialog.show(_fragmentManager ,"EditDriverUserDialog");
+                            EditDriverUserDialogFragment editDriverUserDialog = new EditDriverUserDialogFragment();
+                            editDriverUserDialog.setArguments(bundle);
+                            editDriverUserDialog.show(_fragmentManager ,"EditDriverUserDialog");
+                        }
+                        catch(Exception ex)
+                        {
+                            Helper.logger(ex);
+                        }
+
                     }
-                    catch(Exception ex)
-                    {
-                        Helper.logger(ex);
-                    }
+                });
 
-                }
-            });
+                _swipeRefreshDriverUsers.setRefreshing(false);
+                _progDialog.dismiss();
+            }
 
-            _swipeRefreshDriverUsers.setRefreshing(false);
-            _progDialog.dismiss();
 
         }
         catch(Exception ex)

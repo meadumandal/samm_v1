@@ -31,7 +31,7 @@ import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
-import com.umandalmead.samm_v1.POJO.Directions;
+import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
@@ -160,11 +160,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 //                        destinationId_distance.put(dialog.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
                     Log.i(TAG, "Success retrofit");
                 } catch (MalformedURLException ex) {
-                    Log.e(TAG, ex.getMessage());
+                    helper.logger(ex);
+
                 } catch (IOException ex) {
-                    Log.e(TAG, ex.getMessage());
+                    helper.logger(ex);
                 } catch (Exception ex) {
-                    Log.e(TAG, ex.getMessage());
+                    helper.logger(ex);
                 }
 
             }

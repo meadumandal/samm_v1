@@ -20,28 +20,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_margin="20dp">
-        <android.support.design.widget.TextInputLayout
+        <TextView
+            android:id="@+id/txtActionLabel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <EditText
-                android:id="@+id/GPSMobileNum"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-                android:ellipsize="start"
-                android:gravity="center_horizontal"
-                android:hint="GPS Mobile Number"
-                android:inputType="text|phone"
-                android:maxLines="1"
-                android:singleLine="true"
-
-                android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
-                android:textSize="16sp" />
-        </android.support.design.widget.TextInputLayout>
-
-
+            android:layout_height="wrap_content"
+            android:text="Add PUV"
+            android:textAlignment="center"
+            android:textColor="@color/colorBlack"
+            android:textSize="20dp"
+            android:textStyle="bold" />
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -50,7 +37,7 @@
                 android:id="@+id/GPSIMEI"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
+                android:backgroundTint="@color/colorGrey"
                 android:ellipsize="start"
                 android:gravity="center_horizontal"
                 android:hint="GPS IMEI"
@@ -58,20 +45,87 @@
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
+                android:textColorHint="@color/colorGrey"
+                android:textColorLink="@color/colorBlack"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/GPSMobileNum"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorGrey"
+                android:ellipsize="start"
+                android:gravity="center_horizontal"
+                android:hint="GPS Mobile Number"
+                android:inputType="text|phone"
+                android:maxLines="1"
+                android:singleLine="true"
+
+                android:textColor="@color/colorBlack"
+                android:textColorHint="@color/colorGrey"
+                android:textSize="16sp" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/plateNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorGrey"
+                android:ellipsize="start"
+                android:gravity="center_horizontal"
+                android:hint="Plate Number"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true"
+
+                android:textColor="@color/colorBlack"
+                android:textColorHint="@color/colorGrey"
+                android:textSize="16sp" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
             <Spinner
-                android:id="@+id/spinnerNetworkProviders"
+                android:id="@+id/spinnerNetworks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorGrey"
+                android:foregroundTint="@color/colorGrey"
+                />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Spinner
+                android:id="@+id/spinnerDrivers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorGrey"
+                android:foregroundTint="@color/colorGrey"
+                />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Spinner
+                android:id="@+id/spinnerRoutes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorAccent"
                 android:foregroundTint="@color/colorAccent"
                 />
         </android.support.design.widget.TextInputLayout>
+
         <Button
             android:id="@+id/btnAddGPS"
             style="?android:textAppearanceSmall"
@@ -81,7 +135,7 @@
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
             android:backgroundTint="@color/colorAccent"
-            android:text="Add GPS"
+            android:text="Add Tracked PUV"
             android:textColor="@color/colorWhite"
             android:textStyle="bold" />
     </LinearLayout>

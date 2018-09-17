@@ -23,6 +23,7 @@ import android.widget.ViewSwitcher;
 
 import com.google.gson.Gson;
 import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
+import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
 import org.json.JSONArray;
@@ -69,7 +70,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
         this._listView = listView;
         this._fragmentManager = fm;
         this._swipeRefreshGPS = swipeRefreshGPS;
-
+        new mySQLGetEloopList(_context).execute();
     }
 
 
@@ -132,7 +133,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
 
                 String GPSName = json.get("name").toString();
                 String GPSIMEI = json.get("uniqueId").toString();
-                String GPSPhone = json.get("phone").toString();
+                String GPSPhone = json.get("contact").toString();
                 String GPSNetwork = json.get("model").toString();
                 Integer ID = Integer.parseInt(json.get("id").toString());
                 String Status = json.get("status").toString();
@@ -148,9 +149,23 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     try {
                         Gson gson = new Gson();
-                        String json = gson.toJson(_dataModels.get(position));
+                        GPS selectedGPS = _dataModels.get(position);
+                        Eloop selectedEloop = new Eloop();
+                        for(Eloop e:MenuActivity._eloopList)
+                        {
+                            if (e.DeviceId == selectedGPS.getID())
+                            {
+                                selectedEloop = e;
+                            }
+                        }
+                        String jsonSelectedGPS = gson.toJson(selectedGPS);
+                        String jsonSelectedEloop = gson.toJson(selectedEloop);
+
                         Bundle bundle = new Bundle();
-                        bundle.putString("datamodel", json);
+                        bundle.putString("selectedGPS", jsonSelectedGPS);
+                        bundle.putString("selectedEloop", jsonSelectedEloop);
+                        SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable = new SerializableRefreshLayoutComponents(_swipeRefreshGPS, _fragmentManager, _listView);
+                        bundle.putSerializable("swipeRefreshLayoutSerializable", swipeRefreshLayoutSerializable);
                         EditGPSDialogFragment editGPSDialog = new EditGPSDialogFragment();
                         editGPSDialog.setArguments(bundle);
                         editGPSDialog.show(_fragmentManager ,"EditGPSDialogFragment");
@@ -158,6 +173,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                     }
                     catch(Exception ex)
                     {
+                        Toast.makeText(_context, "Error occured in fetching data", Toast.LENGTH_LONG).show();
                         Helper.logger(ex);
                     }
 

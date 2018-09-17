@@ -41,10 +41,9 @@ public class GPS {
     {
         this.GPSPhone = GPSPhone;
     }
-    public void setGPSNetworkProvider(String GPSNetworkProvider)
-    {
-        this.GPSNetworkProvider = GPSNetworkProvider;
-    }
+    public void setGPSNetworkProvider(String GPSNetworkProvider) { this.GPSNetworkProvider = GPSNetworkProvider; }
+    public void setGPSPlateNo(String GPSPlateNo){ this.GPSPlateNo = GPSPlateNo; }
+
     public String getStatus()
     {
         return this.Status;
