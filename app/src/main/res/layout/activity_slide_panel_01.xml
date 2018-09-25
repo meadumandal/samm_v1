@@ -6,7 +6,7 @@
     android:clickable="true"
     android:id="@+id/route_wrapper"
     android:layout_height="match_parent"
-    android:background="#00ffffff"
+    android:background="@null"
    >
     <ImageView
         android:id="@+id/ev_panel_collapse"
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:visibility="visible"
         android:src="@drawable/pulltab"
-        android:background="#00ffffff"/>
+        android:background="@null"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -280,7 +280,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Boolean _isGPSReconnect = false;
         private String _gpsIMEI;
         public Constants _constants;
-        public static Boolean _IsOnSearchMode = false, _BOOL_IsTerminalDataFetchDone = false;
+        public static Boolean _IsOnSearchMode = false, _BOOL_IsTerminalDataFetchDone = false, _BOOL_IsTerminalDataFetchOnGoing = false;
         public static Terminal[] _PointsArray;
         public static Typeface FONT_PLATE,FONT_STATION;
         public static int _currentRouteIDSelected;
@@ -905,6 +905,8 @@ public class MenuActivity extends AppCompatActivity implements
                         final Handler HND_Loc_DataFetchDelay = new Handler();
                         final Handler HND_Loc_DataFetchTooLong = new Handler();
                         final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
+                        HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
+                        HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
                         HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -914,7 +916,7 @@ public class MenuActivity extends AppCompatActivity implements
                         HND_Loc_DataFetchTooLong.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                if(!_BOOL_IsTerminalDataFetchDone)
+                                if(!_BOOL_IsTerminalDataFetchDone && !_BOOL_IsTerminalDataFetchOnGoing)
                                     UpdateInfoPanelDetails(F_TM_ClickedTerminal.Description, "Data fetch taking longer than usual...");
                             }
                         }, 10000);
@@ -1093,6 +1095,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
                 RetrofitMaps service = retrofit.create(RetrofitMaps.class);
+                _BOOL_IsTerminalDataFetchOnGoing = true;
                 _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
                 Call<Directions> call = service.getDistanceDuration("metric", TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
                 call.enqueue(new Callback<Directions>() {
@@ -2535,8 +2538,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             _infoDescriptionTV = (TextView) findViewById(R.id.TextView_InfoDesc);
             _infoLayout = (LinearLayout) findViewById(R.id.Info_Layout);
             _infoPanelBtnClose = (ImageButton) findViewById(id.btnCloseInfoPanel);
-            _infoTitleTV.setVisibility(View.GONE);
-            _infoDescriptionTV.setVisibility(View.GONE);
+            _infoTitleTV.setVisibility(View.INVISIBLE);
+            _infoDescriptionTV.setVisibility(View.INVISIBLE);
             _infoImage = (ImageView) findViewById(id.ImageView_InfoImage);
             _infoPanelBtnClose.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -2556,14 +2559,12 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             final String finalTitle =  InfoTitle.toUpperCase();
             final Typeface finalTitleFont = isStation ? FONT_STATION: FONT_PLATE;
             _infoTitleTV.setTypeface(null);
-            if (_infoLayout.getVisibility() == View.GONE) {
+            if (_infoLayout.getVisibility() == View.INVISIBLE) {
                 if(!_IsOnSearchMode)
                     UpdateUI(Enums.UIType.SHOWING_INFO);
                 else
-                    Search_BackBtn.setVisibility(View.GONE);
+                    Search_BackBtn.setVisibility(View.INVISIBLE);
                 _infoLayout.setVisibility(View.VISIBLE);
-                Animation slide_down = AnimationUtils.loadAnimation(getApplicationContext(),
-                        R.anim.slide_down);
                 _infoLayout.startAnimation(slide_down);
                 slide_down.setAnimationListener(new Animation.AnimationListener() {
                     @Override
@@ -2572,8 +2573,6 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
-                        Animation slide_up_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
-                                R.anim.slide_up_bounce);
                         _infoLayout.startAnimation(slide_up_bounce);
                         slide_up_bounce.setAnimationListener(new Animation.AnimationListener() {
                             @Override
@@ -2613,7 +2612,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     @Override
                     public void onAnimationEnd(Animation animation) {
                         _infoLayout.startAnimation(slide_up);
-                        _infoLayout.setVisibility(View.GONE);
+                        _infoLayout.setVisibility(View.INVISIBLE);
                         slide_up.setAnimationListener(new Animation.AnimationListener() {
 
                             @Override
@@ -2671,6 +2670,24 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 else{
                     UpdateUI(Enums.UIType.HIDE_INFO_SEARCH);
                 }
+                slide_up.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        _infoLayout.clearAnimation();
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+
 
             }
 
