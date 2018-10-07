@@ -22,7 +22,6 @@
         android:clickable="true"
 
         sothree:umanoClipPanel="false"
-        sothree:umanoOverlay="true"
 
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoShadowHeight="4dp"

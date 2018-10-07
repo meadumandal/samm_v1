@@ -243,7 +243,7 @@ public class MenuActivity extends AppCompatActivity implements
         public  static TextView _DestinationTextView;
         public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
-        public static String _FragmentTitle;
+        public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _ProcessedTerminalTitle;
         public static MediaPlayer _buttonClick;
         private TextView _infoTitleTV, _infoDescriptionTV;
         private LinearLayout _infoLayout;
@@ -256,7 +256,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static GoogleApiClient _googleAPI;
         public Helper _helper;
         public Context _context;
-        public LatLng _userCurrentLoc;
+        public static LatLng _userCurrentLoc;
         public Marker _userCurrentLocMarker;
         public LocationRequest _locationRequest;
         public static GoogleMap _googleMap;
@@ -290,7 +290,7 @@ public class MenuActivity extends AppCompatActivity implements
 
 
 
-        public  boolean _IsAllLoopParked;
+        public  boolean _IsAllLoopParked,_InfoPanel_IsEditingEnabled=true;
         private String _loopIds = "";
         private List<Integer> _ListOfLoops = new ArrayList<Integer>();
         private String _AssignedELoop = "";
@@ -455,6 +455,9 @@ public class MenuActivity extends AppCompatActivity implements
                 InitializeFonts();
                 InitializeAnimations();
                 MenuActivity.buttonEffect(Search_BackBtn);
+
+
+
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
@@ -876,6 +879,7 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             public boolean onMarkerClick(Marker marker) {
                 String markerTitle = marker.getTitle();
+
                 if(_terminalMarkerHashmap.containsKey(markerTitle))
                 {
                     if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver())
@@ -900,8 +904,10 @@ public class MenuActivity extends AppCompatActivity implements
                             }
 
                         }
+                        _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
                         _passengerCountInTerminal = (int) passengercount;
                         ShowInfoLayout(TM_ClickedTerminal.Description, "\nFetching Data.." , true);
+                        //_InfoPanel_IsEditingEnabled = false;
                         final Handler HND_Loc_DataFetchDelay = new Handler();
                         final Handler HND_Loc_DataFetchTooLong = new Handler();
                         final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
@@ -913,13 +919,13 @@ public class MenuActivity extends AppCompatActivity implements
                                 GetAndDisplayEloopETA(F_TM_ClickedTerminal);
                             }
                         }, 3000);
-                        HND_Loc_DataFetchTooLong.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(!_BOOL_IsTerminalDataFetchDone && !_BOOL_IsTerminalDataFetchOnGoing)
-                                    UpdateInfoPanelDetails(F_TM_ClickedTerminal.Description, "Data fetch taking longer than usual...");
-                            }
-                        }, 10000);
+//                        HND_Loc_DataFetchTooLong.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                if(!_BOOL_IsTerminalDataFetchDone && !_BOOL_IsTerminalDataFetchOnGoing)
+//                                    UpdateInfoPanelDetails(F_TM_ClickedTerminal.Description, "Data fetch taking longer than usual...");
+//                            }
+//                        }, 10000);
 
                     }
                 }
@@ -1071,7 +1077,9 @@ public class MenuActivity extends AppCompatActivity implements
                         }
                     }
                     if (_IsAllLoopParked) {
-                        UpdateInfoPanelDetails(TM_CurrentDest.Description,"\n"+_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : No nearby E-loop found");
+                        if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_CurrentDest.getValue())) {
+                            UpdateInfoPanelDetails(TM_CurrentDest.Description, "\n" + _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : No nearby E-loop found");
+                        }
                     }
 
                 }
@@ -1105,7 +1113,9 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                 String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                 String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                UpdateInfoPanelDetails(TM_Destination.Description,"\n"+_helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " ("+Distance+" away)");
+                                if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
+                                    UpdateInfoPanelDetails(TM_Destination.Description, "\n" + _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
+                                }
                                 _BOOL_IsTerminalDataFetchDone = true;
                             }
                         } catch (Exception ex) {
@@ -1228,6 +1238,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             public void onClick(DialogInterface dialog, int which) {
                                 PlayButtonClickSound();
                                 try {
+                                    FacebookSdk.sdkInitialize(MenuActivity.this);
                                     LoginManager.getInstance().logOut();
                                 }
                                 catch(Exception ex)
@@ -2642,8 +2653,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
     }
     public void UpdateInfoPanelDetails(String Title, String Description){
+        if(_InfoPanel_IsEditingEnabled) {
             _infoTitleTV.setText(Title);
             _infoDescriptionTV.setText(Description);
+        }
     }
     public void ClearInfoPanelDetails(){
         _infoImage.setImageResource(0);

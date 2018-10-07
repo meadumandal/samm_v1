@@ -5,7 +5,12 @@
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/sammlogo"/>
+            android:src="@drawable/samm_splash"
+            android:scaleType="fitXY"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:tileMode="disabled"/>
+
         <!--<pl.droidsonroids.gif.GifTextView-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="match_parent"-->

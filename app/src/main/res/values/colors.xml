@@ -22,6 +22,8 @@
     <color name="colorBlueNights">#353b48</color>
     <color name="colorNasturcianFlower">#e84118</color>
     <color name="colorWebFlatGreen">#00a400</color>
+    <color name="colorShadowedSteel">#4b4b4b</color>
+    <color name="colorTransparent">#00000000</color>
 
 
 </resources>

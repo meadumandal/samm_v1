@@ -274,5 +274,8 @@ public class Helper {
         }
         return  result;
     }
+    public static Boolean IsStringEqual(String STR_Entry_1, String STR_Entry_2){
+        return STR_Entry_1.toLowerCase().equals(STR_Entry_2.toLowerCase());
+    }
 
 }

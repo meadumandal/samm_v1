@@ -1,6 +1,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="@color/colorBlueNights" />
+    <solid android:color="@color/colorShadowedSteel" />
     <corners android:bottomRightRadius="8dip"
         android:bottomLeftRadius="8dip"
         android:topRightRadius="8dip"

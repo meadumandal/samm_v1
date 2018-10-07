@@ -528,14 +528,16 @@ public class LoginActivity extends AppCompatActivity{
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
     }
     private void ShowLogInProgressDialog(String From){
-        LoginProgDiag = new ProgressDialog(LoginActivity.this);
-        LoginProgDiag.setMax(100);
-        LoginProgDiag.setMessage("Please wait as we log you in...");
-        LoginProgDiag.setTitle(From +" Log In");
-        LoginProgDiag.setIndeterminate(false);
-        LoginProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        LoginProgDiag.setCancelable(false);
-        LoginProgDiag.show();
+        LoaderDialog LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
+        LD_FBLoginLoader.show();
+        //        LoginProgDiag = new ProgressDialog(LoginActivity.this);
+//        LoginProgDiag.setMax(100);
+//        LoginProgDiag.setMessage("Please wait as we log you in...");
+//        LoginProgDiag.setTitle(From +" Log In");
+//        LoginProgDiag.setIndeterminate(false);
+//        LoginProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//        LoginProgDiag.setCancelable(false);
+//        LoginProgDiag.show();
     }
     private Boolean checkIfEmailVerified()
     {
