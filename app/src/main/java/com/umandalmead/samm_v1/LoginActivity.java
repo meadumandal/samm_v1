@@ -64,7 +64,6 @@ public class LoginActivity extends AppCompatActivity{
 
     private EditText usernameField, passwordField;
     private Button btn_SignIn;
-    private ProgressBar progressBar;
     private FirebaseAuth auth;
     private FirebaseDatabase userDatabase;
     private DatabaseReference userDatabaseRef;
@@ -80,6 +79,7 @@ public class LoginActivity extends AppCompatActivity{
     private static Helper _helper = new Helper();
     private Constants _constants = new Constants();
     private MediaPlayer _buttonClick;
+    public LoaderDialog LD_FBLoginLoader;
 
 
 
@@ -190,7 +190,6 @@ public class LoginActivity extends AppCompatActivity{
             usernameField = (EditText) findViewById(R.id.username);
             passwordField = (EditText) findViewById(R.id.password);
             btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
-            progressBar = (ProgressBar) findViewById(R.id.progressBar);
             MenuActivity.buttonEffect(btn_SignIn);
             forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -277,12 +276,12 @@ public class LoginActivity extends AppCompatActivity{
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
-                    ShowLogInProgressDialog("User");
+                    final LoaderDialog LogInLoader = new LoaderDialog(LoginActivity.this,"Verifying","Please wait...");
+                    LogInLoader.show();
                     final String username = usernameField.getText().toString();
                     final String password = passwordField.getText().toString();
                     if (username.trim().isEmpty() || password.trim().isEmpty()) {
                         Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
                     } else {
                         String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
                         Retrofit retrofit = new Retrofit.Builder()
@@ -295,13 +294,14 @@ public class LoginActivity extends AppCompatActivity{
                             @Override
                             public void onResponse(final Response<UserPOJO> response, Retrofit retrofit) {
                                 try {
+                                    LogInLoader.hide();
                                     if (response.body() == null) {
-                                        progressBar.setVisibility(View.GONE);
                                         Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
                                     } else {
                                         if (!response.body().getEmailAddress().toLowerCase().equals(_constants.DRIVER_EMAILADDRESS)) {
                                             if(response.body().getUserType().equals(Constants.ADMIN_USERTYPE))
                                             {
+                                                ShowLogInProgressDialog("Admin");
                                                 MessageDigest md = MessageDigest.getInstance("MD5");
                                                 md.update(password.getBytes());
                                                 byte[] digest = md.digest();
@@ -320,10 +320,12 @@ public class LoginActivity extends AppCompatActivity{
                                                 else
                                                 {
                                                     Toast.makeText(getApplicationContext(), "Admin Password is incorrect", Toast.LENGTH_LONG).show();
+                                                    HideLogInProgressDialog();
                                                 }
                                             }
                                             else
                                             {
+                                                ShowLogInProgressDialog("User");
                                                 signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
                                             }
 
@@ -331,6 +333,7 @@ public class LoginActivity extends AppCompatActivity{
                                         else{
                                                 FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
                                                 DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
+                                                ShowLogInProgressDialog("Driver");
                                                 _driverDatabaseReference.child(response.body().getDeviceId().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -342,7 +345,6 @@ public class LoginActivity extends AppCompatActivity{
                                                             else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
                                                                 signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
                                                             else {
-                                                                progressBar.setVisibility(View.GONE);
                                                                 Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
                                                             }
 //                                                        {
@@ -360,9 +362,9 @@ public class LoginActivity extends AppCompatActivity{
 
                                         }
                                 }
-                                //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                 catch (Exception ex) {
-                                    progressBar.setVisibility(View.GONE);
+                                    LogInLoader.hide();
+                                    HideLogInProgressDialog();
                                     Toast.makeText(LoginActivity.this, "Error Occurred", Toast.LENGTH_LONG).show();
                                     Helper.logger(ex);
                                 }
@@ -417,7 +419,6 @@ public class LoginActivity extends AppCompatActivity{
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        progressBar.setVisibility(View.GONE);
                         if(!task.isSuccessful())
                         {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
@@ -525,8 +526,11 @@ public class LoginActivity extends AppCompatActivity{
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
     }
     private void ShowLogInProgressDialog(String From){
-        LoaderDialog LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
+        LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
         LD_FBLoginLoader.show();
+    }
+    private void HideLogInProgressDialog(){
+        LD_FBLoginLoader.hide();
     }
     private Boolean checkIfEmailVerified()
     {
