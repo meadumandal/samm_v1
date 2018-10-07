@@ -16,6 +16,7 @@ import com.umandalmead.samm_v1.Adapters.adminUsersListViewCustomerAdapter;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
@@ -39,7 +40,7 @@ import java.util.Arrays;
 public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
     public Context _context;
     public Activity _activity;
-    public ProgressDialog _progDialog;
+    public LoaderDialog _LoaderDialog;
     public NonScrollListView _listView;
     public ArrayList<Users> _dataModels;
     public FragmentManager _fragmentManager;
@@ -52,14 +53,14 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
 
 
     public mySQLGetDriverUsers(Context context,
-                              ProgressDialog progDialog,
+                              LoaderDialog loaderDialog,
                               NonScrollListView listView,
                               FragmentManager fm,
                               SwipeRefreshLayout swipeRefreshDriverUsers)
     {
         Log.i(_constants.LOG_TAG, "mySQLGetDriverUsers");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._listView = listView;
         this._fragmentManager = fm;
         this._swipeRefreshDriverUsers = swipeRefreshDriverUsers;
@@ -69,7 +70,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
     {
         Log.i(_constants.LOG_TAG, "mySQLGetDriverUsers");
         this._context = context;
-        this._progDialog = null;
+        this._LoaderDialog = null;
         this._listView = null;
         this._fragmentManager = null;
         this._swipeRefreshDriverUsers = null;
@@ -104,20 +105,20 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
 
                     return new JSONArray(jsonResponse);
                 } catch (Exception ex) {
-                    if (_progDialog != null)
-                        _progDialog.dismiss();
+                    if (_LoaderDialog != null)
+                        _LoaderDialog.dismiss();
                     Helper.logger(ex);
                     return null;
                 }
             } else {
-                if (_progDialog != null)
-                    _progDialog.dismiss();
+                if (_LoaderDialog != null)
+                    _LoaderDialog.dismiss();
                 return null;
             }
         } catch (Exception ex) {
             Helper.logger(ex);
-            if (_progDialog != null)
-                _progDialog.dismiss();
+            if (_LoaderDialog != null)
+                _LoaderDialog.dismiss();
             return null;
 
         }
@@ -185,7 +186,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                 });
 
                 _swipeRefreshDriverUsers.setRefreshing(false);
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
             }
 
 

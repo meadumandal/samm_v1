@@ -24,18 +24,18 @@ import java.net.URLConnection;
 public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     Context _context;
     Activity _activity;
-    ProgressDialog _ProgressDialog;
+    LoaderDialog _LoaderDialog;
     String progressMessage, _GPSMobileNumber;
 
     private Constants _constants = new Constants();
     MenuActivity.AddGPSDialog _dialog;
 
 
-    public asyncAddTraccarGPS(Context context, ProgressDialog progDialog, Activity activity, MenuActivity.AddGPSDialog dialog)
+    public asyncAddTraccarGPS(Context context, LoaderDialog loaderDialog, Activity activity, MenuActivity.AddGPSDialog dialog)
     {
         Log.i(_constants.LOG_TAG, "asyncAddTraccarGPS");
         this._context = context;
-        this._ProgressDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._activity = activity;
         this._dialog = dialog;
     }
@@ -45,7 +45,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _ProgressDialog.show();
+            _LoaderDialog.show();
 
         }
         catch(Exception ex)
@@ -106,14 +106,14 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
                     }
                 }
                 catch(Exception ex){
-                    _ProgressDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     Helper.logger(ex);
                     returnString= "Error encountered upon adding GPS. Please re-try";
                 }
             }
             else
             {
-                _ProgressDialog.dismiss();
+                _LoaderDialog.dismiss();
                 returnString=  "Looks like you're offline";
             }
             return returnString;
@@ -135,7 +135,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             if(returnMessage.equals("Success"))
             {
                 _dialog.dismiss();
-                _ProgressDialog.setMessage("Starting to configure GPS");
+                _LoaderDialog = new LoaderDialog(_activity,"","Starting to configure GPS");
                 ((MenuActivity)_activity).sendSMSMessage(_constants.SMS_BEGIN, _GPSMobileNumber);
 
             }
@@ -149,7 +149,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
                 errorAlertDialogBuilder.setTitle("Error encountered");
                 errorAlertDialogBuilder.setMessage(returnMessage);
                 errorAlertDialogBuilder.show();
-                _ProgressDialog.dismiss();
+                _LoaderDialog.dismiss();
             }
         }
         catch(Exception ex)

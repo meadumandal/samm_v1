@@ -40,18 +40,18 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
      */
     Context _context;
     Activity _activity;
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     String _promptMessage;
     SessionManager _sessionManager;
     ManageRoutesActivity.AddRouteDialog _addRouteDialog;
 
 
     private Constants _constants = new Constants();
-    public mySQLAddRoute(Context context, Activity activity, ProgressDialog progressDialog, ManageRoutesActivity.AddRouteDialog addRouteDialog, String promptMessage)
+    public mySQLAddRoute(Context context, Activity activity, LoaderDialog loaderDialog, ManageRoutesActivity.AddRouteDialog addRouteDialog, String promptMessage)
     {
         this._context = context;
         this._activity = activity;
-        this._progressDialog = progressDialog;
+        this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._addRouteDialog = addRouteDialog;
 
@@ -66,11 +66,9 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _progressDialog.setMessage("Adding Route...");
-            _progressDialog.setTitle("Please wait...");
-            _progressDialog.setCancelable(false);
-            _progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progressDialog.show();
+            _LoaderDialog = new LoaderDialog(_activity, "Please wait...","Adding Route...");
+            _LoaderDialog.setCancelable(false);
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -123,7 +121,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
         else
         {
             Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-            _progressDialog.hide();
+            _LoaderDialog.hide();
 
         }
         return _promptMessage;
@@ -134,7 +132,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
     {
         if(_promptMessage.trim().length()>0)
         {
-            _progressDialog.hide();
+            _LoaderDialog.hide();
             InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();

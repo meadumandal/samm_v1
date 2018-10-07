@@ -44,15 +44,15 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
      */
     Context _context;
     Activity _activity;
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     String _promptMessage, _newFirstName, _newLastName;
     SessionManager _sessionManager;
     private Constants _constants = new Constants();
-    public mySQLUpdateUserDetails(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage)
+    public mySQLUpdateUserDetails(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage)
     {
         this._context = context;
         this._activity = activity;
-        this._progressDialog = progressDialog;
+        this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         _sessionManager = new SessionManager(_context);
     }
@@ -110,7 +110,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
         else
         {
             Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-            _progressDialog.hide();
+            _LoaderDialog.hide();
 
         }
         return _promptMessage;
@@ -121,7 +121,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
     {
 
 
-        _progressDialog.hide();
+        _LoaderDialog.hide();
         _sessionManager.setFirstName(_newFirstName);
         _sessionManager.setLastName(_newLastName);
         _UserNameMenuItem.setTitle(_sessionManager.getFullName());

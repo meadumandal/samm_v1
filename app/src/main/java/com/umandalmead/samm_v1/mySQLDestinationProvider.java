@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -53,13 +54,13 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
     Activity _activity;
     GoogleMap _googleMap;
     GoogleApiClient mGoogleApiClient;
+    LoaderDialog _loader;
     PendingIntent mGeofencePendingIntent;
     protected static final String TAG = "Mead";
     public static float RADIUS = 10;
     public static final int LOITERINGDELAY = 10000;
     private GeofencingApi mGeofenceApi;
     private List<Terminal> mTerminals;
-    ProgressDialog _progDialog;
     private Constants _constants = new Constants();
     Helper _helper = new Helper();
     /**
@@ -78,10 +79,10 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         this._activity = activity;
         this._googleMap = map;
         this.mGoogleApiClient = googleApiClient;
-        _progDialog = null;
+        _loader = null;
 
     }
-    public mySQLDestinationProvider(Context context, Activity activity, String progressMessage, GoogleMap map, GoogleApiClient googleApiClient, ProgressDialog progDialog)
+    public mySQLDestinationProvider(Context context, Activity activity, String progressMessage, GoogleMap map, GoogleApiClient googleApiClient, LoaderDialog loaderDialog)
     {
         Log.i(TAG, "Called mySQLDestinationProvider");
         this.mGeofenceApi = LocationServices.GeofencingApi;
@@ -89,7 +90,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         this._activity = activity;
         this._googleMap = map;
         this.mGoogleApiClient = googleApiClient;
-        _progDialog = progDialog;
+        _loader = loaderDialog;
 
     }
 
@@ -99,15 +100,11 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         try
         {
             super.onPreExecute();
-            if (_progDialog != null)
+            if (_loader != null)
             {
-                _progDialog.setMax(100);
-                _progDialog.setMessage("The app is initializing, please wait...");
-                _progDialog.setTitle("Initializing Data");
-                _progDialog.setIndeterminate(false);
-                _progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                _progDialog.setCancelable(false);
-                _progDialog.show();
+                _loader = new LoaderDialog(_activity,"Initializing Data" ,"The app is initializing, please wait...");
+                _loader.setCancelable(false);
+                _loader.show();
             }
 
         }
@@ -240,8 +237,8 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         }
 
 
-        if (_progDialog != null)
-            _progDialog.dismiss();
+        if (_loader != null)
+            _loader.dismiss();
     }
 
     // Start Geofence creation process

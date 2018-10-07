@@ -40,7 +40,7 @@ import static com.umandalmead.samm_v1.Constants.POINTS_API_FOLDER;
 public class asyncAddPoints extends AsyncTask<String, Void, String>{
     Context _context;
 
-    ProgressDialog _progDialog;
+    LoaderDialog _Loader;
     Activity _activity;
     GoogleApiClient _googleAPIClient;
     GoogleMap _map;
@@ -50,10 +50,10 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
     private Constants _constants = new Constants();
 
 
-    public asyncAddPoints(Context context, ProgressDialog progDialog, Activity activity, GoogleMap map, GoogleApiClient apiClient, String action, Integer destinationIDForEdit) {
+    public asyncAddPoints(Context context, LoaderDialog loaderDialog, Activity activity, GoogleMap map, GoogleApiClient apiClient, String action, Integer destinationIDForEdit) {
         Log.i(_constants.LOG_TAG, "asyncAddPoints");
         this._context = context;
-        this._progDialog = progDialog;
+        this._Loader = loaderDialog;
         this._activity = activity;
         this._map = map;
         this._googleAPIClient = apiClient;
@@ -193,7 +193,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                     alertDialogBuilder.setMessage("We have successfully updated the point on the map!");
                 else
                     alertDialogBuilder.setMessage("We have successfully deleted the point from the map!");
-                new mySQLDestinationProvider(_context, this._activity, "", _map, _googleAPIClient, _progDialog).execute();
+                new mySQLDestinationProvider(_context, this._activity, "", _map, _googleAPIClient, _Loader).execute();
 
             }
             else
@@ -203,7 +203,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             }
             alertDialogBuilder.show();
 
-
+        _Loader.hide();
 
         }
         catch(Exception ex)

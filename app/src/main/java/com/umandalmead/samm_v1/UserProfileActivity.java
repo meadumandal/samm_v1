@@ -50,7 +50,7 @@ public class UserProfileActivity extends Fragment {
     Button btn_save;
     SessionManager _sessionManager;
     String _promptMessage="";
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     public static String _facebookImg;
     private TextView SammTV;
     private View myView;
@@ -73,11 +73,9 @@ public class UserProfileActivity extends Fragment {
         userImage = (ImageView) _view.findViewById(R.id.profileImg);
         btn_save = (Button) _view.findViewById(R.id.btn_save);
         _sessionManager = new SessionManager(getContext());
-        _progressDialog = new ProgressDialog(getContext());
-        _progressDialog.setTitle("Updating...");
-        _progressDialog.setMessage("Updating your profile, please wait...");
-        _progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        _progressDialog.setCancelable(false);
+
+        _LoaderDialog = new LoaderDialog(this.getActivity(), "Updating...", "Updating your profile, please wait...");
+        _LoaderDialog.setCancelable(false);
 
         tv_firstName.setText(_sessionManager.getFirstName());
         tv_lastName.setText(_sessionManager.getLastName());
@@ -106,7 +104,7 @@ public class UserProfileActivity extends Fragment {
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                _progressDialog.show();
+                _LoaderDialog.show();
                 String currentPassword = tv_currentPassword.getText().toString();
                 final String password = tv_password.getText().toString();
                 final String confirmPassword = tv_confirmPassword.getText().toString();
@@ -119,7 +117,7 @@ public class UserProfileActivity extends Fragment {
                         if(password.length() < 6)
                         {
                             Toast.makeText(getContext(), String.format(getString(R.string.error_shortpassword), "6"), Toast.LENGTH_LONG).show();
-                            _progressDialog.hide();
+                            _LoaderDialog.hide();
                             return;
                         }
                         else {
@@ -163,7 +161,7 @@ public class UserProfileActivity extends Fragment {
                     else
                     {
                         Toast.makeText(getContext(),"Password mismatch", Toast.LENGTH_LONG).show();
-                        _progressDialog.hide();
+                        _LoaderDialog.hide();
                     }
                 }
                 else
@@ -178,7 +176,7 @@ public class UserProfileActivity extends Fragment {
 
     private void updateUserDetails(String username, String newFirstName, String newLastName)
     {
-        new mySQLUpdateUserDetails(getContext(),getActivity(),_progressDialog,_promptMessage).execute(username, newFirstName, newLastName);
+        new mySQLUpdateUserDetails(getContext(),getActivity(),_LoaderDialog,_promptMessage).execute(username, newFirstName, newLastName);
         tv_password.setText("");
         tv_currentPassword.setText("");
         tv_confirmPassword.setText("");

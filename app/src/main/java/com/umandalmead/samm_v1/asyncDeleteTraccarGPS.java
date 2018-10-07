@@ -35,7 +35,7 @@ import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
     Context _context;
     Activity _activity;
-    ProgressDialog _progDialog;
+    LoaderDialog _LoaderDialog;
     AlertDialog.Builder _alertDialogBuilder;
     String progressMessage;
     public static String TAG="mead";
@@ -47,11 +47,11 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
     NonScrollListView _gpsListView;
 
 
-    public asyncDeleteTraccarGPS(Context context, ProgressDialog progDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModel, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView gpsListView)
+    public asyncDeleteTraccarGPS(Context context, LoaderDialog loaderDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModel, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView gpsListView)
     {
         Log.i(TAG, "asyncDeleteTraccarGPS");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._activity = activity;
         this._dataModel = dataModel;
         this._swipeRefreshLayout = swipeRefreshLayout;
@@ -138,7 +138,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
             Helper.logger(ex);
             returnString =  ex.getMessage();
         }
-        _progDialog.dismiss();
+        _LoaderDialog.dismiss();
         return returnString;
     }
 
@@ -159,13 +159,13 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
                 alertDialogBuilder.setTitle("Success");
                 alertDialogBuilder.setMessage("Successfully deleted GPS!");
                 _dialogFragment.dismiss();
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
                 _swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _progDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
 
                     }
                 });
@@ -174,7 +174,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
                     public void run() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _progDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
                     }
                 });
 //              new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");

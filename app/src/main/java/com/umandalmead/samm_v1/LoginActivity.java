@@ -10,6 +10,7 @@ import android.content.pm.Signature;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Base64;
@@ -197,15 +198,11 @@ public class LoginActivity extends AppCompatActivity{
                     PlayButtonClickSound();
                     try
                     {
-                        final ProgressDialog progDialog = new ProgressDialog(LoginActivity.this);
-                        progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                        progDialog.setMessage("Sending password reset link to your e-mail");
-                        progDialog.setTitle("Please wait...");
-                        progDialog.setCancelable(false);
-                        progDialog.show();
+                        final LoaderDialog FP_Loader = new LoaderDialog(LoginActivity.this, "Please wait...", "Sending password reset link to your e-mail");
+                        FP_Loader.show();
                         if (usernameField.getText().toString().trim().length() == 0)
                         {
-                            progDialog.dismiss();
+                            FP_Loader.dismiss();
                             ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an email address.");
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                             dialog.show();
@@ -218,7 +215,7 @@ public class LoginActivity extends AppCompatActivity{
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
-                                                    progDialog.dismiss();
+                                                    FP_Loader.dismiss();
                                                     InfoDialog dialog=new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
                                                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                                     dialog.show();
@@ -239,14 +236,14 @@ public class LoginActivity extends AppCompatActivity{
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                progDialog.dismiss();
+                                                FP_Loader.dismiss();
                                                 _helper.logger(e);
                                             }
                                         });
 
                             }
                             else {
-                                progDialog.dismiss();
+                                FP_Loader.dismiss();
                                 ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an e-mail address");
                                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                 dialog.show();
@@ -280,7 +277,7 @@ public class LoginActivity extends AppCompatActivity{
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
-                    progressBar.setVisibility(View.VISIBLE);
+                    ShowLogInProgressDialog("User");
                     final String username = usernameField.getText().toString();
                     final String password = passwordField.getText().toString();
                     if (username.trim().isEmpty() || password.trim().isEmpty()) {
@@ -530,14 +527,6 @@ public class LoginActivity extends AppCompatActivity{
     private void ShowLogInProgressDialog(String From){
         LoaderDialog LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
         LD_FBLoginLoader.show();
-        //        LoginProgDiag = new ProgressDialog(LoginActivity.this);
-//        LoginProgDiag.setMax(100);
-//        LoginProgDiag.setMessage("Please wait as we log you in...");
-//        LoginProgDiag.setTitle(From +" Log In");
-//        LoginProgDiag.setIndeterminate(false);
-//        LoginProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//        LoginProgDiag.setCancelable(false);
-//        LoginProgDiag.show();
     }
     private Boolean checkIfEmailVerified()
     {

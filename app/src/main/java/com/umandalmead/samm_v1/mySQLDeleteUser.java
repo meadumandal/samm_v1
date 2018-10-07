@@ -26,7 +26,7 @@ import java.net.URLConnection;
 public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
     Context _context;
     Activity _activity;
-    ProgressDialog _progDialog;
+    LoaderDialog _LoaderDialog;
     AlertDialog.Builder _alertDialogBuilder;
     String progressMessage;
     public static String TAG="mead";
@@ -36,11 +36,11 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
     private Constants _constants = new Constants();
 
 
-    public mySQLDeleteUser(Context context, ProgressDialog progDialog, Activity activity, Users dataModel)
+    public mySQLDeleteUser(Context context, LoaderDialog loaderDialog, Activity activity, Users dataModel)
     {
         Log.i(TAG, "mySQLDeleteUser");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._activity = activity;
         this._dataModel = dataModel;
 
@@ -91,15 +91,15 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
             }
             else
             {
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
                 return "Looks like you're offline";
             }
-            _progDialog.dismiss();
+            _LoaderDialog.dismiss();
             return "GPS deleted!";
         }
         catch(Exception ex)
         {
-            _progDialog.dismiss();
+            _LoaderDialog.dismiss();
             Helper.logger(ex);
             return ex.getMessage();
         }

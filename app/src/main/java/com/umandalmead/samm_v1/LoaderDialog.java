@@ -17,7 +17,7 @@ import android.widget.TextView;
  * Created by eleazerarcilla on 07/10/2018.
  */
 
-public class LoaderDialog extends Dialog implements android.view.View.OnClickListener {
+public class LoaderDialog extends Dialog {
     public Activity _activity;
     public Dialog dialog;
     public String _loaderMessage, _loaderTitle;
@@ -55,15 +55,6 @@ public class LoaderDialog extends Dialog implements android.view.View.OnClickLis
 
 
     }
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnOK:
-                dismiss();
-                break;
-            default:
-                break;
-        }
 
-    }
+
 }

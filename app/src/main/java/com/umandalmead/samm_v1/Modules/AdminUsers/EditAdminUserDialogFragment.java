@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
@@ -102,11 +103,8 @@ public class EditAdminUserDialogFragment extends DialogFragment {
             btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ProgressDialog progDialog = new ProgressDialog(getActivity());
-                    progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    progDialog.setTitle("Saving changes...");
-                    progDialog.setMessage("Please wait...");
-                    progDialog.setCancelable(false);
+                    LoaderDialog SaveChangesLoader = new LoaderDialog(getActivity(), "Saving changes...","Please wait...");
+                    SaveChangesLoader.setCancelable(false);
 
                     String new_username = edit_username.getText().toString();
                     String new_firstname = edit_firstname.getText().toString();
@@ -114,13 +112,13 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                     String password = edit_password.getText().toString();
                     String confirmedPassword = edit_confirmPassword.getText().toString();
 
-                    progDialog.show();
+                    SaveChangesLoader.show();
                     try
                     {
                         if (_isAdd) //If new entry
                         {
                             Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
-                            new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),progDialog,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_firstname, new_lastname, password);
+                            new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_firstname, new_lastname, password);
 
                         }
                         else //EDIT
@@ -129,12 +127,12 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                             {
 
                                 Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
-                                new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),progDialog,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_firstname, new_lastname, password);
+                                new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_firstname, new_lastname, password);
                             }
                             else
                             {
                                 Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, null, null));
-                                new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),progDialog,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username, new_firstname, new_lastname, null);
+                                new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username, new_firstname, new_lastname, null);
                             }
 
                         }
@@ -146,7 +144,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                     catch(Exception ex)
                     {
                         Toast.makeText(getActivity(), ex.getMessage(), Toast.LENGTH_LONG).show();
-                        progDialog.dismiss();
+                        SaveChangesLoader.dismiss();
                     }
 
                 }
@@ -164,14 +162,11 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     try {
-                                        ProgressDialog progDialog = new ProgressDialog(getActivity());
-                                        progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                        progDialog.setTitle("Removing User");
-                                        progDialog.setMessage("Please wait...");
-                                        progDialog.setCancelable(false);
-                                        progDialog.show();
+                                        LoaderDialog RemoveUserLoader= new LoaderDialog(getActivity(), "Removing User","Please wait...");
+                                        RemoveUserLoader.setCancelable(false);
+                                        RemoveUserLoader.show();
 
-                                        new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),progDialog,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Delete").execute(_userID.toString(), "","","","");
+                                        new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),RemoveUserLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Delete").execute(_userID.toString(), "","","","");
 
                                     }
                                     catch(Exception ex)

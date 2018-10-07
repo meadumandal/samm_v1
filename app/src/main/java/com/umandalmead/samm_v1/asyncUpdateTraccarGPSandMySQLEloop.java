@@ -37,7 +37,7 @@ import java.util.List;
 public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, String>{
     Context _context;
     Activity _activity;
-    ProgressDialog _progDialog;
+    LoaderDialog _LoaderDialog;
     AlertDialog.Builder _alertDialogBuilder;
     String progressMessage;
     public static String TAG="mead";
@@ -51,11 +51,11 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
     NonScrollListView _gpsListView;
 
 
-    public asyncUpdateTraccarGPSandMySQLEloop(Context context, ProgressDialog progDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModelGPS, Eloop dataModelEloop,SwipeRefreshLayout swipeRefreshLayout, NonScrollListView GPSListView)
+    public asyncUpdateTraccarGPSandMySQLEloop(Context context, LoaderDialog loaderDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModelGPS, Eloop dataModelEloop,SwipeRefreshLayout swipeRefreshLayout, NonScrollListView GPSListView)
     {
         Log.i(TAG, "asyncUpdateTraccarGPSandMySQLEloop");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._activity = activity;
         this._dataModelGPS = dataModelGPS;
         this._dataModelEloop = dataModelEloop;
@@ -126,18 +126,18 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                 json = new JSONObject(strResponse);
                 if (json.getBoolean("status"))
                 {
-                    _progDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     returnString= "Success";
                 }
                 else
                 {
-                    _progDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     returnString= json.getString("message");
                 }
             }
             else
             {
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
                 returnString=  "Looks like you're offline";
             }
 
@@ -173,7 +173,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                     public void onRefresh() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _progDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
 
                     }
                 });
@@ -182,7 +182,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                     public void run() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _progDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
                     }
                 });
 //              new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");

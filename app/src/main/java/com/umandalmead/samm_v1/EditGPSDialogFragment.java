@@ -233,12 +233,9 @@ public class EditGPSDialogFragment extends DialogFragment
             btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ProgressDialog progDialog = new ProgressDialog(getActivity());
-                    progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    progDialog.setTitle("Updating GPS");
-                    progDialog.setMessage("Please wait...");
-                    progDialog.setCancelable(false);
-                    progDialog.show();
+                    LoaderDialog GPSUpdateLoader = new LoaderDialog(getActivity(), "Updating GPS", "Please wait...");
+                    GPSUpdateLoader.setCancelable(false);
+                    GPSUpdateLoader.show();
                     String IMEI = GPSIMEI.getText().toString();
                     String Phone = GPSPhone.getText().toString();
                     String PlateNumber = GPSPlateNumber.getText().toString();
@@ -254,7 +251,7 @@ public class EditGPSDialogFragment extends DialogFragment
                     _dataModelSelectedEloop.tblUsersID = tblUsersID;
                     _dataModelSelectedEloop.DeviceName= "SAMM_"+ IMEI.substring(IMEI.length()-5, IMEI.length());
 
-                    new asyncUpdateTraccarGPSandMySQLEloop(getActivity(), progDialog, getActivity(), EditGPSDialogFragment.this, _dataModelSelectedGPS, _dataModelSelectedEloop, _swipeRefresh, _gpsListView).execute();
+                    new asyncUpdateTraccarGPSandMySQLEloop(getActivity(), GPSUpdateLoader, getActivity(), EditGPSDialogFragment.this, _dataModelSelectedGPS, _dataModelSelectedEloop, _swipeRefresh, _gpsListView).execute();
 
 
                 }
@@ -272,10 +269,7 @@ public class EditGPSDialogFragment extends DialogFragment
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     try {
-                                        ProgressDialog progDialog = new ProgressDialog(getActivity());
-                                        progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                        progDialog.setTitle("Deleting GPS");
-                                        progDialog.setMessage("Please wait...");
+                                        LoaderDialog progDialog= new LoaderDialog(getActivity(),"Deleting GPS","Please wait...");
                                         progDialog.setCancelable(false);
                                         progDialog.show();
 

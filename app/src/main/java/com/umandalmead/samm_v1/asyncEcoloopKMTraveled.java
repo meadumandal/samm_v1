@@ -41,7 +41,7 @@ import java.util.Date;
 public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<SummaryReport>>{
     Context _context;
     Activity _activity;
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     String progressMessage;
     ArrayList<SummaryReport> _listReport;
     ArrayList<BarDataSet> dataSet;
@@ -63,8 +63,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         this.dataSet = new ArrayList<>();
         this.xAxis = new ArrayList<>();
 
-        _progressDialog = new ProgressDialog(this._activity);
-        _progressDialog.setMessage(progressMessage);
+        _LoaderDialog = new LoaderDialog(this._activity,"", progressMessage);
     }
     @Override
     protected void onPreExecute()
@@ -72,12 +71,8 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         try
         {
             super.onPreExecute();
-            _progressDialog.setIndeterminate(false);
-            _progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progressDialog.setCancelable(false);
-            _progressDialog.setMessage("Report is being generated");
-            _progressDialog.setTitle("Fetching Data");
-            _progressDialog.show();
+            _LoaderDialog = new LoaderDialog(this._activity,"Fetching Data", "Report is being generated");
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -218,7 +213,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 ReportsActivity._vehicleReportTable.addView(row);
 
             }
-            _progressDialog.dismiss();
+            _LoaderDialog.dismiss();
         }
         catch(Exception ex)
         {

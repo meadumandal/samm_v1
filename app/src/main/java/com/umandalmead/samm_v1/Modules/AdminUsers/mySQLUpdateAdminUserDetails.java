@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.InfoDialog;
+import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.SessionManager;
 
@@ -42,7 +43,7 @@ import static com.umandalmead.samm_v1.MenuActivity._UserNameMenuItem;
 public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String> {
     Context _context;
     Activity _activity;
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     String _promptMessage;
     Boolean _status;
     String newusername,newfirstname, newlastname, newpassword;
@@ -54,11 +55,11 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
     String _action;
     Helper _helper = new Helper();
     private Constants _constants = new Constants();
-    public mySQLUpdateAdminUserDetails(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage, EditAdminUserDialogFragment editDialog, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView adminUserListView, String action)
+    public mySQLUpdateAdminUserDetails(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage, EditAdminUserDialogFragment editDialog, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView adminUserListView, String action)
     {
         this._context = context;
         this._activity = activity;
-        this._progressDialog = progressDialog;
+        this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._editDialog = editDialog;
         this._swipeRefreshLayout = swipeRefreshLayout;
@@ -160,7 +161,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
         else
         {
             Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-            _progressDialog.hide();
+            _LoaderDialog.hide();
 
         }
         return _promptMessage;
@@ -172,7 +173,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
 
         try
         {
-            _progressDialog.hide();
+            _LoaderDialog.hide();
             _UserNameMenuItem.setTitle(_sessionManager.getFullName());
 
             if(_status)
@@ -186,7 +187,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
                     public void onRefresh() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new mySQLGetAdminUsers(_activity, _progressDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
+                        new mySQLGetAdminUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
 
                     }
                 });
@@ -195,7 +196,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
                     public void run() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new mySQLGetAdminUsers(_activity, _progressDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
+                        new mySQLGetAdminUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
                     }
                 });
             }

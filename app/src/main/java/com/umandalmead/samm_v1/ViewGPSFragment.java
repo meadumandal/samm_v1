@@ -38,7 +38,7 @@ public class ViewGPSFragment extends Fragment {
     public SwipeRefreshLayout swipeRefreshGPS;
     View myView;
     ArrayList<GPS> dataModels;
-    ProgressDialog progDialog;
+    LoaderDialog _LoaderDialog;
 
     private static listViewCustomAdapter adapter;
 
@@ -66,7 +66,7 @@ public class ViewGPSFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        progDialog = new ProgressDialog(getActivity());
+        _LoaderDialog = new LoaderDialog(getActivity(),null,null);
 
     }
 
@@ -86,7 +86,7 @@ public class ViewGPSFragment extends Fragment {
                 public void onRefresh() {
                     swipeRefreshGPS.setRefreshing(true);
                     FragmentManager fm = getActivity().getFragmentManager();
-                    new asyncGetGPSFromTraccar(getActivity(), progDialog, gpsListview, fm,swipeRefreshGPS).execute();
+                    new asyncGetGPSFromTraccar(getActivity(), _LoaderDialog, gpsListview, fm,swipeRefreshGPS).execute();
                 }
             });
             swipeRefreshGPS.post(new Runnable() {
@@ -94,13 +94,11 @@ public class ViewGPSFragment extends Fragment {
                 public void run() {
                     swipeRefreshGPS.setRefreshing(true);
                     FragmentManager fm = getActivity().getFragmentManager();
-                    new asyncGetGPSFromTraccar(getActivity(), progDialog, gpsListview, fm, swipeRefreshGPS).execute();
+                    new asyncGetGPSFromTraccar(getActivity(), _LoaderDialog, gpsListview, fm, swipeRefreshGPS).execute();
                 }
             });
-            progDialog.setTitle("Please wait");
-            progDialog.setMessage("Please wait");
-            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDialog.show();
+            _LoaderDialog = new LoaderDialog(getActivity(),"Please wait...","Please wait...");
+            _LoaderDialog.show();
 
 
         }

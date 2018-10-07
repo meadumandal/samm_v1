@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
@@ -28,7 +29,7 @@ public class AdminUsersFragment extends Fragment {
     public ImageButton FAB_SammIcon;
     private  TextView ViewTitle;
     public SwipeRefreshLayout swipeRefreshAdminUsers;
-    ProgressDialog progDialog;
+    LoaderDialog _LoaderDialog;
 
 
 
@@ -42,7 +43,7 @@ public class AdminUsersFragment extends Fragment {
         if (getArguments() != null) {
 
         }
-        progDialog = new ProgressDialog(getActivity());
+        _LoaderDialog = new LoaderDialog(getActivity(), null,null);
 
     }
 
@@ -64,7 +65,7 @@ public class AdminUsersFragment extends Fragment {
                     swipeRefreshAdminUsers.setRefreshing(true);
                     FragmentManager fm = getActivity().getFragmentManager();
 
-                    new mySQLGetAdminUsers(getActivity(), progDialog, adminUsersListView, fm,swipeRefreshAdminUsers).execute();
+                    new mySQLGetAdminUsers(getActivity(), _LoaderDialog, adminUsersListView, fm,swipeRefreshAdminUsers).execute();
 
                 }
             });
@@ -73,13 +74,11 @@ public class AdminUsersFragment extends Fragment {
                 public void run() {
                     swipeRefreshAdminUsers.setRefreshing(true);
                     FragmentManager fm = getActivity().getFragmentManager();
-                    new mySQLGetAdminUsers(getActivity(), progDialog, adminUsersListView, fm,swipeRefreshAdminUsers).execute();
+                    new mySQLGetAdminUsers(getActivity(), _LoaderDialog, adminUsersListView, fm,swipeRefreshAdminUsers).execute();
                 }
             });
-            progDialog.setTitle("Please wait");
-            progDialog.setMessage("Please wait");
-            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDialog.show();
+            _LoaderDialog = new LoaderDialog(getActivity(),"Please wait", "Please wait");
+            _LoaderDialog.show();
 
 
         }

@@ -32,7 +32,7 @@ import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 public class asyncAppSubName extends AsyncTask<Void, Void, String>{
     Context _context;
     Activity _activity;
-    ProgressDialog _progDialog;
+    LoaderDialog _LoaderDialog;
     AlertDialog.Builder _alertDialogBuilder;
     String progressMessage;
     public static String TAG="mead";
@@ -42,11 +42,11 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
     private Constants _constants = new Constants();
 
 
-    public asyncAppSubName(Context context, ProgressDialog progDialog, Activity activity, GPS dataModel)
+    public asyncAppSubName(Context context, LoaderDialog loaderDialog, Activity activity, GPS dataModel)
     {
         Log.i(TAG, "asyncUpdateTraccarGPSandMySQLEloop");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._activity = activity;
         this._dataModel = dataModel;
 
@@ -113,17 +113,17 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
                     if (deviceId>0)
                     {
 
-                        _progDialog.dismiss();
+                        _LoaderDialog.dismiss();
                         returnString= "Success";
                     }
                     else
                     {
-                        _progDialog.dismiss();
+                        _LoaderDialog.dismiss();
                         returnString= "Error encountered upon updating GPS. Please re-try";
                     }
                 }
                 catch(Exception ex){
-                    _progDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     String errorMessage = jsonResponse.toString();
                     if(errorMessage.substring(0,15).equals("Duplicate entry"))
                     {
@@ -138,13 +138,13 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
                         helper.logger(ex);
 
                     }
-                    _progDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     returnString= "Error encountered upon adding GPS: "+errorMessage+". Please re-try";
                 }
             }
             else
             {
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
                 returnString=  "Looks like you're offline";
             }
             return returnString + "/" + name + "/" +deviceId.toString();

@@ -16,6 +16,7 @@ import com.umandalmead.samm_v1.Adapters.adminUsersListViewCustomerAdapter;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
 
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
     public Context _context;
     public Activity _activity;
-    public ProgressDialog _progDialog;
+    public LoaderDialog _LoaderDialog;
     public NonScrollListView _listView;
     public ArrayList<Users> _dataModels;
     public FragmentManager _fragmentManager;
@@ -50,14 +51,14 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
 
 
     public mySQLGetAdminUsers(Context context,
-                              ProgressDialog progDialog,
+                              LoaderDialog loaderDialog,
                               NonScrollListView listView,
                               FragmentManager fm,
                               SwipeRefreshLayout swipeRefreshAdminUsers)
     {
         Log.i(_constants.LOG_TAG, "mySQLGetAdminUsers");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._listView = listView;
         this._fragmentManager = fm;
         this._swipeRefreshAdminUsers = swipeRefreshAdminUsers;
@@ -92,17 +93,17 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
 
                     return new JSONArray(jsonResponse);
                 } catch (Exception ex) {
-                    _progDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     Helper.logger(ex);
                     return null;
                 }
             } else {
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
                 return null;
             }
         } catch (Exception ex) {
             Helper.logger(ex);
-            _progDialog.dismiss();
+            _LoaderDialog.dismiss();
             return null;
 
         }
@@ -167,7 +168,7 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
             });
 
             _swipeRefreshAdminUsers.setRefreshing(false);
-            _progDialog.dismiss();
+            _LoaderDialog.dismiss();
 
         }
         catch(Exception ex)

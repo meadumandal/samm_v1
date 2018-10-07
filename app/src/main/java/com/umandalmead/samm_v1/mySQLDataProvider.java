@@ -32,7 +32,7 @@ import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, HashMap<String, Object>>{
     Context _context;
     Activity _activity;
-    ProgressDialog progDialog;
+    LoaderDialog _LoaderDialog;
     String progressMessage;
 
     /**
@@ -44,8 +44,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
     {
         this._context = context;
         this._activity = activity;
-        progDialog = new ProgressDialog(this._activity);
-        progDialog.setMessage(progressMessage);
+        _LoaderDialog = new LoaderDialog(this._activity, "",progressMessage);
     }
     @Override
     protected void onPreExecute()
@@ -53,10 +52,8 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
         try
         {
             super.onPreExecute();
-            progDialog.setIndeterminate(false);
-            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDialog.setCancelable(false);
-            progDialog.show();
+            _LoaderDialog.setCancelable(false);
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -166,7 +163,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
                 Toast.makeText(this._context, result.get("Message").toString(), Toast.LENGTH_LONG).show();
             }
             super.onPostExecute(result);
-            progDialog.dismiss();
+            _LoaderDialog.dismiss();
         }
         catch(Exception ex)
         {

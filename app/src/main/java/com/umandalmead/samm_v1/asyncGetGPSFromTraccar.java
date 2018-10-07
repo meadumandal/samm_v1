@@ -48,7 +48,7 @@ import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
     public Context _context;
     public Activity _activity;
-    public ProgressDialog _progDialog;
+    public LoaderDialog _LoaderDialog;
     public NonScrollListView _listView;
     public ArrayList<GPS> _dataModels;
     public FragmentManager _fragmentManager;
@@ -59,14 +59,14 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
 
 
     public asyncGetGPSFromTraccar(Context context,
-                                  ProgressDialog progDialog,
+                                  LoaderDialog loaderDialog,
                                   NonScrollListView listView,
                                   FragmentManager fm,
                                   SwipeRefreshLayout swipeRefreshGPS)
     {
             Log.i(_constants.LOG_TAG, "asyncGetGPSFromTraccar");
         this._context = context;
-        this._progDialog = progDialog;
+        this._LoaderDialog = loaderDialog;
         this._listView = listView;
         this._fragmentManager = fm;
         this._swipeRefreshGPS = swipeRefreshGPS;
@@ -103,17 +103,17 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
 
                         return new JSONArray(jsonResponse);
                     } catch (Exception ex) {
-                        _progDialog.dismiss();
+                        _LoaderDialog.dismiss();
                         Helper.logger(ex);
                         return null;
                     }
                 } else {
-                    _progDialog.dismiss();
+                    _LoaderDialog.dismiss();
                     return null;
                 }
             } catch (Exception ex) {
                 Helper.logger(ex);
-                _progDialog.dismiss();
+                _LoaderDialog.dismiss();
                 return null;
 
             }
@@ -181,7 +181,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
             });
 
             _swipeRefreshGPS.setRefreshing(false);
-            _progDialog.dismiss();
+            _LoaderDialog.dismiss();
 
         }
         catch(Exception ex)

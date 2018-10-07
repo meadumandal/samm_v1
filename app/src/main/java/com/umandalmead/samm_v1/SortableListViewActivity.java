@@ -39,7 +39,7 @@ public class SortableListViewActivity extends ListActivity {
     private View myView;
     private ImageButton FAB_SammIcon;
     private  TextView ViewTitle;
-    public ProgressDialog _ProgressDialog;
+    public LoaderDialog _LoaderDialog;
     public Terminal[] originalPointsArray;
     public Boolean isItTheSame;
     public String[] pointsArrayInString;
@@ -71,11 +71,8 @@ public class SortableListViewActivity extends ListActivity {
             mList.setDropListener(mDropListener);
 
             registerForContextMenu(mList);
-            _ProgressDialog = new ProgressDialog(this);
-            _ProgressDialog.setTitle("Adding Vehicle GPS");
-            _ProgressDialog.setMessage("Initializing...");
-            _ProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _ProgressDialog.setCancelable(false);
+            _LoaderDialog = new LoaderDialog(this, "Adding Vehicle GPS","Initializing...");
+            _LoaderDialog.setCancelable(false);
         }
         catch (Exception ex){
             Toast.makeText(SortableListViewActivity.this, ex.getMessage().toString(), Toast.LENGTH_LONG).show();
@@ -95,14 +92,12 @@ public class SortableListViewActivity extends ListActivity {
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    ProgressDialog progDialog = new ProgressDialog(SortableListViewActivity.this);
-                                    progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                    progDialog.setTitle("Please wait...");
-                                    progDialog.setMessage("Updating order of points");
-                                    progDialog.setCancelable(false);
+                                    LoaderDialog PointsUpdateLoader = new LoaderDialog(SortableListViewActivity.this, "Please wait...", "Updating order of points");
+                                    PointsUpdateLoader.setCancelable(false);
                                     String pointsArray = Arrays.toString(pointsArrayInString);
+
                                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);
-                                    new mySQLUpdateDestinationsOrder(getApplicationContext(), SortableListViewActivity.this,progDialog,"", alertDialogBuilder).execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
+                                    new mySQLUpdateDestinationsOrder(getApplicationContext(), SortableListViewActivity.this,PointsUpdateLoader,"", alertDialogBuilder).execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
 
                                     originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
 
@@ -340,32 +335,26 @@ public class SortableListViewActivity extends ListActivity {
 
             }
 
-            _ProgressDialog.dismiss();
+            _LoaderDialog.dismiss();
         }
 
         private void savePoint(String name, Double lat, Double lng, Integer tblRouteID)
         {
-            _ProgressDialog = new ProgressDialog(SortableListViewActivity.this);
-            _ProgressDialog.setTitle("Adding Pickup/Dropoff Point");
-            _ProgressDialog.setMessage("Please wait as we set up the points on the map");
-            _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
+            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, "Adding Pickup/Dropoff Point", "Please wait as we set up the points on the map");
+            _LoaderDialog.show();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void updatePoint(Integer ID, String name, Double lat, Double lng, Integer tblRouteID)
         {
-            _ProgressDialog = new ProgressDialog(SortableListViewActivity.this);
-            _ProgressDialog.setTitle("Updating Pickup/Dropoff Point");
-            _ProgressDialog.setMessage("Please wait as we update the points on the map");
-            _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
+            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this,"Updating Pickup/Dropoff Point", "Please wait as we update the points on the map" );
+            _LoaderDialog.show();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void deletePoint(Integer ID)
         {
-            _ProgressDialog = new ProgressDialog(SortableListViewActivity.this);
-            _ProgressDialog.setTitle("Deleting Pickup/Dropoff Point");
-            _ProgressDialog.setMessage("Please wait as we update the points on the map");
-            _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Delete", ID).execute();
+            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, "Deleting Pickup/Dropoff Point", "Please wait as we update the points on the map");
+            _LoaderDialog.show();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Delete", ID).execute();
         }
     }
     public  class AddRouteDialog extends Dialog implements android.view.View.OnClickListener{
@@ -436,14 +425,11 @@ public class SortableListViewActivity extends ListActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             try {
-                                ProgressDialog progDialog = new ProgressDialog(SortableListViewActivity.this);
-                                progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                progDialog.setTitle("Please wait...");
-                                progDialog.setMessage("Deleting point...");
-                                progDialog.setCancelable(false);
+                                LoaderDialog DeleteLoader = new LoaderDialog(SortableListViewActivity.this, "Please wait...", "Deleting point...");
+                                DeleteLoader.setCancelable(false);
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);
-                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), SortableListViewActivity.this, progDialog,"", alertDialogBuilder, "Destination").execute(String.valueOf(SelectedTerminal.getID()));
+                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), SortableListViewActivity.this, DeleteLoader,"", alertDialogBuilder, "Destination").execute(String.valueOf(SelectedTerminal.getID()));
                             }
                             catch(Exception ex)
                             {

@@ -52,7 +52,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
      */
     Context _context;
     Activity _activity;
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     String _promptMessage;
     SessionManager _sessionManager;
     private Constants _constants = new Constants();
@@ -60,11 +60,11 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
     AlertDialog.Builder _alertDialogBuilder;
 
     private boolean _isSuccessful = false;
-    public mySQLUpdateDestinationsOrder(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage, AlertDialog.Builder alertDialogBuilder)
+    public mySQLUpdateDestinationsOrder(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage, AlertDialog.Builder alertDialogBuilder)
     {
         this._context = context;
         this._activity = activity;
-        this._progressDialog = progressDialog;
+        this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._alertDialogBuilder = alertDialogBuilder;
 
@@ -78,7 +78,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
         {
 
             super.onPreExecute();
-            _progressDialog.show();
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -134,7 +134,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
             else
             {
                 Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-                _progressDialog.hide();
+                _LoaderDialog.hide();
 
             }
         }
@@ -151,7 +151,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
     {
 
 
-        _progressDialog.hide();
+        _LoaderDialog.hide();
         this._alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             }

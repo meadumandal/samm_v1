@@ -45,17 +45,17 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
      */
     Context _context;
     Activity _activity;
-    ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     String _promptMessage;
     SessionManager _sessionManager;
     ManageRoutesActivity.AddRouteDialog _addRouteDialog;
 
     private Constants _constants = new Constants();
-    public mySQLUpdateRoute(Context context, Activity activity, ProgressDialog progressDialog, ManageRoutesActivity.AddRouteDialog addRouteDialog,  String promptMessage)
+    public mySQLUpdateRoute(Context context, Activity activity, LoaderDialog loaderDialog, ManageRoutesActivity.AddRouteDialog addRouteDialog,  String promptMessage)
     {
         this._context = context;
         this._activity = activity;
-        this._progressDialog = progressDialog;
+        this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._addRouteDialog = addRouteDialog;
 
@@ -68,11 +68,9 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _progressDialog.setMessage("Updating Route...");
-            _progressDialog.setTitle("Please wait...");
-            _progressDialog.setCancelable(false);
-            _progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            _progressDialog.show();
+            _LoaderDialog = new LoaderDialog(_activity,"Please wait...", "Updating Route...");
+            _LoaderDialog.setCancelable(false);
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -119,7 +117,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         else
         {
             Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-            _progressDialog.hide();
+            _LoaderDialog.hide();
 
         }
         return newRouteName;
@@ -130,7 +128,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
     {
 
 
-        _progressDialog.hide();
+        _LoaderDialog.hide();
 
         if(_promptMessage.trim().length()>0)
         {

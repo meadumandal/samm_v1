@@ -42,7 +42,7 @@ import java.util.ArrayList;
 public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void, Void>{
     Context _context;
     Activity _activity;
-    ProgressDialog progDialog;
+    LoaderDialog _LoaderDialog;
     String progressMessage;
     ArrayList<PassengerQueueingHistory> _listReport;
     ArrayList<BarDataSet> dataSet;
@@ -67,8 +67,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
 
         this.dataSet = new ArrayList<>();
         this.xAxis = new ArrayList<>();
-        progDialog = new ProgressDialog(this._activity);
-        progDialog.setMessage(progressMessage);
+        _LoaderDialog = new LoaderDialog(this._activity,"", progressMessage);
     }
     @Override
     protected void onPreExecute()
@@ -76,12 +75,9 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         try
         {
             super.onPreExecute();
-            progDialog.setIndeterminate(false);
-            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progDialog.setCancelable(false);
-            progDialog.setMessage("Report is being generated");
-            progDialog.setTitle("Fetching Data");
-            progDialog.show();
+            _LoaderDialog = new LoaderDialog(_activity, "Fetching Data","Report is being generated");
+            _LoaderDialog.setCancelable(false);
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -195,7 +191,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 InfoDialog dialog=new InfoDialog(this._activity, "No records found");
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
-                progDialog.hide();
+                _LoaderDialog.hide();
                 tv_reportTerminal.setText("");
                 tv_reportCoverage.setText("");
                 tv_passengersWaitedDuringThisTime.setText("");
@@ -273,7 +269,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         {
             Helper.logger(ex);
         }
-        progDialog.hide();
+        _LoaderDialog.hide();
 
     }
 

@@ -50,6 +50,7 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
     Context _context;
     Activity _activity;
     ProgressDialog _progressDialog;
+    LoaderDialog _LoaderDialog;
     AlertDialog.Builder _alertDialogBuilder;
     String _promptMessage;
     SessionManager _sessionManager;
@@ -58,11 +59,11 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
     public String _typeOfItemToDelete;
     Boolean _isSuccessful;
 
-    public mySQLDeleteDestinationOrRoute(Context context, Activity activity, ProgressDialog progressDialog, String promptMessage, AlertDialog.Builder alertDialog, String typeOfItemToDelete)
+    public mySQLDeleteDestinationOrRoute(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage, AlertDialog.Builder alertDialog, String typeOfItemToDelete)
     {
         this._context = context;
         this._activity = activity;
-        this._progressDialog = progressDialog;
+        this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._alertDialogBuilder = alertDialog;
         this._typeOfItemToDelete = typeOfItemToDelete;
@@ -73,7 +74,7 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
     @Override
     protected void onPreExecute()
     {
-        _progressDialog.show();
+        _LoaderDialog.show();
         try
         {
             super.onPreExecute();
@@ -142,7 +143,7 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
             {
                 _isSuccessful = false;
                 Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
-                _progressDialog.hide();
+                _LoaderDialog.hide();
                 return "Looks like you're offline";
 
             }
@@ -160,7 +161,7 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
     {
 
 
-        _progressDialog.hide();
+        _LoaderDialog.hide();
 
         try
         {
@@ -184,7 +185,7 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
             this._alertDialogBuilder.setMessage(param);
 
 
-            new mySQLDestinationProvider(_context, this._activity, "", _googleMap, _googleAPI, _progressDialog).execute();
+            new mySQLDestinationProvider(_context, this._activity, "", _googleMap, _googleAPI, _LoaderDialog).execute();
 
 
 

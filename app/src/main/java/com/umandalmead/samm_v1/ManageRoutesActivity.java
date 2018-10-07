@@ -111,7 +111,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
         private Integer _routeID;
         private String _routeName;
         private Enums.ActionType _action;
-        ProgressDialog progressDialog = new ProgressDialog(ManageRoutesActivity.this    );
+        LoaderDialog _LoaderDialog;
 
 
         public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable Integer RouteID, @Nullable String RouteName) {
@@ -134,10 +134,9 @@ public class ManageRoutesActivity extends AppCompatActivity {
             tvActionTitle.setText(isNew ? "New route name" : "Edit route name");
             submitButton.setText(isNew ? "Save" : "Update");
             txtRouteName.setText(this._routeName);
-            progressDialog.setTitle("Adding Route...");
-            progressDialog.setMessage("Please wait...");
-            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            progressDialog.setCancelable(false);
+
+            _LoaderDialog = new LoaderDialog(_activity,"Adding Route...", "Please wait...");
+            _LoaderDialog.setCancelable(false);
             submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -151,11 +150,11 @@ public class ManageRoutesActivity extends AppCompatActivity {
                         if(isNew)
                         {
 
-                            new mySQLAddRoute(_context,_activity, progressDialog, dialog,"").execute(txtRouteName.getText().toString());
+                            new mySQLAddRoute(_context,_activity, _LoaderDialog, dialog,"").execute(txtRouteName.getText().toString());
                         }
                         else
                         {
-                            new mySQLUpdateRoute(_context,_activity, progressDialog, dialog,"").execute(String.valueOf(_routeID), txtRouteName.getText().toString());
+                            new mySQLUpdateRoute(_context,_activity, _LoaderDialog, dialog,"").execute(String.valueOf(_routeID), txtRouteName.getText().toString());
                         }
                     }
                 }
@@ -180,14 +179,11 @@ public class ManageRoutesActivity extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             try {
-                                ProgressDialog progDialog = new ProgressDialog(ManageRoutesActivity.this);
-                                progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                                progDialog.setTitle("Please wait...");
-                                progDialog.setMessage("Deleting route...");
-                                progDialog.setCancelable(false);
+                                LoaderDialog DeleteLoader = new LoaderDialog(ManageRoutesActivity.this, "Please wait...", "Deleting route...");
+                                DeleteLoader.setCancelable(false);
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ManageRoutesActivity.this);
-                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), ManageRoutesActivity.this, progDialog,"", alertDialogBuilder, "Route").execute(String.valueOf(id));
+                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), ManageRoutesActivity.this, DeleteLoader,"", alertDialogBuilder, "Route").execute(String.valueOf(id));
                             }
                             catch(Exception ex)
                             {

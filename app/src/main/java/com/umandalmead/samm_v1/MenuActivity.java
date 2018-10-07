@@ -41,6 +41,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -287,6 +288,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static Boolean _HasExitedInfoLayout = false;
         public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
         public AddGPSDialog _dialog;
+        public LoaderDialog _LoaderDialog;
 
 
 
@@ -607,11 +609,8 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
-                _ProgressDialog = new ProgressDialog(this);
-                _ProgressDialog.setTitle("Adding Vehicle GPS");
-                _ProgressDialog.setMessage("Initializing...");
-                _ProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                _ProgressDialog.setCancelable(false);
+                _LoaderDialog= new LoaderDialog(this, "Adding Vehicle GPS","Initializing...");
+                _LoaderDialog.setCancelable(false);
 
                 if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getIsAdmin())
                 {
@@ -2177,32 +2176,26 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
             }
 
-            _ProgressDialog.dismiss();
+            _LoaderDialog.dismiss();
         }
 
         private void savePoint(String name, Double lat, Double lng, String preposition, Terminal terminalReference)
         {
-            _ProgressDialog = new ProgressDialog(MenuActivity.this);
-            _ProgressDialog.setTitle("Adding Pickup/Dropoff Point");
-            _ProgressDialog.setMessage("Please wait as we set up the points on the map");
-            _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, MenuActivity.this, _googleMap, _googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+            _LoaderDialog = new LoaderDialog(MenuActivity.this, "Adding Pickup/Dropoff Point","Please wait as we set up the points on the map");
+            _LoaderDialog.show();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
         }
         private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Terminal terminalReference)
         {
-            _ProgressDialog = new ProgressDialog(MenuActivity.this);
-            _ProgressDialog.setTitle("Updating Pickup/Dropoff Point");
-            _ProgressDialog.setMessage("Please wait as we update the points on the map");
-            _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, MenuActivity.this, _googleMap, _googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+            _LoaderDialog = new LoaderDialog(MenuActivity.this, "Updating Pickup/Dropoff Point", "Please wait as we update the points on the map");
+            _LoaderDialog.show();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
         }
         private void deletePoint(Integer ID)
         {
-            _ProgressDialog = new ProgressDialog(MenuActivity.this);
-            _ProgressDialog.setTitle("Deleting Pickup/Dropoff Point");
-            _ProgressDialog.setMessage("Please wait as we update the points on the map");
-            _ProgressDialog.show();
-            new asyncAddPoints(getApplicationContext(), _ProgressDialog, MenuActivity.this, _googleMap, _googleAPI, "Delete", ID).execute();
+            _LoaderDialog = new LoaderDialog(MenuActivity.this, "Deleting Pickup/Dropoff Point", "Please wait as we update the points on the map");
+            _LoaderDialog.show();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, "Delete", ID).execute();
         }
     }
 
@@ -2365,7 +2358,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             //Add to MySQL SAMM Database
                             //Add to Traccar Server
                             //Send SMS to activate the GPS
-                            new asyncAddTraccarGPS(getApplicationContext(), _ProgressDialog, MenuActivity.this, AddGPSDialog.this).execute("SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()), _gpsIMEI, _GPSMobileNumber, _gpsNetwork, _gpsPlateNumber, _gpsTblRoutesID.toString(), _gpsTblUsersID.toString());
+                            new asyncAddTraccarGPS(getApplicationContext(), _LoaderDialog, MenuActivity.this, AddGPSDialog.this).execute("SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()), _gpsIMEI, _GPSMobileNumber, _gpsNetwork, _gpsPlateNumber, _gpsTblRoutesID.toString(), _gpsTblUsersID.toString());
                         }
                     }catch(Exception ex)
                     {
