@@ -35,6 +35,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.google.android.gms.maps.GoogleMap;
@@ -441,8 +442,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         _map.animateCamera(CameraUpdateFactory.zoomTo(13), 1000, null);
         clearLines();
         drawLines(STR_TerminalPointsList);
-
-
     }
     private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
         try{

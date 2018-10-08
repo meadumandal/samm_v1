@@ -75,7 +75,6 @@ public class LoginActivity extends AppCompatActivity{
     private TextView forgotPasswordTextView;
     private LoginButton facebookLoginButton;
     private static String TAG = "mead";
-    ProgressDialog LoginProgDiag;
     private static Helper _helper = new Helper();
     private Constants _constants = new Constants();
     private MediaPlayer _buttonClick;
@@ -502,7 +501,7 @@ public class LoginActivity extends AppCompatActivity{
                             FirebaseUser user = auth.getCurrentUser();
                             saveUserDetails(FirstName,LastName,token.getUserId().toString(),Email);
                             sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email,false, false, "", true);
-                            LoginProgDiag.hide();
+                            HideLogInProgressDialog();
                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                             startActivity(intent);
                             finish();

@@ -502,6 +502,14 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onClick(View v) {
                      HideRouteTabsAndSlidingPanel();
                         PlayButtonClickSound();
+                        final Handler HND_ZoomGoogleMapToUserLocation = new Handler();
+                        HND_ZoomGoogleMapToUserLocation.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ZoomAndAnimateMapCamera(_userCurrentLoc, 10);
+                            }
+                        }, 1000);
+
                     }
                 });
 
@@ -845,7 +853,7 @@ public class MenuActivity extends AppCompatActivity implements
     private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, int INT_zoomLevel){
         _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
         _googleMap.animateCamera(CameraUpdateFactory.zoomOut());
-        _googleMap.animateCamera(CameraUpdateFactory.zoomTo(16), 3000, null);
+        _googleMap.animateCamera(CameraUpdateFactory.zoomTo(16), 2000, null);
     }
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
