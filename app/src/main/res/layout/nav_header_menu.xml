@@ -11,13 +11,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/imgLogo"
-        android:layout_width="50dp"
+        android:layout_width="65dp"
         android:layout_height="65dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:scaleType="fitXY"
         android:src="@drawable/ic_person_black_24dp"
+        app:civ_border_color="@color/colorDarkGrey"
         android:layout_alignParentLeft="true"
          />
 
@@ -26,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:paddingLeft="65dp"
+        android:paddingLeft="75dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="SAMM"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -36,7 +37,7 @@
         android:id="@+id/HeaderUserEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="65dp"
+        android:paddingLeft="75dp"
         android:paddingTop="40dp"
         android:text="android.studio@android.com"
         android:textSize="10sp" />

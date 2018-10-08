@@ -64,7 +64,11 @@ public class SessionManager {
     }
     public Boolean getMainTutorialStatus()
     {
-        return pref.getBoolean(IS_MAINTOOLTIP_SHOWN,false);
+        try {
+            return pref.getBoolean(IS_MAINTOOLTIP_SHOWN, false);
+        }catch (Exception e){
+            return false;
+        }
     }
     public Boolean getRouteTutorialStatus() {return pref.getBoolean(IS_ROUTETOOLTIP_SHOWN, false);}
     public void TutorialStatus(Enums.UIType type, Boolean isShown){

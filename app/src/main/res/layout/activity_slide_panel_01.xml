@@ -5,8 +5,9 @@
     android:gravity="left|top"
     android:clickable="true"
     android:id="@+id/route_wrapper"
-    android:layout_height="match_parent"
-    android:background="@null"
+    android:layout_height="250dp"
+    android:layout_gravity="center|bottom"
+    android:background="@color/colorTransparent"
    >
     <ImageView
         android:id="@+id/ev_panel_collapse"
@@ -25,6 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:animateLayoutChanges="true"
                 android:paddingBottom="5dp"
                 >
                 <TextView

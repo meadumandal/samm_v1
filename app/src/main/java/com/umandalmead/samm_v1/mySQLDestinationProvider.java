@@ -100,7 +100,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         try
         {
             super.onPreExecute();
-            if (_loader != null)
+            if (_loader == null)
             {
                 _loader = new LoaderDialog(_activity,"Initializing Data" ,"The app is initializing, please wait...");
                 _loader.setCancelable(false);

@@ -14,8 +14,8 @@
             android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
             tools:context="com.umandalmead.samm_v1.MapsActivity" />
-
     <include layout="@layout/layout_info_holder"
         android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <ImageButton

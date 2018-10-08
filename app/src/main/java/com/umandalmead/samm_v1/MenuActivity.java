@@ -18,7 +18,11 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -59,6 +63,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -96,6 +101,8 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -157,6 +164,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.douglasjunior.androidSimpleTooltip.OverlayView;
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip;
 import retrofit.Call;
@@ -226,7 +234,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static MenuItem _UserNameMenuItem;
         public static NavigationView _NavView;
         public static Menu _MenuNav;
-        public static ImageView _ProfilePictureImg;
+        public static CircleImageView _ProfilePictureImg;
         public static View _NavHeaderView;
         public static TextView _HeaderUserFullName;
         public static TextView _HeaderUserEmail;
@@ -286,6 +294,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static Typeface FONT_PLATE,FONT_STATION;
         public static int _currentRouteIDSelected;
         public static Boolean _HasExitedInfoLayout = false;
+        public static CustomFrameLayout _mapRoot;
         public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
         public AddGPSDialog _dialog;
         public LoaderDialog _LoaderDialog;
@@ -427,7 +436,7 @@ public class MenuActivity extends AppCompatActivity implements
                 UserNameMenuItem = _MenuNav.findItem(R.id.menu_username);
                 _UserNameMenuItem = _MenuNav.findItem(R.id.menu_username);
                 _NavHeaderView = _NavView.getHeaderView(0);
-                _ProfilePictureImg = (ImageView) _NavHeaderView.findViewById(R.id.imgLogo);
+                _ProfilePictureImg = (CircleImageView) _NavHeaderView.findViewById(R.id.imgLogo);
                 _HeaderUserFullName = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserFullName);
                 _HeaderUserEmail = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserEmail);
                 //_SearchLinearLayout = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
@@ -458,7 +467,8 @@ public class MenuActivity extends AppCompatActivity implements
                 InitializeAnimations();
                 MenuActivity.buttonEffect(Search_BackBtn);
 
-
+                //disable adjusting app dimensions when soft keyboard is shown
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
@@ -562,28 +572,33 @@ public class MenuActivity extends AppCompatActivity implements
                     @Override
                     //GO-2R
                     public void onPlaceSelected(Place place) {
-                        _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
-                        double prevDistance = 0.0;
-                        int ctr=0;
-                        for (Terminal dest: _terminalList){
-                            double tempDistance;
-                            LatLng destLatLng = new LatLng(dest.Lat, dest.Lng);
-                            LatLng searchLatLng = place.getLatLng();
-                            tempDistance = _helper.getDistanceFromLatLonInKm(destLatLng,searchLatLng);
-                            if(ctr==0){
-                                prevDistance = tempDistance;
-                                _chosenDropOffPoint = dest;
-                            }else{
-                                if(tempDistance <= prevDistance){
+                        try {
+                            _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
+                            double prevDistance = 0.0;
+                            int ctr = 0;
+                            for (Terminal dest : _terminalList) {
+                                double tempDistance;
+                                LatLng destLatLng = new LatLng(dest.Lat, dest.Lng);
+                                LatLng searchLatLng = place.getLatLng();
+                                tempDistance = _helper.getDistanceFromLatLonInKm(destLatLng, searchLatLng);
+                                if (ctr == 0) {
                                     prevDistance = tempDistance;
                                     _chosenDropOffPoint = dest;
+                                } else {
+                                    if (tempDistance <= prevDistance) {
+                                        prevDistance = tempDistance;
+                                        _chosenDropOffPoint = dest;
+                                    }
                                 }
+                                ctr++;
                             }
-                            ctr++;
-                        }
-                        //new DestinationsOnItemClick(getApplicationContext());
-                        _helper.FindNearestPickUpPoints(_chosenDropOffPoint);
+                            //new DestinationsOnItemClick(getApplicationContext());
+                            _helper.FindNearestPickUpPoints(_chosenDropOffPoint);
 
+                        }
+                        catch (Exception ex) {
+                            Log.i(_constants.LOG_TAG, ex.toString());
+                        }
                     }
 
                     @Override
@@ -679,14 +694,7 @@ public class MenuActivity extends AppCompatActivity implements
                 registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
                 registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
                 initializeOnlinePresence();
-                CustomFrameLayout mapRoot = (CustomFrameLayout) findViewById(R.id.mapCFL);
-                mapRoot.setOnDragListener(new View.OnDragListener(){
-                    @Override
-                    public boolean onDrag(View view, DragEvent dragEvent) {
-                        _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-                        return true;
-                    }
-                });
+                _mapRoot = (CustomFrameLayout) findViewById(R.id.mapCFL);
             }
             else
             {
@@ -737,9 +745,34 @@ public class MenuActivity extends AppCompatActivity implements
                 _helper.logger("Style parsing failed");
             }
         }
-
         _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
         _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        _googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                if(!_IsOnSearchMode && _infoLayout.getVisibility() != View.VISIBLE) {
+                    FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                    //Log.i(_constants.LOG_TAG,"==camera idle=="+ _googleMap.getCameraPosition().target);
+                }
+
+            }
+        });
+        _googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+            @Override
+            public void onCameraMoveStarted(int reason) {
+                if (reason ==REASON_GESTURE) {
+                    FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                   // isMaptouched=true;
+                } else if (reason ==REASON_API_ANIMATION) {
+//                    Toast.makeText(MenuActivity.this, "The user tapped something on the map.",
+//                            Toast.LENGTH_SHORT).show();
+                } else if (reason ==REASON_DEVELOPER_ANIMATION) {
+//                    Toast.makeText(MenuActivity.this, "The app moved the camera.",
+//                            Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -782,9 +815,16 @@ public class MenuActivity extends AppCompatActivity implements
 
                     if (_isAppFirstLoad) {
                         _isAppFirstLoad = false;
-                        //move map camera
-                        _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(_userCurrentLoc, 16));
-                        _googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(_userCurrentLoc, 16));
+
+                        //move map camera with 2s delay
+                        final Handler HND_CameraZoomDelay = new Handler();
+                        HND_CameraZoomDelay.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ZoomAndAnimateMapCamera(_userCurrentLoc, 10);
+                            }
+                        }, 800);
+
                     }
 
                     //stop location updates
@@ -802,7 +842,11 @@ public class MenuActivity extends AppCompatActivity implements
 
 
     }
-
+    private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, int INT_zoomLevel){
+        _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
+        _googleMap.animateCamera(CameraUpdateFactory.zoomOut());
+        _googleMap.animateCamera(CameraUpdateFactory.zoomTo(16), 3000, null);
+    }
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
 
@@ -932,10 +976,6 @@ public class MenuActivity extends AppCompatActivity implements
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
                     ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "\nDescription not yet available" , false);
                 }
-
-
-                //marker.setSnippet(_helper.getEmojiByUnicode(0x1F6BB) +" : " + String.valueOf(passengercount) + " | " + _helper.getEmojiByUnicode(0x1F68C) + " : 2 mins");
-
                 return true;
             }
         });
@@ -2396,63 +2436,60 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 .show();
     }
     public void UpdateUI(Enums.UIType type){
-       switch(type){
-           case MAIN:
-               if(!_sessionManager.getMainTutorialStatus()){
-                   BuildToolTip("Tap to show menu options",this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
-                   BuildToolTip("Search here",this, FrameSearchBarHolder, Gravity.BOTTOM ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false  );
-                   _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
-               }
-               break;
-           case SHOWING_ROUTES:
-               if(!_sessionManager.getRouteTutorialStatus()){
-                   ShowRouteTabsAndSlidingPanel();
-                   BuildToolTip("Tap to search again",this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false );
-                   BuildToolTip("Pull up to show navigation instructions",this, _RoutesContainer_CardView, Gravity.TOP ,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR ,false );
-                   _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
-                   _HasExitedInfoLayout = false;
-               }
-               break;
-           case SHOWING_INFO:
-               FAB_SammIcon.setVisibility(View.INVISIBLE);
-               FrameSearchBarHolder.setVisibility(View.INVISIBLE);
-               break;
-           case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
-               FAB_SammIcon.setVisibility(View.INVISIBLE);
-               FrameSearchBarHolder.setVisibility(View.INVISIBLE);
-               break;
-           case HIDE_INFO:
-               FAB_SammIcon.setVisibility(View.VISIBLE);
-               FrameSearchBarHolder.setVisibility(View.VISIBLE);
-               _infoLayout.setVisibility(View.INVISIBLE);
-               _infoPanelBtnClose.setVisibility(View.VISIBLE);
-               break;
-           case HIDE_INFO_SEARCH:
-               Search_BackBtn.setVisibility(View.VISIBLE);
-               _infoLayout.setVisibility(View.INVISIBLE);
-               _infoPanelBtnClose.setVisibility(View.VISIBLE);
-               break;
-           default: break;
-       }
+        if(_sessionManager.getMainTutorialStatus() != null) {
+            switch (type) {
+                case MAIN:
+                    if (!_sessionManager.getMainTutorialStatus()) {
+                        BuildToolTip("Tap to show menu options", this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
+                        BuildToolTip("Search here", this, FrameSearchBarHolder, Gravity.BOTTOM, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
+                        _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
+                    }
+                    break;
+                case SHOWING_ROUTES:
+                    if (!_sessionManager.getRouteTutorialStatus()) {
+                       // ShowRouteTabsAndSlidingPanel();
+                        BuildToolTip("Tap to search again", this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
+                        BuildToolTip("Pull up to show navigation instructions", this, _RoutesContainer_CardView, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
+                        _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
+                        _HasExitedInfoLayout = false;
+                    }
+                    break;
+                case SHOWING_INFO:
+                    FAB_SammIcon.setVisibility(View.INVISIBLE);
+                    FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                    break;
+                case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
+                    FAB_SammIcon.setVisibility(View.INVISIBLE);
+                    FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                    break;
+                case HIDE_INFO:
+                    FAB_SammIcon.setVisibility(View.VISIBLE);
+                    FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                    _infoLayout.setVisibility(View.INVISIBLE);
+                    _infoPanelBtnClose.setVisibility(View.VISIBLE);
+                    break;
+                case HIDE_INFO_SEARCH:
+                    Search_BackBtn.setVisibility(View.VISIBLE);
+                    _infoLayout.setVisibility(View.INVISIBLE);
+                    _infoPanelBtnClose.setVisibility(View.VISIBLE);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
     public void ShowRouteTabsAndSlidingPanel(){
         _RouteTabLayout.setVisibility(View.VISIBLE);
         _RoutesPane.setVisibility(View.VISIBLE);
-        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+       // _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
         _StepsScroller.scrollTo(0, 0);
-        AnalyzeForBestRoutes.clearLines();
-        _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
         _AppBar.setVisibility(View.VISIBLE);
         FAB_SammIcon.setVisibility(View.INVISIBLE);
         Search_BackBtn.setVisibility(View.VISIBLE);
         FrameSearchBarHolder.setVisibility(View.INVISIBLE);
         final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
         viewPager.setCurrentItem(0);
-        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-        _StepsScroller.scrollTo(0, 0);
-        AnalyzeForBestRoutes.clearLines();
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
         lp.height = 130;
         _AppBar.setLayoutParams(lp);
@@ -2461,6 +2498,13 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         _IsOnSearchMode=true;
         if(_markerAnimator!=null)
             _markerAnimator.start();
+        final Handler HND_ShowPanel = new Handler();
+        HND_ShowPanel.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            }
+        }, 1000);
     }
     public void HideRouteTabsAndSlidingPanel(){
         _RouteTabLayout.setVisibility(View.INVISIBLE);
@@ -2521,11 +2565,6 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
 
     //Public methods for showing Dialogs from fragments which are previously attached to FABs onclick events.
-
-//    public void RefreshStationPoints(){
-//        FragmentManager fragment = getSupportFragmentManager();
-//        fragment.beginTransaction().replace(R.id.content_frame, new AddPointsFragment()).commit();
-//    }
 
     public void ShowInfoLayout(String Title, String Description, Boolean IsStation){
         try{

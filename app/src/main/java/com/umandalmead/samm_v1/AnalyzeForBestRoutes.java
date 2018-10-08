@@ -8,12 +8,14 @@ import android.content.Context;
 import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.webkit.WebView;
@@ -70,7 +72,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     final String TAG = "mead";
     Context _context;
     Activity _activity;
-    ProgressDialog progDialog;
     GoogleMap _map;
     String progressMessage;
     LatLng _currentLocation;
@@ -109,8 +110,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         this._activity = activity;
         this._map = map;
         this._supportFragmentManager = supportFragmentManager;
-        progDialog = new ProgressDialog(this._activity);
-        progDialog.setMessage(progressMessage);
+        this.Loader = new LoaderDialog(_activity, null, progressMessage);
         this._currentLocation = currentLocation;
         this._possibleTerminals = possibleTerminals;
         this._SelectedTerminal = choseTerminal;
@@ -130,13 +130,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         try {
             super.onPreExecute();
             Loader = new LoaderDialog(_activity, "Analyzing Routes","Please wait as we search for the best route" );
-//            progDialog.setMax(100);
-//            progDialog.setMessage("Please wait as we search for the best route");
-//            progDialog.setTitle("Analyzing Routes");
-//            progDialog.setIndeterminate(false);
-//            progDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//            progDialog.setCancelable(false);
-//            progDialog.show();
             MenuActivity._buttonClick = MediaPlayer.create(_context, R.raw.button_click);
             Loader.show();
 
@@ -278,7 +271,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     private void animatePolyLine() {
 
         ValueAnimator animator = ValueAnimator.ofInt(0, 100);
-        animator.setDuration(1000);
+        animator.setDuration(2000);
         animator.setInterpolator(new LinearInterpolator());
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -374,18 +367,12 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 ctr++;
             }
             createRouteTabs(_AllTotalTime, _AllDirectionsSteps, _topTerminals, _AllTerminalPoints);
-            progDialog.dismiss();
             Loader.dismiss();
-
-
-            ((MenuActivity)this._activity).ShowRouteTabsAndSlidingPanel();
-         //   _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(_AllDirectionsSteps.get(0), _AllTotalTime.get(0), _topTerminals.get(0)), "text/html; charset=utf-8", "UTF-8", null);
+            ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
             MenuActivity._selectedPickUpPoint = _topTerminals.get(0);
-            drawLines(_AllTerminalPoints.get(0).get(0));
 
 
         } catch (Exception ex) {
-            progDialog.dismiss();
             Helper.logger(ex);
         }
 
@@ -413,16 +400,15 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+                   // ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
                     viewPager.setCurrentItem(tab.getPosition());
                     MenuActivity._RouteTabSelectedIndex = tab.getPosition();
                     _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
                     MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(tab.getPosition());
-                    clearLines();
-                    drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                     GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
                     PlayButtonClickSound();
-                    ZoomAndAnimateMapCamera(new LatLng(MenuActivity._userCurrentLoc.latitude, MenuActivity._userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(tab.getPosition()).getLat(), L_TM_AllPossibleTerminals.get(tab.getPosition()).getLng()),15);
+                    ZoomAndAnimateMapCamera(new LatLng(MenuActivity._userCurrentLoc.latitude, MenuActivity._userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(tab.getPosition()).getLat(), L_TM_AllPossibleTerminals.get(tab.getPosition()).getLng()),15, L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
 
                 @Override
@@ -435,24 +421,28 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
                 }
             });
-
-            ((MenuActivity)this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
-            drawLines(L_L_STR_TerminalPointsList.get(0).get(0));
+            ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
             MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
             _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
-            ZoomAndAnimateMapCamera(new LatLng(_userCurrentLoc.latitude, _userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(0).getLat(), L_TM_AllPossibleTerminals.get(0).getLng()), 15);
+            ZoomAndAnimateMapCamera(new LatLng(_userCurrentLoc.latitude, _userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(0).getLat(), L_TM_AllPossibleTerminals.get(0).getLng()), 15,L_L_STR_TerminalPointsList.get(0).get(0));
         } catch (Exception ex) {
-            progDialog.dismiss();
+            Loader.dismiss();
             Helper.logger(ex);
         }
 
     }
-    private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, LatLng LATLNG_var2, int INT_zoomLevel){
+
+
+    private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, LatLng LATLNG_var2, int INT_zoomLevel, final String STR_TerminalPointsList){
         _map.moveCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(LATLNG_var1, LATLNG_var2),INT_zoomLevel));
         _map.animateCamera(CameraUpdateFactory.zoomOut());
-        _map.animateCamera(CameraUpdateFactory.zoomTo(13), 2000, null);
+        _map.animateCamera(CameraUpdateFactory.zoomTo(13), 1000, null);
+        clearLines();
+        drawLines(STR_TerminalPointsList);
+
+
     }
     private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
         try{

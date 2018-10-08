@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity{
             setContentView(R.layout.activity_login);
             try {
                 PackageInfo info = getPackageManager().getPackageInfo(
-                        "com.example.samm_v1",
+                        "com.umandalmead.samm_v1",
                         PackageManager.GET_SIGNATURES);
                 for (Signature signature : info.signatures) {
                     MessageDigest md = MessageDigest.getInstance("SHA");
@@ -262,7 +262,6 @@ public class LoginActivity extends AppCompatActivity{
 
 
             if (sessionManager.isLoggedIn()) {
-                ShowLogInProgressDialog("SAMM");
                 startActivity(new Intent(LoginActivity.this, MenuActivity.class));
                 finish();
 
@@ -422,6 +421,7 @@ public class LoginActivity extends AppCompatActivity{
                         if(!task.isSuccessful())
                         {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            HideLogInProgressDialog();
                             Helper.logger(task.getException());
                         }
                         else
@@ -446,6 +446,7 @@ public class LoginActivity extends AppCompatActivity{
                                 }
                                 else{
                                     Toast.makeText(LoginActivity.this, ("Unable to log in, E-mail address is not yet verified."), Toast.LENGTH_LONG).show();
+                                    HideLogInProgressDialog();
                                 }
 
                             }

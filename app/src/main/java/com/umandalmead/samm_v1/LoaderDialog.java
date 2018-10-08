@@ -51,7 +51,7 @@ public class LoaderDialog extends Dialog {
         //disable user tap
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-
+        getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
 
     }

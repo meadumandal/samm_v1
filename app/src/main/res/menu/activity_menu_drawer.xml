@@ -8,26 +8,31 @@
             <item
                 android:id="@+id/menu_home"
                 android:title="Home"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/ic_home_black_24dp"
                 />
             <item
                 android:id="@+id/nav_adminusers"
                 android:title="Admin Users"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/admin_icon"
                 />
             <item
                 android:id="@+id/nav_drivers"
                 android:title="Drivers"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/driver_icon"
                 />
             <item
                 android:id="@+id/nav_routes"
                 android:title="Routes"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/route_icon"
                 />
             <item
                 android:id="@+id/nav_vehicles"
                 android:title="Tracked PUVs"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/ic_car"
                 />
         </menu>
@@ -37,6 +42,7 @@
             <item
                 android:id="@+id/menu_username"
                 android:title="JOHN APPLESEED"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/ic_person_black_24dp"
                 />
 
@@ -44,10 +50,12 @@
             <item
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_close_black_24dp"
+                android:background="?attr/selectableItemBackground"
                 android:title="Logout" />
             <item
                 android:id="@+id/nav_login"
                 android:icon="@drawable/ic_signin"
+                android:background="?attr/selectableItemBackground"
                 android:title="Login" />
         </menu>
     </item>
@@ -56,9 +64,11 @@
         <menu>
             <item android:id="@+id/nav_passengerpeakandlean"
                 android:icon="@drawable/ic_reports_black_24dp"
+                android:background="?attr/selectableItemBackground"
                 android:title="Passenger Flow"/>
             <item android:id="@+id/nav_ecolooppeakandlean"
                 android:icon="@drawable/ic_reports_black_24dp"
+                android:background="?attr/selectableItemBackground"
                 android:title="Ecoloop Flow"/>
         </menu>
     </item>
@@ -66,13 +76,17 @@
         android:title="MAP STYLE" >
         <menu>
             <item android:id="@+id/nav_map_normal"
+                android:background="?attr/selectableItemBackground"
                 android:title="Normal"
                 />
             <item android:id="@+id/nav_map_satellite"
+                android:background="?attr/selectableItemBackground"
                 android:title="Satellite"/>
             <item android:id="@+id/nav_map_hybrid"
+                android:background="?attr/selectableItemBackground"
                 android:title="Hybrid"/>
             <item android:id="@+id/nav_map_terrain"
+                android:background="?attr/selectableItemBackground"
                 android:title="Terrain"/>
         </menu>
 
@@ -89,6 +103,7 @@
                 <!--android:title="Report" />-->
             <item
                 android:id="@+id/nav_about"
+                android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/ic_info_outline_black_24dp"
                 android:title="About" />
 
