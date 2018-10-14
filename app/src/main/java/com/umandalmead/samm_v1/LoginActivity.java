@@ -280,6 +280,7 @@ public class LoginActivity extends AppCompatActivity{
                     final String password = passwordField.getText().toString();
                     if (username.trim().isEmpty() || password.trim().isEmpty()) {
                         Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
+                        LogInLoader.dismiss();
                     } else {
                         String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
                         Retrofit retrofit = new Retrofit.Builder()
