@@ -21,6 +21,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.graphics.Typeface;
@@ -107,7 +108,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -148,17 +148,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +174,6 @@ import retrofit.Retrofit;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
-import android.graphics.PorterDuff;
 
 
 //endregion
@@ -306,6 +303,7 @@ public class MenuActivity extends AppCompatActivity implements
         private List<Integer> _ListOfLoops = new ArrayList<Integer>();
         private String _AssignedELoop = "";
         private int _passengerCountInTerminal =0;
+        public static HashMap<String, String> _currentRoutesOfEachLoop = new HashMap<>();
 
 
 
@@ -653,9 +651,10 @@ public class MenuActivity extends AppCompatActivity implements
                 {
                     _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
                     _RoutesPane.setVisibility(View.VISIBLE);
-                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
+                    _SlideUpPanelContainer.setMinimumHeight(30) ;
                     _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-                    _TimeOfArrivalTextView.setText("You are approaching FASTBYTES terminal, there are NO PASSENGER WAITING");
+                    _TimeOfArrivalTextView.setText("");
                 }
 
                // _RouteTabLayout.setMinimumWidth(150);
@@ -1001,8 +1000,8 @@ public class MenuActivity extends AppCompatActivity implements
     public void GetAndDisplayEloopETA(final Terminal TM_CurrentDestination) {
         try {
             String res = "";
-            if (TM_CurrentDestination != null) {
-                final List<Terminal> L_TM_DestList_Sorted = new ArrayList<Terminal>(MenuActivity._terminalList);
+                if (TM_CurrentDestination != null) {
+                    final List<Terminal> L_TM_DestList_Sorted = new ArrayList<Terminal>(MenuActivity._terminalList);
                 Collections.sort(L_TM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 _vehicle_destinationsDBRef.runTransaction(new Transaction.Handler() {
                     @Override

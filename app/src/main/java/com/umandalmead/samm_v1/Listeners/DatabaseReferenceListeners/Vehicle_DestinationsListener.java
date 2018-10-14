@@ -33,6 +33,7 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
     private DatabaseReference _terminalsDBRef;
     public String _dwelledTerminal = "";
     public String _leftTerminal = "";
+    Helper _helper = new Helper();
     public Vehicle_DestinationsListener(Context context, DatabaseReference terminalsDBRef)
     {
         this._context = context;
@@ -52,11 +53,21 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
             VehicleDestination vehicleDestinationNode = dataSnapshot.getValue(VehicleDestination.class);
             List<String> dwellingLoopIds = Arrays.asList(vehicleDestinationNode.Dwell.split(","));
             List<String> leftLoopIds = Arrays.asList(vehicleDestinationNode.LoopIds.split(","));
-            if (dwellingLoopIds.contains(_sessionManager.getKeyDeviceid())){
+            String routeIDsOfTheEloop = MenuActivity._currentRoutesOfEachLoop.get(_sessionManager.getKeyDeviceid());
+            String[] tempRouteIDs = routeIDsOfTheEloop.split(",");
+            Integer[] routeIDs = new Integer[tempRouteIDs.length];
+            Integer ctr = 0;
+            for(String routeID: tempRouteIDs)
+            {
+                routeIDs[ctr] = Integer.parseInt(routeID);
+                ctr++;
+            }
+            Integer minRouteID = _helper.getMin(routeIDs);
+            if (dwellingLoopIds.contains(_sessionManager.getKeyDeviceid()) && vehicleDestinationNode.tblRouteID == minRouteID){
                 if (!this._dwelledTerminal.toLowerCase().equals(dataSnapshot.getKey()))
                 {
                     this._dwelledTerminal = dataSnapshot.getKey();
-                    MenuActivity._TimeOfArrivalTextView.setText("You are at " + this._dwelledTerminal + ". ");
+                    MenuActivity._TimeOfArrivalTextView.setText("You've reached: " + this._dwelledTerminal + ". ");
                     _terminalsDBRef.child(this._dwelledTerminal).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -72,18 +83,20 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
                 }
 
             }
-            if(leftLoopIds.contains(_sessionManager.getKeyDeviceid()))
+            else if(leftLoopIds.contains(_sessionManager.getKeyDeviceid()))
             {
 
                 if(!this._leftTerminal.toLowerCase().equals(dataSnapshot.getKey()))
                 {
                     this._leftTerminal = dataSnapshot.getKey();
-                    int currentOrderOfArrival = vehicleDestinationNode.OrderOfArrival;
+                    int orderOfArrivalOfTheStation = vehicleDestinationNode.OrderOfArrival;
+
+
                     for(Terminal terminal:MenuActivity._terminalList)
                     {
-                        if(terminal.OrderOfArrival == currentOrderOfArrival + 1)
+                        if(terminal.OrderOfArrival == orderOfArrivalOfTheStation + 1  && terminal.tblRouteID == minRouteID)
                         {
-                            MenuActivity._TimeOfArrivalTextView.setText( "Now you are approaching " + terminal.Value);
+                            MenuActivity._TimeOfArrivalTextView.setText( "Approaching: " + terminal.Value);
                             _terminalsDBRef.child(terminal.Value).addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {

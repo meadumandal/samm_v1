@@ -8,4 +8,5 @@ public class VehicleDestination {
     public String Dwell;
     public String LoopIds;
     public int OrderOfArrival;
+    public int tblRouteID;
 }

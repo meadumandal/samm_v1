@@ -9,6 +9,7 @@ import android.location.Location;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Menu;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.TextView;
@@ -91,6 +92,9 @@ public class AddVehicleMarkers implements ChildEventListener {
 
             Object Latitude = dataSnapshot.child("Lat").getValue();
             Object Longitude = dataSnapshot.child("Lng").getValue();
+            String routeIDs = dataSnapshot.child("routeIDs").getValue().toString();
+            if(MenuActivity._currentRoutesOfEachLoop.get(deviceId)==null)
+                MenuActivity._currentRoutesOfEachLoop.put(deviceId, routeIDs);
 
             if (Latitude == null || Latitude.toString().equals("0"))
                 lat = 0.0;

@@ -274,6 +274,16 @@ public class Helper {
         }
         return  result;
     }
+    // Method for getting the minimum value
+    public static int getMin(Integer[] inputArray){
+        int minValue = inputArray[0];
+        for(int i=1;i<inputArray.length;i++){
+            if(inputArray[i] < minValue){
+                minValue = inputArray[i];
+            }
+        }
+        return minValue;
+    }
     public static Boolean IsStringEqual(String STR_Entry_1, String STR_Entry_2){
         return STR_Entry_1.toLowerCase().equals(STR_Entry_2.toLowerCase());
     }

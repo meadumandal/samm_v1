@@ -329,20 +329,34 @@ public class LoginActivity extends AppCompatActivity{
 
                                         }
                                         else{
-                                                FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
+                                            FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
+                                            ShowLogInProgressDialog("Driver");
+                                            MessageDigest md = MessageDigest.getInstance("MD5");
+                                            md.update(password.getBytes());
+                                            byte[] digest = md.digest();
+
+                                            StringBuffer sb = new StringBuffer();
+                                            for(byte b: digest)
+                                            {
+                                                sb.append(String.format("%02x", b & 0xff));
+                                            }
+                                            //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
+                                            String hashedPassword = sb.toString();
+                                            if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase()))
+                                            {
                                                 DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
-                                                ShowLogInProgressDialog("Driver");
                                                 _driverDatabaseReference.child(response.body().getDeviceId().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         if (dataSnapshot != null) {
                                                             if (dataSnapshot.child("connections") == null)
-                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
+                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
                                                             else if (dataSnapshot.child("connections").getValue() == null)
-                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
+                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
                                                             else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
-                                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
+                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
                                                             else {
+
                                                                 Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
                                                             }
 //                                                        {
@@ -357,9 +371,15 @@ public class LoginActivity extends AppCompatActivity{
                                                     }
                                                 });
                                             }
+                                            else
+                                            {
+                                                Toast.makeText(getApplicationContext(), "Driver Password is incorrect", Toast.LENGTH_LONG).show();
+                                            }
+                                            }
 
                                         }
                                 }
+                                //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                 catch (Exception ex) {
                                     LogInLoader.hide();
                                     HideLogInProgressDialog();
@@ -417,10 +437,10 @@ public class LoginActivity extends AppCompatActivity{
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+
                         if(!task.isSuccessful())
                         {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                            HideLogInProgressDialog();
                             Helper.logger(task.getException());
                         }
                         else
@@ -445,7 +465,6 @@ public class LoginActivity extends AppCompatActivity{
                                 }
                                 else{
                                     Toast.makeText(LoginActivity.this, ("Unable to log in, E-mail address is not yet verified."), Toast.LENGTH_LONG).show();
-                                    HideLogInProgressDialog();
                                 }
 
                             }
@@ -526,7 +545,7 @@ public class LoginActivity extends AppCompatActivity{
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
     }
     private void ShowLogInProgressDialog(String From){
-        LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
+        LoaderDialog LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
         LD_FBLoginLoader.show();
     }
     private void HideLogInProgressDialog(){

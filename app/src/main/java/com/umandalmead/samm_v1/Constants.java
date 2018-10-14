@@ -27,6 +27,7 @@ public class Constants {
     public static final String GUEST_LASTNAME = "User";
     public static final String APP_TITLE = "SAMM";
     public static final String DRIVER_EMAILADDRESS="driver@samm.com";
+    public static final String DRIVER_PASSWORD = "sammdriver";
     public static final String ADMIN_EMAILADDRESS = "admin@samm.com";
     public static final String ADMIN_PASSWORD = "sammadmin";
     public static final String ADMIN_USERTYPE = "Administrator";
