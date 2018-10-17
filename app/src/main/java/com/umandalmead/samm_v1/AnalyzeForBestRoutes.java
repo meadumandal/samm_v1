@@ -22,6 +22,7 @@ import android.webkit.WebView;
 import android.widget.Toast;
 
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -409,7 +410,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                     GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
                     PlayButtonClickSound();
-                    ZoomAndAnimateMapCamera(new LatLng(MenuActivity._userCurrentLoc.latitude, MenuActivity._userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(tab.getPosition()).getLat(), L_TM_AllPossibleTerminals.get(tab.getPosition()).getLng()),15, L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
+                    ZoomAndAnimateMapCamera(new LatLng(MenuActivity._userCurrentLoc.latitude, MenuActivity._userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(tab.getPosition()).getLat(), L_TM_AllPossibleTerminals.get(tab.getPosition()).getLng()),0, L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
 
                 @Override
@@ -422,12 +423,19 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
                 }
             });
-            ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+            final Handler HND_UpdateUI = new Handler();
+            HND_UpdateUI.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+                }
+            }, 1500);
+
             MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
             _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
-            ZoomAndAnimateMapCamera(new LatLng(_userCurrentLoc.latitude, _userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(0).getLat(), L_TM_AllPossibleTerminals.get(0).getLng()), 15,L_L_STR_TerminalPointsList.get(0).get(0));
+            ZoomAndAnimateMapCamera(new LatLng(_userCurrentLoc.latitude, _userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(0).getLat(), L_TM_AllPossibleTerminals.get(0).getLng()), 0,L_L_STR_TerminalPointsList.get(0).get(0));
         } catch (Exception ex) {
             Loader.dismiss();
             Helper.logger(ex);
@@ -437,11 +445,25 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
 
     private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, LatLng LATLNG_var2, int INT_zoomLevel, final String STR_TerminalPointsList){
-        _map.moveCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(LATLNG_var1, LATLNG_var2),INT_zoomLevel));
-        _map.animateCamera(CameraUpdateFactory.zoomOut());
-        _map.animateCamera(CameraUpdateFactory.zoomTo(13), 1000, null);
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        builder.include(LATLNG_var1).include(LATLNG_var2);
+
+
+        int width = _activity.getResources().getDisplayMetrics().widthPixels;
+        int height = _activity.getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (height * 0.20);
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(builder.build(), width, height, padding);
+        _map.animateCamera(cu);
         clearLines();
-        drawLines(STR_TerminalPointsList);
+        final Handler HND_UpdatePolyLines = new Handler();
+        HND_UpdatePolyLines.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                drawLines(STR_TerminalPointsList);
+            }
+        }, 1600);
+
     }
     private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
         try{

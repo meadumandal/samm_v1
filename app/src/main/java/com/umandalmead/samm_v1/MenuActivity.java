@@ -100,6 +100,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -495,7 +496,7 @@ public class MenuActivity extends AppCompatActivity implements
                         HND_ZoomGoogleMapToUserLocation.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                ZoomAndAnimateMapCamera(_userCurrentLoc, 10);
+                                ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
                             }
                         }, 1000);
 
@@ -557,14 +558,12 @@ public class MenuActivity extends AppCompatActivity implements
                         getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
                 autocompleteFragment.setFilter(autocompleteFilter);
                 //set bounds to search within bounds only~
-                //autocompleteFragment.setBoundsBias(new LatLngBounds(new LatLng(14.427248, 120.996781), new LatLng(14.413897, 121.077285)));
-//                placeAutoCompleteFragmentInstance.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        view.setVisibility(View.INVISIBLE);
-//
-//                    }
-//                });
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(new LatLng(14.427248, 120.996781));
+                builder.include(new LatLng(14.413897, 121.077285));
+
+                autocompleteFragment.setBoundsBias(builder.build());
+
                 autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                     @Override
                     //GO-2R
@@ -641,11 +640,7 @@ public class MenuActivity extends AppCompatActivity implements
                 if (_sessionManager.isDriver())
                 {
                     _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
-                    _RoutesPane.setVisibility(View.VISIBLE);
-                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
-                    _SlideUpPanelContainer.setMinimumHeight(30) ;
-                    _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-                    _TimeOfArrivalTextView.setText("Hi Driver");
+                     ShowRouteTabsAndSlidingPanel();
                 }
 
                // _RouteTabLayout.setMinimumWidth(150);
@@ -819,7 +814,7 @@ public class MenuActivity extends AppCompatActivity implements
                         HND_CameraZoomDelay.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                ZoomAndAnimateMapCamera(_userCurrentLoc, 10);
+                                ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
                             }
                         }, 800);
 
@@ -841,9 +836,9 @@ public class MenuActivity extends AppCompatActivity implements
 
     }
     private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, int INT_zoomLevel){
-        _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
-        _googleMap.animateCamera(CameraUpdateFactory.zoomOut());
-        _googleMap.animateCamera(CameraUpdateFactory.zoomTo(16), 2000, null);
+       // _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
+        _googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
+        //_googleMap.animateCamera(CameraUpdateFactory.zoomTo(16), 2000, null);
     }
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
@@ -2460,7 +2455,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 .show();
     }
     public void UpdateUI(Enums.UIType type){
-        if(_sessionManager.getMainTutorialStatus() != null) {
+        if(_sessionManager != null && _sessionManager.getMainTutorialStatus() != null) {
             switch (type) {
                 case MAIN:
                     if (!_sessionManager.getMainTutorialStatus()) {
@@ -2503,32 +2498,40 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }
     }
     public void ShowRouteTabsAndSlidingPanel(){
-        _RouteTabLayout.setVisibility(View.VISIBLE);
-        _RoutesPane.setVisibility(View.VISIBLE);
-       // _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-        _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-        _StepsScroller.scrollTo(0, 0);
-        _AppBar.setVisibility(View.VISIBLE);
-        FAB_SammIcon.setVisibility(View.INVISIBLE);
-        Search_BackBtn.setVisibility(View.VISIBLE);
-        FrameSearchBarHolder.setVisibility(View.INVISIBLE);
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
-        viewPager.setCurrentItem(0);
-        CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
-        lp.height = 130;
-        _AppBar.setLayoutParams(lp);
-        //Get nearest loop time of arrival~
-        _LoopArrivalProgress.setVisibility(View.VISIBLE);
-        _IsOnSearchMode=true;
-        if(_markerAnimator!=null)
-            _markerAnimator.start();
-        final Handler HND_ShowPanel = new Handler();
-        HND_ShowPanel.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
-            }
-        }, 1000);
+        if(_sessionManager.isDriver()){
+            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            _SlideUpPanelContainer.setEnabled(false);
+            _RoutesPane.setVisibility(View.VISIBLE);
+            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+        }
+        else {
+            _RouteTabLayout.setVisibility(View.VISIBLE);
+            _RoutesPane.setVisibility(View.VISIBLE);
+            // _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+            _StepsScroller.scrollTo(0, 0);
+            _AppBar.setVisibility(View.VISIBLE);
+            FAB_SammIcon.setVisibility(View.INVISIBLE);
+            Search_BackBtn.setVisibility(View.VISIBLE);
+            FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+            final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
+            viewPager.setCurrentItem(0);
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
+            lp.height = 130;
+            _AppBar.setLayoutParams(lp);
+            //Get nearest loop time of arrival~
+            _LoopArrivalProgress.setVisibility(View.VISIBLE);
+            _IsOnSearchMode = true;
+            if (_markerAnimator != null)
+                _markerAnimator.start();
+            final Handler HND_ShowPanel = new Handler();
+            HND_ShowPanel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                }
+            }, 1000);
+        }
     }
     public void HideRouteTabsAndSlidingPanel(){
         _RouteTabLayout.setVisibility(View.INVISIBLE);

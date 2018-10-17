@@ -223,7 +223,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
                     markerOptions.title(terminal.Value);
                     Marker marker = _googleMap.addMarker(markerOptions);
 
-                    marker.showInfoWindow();
+                   // marker.showInfoWindow();
 
                     MenuActivity._terminalMarkerHashmap.put(terminal.Value, marker);
                 }
