@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -286,6 +287,21 @@ public class Helper {
     }
     public static Boolean IsStringEqual(String STR_Entry_1, String STR_Entry_2){
         return STR_Entry_1.toLowerCase().equals(STR_Entry_2.toLowerCase());
+    }
+
+    public Terminal GetTerminalFromValue(String value)
+    {
+
+        String[] arrayString = value.split("_");
+        String terminalValue = arrayString[0];
+        int terminalRouteID = Integer.parseInt(arrayString[1]);
+        for(Terminal terminal: MenuActivity._terminalList)
+        {
+            if (terminal.getValue().equalsIgnoreCase(terminalValue) && terminal.getTblRouteID() == terminalRouteID)
+                return terminal;
+
+        }
+        return null;
     }
 
 }

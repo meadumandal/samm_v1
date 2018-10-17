@@ -1,7 +1,6 @@
 package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -15,12 +14,8 @@ import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.SessionManager;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 /**
  * Created by MeadRoseAnn on 4/16/2018.
@@ -63,7 +58,7 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
                 ctr++;
             }
             Integer minRouteID = _helper.getMin(routeIDs);
-            if (dwellingLoopIds.contains(_sessionManager.getKeyDeviceid()) && vehicleDestinationNode.tblRouteID == minRouteID){
+            if (dwellingLoopIds.contains(_sessionManager.getKeyDeviceid()) && Integer.parseInt(vehicleDestinationNode.tblRouteID) == minRouteID){
                 if (!this._dwelledTerminal.toLowerCase().equals(dataSnapshot.getKey()))
                 {
                     this._dwelledTerminal = dataSnapshot.getKey();
@@ -88,29 +83,35 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
 
                 if(!this._leftTerminal.toLowerCase().equals(dataSnapshot.getKey()))
                 {
-                    this._leftTerminal = dataSnapshot.getKey();
-                    int orderOfArrivalOfTheStation = vehicleDestinationNode.OrderOfArrival;
+                        this._leftTerminal = dataSnapshot.getKey();
 
+                    Terminal leftTerminal = _helper.GetTerminalFromValue(this._leftTerminal);
 
-                    for(Terminal terminal:MenuActivity._terminalList)
+                    if (leftTerminal.tblRouteID == minRouteID)
                     {
-                        if(terminal.OrderOfArrival == orderOfArrivalOfTheStation + 1  && terminal.tblRouteID == minRouteID)
+                        int orderOfArrivalOfTheStation = Integer.parseInt(vehicleDestinationNode.OrderOfArrival);
+
+                        for(Terminal terminal:MenuActivity._terminalList)
                         {
-                            MenuActivity._TimeOfArrivalTextView.setText( "Approaching: " + terminal.Value);
-                            _terminalsDBRef.child(terminal.Value).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    long passengerCount = dataSnapshot.getChildrenCount();
-                                    MenuActivity._TimeOfArrivalTextView.setText(MenuActivity._TimeOfArrivalTextView.getText() +  ". There are + " + passengerCount + " waiting passengers there");
-                                }
+                            if(terminal.OrderOfArrival == orderOfArrivalOfTheStation + 1  && terminal.tblRouteID == minRouteID)
+                            {
+                                MenuActivity._TimeOfArrivalTextView.setText( "Approaching: " + terminal.Value);
+                                _terminalsDBRef.child(terminal.Value).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        long passengerCount = dataSnapshot.getChildrenCount();
+                                        MenuActivity._TimeOfArrivalTextView.setText(MenuActivity._TimeOfArrivalTextView.getText() +  ". There are + " + passengerCount + " waiting passengers there");
+                                    }
 
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
 
-                                }
-                            });
+                                    }
+                                });
+                            }
                         }
                     }
+
                 }
 
 

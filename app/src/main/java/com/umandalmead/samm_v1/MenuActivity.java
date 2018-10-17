@@ -18,12 +18,8 @@ import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -46,7 +42,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.Loader;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -56,7 +51,6 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -102,8 +96,6 @@ import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMapOptions;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -156,7 +148,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,7 +242,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static ProgressBar _LoopArrivalProgress;
         public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _ProcessedTerminalTitle;
         public static MediaPlayer _buttonClick;
-        private TextView _infoTitleTV, _infoDescriptionTV;
+        private TextView _infoTitleTV, _infoDescriptionTV, _infoDescriptionTV2;
         private LinearLayout _infoLayout;
         private ImageButton _infoPanelBtnClose;
         private ImageView _infoImage;
@@ -299,7 +290,7 @@ public class MenuActivity extends AppCompatActivity implements
 
 
         public  boolean _IsAllLoopParked,_InfoPanel_IsEditingEnabled=true;
-        private String _loopIds = "";
+        private Terminal  TM_ClickedTerminal = new Terminal();
         private List<Integer> _ListOfLoops = new ArrayList<Integer>();
         private String _AssignedELoop = "";
         private int _passengerCountInTerminal =0;
@@ -654,7 +645,7 @@ public class MenuActivity extends AppCompatActivity implements
                     _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.ANCHORED);
                     _SlideUpPanelContainer.setMinimumHeight(30) ;
                     _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
-                    _TimeOfArrivalTextView.setText("");
+                    _TimeOfArrivalTextView.setText("Hi Driver");
                 }
 
                // _RouteTabLayout.setMinimumWidth(150);
@@ -928,7 +919,7 @@ public class MenuActivity extends AppCompatActivity implements
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                String markerTitle = marker.getTitle();
+                final String markerTitle = marker.getTitle();
 
                 if(_terminalMarkerHashmap.containsKey(markerTitle))
                 {
@@ -941,23 +932,19 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                     else
                     {
-                        long passengercount = 0;
-                        if(_passengerCount.containsKey(marker.getTitle())) {
-                            passengercount = _passengerCount.get(marker.getTitle());
-                        }
-                        Terminal TM_ClickedTerminal = new Terminal();
+
+//                        if(_passengerCount.containsKey(marker.getTitle())) {
+//                            passengercount = _passengerCount.get(marker.getTitle());
+//                        }
                         for(Terminal terminal:_terminalList)
                         {
-                            if (terminal.Value.toLowerCase().equals(marker.getTitle().toLowerCase()))
+                            if (terminal.Value.toLowerCase().equals(markerTitle))
                             {
                                 TM_ClickedTerminal = terminal;
                             }
 
                         }
                         _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
-                        _passengerCountInTerminal = (int) passengercount;
-                        ShowInfoLayout(TM_ClickedTerminal.Description, "\nFetching Data.." , true);
-                        //_InfoPanel_IsEditingEnabled = false;
                         final Handler HND_Loc_DataFetchDelay = new Handler();
                         final Handler HND_Loc_DataFetchTooLong = new Handler();
                         final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
@@ -969,6 +956,29 @@ public class MenuActivity extends AppCompatActivity implements
                                 GetAndDisplayEloopETA(F_TM_ClickedTerminal);
                             }
                         }, 3000);
+
+                        ShowInfoLayout(TM_ClickedTerminal.Description, "\n"
+                                + _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
+                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data.." , true);
+                         _terminalsDBRef.child(marker.getTitle()).runTransaction(new Transaction.Handler() {
+                            @Override
+                            public Transaction.Result doTransaction(MutableData currentData) {
+
+                                return Transaction.success(currentData);
+                            }
+
+                            @Override
+                            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                long passengercount = 0;
+                                passengercount = DS_Terminals.getChildrenCount();
+                                _passengerCountInTerminal = (int) passengercount;
+                                UpdateInfoPanelDetails(TM_ClickedTerminal.Description,
+                                        _helper.getEmojiByUnicode(0x1F6BB) +" : " + _passengerCountInTerminal+" passenger(s) waiting",null);
+                            }
+                        });
+
+
+
 //                        HND_Loc_DataFetchTooLong.postDelayed(new Runnable() {
 //                            @Override
 //                            public void run() {
@@ -981,7 +991,7 @@ public class MenuActivity extends AppCompatActivity implements
                 }
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "\nDescription not yet available" , false);
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "\nDescription not yet available" ,null, false);
                 }
                 return true;
             }
@@ -1124,7 +1134,12 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                     if (_IsAllLoopParked) {
                         if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_CurrentDest.getValue())) {
-                            UpdateInfoPanelDetails(TM_CurrentDest.Description, "\n" + _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : No nearby E-loop found");
+                            UpdateInfoPanelDetails(TM_CurrentDest.Description,
+                                    "\n" + _helper.getEmojiByUnicode(0x1F6BB)
+                                            + " : " + _passengerCountInTerminal
+                                            + " passenger(s) waiting",
+                                    _helper.getEmojiByUnicode(0x1F68C)
+                                            + " : No nearby E-loop found");
                         }
                     }
 
@@ -1160,7 +1175,9 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                 String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
                                 if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
-                                    UpdateInfoPanelDetails(TM_Destination.Description, "\n" + _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting\n" + _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
+                                    UpdateInfoPanelDetails(TM_Destination.Description, "\n" + _helper.getEmojiByUnicode(0x1F6BB)
+                                            + " : " + _passengerCountInTerminal + " passenger(s) waiting" ,
+                                             _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
                                 }
                                 _BOOL_IsTerminalDataFetchDone = true;
                             }
@@ -1509,7 +1526,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         final HashMap<String, Object> hashmapCount = new HashMap<>();
         final String uid = _sessionManager.getUsername();
 
-        _terminalsDBRef.child(destinationValue).addListenerForSingleValueEvent(new ValueEventListener() {
+        _terminalsDBRef.child(destinationValue).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 //                if(dataSnapshot == null || dataSnapshot.getValue() == null)
@@ -1528,8 +1545,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 {
                     //updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
                 }
-                _passengerCount.remove(destinationValue);
-                _passengerCount.put(destinationValue, dataSnapshot.getChildrenCount());
+//                _passengerCount.remove(destinationValue);
+//                _passengerCount.put(destinationValue, dataSnapshot.getChildrenCount());
 
             }
 
@@ -2573,10 +2590,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
     //Public methods for showing Dialogs from fragments which are previously attached to FABs onclick events.
 
-    public void ShowInfoLayout(String Title, String Description, Boolean IsStation){
+    public void ShowInfoLayout(String Title, String Description, String Description2, Boolean IsStation){
         try{
         ClearInfoPanelDetails();
-        InfoPanelShow(Title, Description, IsStation);
+        InfoPanelShow(Title, Description,Description2, IsStation);
         }
         catch(Exception ex){
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -2586,10 +2603,12 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         try {
             _infoTitleTV = (TextView) findViewById(R.id.TextView_InfoTitle);
             _infoDescriptionTV = (TextView) findViewById(R.id.TextView_InfoDesc);
+            _infoDescriptionTV2 = (TextView) findViewById(id.TextView_InfoDesc2);
             _infoLayout = (LinearLayout) findViewById(R.id.Info_Layout);
             _infoPanelBtnClose = (ImageButton) findViewById(id.btnCloseInfoPanel);
             _infoTitleTV.setVisibility(View.INVISIBLE);
             _infoDescriptionTV.setVisibility(View.INVISIBLE);
+            _infoDescriptionTV2.setVisibility(View.INVISIBLE);
             _infoImage = (ImageView) findViewById(id.ImageView_InfoImage);
             _infoPanelBtnClose.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -2604,7 +2623,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
-    public void InfoPanelShow(final String InfoTitle, final String InfoDescription,final Boolean isStation) {
+    public void InfoPanelShow(final String InfoTitle, final String InfoDescription, final String InfoDescription2,final Boolean isStation) {
             final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
             final String finalTitle =  InfoTitle.toUpperCase();
             final Typeface finalTitleFont = isStation ? FONT_STATION: FONT_PLATE;
@@ -2632,11 +2651,14 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                UpdateInfoPanelDetails(finalTitle,InfoDescription);
+                                UpdateInfoPanelDetails(finalTitle,InfoDescription, InfoDescription2);
                                 _infoImage.setImageResource(imageResId);
                                 _infoTitleTV.setTypeface(finalTitleFont);
                                 _infoTitleTV.setVisibility(View.VISIBLE);
                                 _infoDescriptionTV.setVisibility(View.VISIBLE);
+                                if(InfoDescription2!=null || !InfoDescription2.equals("")){
+                                    _infoDescriptionTV2.setVisibility(View.VISIBLE);
+                                }
                             }
                             @Override
                             public void onAnimationRepeat(Animation animation) {
@@ -2672,7 +2694,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                InfoPanelShow(InfoTitle, InfoDescription, isStation);
+                                InfoPanelShow(InfoTitle, InfoDescription,InfoDescription2, isStation);
                             }
 
                             @Override
@@ -2691,16 +2713,20 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }
 
     }
-    public void UpdateInfoPanelDetails(String Title, String Description){
+    public void UpdateInfoPanelDetails(String Title, String Description, String Description2){
         if(_InfoPanel_IsEditingEnabled) {
             _infoTitleTV.setText(Title);
-            _infoDescriptionTV.setText(Description);
+            if(Description!=null)
+                 _infoDescriptionTV.setText(Description);
+            if(Description2!=null)
+            _infoDescriptionTV2.setText(Description2);
         }
     }
     public void ClearInfoPanelDetails(){
         _infoImage.setImageResource(0);
         _infoTitleTV.setText(null);
         _infoDescriptionTV.setText(null);
+        _infoDescriptionTV2.setText(null);
     }
     public void InfoPanelHide() {
         Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),

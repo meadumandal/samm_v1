@@ -87,15 +87,16 @@
         <activity
             android:name=".UserProfileActivity"
             android:label="@string/title_activity_user_profile"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ManageRoutesActivity"
             android:label="Manage Routes"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".SortableListViewActivity"
             android:label="Manage Points"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".ManageLinesActivity"></activity>
     </application>
 
 </manifest>
