@@ -46,7 +46,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
         android:layout_gravity="bottom|right"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="80dp"
         android:layout_marginLeft="10dp"
         fab:menu_fab_size="normal"
         fab:menu_showShadow="true"
@@ -115,22 +115,7 @@
             fab:fab_label="View All GPS"
             fab:fab_size="mini" />
     </com.github.clans.fab.FloatingActionMenu>
-    <FrameLayout
-        android:id="@+id/FrameSearchBarHolder"
-        android:layout_width="290dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_corners"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="90dp"
 
-        >
-        <fragment
-            android:id="@+id/place_autocomplete_fragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-            />
-    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

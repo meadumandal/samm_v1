@@ -375,6 +375,7 @@ public class LoginActivity extends AppCompatActivity{
                                             else
                                             {
                                                 Toast.makeText(getApplicationContext(), "Driver Password is incorrect", Toast.LENGTH_LONG).show();
+                                                HideLogInProgressDialog();
                                             }
                                             }
 
@@ -443,6 +444,7 @@ public class LoginActivity extends AppCompatActivity{
                         {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             Helper.logger(task.getException());
+                            HideLogInProgressDialog();
                         }
                         else
                         {
@@ -466,6 +468,7 @@ public class LoginActivity extends AppCompatActivity{
                                 }
                                 else{
                                     Toast.makeText(LoginActivity.this, ("Unable to log in, E-mail address is not yet verified."), Toast.LENGTH_LONG).show();
+                                    HideLogInProgressDialog();
                                 }
 
                             }

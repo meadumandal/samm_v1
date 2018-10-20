@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
 
 import java.io.PrintWriter;
@@ -73,8 +74,9 @@ public class AddUserMarkers implements
                 {
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
-                    markerOptions.title(username);
-                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                    //markerOptions.title("SAMM User");
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.samm_user_icon_orange));
+                    //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
                     marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
                     marker.showInfoWindow();
                     ((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/LL_Arrival_Info"
+    android:visibility="gone"
+    android:animateLayoutChanges="true"
+    android:background="@color/colorWhite"
+    android:layout_gravity="center">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="left"
+        android:gravity="center"
+        android:orientation="horizontal">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/CIV_Vehicle_Picture"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/eco_loop_for_info_transparent"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/TV_Vehicle_Identifier"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="ZZI 225"
+                android:textSize="25dp"/>
+            <TextView
+                android:id="@+id/TV_Vehicle_Description"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Description"
+                android:textSize="12dp"/>
+
+        </LinearLayout>
+        <View
+            android:layout_width="1dp"
+            android:layout_marginLeft="75dp"
+            android:layout_height="60dp"
+            android:background="@android:color/darker_gray"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ETA"/>
+            <io.supercharge.shimmerlayout.ShimmerLayout
+                android:id="@+id/SL_Vehicle_ETA"
+                app:shimmer_animation_duration="1200"
+                app:shimmer_color="@color/colorWhite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/TV_VehicleTimeOfArrival"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorBlack"
+                    android:text="20 h 5 m"
+                    android:textSize="20sp"/>
+            </io.supercharge.shimmerlayout.ShimmerLayout>
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <View
+        android:layout_width="320dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="1dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"/>
+
+</LinearLayout>

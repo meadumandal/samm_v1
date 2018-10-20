@@ -52,7 +52,7 @@
             android:layout_width="wrap_content"
             android:layout_height="35dp"
             android:visibility="gone"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/colorWhite"
             android:background="@drawable/rounded_corner_route_button"
             android:text="View"
             />

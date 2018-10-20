@@ -9,7 +9,7 @@
         android:topLeftRadius="10dp"
         android:topRightRadius="10dp" />
 
-    <solid android:color="@color/com_facebook_blue" />
+    <solid android:color="@color/colorGreenforDialogs" />
 
     <padding
         android:bottom="0dp"
@@ -19,6 +19,6 @@
 
     <size
         android:height="60dp"
-        android:width="270dp" />
+        android:width="150dp" />
 
 </shape>

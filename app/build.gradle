@@ -61,5 +61,6 @@ dependencies {
     compile 'com.github.douglasjunior:android-simple-tooltip:0.2.2'
     compile 'com.google.maps.android:android-maps-utils:0.5'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation 'io.supercharge:shimmerlayout:2.1.0'
 }
 apply plugin: 'com.google.gms.google-services'

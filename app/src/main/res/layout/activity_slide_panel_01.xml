@@ -7,19 +7,26 @@
     android:id="@+id/route_wrapper"
     android:layout_height="250dp"
     android:layout_gravity="center|bottom"
-    android:background="@color/colorTransparent"
+    android:animateLayoutChanges="true"
+    android:background="@color/colorWhite"
    >
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="7dp"
+        android:layout_gravity="center"
+        android:background="@color/colorGrey"/>
     <ImageView
         android:id="@+id/ev_panel_collapse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="visible"
+        android:visibility="invisible"
         android:src="@drawable/pulltab"
         android:background="@null"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:animateLayoutChanges="true"
         android:background="#00ffffff">
 
             <FrameLayout
@@ -27,8 +34,37 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:animateLayoutChanges="true"
+                android:orientation="vertical"
                 android:paddingBottom="5dp"
                 >
+                <io.supercharge.shimmerlayout.ShimmerLayout
+                    android:id="@+id/SL_Map_Fragment"
+                    app:shimmer_animation_duration="2500"
+                    app:shimmer_color="@color/colorBlack"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <FrameLayout
+                        android:id="@+id/FrameSearchBarHolder"
+                        android:layout_width="match_parent"
+                        android:layout_height="20dp"
+                        android:visibility="visible"
+                        android:background="@color/colorTransparent"
+                        android:layout_gravity="center_horizontal"
+
+                        >
+                        <fragment
+                            android:id="@+id/place_autocomplete_fragment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+                            />
+                    </FrameLayout>
+
+                </io.supercharge.shimmerlayout.ShimmerLayout>
+
+                <include layout="@layout/arrival_info"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"/>
+
                 <TextView
                     android:id="@+id/toatextview"
                     android:layout_width="wrap_content"
@@ -38,7 +74,7 @@
                     android:textColor="@color/colorWhite"
                     android:textStyle="bold"
                     android:layout_gravity="center_horizontal"
-                    android:visibility="gone"
+                    android:visibility="invisible"
                     android:background="@drawable/pill_shaped_eloop_status"
                     />
                 <ProgressBar
@@ -52,10 +88,10 @@
 
             </FrameLayout>
 
-
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
                 android:id="@+id/step_scroll_view">
 
                 <LinearLayout
@@ -65,7 +101,7 @@
 
                     <WebView
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:scrollbars="vertical"
                         android:id="@+id/route_steps"
                         >

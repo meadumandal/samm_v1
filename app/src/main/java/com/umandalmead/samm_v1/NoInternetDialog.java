@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
+import io.supercharge.shimmerlayout.ShimmerLayout;
+
 /**
  * Created by MeadRoseAnn on 1/27/2018.
  */
@@ -18,6 +20,7 @@ public class NoInternetDialog extends Dialog implements
     public Activity _activity;
     public Dialog dialog;
     public Button btnTryAgain;
+    private ShimmerLayout SL_TryAgain;
     public NoInternetDialog(Activity activity) {
         super(activity);
         // TODO Auto-generated constructor stub
@@ -30,6 +33,8 @@ public class NoInternetDialog extends Dialog implements
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_no_internet);
         btnTryAgain = (Button) findViewById(R.id.btnTryAgain);
+        SL_TryAgain = (ShimmerLayout) findViewById(R.id.SL_TryAgain);
+        SL_TryAgain.startShimmerAnimation();
         btnTryAgain.setOnClickListener(this);
         MenuActivity.buttonEffect(btnTryAgain);
 
@@ -40,6 +45,7 @@ public class NoInternetDialog extends Dialog implements
         switch (v.getId()) {
             case R.id.btnTryAgain:
                 if(MenuActivity.isOnline())
+                    SL_TryAgain.startShimmerAnimation();
                     this._activity.startActivity(new Intent(this._activity, LoginActivity.class));
                 break;
             default:

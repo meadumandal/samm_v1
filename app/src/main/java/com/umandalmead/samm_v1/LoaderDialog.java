@@ -49,8 +49,10 @@ public class LoaderDialog extends Dialog {
         this._loaderImage.startAnimation(rotation);
 
         //disable user tap
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        //make view transparent
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
 

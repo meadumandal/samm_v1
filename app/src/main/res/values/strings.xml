@@ -16,7 +16,11 @@
     <string name="error_username_not_exist">Username do not exists</string>
     <string name="error_username_alreadyexists">Username is already taken!</string>
     <string name="error_verification_email_not_sent">Unable to send verification E-mail!</string>
+    <string name="error_an_error_occurred">An error occurred</string>
     <string name="title_activity_maps">Map</string>
+    <string name="error_try_again_all_caps">TRY AGAIN</string>
+    <string name="error_exception_with_concat">Exception : </string>
+    <string name="error_please_supply_all_fields">Please supply all fields</string>
 
     <!--NOTIFICATION MESSAGES-->
     <string name="success_please_verify_email">A verification E-mail has been sent!</string>
@@ -42,6 +46,94 @@
     <string name="prompt_terminals">Select a terminal</string>
     <string name="title_activity_user_profile">UserProfileActivity</string>
 
+    <!--GENERAL-->
+    <string name="ellipsis">...</string>
 
+    <!--PLACE AUTOCOMPLETE FRAGMENT-->
+    <string name="PlaceAutoCompleteFragment_Hint">Where are you going?</string>
+    <string name="PlaceAutoCompleteFragment_FontColor">#000000</string>
+    
+    <!--GPS RELATED-->
+    <string name="Adding_Vehicle_GPS">Adding Vehicle GPS</string>
+    <string name="GPS_Initialize">Initializing...</string>
+    <string name="GPS_select_driver">Select a driver for this PUV</string>
+    <string name="GPS_select_route">Select a route for this PUV</string>
+    <string name="GPS_adding">Adding Pickup/Dropoff Point</string>
+    <string name="GPS_updating">Updating Pickup/Dropoff Point</string>
+    <string name="GPS_deleting">Deleting Pickup/Dropoff Point</string>
+    <string name="GPS_updating_points_on_map">Please wait as we update the points on the map</string>
+    <string name="GPS_add">Add</string>
+    <string name="GPS_update">Update</string>
+    <string name="GPS_delete">Delete</string>
+
+    <!--FACEBOOK RELEATED-->
+    <string name="Facebook_ProfilePic_Graph_URL">http://graph.facebook.com/</string>
+    <string name="Facebook_ProfilePic_Graph_URL_QueryString">/picture?type=large</string>
+    <string name="Error_NonFacebook_Username">/picture?type=large</string>
+
+    <!--SMS Sending RELATED-->
+    <string name="SMS_SENT">SMS_SENT</string>
+    <string name="SMS_DELIVERED">SMS_DELIVERED</string>
+    <string name="SMS_Not_Online">Device is not online</string>
+    <string name="SMS_please_select_network_provider">Select GSM SIM Network Provider</string>
+    <string name="SMS_select_GPS_network">Select the network of the GPS of this PUV</string>
+    <string name="SMS_error_encountered_in_adding_GPS">Error encountered in adding GPS: Please check your signal</string>
+    <string name="SMS_successfully_added_GPS">Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.</string>
+    <string name="SMS_setting_automatic_location_updates">Setting automatic location updates</string>
+    <string name="SMS_configuring_ip_and_port">Configuring IP and Port</string>
+    <string name="SMS_activating_gprs">Activating GPRS</string>
+    <string name="SMS_setting_apn">Setting APN</string>
+    <string name="SMS_button_reconnect">Reconnect</string>
+    <string name="SMS_button_ok">OK</string>
+    <string name="SMS_status_delivered">SMS delivered</string>
+    <string name="SMS_status_not_delivered">SMS not delivered</string>
+    <string name="SMS_sending_to_reconnect_gps">Sending SMS Messages to reconnect GPS...</string>
+    <string name="SMS_status_sending_with_extra_white_space">Sending </string>
+    <string name="SMS_status_sent_with_extra_white_space_prefix"> sent</string>
+    <string name="SMS_sending_to_add_new_gps">Sending SMS Messages to add new GPS...</string>
+    <string name="SMS_sending_failed">SMS Failed, please try again</string>
+    <string name="SMS_sending_of_sms_failed">Sending of SMS failed</string>
+    <!--ACCOUNT RELATED-->
+    <string name="USER_logged_out">You\'ve been logged out.</string>
+    <string name="USER_logout_confirm">Are you sure you want to log out?</string>
+    <string name="USER_logout_dialog_title">Log out</string>
+    <string name="USER_login_not_available_in_beta">Login not available in Beta version</string>
+
+    <!--MOBILE NETWORKS-->
+    <string name="NETWORK_GLOBE">Globe</string>
+    <string name="NETWORK_SMART">Smart</string>
+    <string name="NETWORK_SUN_CELLULAR">Smart</string>
+    <!--GOOGLE API-->
+    <string name="G_API_Building">Building Google API Client...</string>
+    <string name="G_Play_Services_Not_Installed">lease install google play service</string>
+    <!---GOOGLE MAP RELATED-->
+    <string name="GM_Ready">Google Map is Ready...</string>
+    <string name="GM_Style_Parse_Failed">Style parsing failed</string>
+    <string name="GM_unit">metric</string>
+    <string name="GM_mode">driving</string>
+    <string name="GM_location_permission_denied">Location Permission Denied</string>
+    <string name="GM_maps_url">https://maps.googleapis.com/maps/</string>
+
+    <!--DIALOG MESSAGES-->
+    <string name="dialog_status_success">Success</string>
+    <string name="dialog_title_analyzing_routes">Analyzing Routes</string>
+    <string name="dialog_message_analyzing_routes">Please wait as we search for the best route...</string>
+
+    <!--ERROR DIALOGS-->
+    <string name="error_no_internet_connection">No Internet Connection</string>
+    <string name="error_please_turn_on_wifi_or_mobile_data">Please turn on Wi-fi or Mobile data</string>
+
+    <!--FONTS-->
+    <string name="FONT_TRENDER">font/Trender.ttf</string>
+
+    <!--TOOL TIPS-->
+    <string name="ToolTip_show_menu_options">Tap to show menu options</string>
+    <string name="ToolTip_search_again">Tap to search again</string>
+    <string name="ToolTip_navigation_instructions">Pull up to show navigation instructions</string>
+    <string name="ToolTip_search_here">Search here</string>
+
+    <!--INFO LAYOUT RELATED-->
+    <string name="InfoLayout_description_not_available">\nDescription not yet available</string>
+    
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

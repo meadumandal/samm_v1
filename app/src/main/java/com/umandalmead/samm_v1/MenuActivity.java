@@ -16,6 +16,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -94,6 +95,7 @@ import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -104,6 +106,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.vision.text.Line;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -157,6 +160,7 @@ import java.util.UUID;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.github.douglasjunior.androidSimpleTooltip.OverlayView;
 import io.github.douglasjunior.androidSimpleTooltip.SimpleTooltip;
+import io.supercharge.shimmerlayout.ShimmerLayout;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -187,7 +191,7 @@ public class MenuActivity extends AppCompatActivity implements
         public FirebaseDatabase _firebaseDB;
         public DatabaseReference _usersDBRef;
         public static DatabaseReference _terminalsDBRef;
-        public DatabaseReference _driversDBRef;
+        public static DatabaseReference _driversDBRef;
         public DatabaseReference _vehicle_destinationsDBRef, _DriversDatabaseReference;
 
         //Put here all global Collection Variables
@@ -217,7 +221,6 @@ public class MenuActivity extends AppCompatActivity implements
         public static ImageView _Slide_Expand;
         public static ImageView _Slide_Collapse;
         public static ScrollView _StepsScroller;
-        public static ClearableAutoCompleteTextView _TerminalsAutoCompleteTextView;
         public static MenuItem UserNameMenuItem;
         public static TextView _TimeOfArrivalTextView;
         public static MenuItem _UserNameMenuItem;
@@ -239,7 +242,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static FrameLayout FrameSearchBarHolder;
         public static ImageView Search_BackBtn;
         public  static TextView _DestinationTextView;
-        public static CardView _RoutesContainer_CardView;
+        //public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
         public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _ProcessedTerminalTitle;
         public static MediaPlayer _buttonClick;
@@ -248,6 +251,14 @@ public class MenuActivity extends AppCompatActivity implements
         private ImageButton _infoPanelBtnClose;
         private ImageView _infoImage;
         private Animation  slide_down, slide_down_bounce, slide_up, slide_up_bounce;
+        private EditText placeAutoCompleteFragmentInstance;
+        private LocationManager locationManager;
+
+        //Arrival Info elements
+        public static LinearLayout _LL_Arrival_Info;
+        public static TextView _TV_Vehicle_Identifier, _TV_Vehicle_Description, _TV_TimeofArrival;
+        public static ShimmerLayout _SL_Map_Fragment,_SL_Vehicle_ETA;
+
 
 
         //Put here other global variables
@@ -267,7 +278,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Marker _vehicleMarker;
         public Boolean _isUserLoggingOut = false;
         public String _facebookImg;
-        public static Boolean _isVehicleMarkerRotating = false;
+        public static Boolean _isVehicleMarkerRotating = false, _IsPolyLineDrawn=false;
         public String _smsMessageForGPS;
         private String _GPSMobileNumber;
         private String _gpsPlateNumber;
@@ -287,6 +298,9 @@ public class MenuActivity extends AppCompatActivity implements
         public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
         public AddGPSDialog _dialog;
         public LoaderDialog _LoaderDialog;
+        public static TabLayout RouteTabs;
+        public static ViewPager viewPager;
+        public static Resources _GlobalResource;
 
 
 
@@ -337,6 +351,7 @@ public class MenuActivity extends AppCompatActivity implements
             super.onCreate(savedInstanceState);
             _context = getApplicationContext();
             _helper = new Helper(MenuActivity.this, this._context);
+            _GlobalResource = getResources();
             _constants = new Constants();
             if (_helper.isOnline()) {
                 _isAppFirstLoad = true;
@@ -413,10 +428,13 @@ public class MenuActivity extends AppCompatActivity implements
                     _driversDBRef = _firebaseDB.getReference("drivers");
 
                 //Instantiate UI objects~
-                //_TerminalsAutoCompleteTextView = (ClearableAutoCompleteTextView) findViewById(id.txtDestinationIDForEdit);
                 _AppBar = (AppBarLayout) findViewById(R.id.appBarLayout);
                 _RoutesPane = (LinearLayout) findViewById(R.id.route_content);
                 _SlideUpPanelContainer = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+                _TV_TimeofArrival = (TextView) findViewById(id.TV_VehicleTimeOfArrival);
+                _TV_Vehicle_Identifier = (TextView) findViewById(id.TV_Vehicle_Identifier);
+                _TV_Vehicle_Description = (TextView) findViewById(id.TV_Vehicle_Description);
+                _LL_Arrival_Info = (LinearLayout) findViewById(id.LL_Arrival_Info);
                 _RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
                 _Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
                 _StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
@@ -429,8 +447,6 @@ public class MenuActivity extends AppCompatActivity implements
                 _ProfilePictureImg = (CircleImageView) _NavHeaderView.findViewById(R.id.imgLogo);
                 _HeaderUserFullName = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserFullName);
                 _HeaderUserEmail = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserEmail);
-                //_SearchLinearLayout = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
-                //_CurrentLocationEditText = (EditText) findViewById(R.id.tvcurrentlocation);
                 _UserNameMenuItem.setTitle(_sessionManager.getFullName());
                 _HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
                 _HeaderUserEmail.setText(_sessionManager.getEmail());
@@ -450,23 +466,25 @@ public class MenuActivity extends AppCompatActivity implements
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
                 Search_BackBtn = (ImageView) findViewById(id.Search_BackBtn);
                 _DestinationTextView = (TextView) findViewById(id.DestinationTV);
-                _RoutesContainer_CardView = (CardView) findViewById(id.Routes_CardView);
                 _LoopArrivalProgress = (ProgressBar) findViewById(R.id.progressBarLoopArrival);
+                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
                 InitializeInfoPanel();
                 InitializeFonts();
                 InitializeAnimations();
                 MenuActivity.buttonEffect(Search_BackBtn);
+                _SlideUpPanelContainer.setTouchEnabled(false);
+                _SL_Map_Fragment = (ShimmerLayout) findViewById(id.SL_Map_Fragment);
+                _SL_Vehicle_ETA = (ShimmerLayout) findViewById(id.SL_Vehicle_ETA);
+                _SL_Map_Fragment.startShimmerAnimation();
+                RouteTabs = (TabLayout) findViewById(R.id.route_tablayout);
+                viewPager = (ViewPager) findViewById(R.id.routepager);
+                _RouteStepsText = (WebView) findViewById(R.id.route_steps);
 
                 //disable adjusting app dimensions when soft keyboard is shown
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
-                if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper() && !_sessionManager.getIsAdmin())
-                {
-                    //(findViewById(R.id.tvcurrentlocation)).setVisibility(View.GONE);
-                    //(findViewById(R.id.searchlayoutcontainer)).setVisibility(View.GONE);
-                }
                 if (_sessionManager.getIsAdmin())
                     _AdminToolsFloatingMenu.setVisibility(View.VISIBLE);
                 else
@@ -490,13 +508,13 @@ public class MenuActivity extends AppCompatActivity implements
                 });
                 Search_BackBtn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                     HideRouteTabsAndSlidingPanel();
+                        ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
                         PlayButtonClickSound();
                         final Handler HND_ZoomGoogleMapToUserLocation = new Handler();
                         HND_ZoomGoogleMapToUserLocation.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
+                                HideRouteTabsAndSlidingPanel();
                             }
                         }, 1000);
 
@@ -531,8 +549,7 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onClick(View view) {
                         PlayButtonClickSound();
                         try {
-                            _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                            _MapsHolderLinearLayout.setVisibility(View.GONE);
+                            UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                             FragmentManager fragment = getSupportFragmentManager();
                             fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
                         }
@@ -544,10 +561,12 @@ public class MenuActivity extends AppCompatActivity implements
                     }
                 });
 
-                final EditText placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
+                placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
 
-                placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor( "#FFFFFF"));
-                placeAutoCompleteFragmentInstance.setTextSize(14);
+                placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_FontColor)));
+                placeAutoCompleteFragmentInstance.setTextSize(18);
+                //getResources().getString(R.string.guest_nav_drawer_message)
+                placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
 
 
                 AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
@@ -600,7 +619,7 @@ public class MenuActivity extends AppCompatActivity implements
                     @Override
                     public void onError(Status status) {
                         // TODO: Handle the error.
-                        Log.i(_constants.LOG_TAG, "An error occurred: " + status);
+                        Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.error_an_error_occurred) + status);
                     }
                 });
                 autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button)
@@ -609,18 +628,11 @@ public class MenuActivity extends AppCompatActivity implements
                             public void onClick(View view) {
                                 PlayButtonClickSound();
                               HideRouteTabsAndSlidingPanel();
+                                placeAutoCompleteFragmentInstance.setText(null);
                             }
                         });
-                FrameSearchBarHolder.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        PlayButtonClickSound();
-                        UpdateUI(Enums.UIType.SHOWING_INFO);
-                        Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
-                    }
-                });
 
-                _LoaderDialog= new LoaderDialog(this, "Adding Vehicle GPS","Initializing...");
+                _LoaderDialog= new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS),_GlobalResource.getString(R.string.GPS_Initialize));
                 _LoaderDialog.setCancelable(false);
 
                 if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getIsAdmin())
@@ -644,12 +656,12 @@ public class MenuActivity extends AppCompatActivity implements
                 }
 
                // _RouteTabLayout.setMinimumWidth(150);
-                _facebookImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
+                _facebookImg = _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL) + _sessionManager.getUsername().trim() + _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL_QueryString);
                 try {
                     FetchFBDPTask dptask = new FetchFBDPTask();
                     dptask.execute();
                 } catch (Exception ex) {
-                    Toast.makeText(getApplicationContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.Error_NonFacebook_Username), Toast.LENGTH_LONG).show();
                 }
 
                 NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -674,8 +686,8 @@ public class MenuActivity extends AppCompatActivity implements
                 _smsSentBroadcastReceiver = new SentSMSBroadcastReceiver();
                 _smsDeliveredBroadcastReceiver = new SMSDeliveredBroadcastReceiver();
 
-                String SMS_SENT = "SMS_SENT";
-                String SMS_DELIVERED = "SMS_DELIVERED";
+                String SMS_SENT = _GlobalResource.getString(R.string.SMS_SENT);
+                String SMS_DELIVERED = _GlobalResource.getString(R.string.SMS_DELIVERED);
 
                 _sentSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
                 _deliveredSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
@@ -691,7 +703,7 @@ public class MenuActivity extends AppCompatActivity implements
             }
             else
             {
-                Log.w(_constants.LOG_TAG, "Device is not online");
+                Log.w(_constants.LOG_TAG, _GlobalResource.getString(R.string.SMS_Not_Online));
                 _helper.showNoInternetPrompt(this);
             }
             UpdateUI(Enums.UIType.MAIN);
@@ -705,7 +717,7 @@ public class MenuActivity extends AppCompatActivity implements
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.i(_constants.LOG_TAG,"Google Map is Ready...");
+        Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.GM_Ready));
         _googleMap = googleMap;
         Enums.GoogleMapType mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
         try{
@@ -729,13 +741,13 @@ public class MenuActivity extends AppCompatActivity implements
             _googleMap.setMyLocationEnabled(true);
         }
         if(mapType == Enums.GoogleMapType.MAP_TYPE_NORMAL){
-            Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
+            Integer mapsStyle = IsNight() ? R.raw.night_maps_style_darker: R.raw.maps_style;
             boolean success = _googleMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
                             this, mapsStyle));
 
             if (!success) {
-                _helper.logger("Style parsing failed");
+                _helper.logger(_GlobalResource.getString(R.string.GM_Style_Parse_Failed));
             }
         }
         _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
@@ -744,7 +756,7 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             public void onCameraIdle() {
                 if(!_IsOnSearchMode && _infoLayout.getVisibility() != View.VISIBLE) {
-                    FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                    //FrameSearchBarHolder.setVisibility(View.VISIBLE);
                     //Log.i(_constants.LOG_TAG,"==camera idle=="+ _googleMap.getCameraPosition().target);
                 }
 
@@ -754,7 +766,7 @@ public class MenuActivity extends AppCompatActivity implements
             @Override
             public void onCameraMoveStarted(int reason) {
                 if (reason ==REASON_GESTURE) {
-                    FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                   // FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                    // isMaptouched=true;
                 } else if (reason ==REASON_API_ANIMATION) {
 //                    Toast.makeText(MenuActivity.this, "The user tapped something on the map.",
@@ -769,7 +781,7 @@ public class MenuActivity extends AppCompatActivity implements
     }
 
     protected synchronized void buildGoogleApiClient() {
-        Log.i(_constants.LOG_TAG, "Building Google API Client...");
+        Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.G_API_Building));
         if(_helper.isGooglePlayInstalled(_context)) {
             _googleAPI = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
@@ -780,7 +792,7 @@ public class MenuActivity extends AppCompatActivity implements
         }
         else
         {
-            Toast.makeText(_context, "Please install google play service", Toast.LENGTH_LONG).show();
+            Toast.makeText(_context, _GlobalResource.getString(R.string.G_Play_Services_Not_Installed), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -809,14 +821,18 @@ public class MenuActivity extends AppCompatActivity implements
                     if (_isAppFirstLoad) {
                         _isAppFirstLoad = false;
 
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_userCurrentLoc, 16);
+                        _googleMap.animateCamera(cameraUpdate);
+                        locationManager.removeUpdates(this);
+
                         //move map camera with 2s delay
-                        final Handler HND_CameraZoomDelay = new Handler();
-                        HND_CameraZoomDelay.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
-                            }
-                        }, 800);
+//                        final Handler HND_CameraZoomDelay = new Handler();
+//                        HND_CameraZoomDelay.postDelayed(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
+//                            }
+//                        }, 800);
 
                     }
 
@@ -906,7 +922,7 @@ public class MenuActivity extends AppCompatActivity implements
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(_googleAPI, _locationRequest, this);
-            LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
 
@@ -986,7 +1002,7 @@ public class MenuActivity extends AppCompatActivity implements
                 }
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), "\nDescription not yet available" ,null, false);
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), _GlobalResource.getString(R.string.InfoLayout_description_not_available) , null,false);
                 }
                 return true;
             }
@@ -1153,7 +1169,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
-                String url = "https://maps.googleapis.com/maps/";
+                String url = _GlobalResource.getString(R.string.GM_maps_url);
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(url)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -1161,7 +1177,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 RetrofitMaps service = retrofit.create(RetrofitMaps.class);
                 _BOOL_IsTerminalDataFetchOnGoing = true;
                 _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
-                Call<Directions> call = service.getDistanceDuration("metric", TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
+                Call<Directions> call = service.getDistanceDuration(_GlobalResource.getString(R.string.GM_unit), TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), _GlobalResource.getString(R.string.GM_mode));
                 call.enqueue(new Callback<Directions>() {
                     @Override
                     public void onResponse(Response<Directions> response, Retrofit retrofit) {
@@ -1217,7 +1233,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         }
                 } else {
                     // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(this, "Location Permission Denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, _GlobalResource.getString(R.string.GM_location_permission_denied), Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -1227,11 +1243,11 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     SmsManager smsManager = SmsManager.getDefault();
                     smsManager.sendTextMessage(_GPSMobileNumber, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
 
-                    Log.i(_constants.LOG_TAG, this._smsMessageForGPS + " sent");
-                    Toast.makeText(this, this._smsMessageForGPS + " sent", Toast.LENGTH_LONG).show();
+                    Log.i(_constants.LOG_TAG, this._smsMessageForGPS + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
+                    Toast.makeText(this, this._smsMessageForGPS + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix), Toast.LENGTH_LONG).show();
                 } else {
-                    _helper.logger("Sending of SMS failed");
-                    Toast.makeText(this, "SMS Failed, please try again", Toast.LENGTH_LONG).show();
+                    _helper.logger(_GlobalResource.getString(R.string.SMS_sending_of_sms_failed));
+                    Toast.makeText(this, _GlobalResource.getString(R.string.SMS_sending_failed), Toast.LENGTH_LONG).show();
                     return;
                 }
             }
@@ -1290,8 +1306,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     builder = new AlertDialog.Builder(this);
                 }
 
-                builder.setTitle("Log out")
-                        .setMessage("Are you sure you want to log out?")
+                builder.setTitle(_GlobalResource.getString(R.string.USER_logout_dialog_title))
+                        .setMessage(_GlobalResource.getString(R.string.USER_logout_confirm))
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 PlayButtonClickSound();
@@ -1310,7 +1326,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "", false);
                                 finish();
                                 startActivity(getIntent());
-                                Toast.makeText(MenuActivity.this,"You've been logged out.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.USER_logged_out), Toast.LENGTH_LONG).show();
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
@@ -1325,9 +1341,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
             }
             else if(id==R.id.nav_about){
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.GONE);
-
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
 
             }
@@ -1335,7 +1349,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             {
                 if(_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper())
                 {
-                    Toast.makeText(_context, "Login not available in Beta version", Toast.LENGTH_LONG).show();
+                    Toast.makeText(_context, _GlobalResource.getString(R.string.USER_login_not_available_in_beta), Toast.LENGTH_LONG).show();
                 }
                 else {
                     try {
@@ -1356,36 +1370,25 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             else if (id == R.id.nav_passengerpeakandlean)
             {
                 _sessionManager.PassReportType(_constants.PASSENGER_REPORT_TYPE);
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.GONE);
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
-                //_SearchLinearLayout.setVisibility(View.GONE);
-                //_TerminalsAutoCompleteTextView.setVisibility(View.GONE);
-                //_CurrentLocationEditText.setVisibility(View.GONE);
 
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
                 _sessionManager.PassReportType(_constants.VEHICLE_REPORT_TYPE);
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.GONE);
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
-                //_SearchLinearLayout.setVisibility(View.GONE);
-                //_TerminalsAutoCompleteTextView.setVisibility(View.GONE);
-                //_CurrentLocationEditText.setVisibility(View.GONE);
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if(id == R.id.menu_home){
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.VISIBLE);
+                UpdateUI(Enums.UIType.ADMIN_SHOW_MAPS_LINEARLAYOUT);
+                _RoutesPane.setVisibility(View.VISIBLE);
 
                 if(!_sessionManager.isGuest() && !_sessionManager.getIsAdmin())
                 {
                     appBarLayoutParam.height = _constants.APPBAR_MAX_HEIGHT;
-                    //_SearchLinearLayout.setVisibility(View.VISIBLE);
-                    //_TerminalsAutoCompleteTextView.setVisibility(View.VISIBLE);
-                    //_CurrentLocationEditText.setVisibility(View.VISIBLE);
                 }
             }
             else if(id==R.id.nav_map_normal){
@@ -1402,8 +1405,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }
             else if(id==R.id.menu_username) {
                 if (!_sessionManager.isGuest()) {
-                    _MapsHolderLinearLayout = (LinearLayout) findViewById(R.id.mapsLinearLayout);
-                    _MapsHolderLinearLayout.setVisibility(View.GONE);
+                    UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                     fragment.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
                 } else {
                     InfoDialog GuestInfo = new InfoDialog(MenuActivity.this, getResources().getString(R.string.guest_nav_drawer_message));
@@ -1413,23 +1415,21 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }
             else if (id==R.id.nav_adminusers)
             {
-
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.GONE);
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 AdminUsersFragment adminUsersFragment = new AdminUsersFragment();
                 fragment.beginTransaction().replace(R.id.content_frame, adminUsersFragment).commit();
             }
             else if (id==R.id.nav_drivers)
             {
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                _MapsHolderLinearLayout.setVisibility(View.GONE);
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 DriverUsersFragment driverUsersFragment = new DriverUsersFragment();
                 fragment.beginTransaction().replace(R.id.content_frame, driverUsersFragment).commit();
             }
             else if(id==R.id.nav_routes)
             {
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
                 startActivity(addRouteIntent);
                 overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
@@ -1438,8 +1438,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             else if (id == R.id.nav_vehicles)
             {
                 try {
-                    _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
-                    _MapsHolderLinearLayout.setVisibility(View.GONE);
+                    UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                     fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
                 }
                 catch(Exception ex)
@@ -1696,7 +1695,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         .addConverterFactory(GsonConverterFactory.create())
                         .build();
                 RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-                Call<Directions> call = service.getDistanceDuration("metric", _selectedPickUpPoint.Lat + "," + _selectedPickUpPoint.Lng, Looploc.latitude + "," + Looploc.longitude, "driving");
+                Call<Directions> call = service.getDistanceDuration(_GlobalResource.getString(R.string.GM_unit), _selectedPickUpPoint.Lat + "," + _selectedPickUpPoint.Lng, Looploc.latitude + "," + Looploc.longitude, _GlobalResource.getString(R.string.GM_mode));
                 call.enqueue(new Callback<Directions>() {
                     @Override
                     public void onResponse(Response<Directions> response, Retrofit retrofit) {
@@ -1776,16 +1775,16 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         if (_smsMessageForGPS.equals(_constants.SMS_BEGIN)) {
-                            _ProgressDialog.setMessage("Activating GPRS");
+                            _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_activating_gprs));
                             sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_GPRS)) {
                             if(_isGPSReconnect) {
-                                _ReconnectGPSButton.setText("Reconnect");
+                                _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
                                 _ReconnectGPSButton.setEnabled(true);
                             }
                             else {
-                                _ProgressDialog.setMessage("Setting APN");
+                                _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_setting_apn));
                                 sendSMSMessage(_smsAPN, _GPSMobileNumber);
                             }
                         }
@@ -1794,23 +1793,23 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
                             }
                             else {
-                                _ProgressDialog.setMessage("Configuring IP and Port");
+                                _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_configuring_ip_and_port));
                                 sendSMSMessage(_constants.SMS_ADMINIP, _GPSMobileNumber);
                             }
 
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_ADMINIP)) {
-                            _ProgressDialog.setMessage("Setting automatic location updates");
+                            _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_setting_automatic_location_updates));
                             sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_TIMEINTERVAL)) {
                             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MenuActivity.this);
-                            alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            alertDialogBuilder.setPositiveButton(_GlobalResource.getText(R.string.SMS_button_ok), new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                 }
                             });
-                            alertDialogBuilder.setTitle("Success");
-                            alertDialogBuilder.setMessage("Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.");
+                            alertDialogBuilder.setTitle(_GlobalResource.getString(R.string.dialog_status_success));
+                            alertDialogBuilder.setMessage(_GlobalResource.getString(R.string.SMS_successfully_added_GPS));
                             alertDialogBuilder.show();
 
                             _ProgressDialog.dismiss();
@@ -1822,51 +1821,51 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         if(_isGPSReconnect)
                         {
                             _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText("Reconnect");
+                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
                         }
                         else
                         {
                             _ProgressDialog.dismiss();
                         }
-                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
 
                         break;
                     case SmsManager.RESULT_ERROR_NO_SERVICE:
                         if(_isGPSReconnect)
                         {
                             _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText("Reconnect");
+                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
                         }
                         else
                         {
                             _ProgressDialog.dismiss();
                         }
-                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
                         break;
                     case SmsManager.RESULT_ERROR_NULL_PDU:
                         if(_isGPSReconnect)
                         {
                             _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText("Reconnect");
+                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
                         }
                         else
                         {
                             _ProgressDialog.dismiss();
                         }
-                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
                         break;
 
                     case SmsManager.RESULT_ERROR_RADIO_OFF:
                         if(_isGPSReconnect)
                         {
                             _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText("Reconnect");
+                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
                         }
                         else
                         {
                             _ProgressDialog.dismiss();
                         }
-                        Toast.makeText(context, "Error encountered in adding GPS: Please check your signal", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
                         break;
                 }
 
@@ -1886,10 +1885,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         public void onReceive(Context context, Intent intent) {
             switch (getResultCode()) {
                 case Activity.RESULT_OK:
-                    Toast.makeText(getApplicationContext(), "SMS delivered", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.SMS_status_delivered), Toast.LENGTH_SHORT).show();
                     break;
                 case Activity.RESULT_CANCELED:
-                    Toast.makeText(getApplicationContext(), "SMS not delivered", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.SMS_status_not_delivered), Toast.LENGTH_SHORT).show();
                     break;
             }
         }
@@ -1959,21 +1958,21 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         try
         {
 
-            Log.i(LOG_TAG, "Sending SMS Messages to add new GPS...");
+            Log.i(LOG_TAG, _GlobalResource.getString(R.string.SMS_sending_to_add_new_gps));
             this._smsMessageForGPS = message;
             if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
 
-                    Log.i(_constants.LOG_TAG,"Sending " + this._smsMessageForGPS + "...");
+                    Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space) + this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
                     ActivityCompat.requestPermissions(this,
                             new String[]{android.Manifest.permission.SEND_SMS},
                             MY_PERMISSIONS_REQUEST_SEND_SMS);
             }
             else
             {
-                Log.i(_constants.LOG_TAG,"Sending " + this._smsMessageForGPS + "...");
+                Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space)  + this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phone, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
-                Log.i(_constants.LOG_TAG, message + " sent");
+                Log.i(_constants.LOG_TAG, message + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
             }
         }
         catch(Exception ex)
@@ -1981,19 +1980,19 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             _helper.logger(ex);
 
             _ProgressDialog.dismiss();
-            Toast.makeText(getApplicationContext(),"Error encountered" + ex.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),_GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
     public void sendSMSMessage(String message, String phone, Button btnReconnectGPS) {
         try
         {
-            Log.i(LOG_TAG, "Sending SMS Messages to reconnect GPS...");
+            Log.i(LOG_TAG, _GlobalResource.getString(R.string.SMS_sending_to_reconnect_gps));
             this._smsMessageForGPS = message;
             this._GPSMobileNumber = phone;
 
             if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(_constants.LOG_TAG,"Sending " + this._smsMessageForGPS + "...");
+                    Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space)+ this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
 //                    Toast.makeText(getApplicationContext(), "sending " + this._smsMessageForGPS, Toast.LENGTH_LONG).show();
                     ActivityCompat.requestPermissions(this,
                             new String[]{android.Manifest.permission.SEND_SMS},
@@ -2001,13 +2000,13 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }
             else
             {
-                Log.i(_constants.LOG_TAG,"Sending " + this._smsMessageForGPS + "...");
+                Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space) + this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
 //                Toast.makeText(getApplicationContext(), "sending " + this._smsMessageForGPS, Toast.LENGTH_LONG).show();
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phone, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
                 this._ReconnectGPSButton = btnReconnectGPS;
 
-                Log.i(_constants.LOG_TAG, message + " sent");
+                Log.i(_constants.LOG_TAG, message + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
 //                Toast.makeText(getApplicationContext(),this._smsMessageForGPS + " sent", Toast.LENGTH_LONG).show();
             }
         }
@@ -2015,7 +2014,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         {
             _helper.logger(ex);
             _ProgressDialog.dismiss();
-            Toast.makeText(getApplicationContext(),"Error encountered" + ex.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),_GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -2202,7 +2201,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             String preposition = spinnerPrePosition.getSelectedItem().toString();
                             Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
-                                Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
                             } else {
 
                                 savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
@@ -2219,7 +2218,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             Integer destinationID = Integer.parseInt(txtDestinationIDForEdit.getText().toString());
                             Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
-                                Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
                             } else {
 
                                 updatePoint(destinationID, name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
@@ -2240,21 +2239,21 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
         private void savePoint(String name, Double lat, Double lng, String preposition, Terminal terminalReference)
         {
-            _LoaderDialog = new LoaderDialog(MenuActivity.this, "Adding Pickup/Dropoff Point","Please wait as we set up the points on the map");
+            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_adding),_GlobalResource.getString(R.string.GPS_updating_points_on_map));
             _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,_GlobalResource.getString(R.string.GPS_add), 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
         }
         private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Terminal terminalReference)
         {
-            _LoaderDialog = new LoaderDialog(MenuActivity.this, "Updating Pickup/Dropoff Point", "Please wait as we update the points on the map");
+            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_updating), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
             _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_update) , ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
         }
         private void deletePoint(Integer ID)
         {
-            _LoaderDialog = new LoaderDialog(MenuActivity.this, "Deleting Pickup/Dropoff Point", "Please wait as we update the points on the map");
+            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_deleting), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
             _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, "Delete", ID).execute();
+            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_delete) , ID).execute();
         }
     }
 
@@ -2287,8 +2286,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             ArrayList<Users> driverAdapterList = new ArrayList<>();
             ArrayList<Routes> routesAdapterList = new ArrayList<>();
 
-            driverAdapterList.add(new Users(0, "Select a driver for this PUV", "", "","","Driver", "", 1));
-            routesAdapterList.add(new Routes(0, "Select a route for this PUV"));
+            driverAdapterList.add(new Users(0, _GlobalResource.getString(R.string.GPS_select_driver), "", "","","Driver", "", 1));
+            routesAdapterList.add(new Routes(0, _GlobalResource.getString(R.string.GPS_select_route)));
             driverAdapterList.addAll(MenuActivity._driverList);
             routesAdapterList.addAll(MenuActivity._routeList);
 
@@ -2351,9 +2350,9 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             spinnerDrivers = (Spinner) findViewById(id.spinnerDrivers);
 
 
-            networkList.add("Select the network of the GPS of this PUV");
-            networkList.add("Globe");
-            networkList.add("Smart");
+            networkList.add(_GlobalResource.getString(R.string.SMS_select_GPS_network));
+            networkList.add(_GlobalResource.getString(R.string.NETWORK_GLOBE));
+            networkList.add(_GlobalResource.getString(R.string.NETWORK_SMART));
 
 
             ArrayAdapter<String> networkProvidersAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, networkList){
@@ -2402,9 +2401,9 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         _gpsNetwork = spinnerNetworks.getSelectedItem().toString();
                         _gpsTblRoutesID = ((Routes)spinnerRoutes.getSelectedItem()).getID();
                         _gpsTblUsersID = ((Users)spinnerDrivers.getSelectedItem()).ID;
-                        if(_GPSMobileNumber.trim().length() == 0 || _gpsIMEI.trim().length() == 0 || spinnerNetworks.getSelectedItem().toString().equals("Select GSM SIM Network Provicer"))
+                        if(_GPSMobileNumber.trim().length() == 0 || _gpsIMEI.trim().length() == 0 || spinnerNetworks.getSelectedItem().toString().equals(_GlobalResource.getString(R.string.SMS_please_select_network_provider)))
                         {
-                            Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
                         }
                         else {
                             if (spinnerNetworks.getSelectedItem().toString().equals("Globe"))
@@ -2422,7 +2421,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     }catch(Exception ex)
                     {
                         _helper.logger(ex);
-                        Toast.makeText(getContext(), "Error occured", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getContext(), _GlobalResource.getString(R.string.error_an_error_occurred), Toast.LENGTH_LONG).show();
                     }
                 }
             });
@@ -2459,31 +2458,33 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             switch (type) {
                 case MAIN:
                     if (!_sessionManager.getMainTutorialStatus()) {
-                        BuildToolTip("Tap to show menu options", this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
-                        BuildToolTip("Search here", this, FrameSearchBarHolder, Gravity.BOTTOM, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
                         _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
                     }
                     break;
                 case SHOWING_ROUTES:
                     if (!_sessionManager.getRouteTutorialStatus()) {
-                       // ShowRouteTabsAndSlidingPanel();
-                        BuildToolTip("Tap to search again", this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
-                        BuildToolTip("Pull up to show navigation instructions", this, _RoutesContainer_CardView, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
                         _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
                         _HasExitedInfoLayout = false;
                     }
+                    _RouteStepsText.setVisibility(View.VISIBLE);
+                    _RouteTabLayout.setVisibility(View.VISIBLE);
+                    _SlideUpPanelContainer.setPanelHeight(200);
                     break;
                 case SHOWING_INFO:
                     FAB_SammIcon.setVisibility(View.INVISIBLE);
-                    FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                    //FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                     break;
                 case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
                     FAB_SammIcon.setVisibility(View.INVISIBLE);
-                    FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                    //FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                     break;
                 case HIDE_INFO:
                     FAB_SammIcon.setVisibility(View.VISIBLE);
-                    FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                   // FrameSearchBarHolder.setVisibility(View.VISIBLE);
                     _infoLayout.setVisibility(View.INVISIBLE);
                     _infoPanelBtnClose.setVisibility(View.VISIBLE);
                     break;
@@ -2492,28 +2493,42 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     _infoLayout.setVisibility(View.INVISIBLE);
                     _infoPanelBtnClose.setVisibility(View.VISIBLE);
                     break;
+                case ADMIN_HIDE_MAPS_LINEARLAYOUT:
+                    _MapsHolderLinearLayout.setVisibility(View.GONE);
+                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                    _RoutesPane.setVisibility(View.INVISIBLE);
+                    break;
+                case ADMIN_SHOW_MAPS_LINEARLAYOUT:
+                    _MapsHolderLinearLayout.setVisibility(View.VISIBLE);
+                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                    _RoutesPane.setVisibility(View.VISIBLE);
+                    break;
                 default:
                     break;
             }
         }
     }
     public void ShowRouteTabsAndSlidingPanel(){
+        _RoutesPane.setBackgroundResource(R.color.colorTransparent);
+        FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+        _SL_Map_Fragment.stopShimmerAnimation();
         if(_sessionManager.isDriver()){
             _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            _SlideUpPanelContainer.setEnabled(false);
             _RoutesPane.setVisibility(View.VISIBLE);
             _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
         }
         else {
+            _SlideUpPanelContainer.setTouchEnabled(true);
+            _SlideUpPanelContainer.setEnabled(true);
+            _Slide_Collapse.setVisibility(View.VISIBLE);
             _RouteTabLayout.setVisibility(View.VISIBLE);
             _RoutesPane.setVisibility(View.VISIBLE);
-            // _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
             _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
             _StepsScroller.scrollTo(0, 0);
             _AppBar.setVisibility(View.VISIBLE);
             FAB_SammIcon.setVisibility(View.INVISIBLE);
             Search_BackBtn.setVisibility(View.VISIBLE);
-            FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+            //FrameSearchBarHolder.setVisibility(View.INVISIBLE);
             final ViewPager viewPager = (ViewPager) findViewById(R.id.routepager);
             viewPager.setCurrentItem(0);
             CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
@@ -2522,43 +2537,58 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             //Get nearest loop time of arrival~
             _LoopArrivalProgress.setVisibility(View.VISIBLE);
             _IsOnSearchMode = true;
-            if (_markerAnimator != null)
-                _markerAnimator.start();
             final Handler HND_ShowPanel = new Handler();
             HND_ShowPanel.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+                    _SL_Vehicle_ETA.startShimmerAnimation();
                 }
-            }, 1000);
+            }, 1200);
         }
     }
     public void HideRouteTabsAndSlidingPanel(){
-        _RouteTabLayout.setVisibility(View.INVISIBLE);
-        _IsOnSearchMode=false;
-        _RoutesPane.setVisibility(View.INVISIBLE);
-        AnalyzeForBestRoutes.clearLines();
-        _selectedPickUpPoint = null;
-        Search_BackBtn.setVisibility(View.INVISIBLE);
-        FrameSearchBarHolder.setVisibility(View.VISIBLE);
-        FAB_SammIcon.setVisibility(View.VISIBLE);
+        final Handler HND_CollapsePanel = new Handler();
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
         lp.height = 0;
         _AppBar.setLayoutParams(lp);
-        AnalyzeForBestRoutes.RemoveListenerFromLoop();
-        _HasExitedInfoLayout = true;
-        AnalyzeForBestRoutes.InitializeSearchingRouteUI(false, false, "" );
+        AnalyzeForBestRoutes.clearLines();
+        Search_BackBtn.setVisibility(View.INVISIBLE);
+        FAB_SammIcon.setVisibility(View.VISIBLE);
+        HND_CollapsePanel.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                _TimeOfArrivalTextView.setVisibility(View.INVISIBLE);
+                _Slide_Collapse.setVisibility(View.INVISIBLE);
+                _RouteTabLayout.setVisibility(View.INVISIBLE);
+                _RouteStepsText.setVisibility(View.INVISIBLE);
+                placeAutoCompleteFragmentInstance.setText(null);
+                _IsOnSearchMode=false;
+                _selectedPickUpPoint = null;
+
+                AnalyzeForBestRoutes.RemoveListenerFromLoop();
+                _HasExitedInfoLayout = true;
+                _SL_Vehicle_ETA.stopShimmerAnimation();
+                _SL_Map_Fragment.startShimmerAnimation();
+                _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                AnalyzeForBestRoutes.InitializeSearchingRouteUI(true, false, null, null, null );
+            }
+        }, 1000);
+        _SlideUpPanelContainer.setPanelHeight(130);
+        _SlideUpPanelContainer.setTouchEnabled(false);
+
     }
     public void SetMapType(GoogleMap gmap, Enums.GoogleMapType mapType){
         switch(mapType){
             case MAP_TYPE_NORMAL: gmap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                Integer mapsStyle = IsNight() ? R.raw.night_maps_style: R.raw.maps_style;
+                Integer mapsStyle = IsNight() ? R.raw.night_maps_style_darker: R.raw.maps_style;
                 boolean success = _googleMap.setMapStyle(
                         MapStyleOptions.loadRawResourceStyle(
                                 this, mapsStyle));
 
                 if (!success) {
-                    _helper.logger("Style parsing failed");
+                    _helper.logger(_GlobalResource.getString(R.string.GM_Style_Parse_Failed));
                 }
                 _NavView.getMenu().findItem(id.nav_map_normal).setIcon(R.drawable.ic_check_black_24dp);
                 break;
@@ -2802,11 +2832,11 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     private void InitializeFonts(){
         try{
             FONT_PLATE = Typeface.createFromAsset(_context.getAssets(),
-                    "font/Trender.ttf");
+                    _GlobalResource.getString(R.string.FONT_TRENDER));
             FONT_STATION = Typeface.createFromAsset(_context.getAssets(),
-                    "font/Trender.ttf");
+                    _GlobalResource.getString(R.string.FONT_TRENDER));
         }catch (Exception ex){
-            Log.i(_constants.LOG_TAG, "Exception: " + ex.getMessage());
+            Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage());
         }
     }
     private void InitializeAnimations(){

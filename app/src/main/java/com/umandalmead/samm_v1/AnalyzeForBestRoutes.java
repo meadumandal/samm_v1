@@ -38,6 +38,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddVehicleMarkers;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,7 +60,11 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.google.android.gms.maps.model.JointType.ROUND;
+import static com.umandalmead.samm_v1.MenuActivity._LL_Arrival_Info;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
+import static com.umandalmead.samm_v1.MenuActivity._TV_TimeofArrival;
+import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Description;
+import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Identifier;
 import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
 import static  com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
 import static com.umandalmead.samm_v1.MenuActivity._userCurrentLoc;
@@ -120,10 +125,22 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     }
 
     public static void clearLines() {
-        if (_redPolyLine !=null &&  _magentaPolyLine != null && !listLatLng.isEmpty()) {
+        if (_redPolyLine != null && _redPolyLine.getPoints().size() !=0) {
+           // removeLinesFromPolyLines(_redPolyLine);
             _redPolyLine.remove();
+        }
+        if(_magentaPolyLine != null && _magentaPolyLine.getPoints().size() !=0) {
+           // removeLinesFromPolyLines(_magentaPolyLine);
             _magentaPolyLine.remove();
+        }
+        if(!listLatLng.isEmpty()) {
             listLatLng.clear();
+        }
+
+    }
+    public static void removeLinesFromPolyLines(Polyline PL_PolyLines){
+        for(int i = 0; i!=PL_PolyLines.getPoints().size();i++){
+            PL_PolyLines.getPoints().remove(i);
         }
     }
 
@@ -131,7 +148,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     protected void onPreExecute() {
         try {
             super.onPreExecute();
-            Loader = new LoaderDialog(_activity, "Analyzing Routes","Please wait as we search for the best route" );
+            Loader = new LoaderDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_title_analyzing_routes),MenuActivity._GlobalResource.getString(R.string.dialog_message_analyzing_routes));
             MenuActivity._buttonClick = MediaPlayer.create(_context, R.raw.button_click);
             Loader.show();
 
@@ -260,15 +277,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         listLatLng.addAll(list);
         animatePolyLine();
 
-
-//        _line = this._map.addPolyline(new PolylineOptions()
-//                .addAll(list)
-//                .width(5f)
-//                .color(Color.RED)
-//                .geodesic(true)
-//
-//        );
-        //polyLines.add(_line);
     }
     private void animatePolyLine() {
 
@@ -372,7 +380,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             Loader.dismiss();
             ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
             MenuActivity._selectedPickUpPoint = _topTerminals.get(0);
-
+           // MenuActivity._driversDBRef.addChildEventListener(new AddVehicleMarkers(_context, _activity));
 
         } catch (Exception ex) {
             Helper.logger(ex);
@@ -385,31 +393,31 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         try {
             if (L_TM_AllPossibleTerminals.size() == 0 || L_TM_AllPossibleTerminals == null)
                 throw new Exception("Unable to find route for this destination.");
-            final TabLayout RouteTabs = (TabLayout) this._activity.findViewById(R.id.route_tablayout);
-            RouteTabs.removeAllTabs();
+
+            MenuActivity.RouteTabs.removeAllTabs();
             for (Terminal entry : L_TM_AllPossibleTerminals) {
-                RouteTabs.addTab(RouteTabs.newTab().setText(entry.Description));
+                MenuActivity.RouteTabs.addTab( MenuActivity.RouteTabs.newTab().setText(entry.Description));
             }
-            RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
+            MenuActivity.RouteTabs.setTabGravity(TabLayout.GRAVITY_FILL);
 
-            final ViewPager viewPager = (ViewPager) this._activity.findViewById(R.id.routepager);
-            final PagerAdapter adapter = new PagerAdapter(_supportFragmentManager, RouteTabs.getTabCount());
-            viewPager.setAdapter(adapter);
-            viewPager.setOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(RouteTabs));
-
-
-            RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            MenuActivity.RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
-                    ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                    // ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
-                    viewPager.setCurrentItem(tab.getPosition());
+                    MenuActivity.viewPager.setCurrentItem(tab.getPosition());
                     MenuActivity._RouteTabSelectedIndex = tab.getPosition();
                     _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
                     MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(tab.getPosition());
                     GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
                     PlayButtonClickSound();
+                    final Handler HND_UpdateUI = new Handler();
+                    HND_UpdateUI.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+                        }
+                    }, 1000);
                     ZoomAndAnimateMapCamera(new LatLng(MenuActivity._userCurrentLoc.latitude, MenuActivity._userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(tab.getPosition()).getLat(), L_TM_AllPossibleTerminals.get(tab.getPosition()).getLng()),0, L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
 
@@ -429,13 +437,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 public void run() {
                     ((MenuActivity)AnalyzeForBestRoutes.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                 }
-            }, 1500);
+            }, 1000);
 
             MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
-            _RouteStepsText = (WebView) this._activity.findViewById(R.id.route_steps);
             _RouteStepsText.loadDataWithBaseURL("file:///android_res/", SelectedTabInstructions(L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex), L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex)), "text/html; charset=utf-8", "UTF-8", null);
             ZoomAndAnimateMapCamera(new LatLng(_userCurrentLoc.latitude, _userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(0).getLat(), L_TM_AllPossibleTerminals.get(0).getLng()), 0,L_L_STR_TerminalPointsList.get(0).get(0));
+
         } catch (Exception ex) {
             Loader.dismiss();
             Helper.logger(ex);
@@ -443,26 +451,29 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
     }
 
-
     private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, LatLng LATLNG_var2, int INT_zoomLevel, final String STR_TerminalPointsList){
+        clearLines();
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(LATLNG_var1).include(LATLNG_var2);
-
+        MenuActivity._IsPolyLineDrawn=false;
 
         int width = _activity.getResources().getDisplayMetrics().widthPixels;
         int height = _activity.getResources().getDisplayMetrics().heightPixels;
         int padding = (int) (height * 0.20);
 
+
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(builder.build(), width, height, padding);
         _map.animateCamera(cu);
-        clearLines();
-        final Handler HND_UpdatePolyLines = new Handler();
-        HND_UpdatePolyLines.postDelayed(new Runnable() {
+        _map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
             @Override
-            public void run() {
-                drawLines(STR_TerminalPointsList);
+            public void onCameraIdle() {
+                if(!MenuActivity._IsPolyLineDrawn){
+                    drawLines(STR_TerminalPointsList);
+                    MenuActivity._IsPolyLineDrawn=true;
+                }
             }
-        }, 1600);
+        });
+
 
     }
     private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
@@ -489,7 +500,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                         loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
                                         String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? CleanEloopName(v.child("Dwell").getValue().toString()) : CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if (loopAwaiting && IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
-                                                    InitializeSearchingRouteUI(true, false, "An E-loop is already waiting!");
+                                                    InitializeSearchingRouteUI(true, false, "An E-loop is already waiting!", null, null);
                                                     loopAwaiting = true;
                                                     _IsAllLoopParked = false;
                                                     found = true;
@@ -571,7 +582,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                         }
                     }
                     if (_IsAllLoopParked) {
-                        InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)");
+                        InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null);
 
                     }
 
@@ -585,7 +596,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal TM_CurrentDest) {
         try {
             if (TM_CurrentDest != null) {
-                InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...");
+                InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...",null,null);
                 final List<Terminal> LTM_DestList_Sorted = MenuActivity._terminalList;
                 Collections.sort(LTM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 FB = FirebaseDatabase.getInstance();
@@ -636,7 +647,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    InitializeSearchingRouteUI(true,false, "<i>E-Loop " + Helper.GetEloopEntry(_AssignedELoop)+ " (" + Distance + " away) will arrive within: </i><b>" + TimeofArrival.toString() + ".</b>");
+                                    InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop),Distance, TimeofArrival.toString());
                                 }
                             } catch (Exception ex) {
                                 Log.d("onResponse", "There is an error");
@@ -661,9 +672,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
     public String SelectedTabInstructions(List<String> STR_StepsList, String STR_TotalTime, Terminal TM_Terminal) {
         String Step =
-                "<hr/><h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><userImg style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
+                "<h3 style='padding-left:5%;'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><userImg style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
 //                        "<td style='padding-left:7%;'><medium style='background:#2196F3; color:white;border-radius:10%; padding: 7px;'>WALK</medium></td></tr>" +
-                        "<td style='padding-left:7%;'><b>Walk your way to " + TM_Terminal.Value + " Terminal </b></td></tr>" +
+                        "<td style='padding-left:7%;'><b>Walk your way to " + TM_Terminal.getDescription() + " Terminal </b></td></tr>" +
                         "<tr><td width='20%' style='text-align:center'><small>" + CleanTotalTime(STR_TotalTime) + "</small></td><td></td></tr>";
 
         if (STR_StepsList != null) {
@@ -728,9 +739,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
        // if(currentDestination != null)// && currentDestination.tblRouteID){
         FB = FirebaseDatabase.getInstance();
         _S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(INT_LoopID.toString());//.child("routeIDs");
-        if(_S_VehicleDestinationDatabaseReference !=null){
-            Toast.makeText(this._context, "Listener Attached to: " + INT_LoopID.toString(), Toast.LENGTH_LONG).show();
-        }
+//        if(_S_VehicleDestinationDatabaseReference !=null){
+//            Toast.makeText(this._context, "Listener Attached to: " + INT_LoopID.toString(), Toast.LENGTH_LONG).show();
+//        }
         _SingleLoopChildListenerForSelectedTerminal = _S_VehicleDestinationDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -744,11 +755,11 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                     String routeId = String.valueOf(TM_CurrentDestination.getTblRouteID());
                     if (!Firebase_routeIDs.contains(routeId)) {
                         _S_VehicleDestinationDatabaseReference.removeEventListener(this);
-                        Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
                         GetArrivalTimeOfLoopBasedOnSelectedStation(TM_CurrentDestination);
                     } else if(!MenuActivity._HasExitedInfoLayout) {
                         GetTimeRemainingFromGoogle(INT_LoopID, TM_CurrentDestination);
-                        Toast.makeText(_context, "Listener attached! RouteID:" + routeId + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(_context, "Listener attached! RouteID:" + routeId + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -813,23 +824,32 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     public void PlayButtonClickSound(){
         MenuActivity._buttonClick.start();
     }
-    public static void InitializeSearchingRouteUI(Boolean BOOL_IsSearchingDone, Boolean BOOL_IsResultNegative, String STR_HTMLMessage){
+    public static void InitializeSearchingRouteUI(Boolean BOOL_IsSearchingDone, Boolean BOOL_IsResultNegative, String STR_HTMLMessage,String STR_Distance, String STR_TimeRemaining){
         if(BOOL_IsSearchingDone)
             _LoopArrivalProgress.setVisibility(View.INVISIBLE);
         else
             _LoopArrivalProgress.setVisibility(View.VISIBLE);
-        if(BOOL_IsSearchingDone && !BOOL_IsResultNegative){
-            _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-            _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+
+        if(BOOL_IsSearchingDone && !BOOL_IsResultNegative && STR_HTMLMessage != null && STR_Distance!= null && STR_TimeRemaining!=null){
+            _LL_Arrival_Info.setVisibility(View.VISIBLE);
+            _TV_Vehicle_Identifier.setText(STR_HTMLMessage);
+            _TV_Vehicle_Description.setText(STR_Distance+ " away");
+            _TV_TimeofArrival.setText(STR_TimeRemaining);
+            _TimeOfArrivalTextView.setVisibility(View.INVISIBLE);
 
         }
         else if(BOOL_IsSearchingDone && BOOL_IsResultNegative){
+            _LL_Arrival_Info.setVisibility(View.GONE);
+            _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
             _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
             _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
+            MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
         }
         else{
+            _LL_Arrival_Info.setVisibility(View.GONE);
             _TimeOfArrivalTextView.setBackgroundResource(0);
             _TimeOfArrivalTextView.setText(null);
+            //MenuActivity._SlideUpPanelContainer.setPanelHeight(150);
 
         }
     }

@@ -11,7 +11,9 @@ public class Enums {
         SHOWING_INFO("ShowingInfo", 2),
         HIDE_INFO("HideInfo", 3),
         HIDE_INFO_SEARCH("HideInfoSearch",4),
-        HIDE_SEARCH_FRAGMENT_ON_SEARCH("HideSearchFragmentOnSearch", 5);
+        HIDE_SEARCH_FRAGMENT_ON_SEARCH("HideSearchFragmentOnSearch", 5),
+        ADMIN_HIDE_MAPS_LINEARLAYOUT("AdminHideMapsLinearLayout",6),
+        ADMIN_SHOW_MAPS_LINEARLAYOUT("AdminShowMapsLinearLayout",7);
 
         private String stringValue;
         private int intValue;
