@@ -120,13 +120,21 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
     }
     private String GeneratePrefix(Integer i){
         String result = "";
-        switch (i){
-            case 1: result="st"; break;
-            case 2: result="nd"; break;
-            case 3: result="rd"; break;
-            case 22: result="nd"; break;
-            default: result="th"; break;
-        }
+        i = i <= 20 ? i : i%10;
+            switch (i) {
+                case 1:
+                    result = "st";
+                    break;
+                case 2:
+                    result = "nd";
+                    break;
+                case 3:
+                    result = "rd";
+                    break;
+                default:
+                    result = "th";
+                    break;
+            }
         return result;
     }
 
