@@ -47,7 +47,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
@@ -106,7 +105,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.vision.text.Line;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -131,7 +129,6 @@ import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Setting;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Settings;
 import com.umandalmead.samm_v1.R.id;
-import com.umandalmead.samm_v1.RouteTabs.Route1;
 import com.umandalmead.samm_v1.RouteTabs.Route2;
 import com.umandalmead.samm_v1.RouteTabs.Route3;
 
@@ -219,7 +216,6 @@ public class MenuActivity extends AppCompatActivity implements
         public static WebView _RouteStepsText;
         public ProgressDialog _ProgressDialog;
         public static ImageView _Slide_Expand;
-        public static ImageView _Slide_Collapse;
         public static ScrollView _StepsScroller;
         public static MenuItem UserNameMenuItem;
         public static TextView _TimeOfArrivalTextView;
@@ -251,7 +247,7 @@ public class MenuActivity extends AppCompatActivity implements
         private ImageButton _infoPanelBtnClose;
         private ImageView _infoImage;
         private Animation  slide_down, slide_down_bounce, slide_up, slide_up_bounce;
-        private EditText placeAutoCompleteFragmentInstance;
+        private static EditText placeAutoCompleteFragmentInstance;
         private LocationManager locationManager;
 
         //Arrival Info elements
@@ -289,7 +285,7 @@ public class MenuActivity extends AppCompatActivity implements
         public Boolean _isGPSReconnect = false;
         private String _gpsIMEI;
         public Constants _constants;
-        public static Boolean _IsOnSearchMode = false, _BOOL_IsTerminalDataFetchDone = false, _BOOL_IsTerminalDataFetchOnGoing = false;
+        public static Boolean _IsOnSearchMode = false, _BOOL_IsTerminalDataFetchDone = false, _BOOL_IsTerminalDataFetchOnGoing = false, _BOOL_IsGPSAcquired=false;
         public static Terminal[] _PointsArray;
         public static Typeface FONT_PLATE,FONT_STATION;
         public static int _currentRouteIDSelected;
@@ -353,7 +349,8 @@ public class MenuActivity extends AppCompatActivity implements
             _helper = new Helper(MenuActivity.this, this._context);
             _GlobalResource = getResources();
             _constants = new Constants();
-            if (_helper.isOnline()) {
+           // new asyncCheckInternetConnectivity(MenuActivity.this).execute();
+            if(_helper.isOnline(MenuActivity.this, getApplicationContext())) {
                 _isAppFirstLoad = true;
 
                 displayLocationSettingsRequest(_context);
@@ -363,7 +360,6 @@ public class MenuActivity extends AppCompatActivity implements
                 new mySQLRoutesDataProvider(_context).execute();
 
                 new mySQLGetDriverUsers(_context).execute();
-
 
 
                 if (_sessionManager == null)
@@ -408,6 +404,7 @@ public class MenuActivity extends AppCompatActivity implements
                             Helper.logger(ex);
                         }
                     }
+
                     @Override
                     public void onFailure(Throwable t) {
                         Log.d(_constants.LOG_TAG, t.toString());
@@ -436,7 +433,6 @@ public class MenuActivity extends AppCompatActivity implements
                 _TV_Vehicle_Description = (TextView) findViewById(id.TV_Vehicle_Description);
                 _LL_Arrival_Info = (LinearLayout) findViewById(id.LL_Arrival_Info);
                 _RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
-                _Slide_Collapse = (ImageView) findViewById(R.id.ev_panel_collapse);
                 _StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
                 _TimeOfArrivalTextView = (TextView) findViewById(R.id.toatextview);
                 _NavView = (NavigationView) findViewById(R.id.nav_view);
@@ -467,7 +463,7 @@ public class MenuActivity extends AppCompatActivity implements
                 Search_BackBtn = (ImageView) findViewById(id.Search_BackBtn);
                 _DestinationTextView = (TextView) findViewById(id.DestinationTV);
                 _LoopArrivalProgress = (ProgressBar) findViewById(R.id.progressBarLoopArrival);
-                _MapsHolderLinearLayout = (LinearLayout)findViewById(R.id.mapsLinearLayout);
+                _MapsHolderLinearLayout = (LinearLayout) findViewById(R.id.mapsLinearLayout);
                 InitializeInfoPanel();
                 InitializeFonts();
                 InitializeAnimations();
@@ -480,6 +476,7 @@ public class MenuActivity extends AppCompatActivity implements
                 viewPager = (ViewPager) findViewById(R.id.routepager);
                 _RouteStepsText = (WebView) findViewById(R.id.route_steps);
 
+                Helper.ShowGPSLoadingInfo("acquiring gps", true);
                 //disable adjusting app dimensions when soft keyboard is shown
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
@@ -493,7 +490,7 @@ public class MenuActivity extends AppCompatActivity implements
                 _AddGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        _dialog =new AddGPSDialog(MenuActivity.this);
+                        _dialog = new AddGPSDialog(MenuActivity.this);
                         _dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         _dialog.show();
                         PlayButtonClickSound();
@@ -524,13 +521,13 @@ public class MenuActivity extends AppCompatActivity implements
                 _AddPointFloatingButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        AddPointDialog dialog=new AddPointDialog(MenuActivity.this, "ADD");
+                        AddPointDialog dialog = new AddPointDialog(MenuActivity.this, "ADD");
                         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                         dialog.show();
                         PlayButtonClickSound();
                     }
                 });
-                _AddRouteFloatingButton.setOnClickListener(new View.OnClickListener(){
+                _AddRouteFloatingButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
@@ -542,8 +539,7 @@ public class MenuActivity extends AppCompatActivity implements
                 });
 
 
-                _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener()
-                {
+                _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View view) {
@@ -552,9 +548,7 @@ public class MenuActivity extends AppCompatActivity implements
                             UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                             FragmentManager fragment = getSupportFragmentManager();
                             fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
-                        }
-                        catch(Exception ex)
-                        {
+                        } catch (Exception ex) {
                             Helper.logger(ex);
                         }
 
@@ -589,29 +583,10 @@ public class MenuActivity extends AppCompatActivity implements
                     public void onPlaceSelected(Place place) {
                         try {
                             _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
-                            double prevDistance = 0.0;
-                            int ctr = 0;
-                            for (Terminal dest : _terminalList) {
-                                double tempDistance;
-                                LatLng destLatLng = new LatLng(dest.Lat, dest.Lng);
-                                LatLng searchLatLng = place.getLatLng();
-                                tempDistance = _helper.getDistanceFromLatLonInKm(destLatLng, searchLatLng);
-                                if (ctr == 0) {
-                                    prevDistance = tempDistance;
-                                    _chosenDropOffPoint = dest;
-                                } else {
-                                    if (tempDistance <= prevDistance) {
-                                        prevDistance = tempDistance;
-                                        _chosenDropOffPoint = dest;
-                                    }
-                                }
-                                ctr++;
-                            }
-                            //new DestinationsOnItemClick(getApplicationContext());
-                            _helper.FindNearestPickUpPoints(_chosenDropOffPoint);
+                            _DestinationTextView.setBackgroundResource(R.color.colorGrassGreen);
+                            new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, place).execute();
 
-                        }
-                        catch (Exception ex) {
+                        } catch (Exception ex) {
                             Log.i(_constants.LOG_TAG, ex.toString());
                         }
                     }
@@ -627,16 +602,15 @@ public class MenuActivity extends AppCompatActivity implements
                             @Override
                             public void onClick(View view) {
                                 PlayButtonClickSound();
-                              HideRouteTabsAndSlidingPanel();
+                                HideRouteTabsAndSlidingPanel();
                                 placeAutoCompleteFragmentInstance.setText(null);
                             }
                         });
 
-                _LoaderDialog= new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS),_GlobalResource.getString(R.string.GPS_Initialize));
+                _LoaderDialog = new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS), _GlobalResource.getString(R.string.GPS_Initialize));
                 _LoaderDialog.setCancelable(false);
 
-                if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getIsAdmin())
-                {
+                if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getIsAdmin()) {
 
 
                     //LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
@@ -649,13 +623,12 @@ public class MenuActivity extends AppCompatActivity implements
                     //CoordinatorLayout.LayoutParams appBarLayoutParam = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
                     //appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 }
-                if (_sessionManager.isDriver())
-                {
+                if (_sessionManager.isDriver()) {
                     _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
-                     ShowRouteTabsAndSlidingPanel();
+                    ShowRouteTabsAndSlidingPanel();
                 }
 
-               // _RouteTabLayout.setMinimumWidth(150);
+                // _RouteTabLayout.setMinimumWidth(150);
                 _facebookImg = _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL) + _sessionManager.getUsername().trim() + _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL_QueryString);
                 try {
                     FetchFBDPTask dptask = new FetchFBDPTask();
@@ -679,7 +652,6 @@ public class MenuActivity extends AppCompatActivity implements
                 _usersDBRef.addChildEventListener(new AddUserMarkers(getApplicationContext(), this));
 
 
-
                 _terminalsDBRef.addChildEventListener(new AddPassengerCountLabel(getApplicationContext(), this));
 
                 _userMovementBroadcastReceiver = new UserMovementBroadcastReceiver();
@@ -700,11 +672,10 @@ public class MenuActivity extends AppCompatActivity implements
                 registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
                 initializeOnlinePresence();
                 _mapRoot = (CustomFrameLayout) findViewById(R.id.mapCFL);
+
             }
-            else
-            {
-                Log.w(_constants.LOG_TAG, _GlobalResource.getString(R.string.SMS_Not_Online));
-                _helper.showNoInternetPrompt(this);
+            else{
+                _helper.showNoInternetPrompt(MenuActivity.this);
             }
             UpdateUI(Enums.UIType.MAIN);
 
@@ -800,6 +771,11 @@ public class MenuActivity extends AppCompatActivity implements
     public void onLocationChanged(Location location) {
         try
         {
+            if(!_BOOL_IsGPSAcquired) {
+                _BOOL_IsGPSAcquired=true;
+                Helper.ShowGPSLoadingInfo(null, false);
+
+            }
             if(!_isUserLoggingOut) {
                 if(!_sessionManager.isDriver())
                 {
@@ -1059,13 +1035,13 @@ public class MenuActivity extends AppCompatActivity implements
                         int ctr = 0;
                         _IsAllLoopParked = true;
                         for (Terminal TM_Entry : L_TM_DestList_Sorted) {
-                            if (AnalyzeForBestRoutes.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
+                            if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
                                 for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                     String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
                                     if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
                                         loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
-                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? AnalyzeForBestRoutes.CleanEloopName(v.child("Dwell").getValue().toString()) : AnalyzeForBestRoutes.CleanEloopName(v.child("LoopIds").getValue().toString());
-                                        if (loopAwaiting && AnalyzeForBestRoutes.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
+                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
+                                        if (loopAwaiting && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
                                             loopAwaiting = true;
                                             _IsAllLoopParked = false;
                                             found = true;
@@ -1077,12 +1053,12 @@ public class MenuActivity extends AppCompatActivity implements
                                 }
                                 if (loopAwaiting)
                                     break;
-                            } else if (AnalyzeForBestRoutes.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == 1 || TM_CurrentDest.OrderOfArrival == 1)) {
+                            } else if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == 1 || TM_CurrentDest.OrderOfArrival == 1)) {
                                 for (Terminal dl2 : L_TM_DestList_Sorted) {
                                     for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                         String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value + "_" + TM_Entry.getTblRouteID();
                                         if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                            String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? AnalyzeForBestRoutes.CleanEloopName(v.child("Dwell").getValue().toString()) : AnalyzeForBestRoutes.CleanEloopName(v.child("LoopIds").getValue().toString());
+                                            String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                             if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
                                                 List<String> temploopids = Arrays.asList(loopId.split(","));
                                                 for (String tli : temploopids
@@ -1091,7 +1067,7 @@ public class MenuActivity extends AppCompatActivity implements
                                                         _ListOfLoops.add(Integer.parseInt(tli));
                                                 }
                                                 Collections.sort(_ListOfLoops);
-                                                if (_ListOfLoops.size() > 0 && AnalyzeForBestRoutes.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
+                                                if (_ListOfLoops.size() > 0 && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
                                                     _IsAllLoopParked = false;
                                                     found = true;
                                                     //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
@@ -1110,11 +1086,11 @@ public class MenuActivity extends AppCompatActivity implements
                                 if (found)
                                     break;
 
-                            } else if (AnalyzeForBestRoutes.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
+                            } else if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
                                 for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                     String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
                                     if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
-                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? AnalyzeForBestRoutes.CleanEloopName(v.child("Dwell").getValue().toString()) : AnalyzeForBestRoutes.CleanEloopName(v.child("LoopIds").getValue().toString());
+                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
                                             List<String> temploopids = Arrays.asList(loopId.split(","));
                                             for (String tli : temploopids) {
@@ -1122,7 +1098,7 @@ public class MenuActivity extends AppCompatActivity implements
                                                     _ListOfLoops.add(Integer.parseInt(tli));
                                             }
                                             Collections.sort(_ListOfLoops);
-                                            if (_ListOfLoops.size() > 0 && AnalyzeForBestRoutes.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
+                                            if (_ListOfLoops.size() > 0 && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
                                                 found = true;
                                                 _IsAllLoopParked = false;
                                                 GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
@@ -1658,18 +1634,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
 
 
-    public static boolean isOnline() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        }
-        catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
 
-        return false;
-    }
 
     public void ShowLoopTimeofArrival(final LatLng Looploc, final float bearing, final String deviceid) {
         //
@@ -2472,19 +2437,16 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     }
                     _RouteStepsText.setVisibility(View.VISIBLE);
                     _RouteTabLayout.setVisibility(View.VISIBLE);
-                    _SlideUpPanelContainer.setPanelHeight(200);
+                    _SlideUpPanelContainer.setPanelHeight(220);
                     break;
                 case SHOWING_INFO:
                     FAB_SammIcon.setVisibility(View.INVISIBLE);
-                    //FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                     break;
                 case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
                     FAB_SammIcon.setVisibility(View.INVISIBLE);
-                    //FrameSearchBarHolder.setVisibility(View.INVISIBLE);
                     break;
                 case HIDE_INFO:
                     FAB_SammIcon.setVisibility(View.VISIBLE);
-                   // FrameSearchBarHolder.setVisibility(View.VISIBLE);
                     _infoLayout.setVisibility(View.INVISIBLE);
                     _infoPanelBtnClose.setVisibility(View.VISIBLE);
                     break;
@@ -2520,7 +2482,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         else {
             _SlideUpPanelContainer.setTouchEnabled(true);
             _SlideUpPanelContainer.setEnabled(true);
-            _Slide_Collapse.setVisibility(View.VISIBLE);
+
             _RouteTabLayout.setVisibility(View.VISIBLE);
             _RoutesPane.setVisibility(View.VISIBLE);
             _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
@@ -2552,7 +2514,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams)MenuActivity._AppBar.getLayoutParams();
         lp.height = 0;
         _AppBar.setLayoutParams(lp);
-        AnalyzeForBestRoutes.clearLines();
+        asyncPrepareRouteData.clearLines();
         Search_BackBtn.setVisibility(View.INVISIBLE);
         FAB_SammIcon.setVisibility(View.VISIBLE);
         HND_CollapsePanel.postDelayed(new Runnable() {
@@ -2560,19 +2522,18 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             public void run() {
                 FrameSearchBarHolder.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.INVISIBLE);
-                _Slide_Collapse.setVisibility(View.INVISIBLE);
                 _RouteTabLayout.setVisibility(View.INVISIBLE);
                 _RouteStepsText.setVisibility(View.INVISIBLE);
                 placeAutoCompleteFragmentInstance.setText(null);
                 _IsOnSearchMode=false;
                 _selectedPickUpPoint = null;
 
-                AnalyzeForBestRoutes.RemoveListenerFromLoop();
+                asyncPrepareRouteData.RemoveListenerFromLoop(); //.RemoveListenerFromLoop();
                 _HasExitedInfoLayout = true;
                 _SL_Vehicle_ETA.stopShimmerAnimation();
                 _SL_Map_Fragment.startShimmerAnimation();
                 _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                AnalyzeForBestRoutes.InitializeSearchingRouteUI(true, false, null, null, null );
+                Helper.InitializeSearchingRouteUI(true, false, null, null, null );
             }
         }, 1000);
         _SlideUpPanelContainer.setPanelHeight(130);
@@ -2689,7 +2650,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 _infoTitleTV.setTypeface(finalTitleFont);
                                 _infoTitleTV.setVisibility(View.VISIBLE);
                                 _infoDescriptionTV.setVisibility(View.VISIBLE);
-                                if(InfoDescription2!=null || !InfoDescription2.equals("")){
+                                if(InfoDescription2!=null && !InfoDescription2.equals("")){
                                     _infoDescriptionTV2.setVisibility(View.VISIBLE);
                                 }
                             }

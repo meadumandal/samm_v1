@@ -123,6 +123,8 @@
     <string name="error_no_internet_connection">No Internet Connection</string>
     <string name="error_please_turn_on_wifi_or_mobile_data">Please turn on Wi-fi or Mobile data</string>
 
+    <!--VEHICLE SEARCHING MESSAGES-->
+    <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
     <!--FONTS-->
     <string name="FONT_TRENDER">font/Trender.ttf</string>
 

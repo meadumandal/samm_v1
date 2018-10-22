@@ -17,7 +17,7 @@ public class NoInternetActivity extends AppCompatActivity {
         btn_tryAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (MenuActivity.isOnline())
+                if (Helper.isOnline(NoInternetActivity.this,getApplicationContext()))
                     startActivity(new Intent(NoInternetActivity.this, LoginActivity.class));
             }
         });

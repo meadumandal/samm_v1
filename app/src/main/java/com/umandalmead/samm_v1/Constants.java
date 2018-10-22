@@ -37,6 +37,13 @@ public class Constants {
     public static final int APPBAR_MAX_HEIGHT = 235;
     public static final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/";
     public static final String DESTINATION_PREFIX = "Going to: ";
+    public static final String ROUTES_BASEURI= "file:///android_res/";
+    public static final String ROUTES_MIMETYPE = "text/html; charset=utf-8";
+    public static final String ROUTES_ENCODING = "UTF-8";
+
+    public static final String VEHICLE_ALREADY_WAITING_CONTAINS = "already";
+    public static final String VEHICLE_SEARCHING_CONTAINS = "searching";
+    public static final String VEHICLE_REMAINING_TIME_SUFFIX = " away";
 
     public static final String GPS_PASSWORD = "123456";
     public static final String GLOBE_APN = "http.globe.com.ph";

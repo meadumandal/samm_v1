@@ -15,13 +15,6 @@
         android:layout_height="7dp"
         android:layout_gravity="center"
         android:background="@color/colorGrey"/>
-    <ImageView
-        android:id="@+id/ev_panel_collapse"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-        android:src="@drawable/pulltab"
-        android:background="@null"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -34,6 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:animateLayoutChanges="true"
+                android:layout_marginTop="17dp"
                 android:orientation="vertical"
                 android:paddingBottom="5dp"
                 >
@@ -92,6 +86,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:animateLayoutChanges="true"
+                android:layout_marginTop="10dp"
                 android:id="@+id/step_scroll_view">
 
                 <LinearLayout

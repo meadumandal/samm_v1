@@ -94,10 +94,8 @@ public class LoginActivity extends AppCompatActivity{
 
         setTheme(R.style.SplashTheme);
         super.onCreate(savedInstanceState);
-
-
-        if(MenuActivity.isOnline()) {
-
+        //new asyncCheckInternetConnectivity(LoginActivity.this).execute();
+        if(_helper.isOnline(LoginActivity.this, getApplicationContext())) {
             Log.i(TAG, "device is online");
             FacebookSdk.sdkInitialize(getApplicationContext());
             setContentView(R.layout.activity_login);
@@ -138,7 +136,7 @@ public class LoginActivity extends AppCompatActivity{
                 @Override
                 public void onSuccess(final LoginResult loginResult) {
                     ShowLogInProgressDialog("Facebook");
-                    GraphRequest request =  GraphRequest.newMeRequest(
+                    GraphRequest request = GraphRequest.newMeRequest(
                             loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
                                 @Override
                                 public void onCompleted(JSONObject me, GraphResponse response) {
@@ -149,10 +147,10 @@ public class LoginActivity extends AppCompatActivity{
 
                                         String user_lastname = me.optString("last_name");
                                         String user_firstname = me.optString("first_name");
-                                        String user_email =response.getJSONObject().optString("email");
+                                        String user_email = response.getJSONObject().optString("email");
 
 
-                                        handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname,user_firstname,user_email);
+                                        handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
 
                                     }
                                 }
@@ -194,32 +192,26 @@ public class LoginActivity extends AppCompatActivity{
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
-                    try
-                    {
+                    try {
                         final LoaderDialog FP_Loader = new LoaderDialog(LoginActivity.this, "Please wait...", "Sending password reset link to your e-mail");
                         FP_Loader.show();
-                        if (usernameField.getText().toString().trim().length() == 0)
-                        {
+                        if (usernameField.getText().toString().trim().length() == 0) {
                             FP_Loader.dismiss();
-                            ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an email address.");
+                            ErrorDialog dialog = new ErrorDialog(LoginActivity.this, "Please enter an email address.");
                             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                             dialog.show();
-                        }
-                        else {
-                            if (Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches())
-                            {
+                        } else {
+                            if (Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches()) {
                                 FirebaseAuth.getInstance().sendPasswordResetEmail(usernameField.getText().toString())
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
                                                     FP_Loader.dismiss();
-                                                    InfoDialog dialog=new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
+                                                    InfoDialog dialog = new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
                                                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                                     dialog.show();
-                                                }
-                                                else
-                                                {
+                                                } else {
                                                     Helper.logger(task.getException());
                                                 }
                                             }
@@ -239,19 +231,16 @@ public class LoginActivity extends AppCompatActivity{
                                             }
                                         });
 
-                            }
-                            else {
+                            } else {
                                 FP_Loader.dismiss();
-                                ErrorDialog dialog=new ErrorDialog(LoginActivity.this, "Please enter an e-mail address");
+                                ErrorDialog dialog = new ErrorDialog(LoginActivity.this, "Please enter an e-mail address");
                                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                 dialog.show();
                             }
 
 
                         }
-                    }
-                    catch(Exception ex)
-                    {
+                    } catch (Exception ex) {
                         Helper.logger(ex);
                     }
 
@@ -274,7 +263,7 @@ public class LoginActivity extends AppCompatActivity{
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
-                    final LoaderDialog LogInLoader = new LoaderDialog(LoginActivity.this,"Verifying","Please wait...");
+                    final LoaderDialog LogInLoader = new LoaderDialog(LoginActivity.this, "Verifying", "Please wait...");
                     LogInLoader.show();
                     final String username = usernameField.getText().toString();
                     final String password = passwordField.getText().toString();
@@ -298,38 +287,30 @@ public class LoginActivity extends AppCompatActivity{
                                         Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
                                     } else {
                                         if (!response.body().getEmailAddress().toLowerCase().equals(_constants.DRIVER_EMAILADDRESS)) {
-                                            if(response.body().getUserType().equals(Constants.ADMIN_USERTYPE))
-                                            {
+                                            if (response.body().getUserType().equals(Constants.ADMIN_USERTYPE)) {
                                                 ShowLogInProgressDialog("Admin");
                                                 MessageDigest md = MessageDigest.getInstance("MD5");
                                                 md.update(password.getBytes());
                                                 byte[] digest = md.digest();
 
                                                 StringBuffer sb = new StringBuffer();
-                                                for(byte b: digest)
-                                                {
+                                                for (byte b : digest) {
                                                     sb.append(String.format("%02x", b & 0xff));
                                                 }
                                                 //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
                                                 String hashedPassword = sb.toString();
-                                                if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase()))
-                                                {
+                                                if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
                                                     signIn(response.body().getEmailAddress(), Constants.ADMIN_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
-                                                }
-                                                else
-                                                {
+                                                } else {
                                                     Toast.makeText(getApplicationContext(), "Admin Password is incorrect", Toast.LENGTH_LONG).show();
                                                     HideLogInProgressDialog();
                                                 }
-                                            }
-                                            else
-                                            {
+                                            } else {
                                                 ShowLogInProgressDialog("User");
                                                 signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
                                             }
 
-                                        }
-                                        else{
+                                        } else {
                                             FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
                                             ShowLogInProgressDialog("Driver");
                                             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -337,14 +318,12 @@ public class LoginActivity extends AppCompatActivity{
                                             byte[] digest = md.digest();
 
                                             StringBuffer sb = new StringBuffer();
-                                            for(byte b: digest)
-                                            {
+                                            for (byte b : digest) {
                                                 sb.append(String.format("%02x", b & 0xff));
                                             }
                                             //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
                                             String hashedPassword = sb.toString();
-                                            if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase()))
-                                            {
+                                            if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
                                                 DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
                                                 _driverDatabaseReference.child(response.body().getDeviceId().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                     @Override
@@ -371,15 +350,13 @@ public class LoginActivity extends AppCompatActivity{
 
                                                     }
                                                 });
-                                            }
-                                            else
-                                            {
+                                            } else {
                                                 Toast.makeText(getApplicationContext(), "Driver Password is incorrect", Toast.LENGTH_LONG).show();
                                                 HideLogInProgressDialog();
                                             }
-                                            }
-
                                         }
+
+                                    }
                                 }
                                 //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                 catch (Exception ex) {
@@ -425,11 +402,9 @@ public class LoginActivity extends AppCompatActivity{
 
                 }
             });
-
         }
         else{
-            Log.i(TAG, "device is not online");
-            _helper.showNoInternetPrompt(this);
+            _helper.showNoInternetPrompt(LoginActivity.this);
         }
     }
     private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final String param_deviceId)

@@ -7,14 +7,19 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.design.widget.CoordinatorLayout;
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
@@ -29,10 +34,20 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import static com.umandalmead.samm_v1.MenuActivity._AppBar;
+import static com.umandalmead.samm_v1.MenuActivity._DestinationTextView;
+import static com.umandalmead.samm_v1.MenuActivity._LL_Arrival_Info;
+import static com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
+import static com.umandalmead.samm_v1.MenuActivity._RouteTabLayout;
+import static com.umandalmead.samm_v1.MenuActivity._TV_TimeofArrival;
+import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Description;
+import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Identifier;
+import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
 
 /**
  * Created by MeadRoseAnn on 10/8/2017.
@@ -166,18 +181,18 @@ public class Helper {
 
         return brng;
     }
-    public static boolean isOnline() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        }
-        catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
-
-        return false;
-    }
+//    public static boolean isOnline() {
+//        Runtime runtime = Runtime.getRuntime();
+//        try {
+//            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+//            int     exitValue = ipProcess.waitFor();
+//            return (exitValue == 0);
+//        }
+//        catch (IOException e)          { e.printStackTrace(); }
+//        catch (InterruptedException e) { e.printStackTrace(); }
+//
+//        return false;
+//    }
 
     /**
      * This method gets the nearest "PICK-UP" points based on the chosen DROP-OFF point
@@ -193,9 +208,133 @@ public class Helper {
         }
         return result;
     }
-    public void FindNearestPickUpPoints(Terminal dropOffPoint) {
+    public static Boolean IsSameRoute(Terminal TM_Terminal_1, Terminal TM_Terminal_2){
+        Boolean BOOL_LOC_Result = false;
+        if(TM_Terminal_1.getTblRouteID() == TM_Terminal_2.getTblRouteID())
+            BOOL_LOC_Result =true;
+        return BOOL_LOC_Result;
+    }
+    public static Boolean IsEloopWithinSameRouteID(final DataSnapshot DS_Drivers, final Terminal TM_CurrentDest, final String STR_LoopID){
+        Boolean BOOL_Result = false;
+        try{
+            for (DataSnapshot DS_Entry: DS_Drivers.getChildren()) {
+                if(DS_Entry.getKey().equals(STR_LoopID)) {
+                    String S_LoopTblRoutes = DS_Entry.child("routeIDs").getValue().toString();
+                    Integer INT_CurrentDestRouteID = TM_CurrentDest.getTblRouteID();
+                    if (!S_LoopTblRoutes.equals("") && S_LoopTblRoutes.contains(INT_CurrentDestRouteID.toString())) {
+                        BOOL_Result = true;
+                        break;
+                    }
+                }
+            }
+        }catch (Exception ex){
 
-        if(MenuActivity.isOnline())
+        }
+        return BOOL_Result;
+    }
+    public static String CleanEloopName(String STR_EloopName){
+        String STR_LOC_Result = "";
+        try{
+            String[] ARR_STR_LOC_Loops = STR_EloopName.split(",");
+            for (String entry: ARR_STR_LOC_Loops) {
+                if(!entry.equals("")){
+                    return entry;
+                }
+            }
+            return STR_LOC_Result;
+
+        }catch(Exception ex){
+
+        }
+        return STR_LOC_Result;
+    }
+    public static void InitializeSearchingRouteUI(Boolean BOOL_IsSearchingDone, Boolean BOOL_IsResultNegative, String STR_HTMLMessage,String STR_Distance, String STR_TimeRemaining){
+        if(BOOL_IsSearchingDone) {
+            _LoopArrivalProgress.setVisibility(View.INVISIBLE);
+            if(!BOOL_IsResultNegative && STR_HTMLMessage != null && STR_Distance!= null && STR_TimeRemaining!=null){
+                _LL_Arrival_Info.setVisibility(View.VISIBLE);
+                _TV_Vehicle_Identifier.setText(STR_HTMLMessage);
+                _TV_Vehicle_Description.setText(STR_Distance+ Constants.VEHICLE_REMAINING_TIME_SUFFIX);
+                _TV_TimeofArrival.setText(STR_TimeRemaining);
+                _TimeOfArrivalTextView.setVisibility(View.INVISIBLE);
+
+            }
+            else if(STR_HTMLMessage !=null && STR_HTMLMessage.toLowerCase().contains(Constants.VEHICLE_ALREADY_WAITING_CONTAINS)){
+                _LL_Arrival_Info.setVisibility(View.GONE);
+                _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+                _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+                _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+            }
+            else if(BOOL_IsResultNegative){
+                _LL_Arrival_Info.setVisibility(View.GONE);
+                _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+                _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
+                _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+            }
+            else{
+                _LL_Arrival_Info.setVisibility(View.GONE);
+                _TimeOfArrivalTextView.setBackgroundResource(0);
+                _TimeOfArrivalTextView.setText(null);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+            }
+        }
+        else {
+            _LoopArrivalProgress.setVisibility(View.VISIBLE);
+            if(STR_HTMLMessage != null && STR_HTMLMessage.toLowerCase().contains(Constants.VEHICLE_SEARCHING_CONTAINS)){
+                _LL_Arrival_Info.setVisibility(View.GONE);
+                _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+                _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+                _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+
+            }
+            else{
+                _LL_Arrival_Info.setVisibility(View.GONE);
+                _TimeOfArrivalTextView.setBackgroundResource(0);
+                _TimeOfArrivalTextView.setText(null);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+
+            }
+        }
+
+
+    }
+    public static List<LatLng> decodePoly(String encoded) {
+        List<LatLng> poly = new ArrayList<>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng((((double) lat / 1E5)),
+                    (((double) lng / 1E5)));
+            poly.add(p);
+        }
+
+        return poly;
+    }
+    public Boolean FindNearestPickUpPoints(Terminal dropOffPoint, Activity activity, Context context) {
+        if(isOnline(activity,context))
         {
            // ArrayList<Terminal> dropOffPointList = GetAllDestinationRegardlessOfTheirTableRouteIds(dropOffPoint);
             Terminal chosenTerminal =dropOffPoint;
@@ -210,17 +349,25 @@ public class Helper {
                         (this._activity)._possiblePickUpPointList.add(terminal);
                 }
             }
-            new AnalyzeForBestRoutes(_context, _activity,
-                    (this._activity)._googleMap, (this._activity)._userCurrentLoc,
-                    (this._activity).getSupportFragmentManager(),
-                    (this._activity)._possiblePickUpPointList, chosenTerminal)
-                    .execute();
+            return (this._activity)._possiblePickUpPointList.size() <= 0;
         }
         else
         {
-            showNoInternetPrompt(this._activity);
+            return false;
         }
 
+    }
+    public static boolean isOnline(Activity activity, Context context) {
+        Boolean IsConnected = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (connectivityManager != null) {
+            NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+            IsConnected = (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+        } else {
+            IsConnected = false;
+        }
+        return IsConnected;
     }
     private void saveDestination(String destinationValue)
     {
@@ -302,6 +449,23 @@ public class Helper {
 
         }
         return null;
+    }
+    public static void ShowGPSLoadingInfo(String STR_message, Boolean IsVisible){
+        int Visibility = IsVisible ? View.VISIBLE : View.INVISIBLE;
+        if(!IsVisible) {
+            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
+            lp.height = 0;
+            _AppBar.setLayoutParams(lp);
+            MenuActivity._SlideUpPanelContainer.setVisibility(View.VISIBLE);
+        }
+        else {
+            _AppBar.setVisibility(Visibility);
+            MenuActivity._SlideUpPanelContainer.setVisibility(View.INVISIBLE);
+        }
+        _RouteTabLayout.setVisibility(View.GONE);
+        _DestinationTextView.setVisibility(View.VISIBLE);
+        _DestinationTextView.setText(STR_message!=null? STR_message.toUpperCase(): null);
+        _DestinationTextView.setBackgroundResource(IsVisible ? R.color.colorNasturcianFlower : 0);
     }
 
 }

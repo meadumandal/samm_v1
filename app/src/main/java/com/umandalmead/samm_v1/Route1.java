@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.RouteTabs;
+package com.umandalmead.samm_v1;
 
 import android.content.Context;
 import android.net.Uri;
@@ -7,8 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.umandalmead.samm_v1.R;
 
 /**
  * A simple {@link Fragment} subclass.

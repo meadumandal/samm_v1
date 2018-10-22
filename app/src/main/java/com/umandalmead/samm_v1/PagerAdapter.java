@@ -4,7 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.umandalmead.samm_v1.RouteTabs.Route1;
 import com.umandalmead.samm_v1.RouteTabs.Route2;
 import com.umandalmead.samm_v1.RouteTabs.Route3;
 

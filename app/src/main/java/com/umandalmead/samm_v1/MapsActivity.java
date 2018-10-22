@@ -38,6 +38,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LocationRequest mLocationRequest;
     private GoogleMap mMap;
     private Boolean IsOnline = false;
+    private  Helper _helper;
 
 
 
@@ -77,16 +78,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.SplashTheme);
-//        new com.example.samm_v1.AsyncTask(new com.example.samm_v1.AsyncTask.AsyncResponse(){
-//
-//            @Override
-//            public void processFinish(Boolean output){
-//                IsOnline = output;
-//            }
-//        }).execute();
             super.onCreate(savedInstanceState);
 
-        if(MenuActivity.isOnline()) {
+        if(_helper.isOnline(MapsActivity.this, getApplicationContext())) {
             setContentView(R.layout.activity_maps);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 checkLocationPermission();
@@ -100,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
         else{
-            MenuActivity.HideNetCheckerDialog(getApplicationContext());
+           _helper.showNoInternetPrompt(MapsActivity.this);
         }
     }
 
