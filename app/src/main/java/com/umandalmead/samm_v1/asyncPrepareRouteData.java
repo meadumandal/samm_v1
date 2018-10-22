@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.util.Log;
 import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -152,14 +153,14 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                     RemoveListenerFromLoop();
                     clearLines();
                     PlayButtonClickSound();
-                    final Handler HND_UpdateUI = new Handler();
-                    HND_UpdateUI.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
-                        }
-                    }, 1000);
-                    //ZoomAndAnimateMapCamera(new LatLng(MenuActivity._userCurrentLoc.latitude, MenuActivity._userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(tab.getPosition()).getLat(), L_TM_AllPossibleTerminals.get(tab.getPosition()).getLng()),0, L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
+                    //final Handler HND_UpdateUI = new Handler();
+//                    HND_UpdateUI.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//
+//                        }
+//                    }, 1000);
+                    ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                     drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
 
@@ -174,19 +175,18 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                 }
             });
             clearLines();
-            final Handler HND_UpdateUI = new Handler();
-            HND_UpdateUI.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
-                }
-            }, 1000);
+//            final Handler HND_UpdateUI = new Handler();
+//            HND_UpdateUI.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                }
+//            }, 1000);
+            ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
             MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
             new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
             drawLines(L_L_STR_TerminalPointsList.get(0).get(0));
-            //ZoomAndAnimateMapCamera(new LatLng(_userCurrentLoc.latitude, _userCurrentLoc.longitude), new LatLng(L_TM_AllPossibleTerminals.get(0).getLat(), L_TM_AllPossibleTerminals.get(0).getLng()), 0,L_L_STR_TerminalPointsList.get(0).get(0));
-
         } catch (Exception ex) {
             //Loader.dismiss();
             Helper.logger(ex);
@@ -194,29 +194,6 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
 
     }
 
-    private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, LatLng LATLNG_var2, int INT_zoomLevel, final String STR_TerminalPointsList){
-        int width = _activity.getResources().getDisplayMetrics().widthPixels;
-        int height = _activity.getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (height * 0.20);
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LatLng latLng : listLatLng) {
-            builder.include(latLng);
-        }
-        LatLngBounds bounds = builder.build();
-        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, width,height,padding);
-        _map.animateCamera(mCameraUpdate);
-        _map.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-            @Override
-            public void onCameraIdle() {
-                if(!MenuActivity._IsPolyLineDrawn){
-                    drawLines(STR_TerminalPointsList);
-                    MenuActivity._IsPolyLineDrawn=true;
-                }
-            }
-        });
-
-
-    }
     public void PlayButtonClickSound(){
         MenuActivity._buttonClick.start();
     }
@@ -459,7 +436,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop),Distance, TimeofArrival.toString());
+                                    Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop).PlateNumber,Distance, TimeofArrival.toString());
                                 }
                             } catch (Exception ex) {
                                 Log.d("onResponse", "There is an error");
@@ -482,45 +459,49 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
         }
     }
     private void AttachListenerToLoop(final Integer INT_LoopID, final Terminal TM_CurrentDestination){
-        FB = FirebaseDatabase.getInstance();
-        _S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(INT_LoopID.toString());
-        _SingleLoopChildListenerForSelectedTerminal = _S_VehicleDestinationDatabaseReference.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        try {
+            FB = FirebaseDatabase.getInstance();
+            _S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(INT_LoopID.toString());
+            _SingleLoopChildListenerForSelectedTerminal = _S_VehicleDestinationDatabaseReference.addChildEventListener(new ChildEventListener() {
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-            }
+                }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                if(dataSnapshot.getKey().toUpperCase().equals("ROUTEIDS")) {
-                    String Firebase_routeIDs = dataSnapshot.getValue().toString();
-                    String routeId = String.valueOf(TM_CurrentDestination.getTblRouteID());
-                    if (!Firebase_routeIDs.contains(routeId)) {
-                        _S_VehicleDestinationDatabaseReference.removeEventListener(this);
-                        //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
-                        GetArrivalTimeOfLoopBasedOnSelectedStation(TM_CurrentDestination);
-                    } else if(!MenuActivity._HasExitedInfoLayout) {
-                        GetTimeRemainingFromGoogle(INT_LoopID, TM_CurrentDestination);
-                        //Toast.makeText(_context, "Listener attached! RouteID:" + routeId + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                    if (dataSnapshot.getKey().toUpperCase().equals("ROUTEIDS")) {
+                        String Firebase_routeIDs = dataSnapshot.getValue().toString();
+                        String routeId = String.valueOf(TM_CurrentDestination.getTblRouteID());
+                        if (!Firebase_routeIDs.contains(routeId)) {
+                            _S_VehicleDestinationDatabaseReference.removeEventListener(this);
+                            //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
+                            GetArrivalTimeOfLoopBasedOnSelectedStation(TM_CurrentDestination);
+                        } else if (!MenuActivity._HasExitedInfoLayout) {
+                            GetTimeRemainingFromGoogle(INT_LoopID, TM_CurrentDestination);
+                            //Toast.makeText(_context, "Listener attached! RouteID:" + routeId + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-            }
+                }
 
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-            }
+                }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+                }
+            });
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
 
     }
     public static void RemoveListenerFromLoop(){

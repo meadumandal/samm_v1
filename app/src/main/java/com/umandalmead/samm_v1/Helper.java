@@ -21,7 +21,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
+import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
 
 import org.json.JSONException;
@@ -357,6 +359,14 @@ public class Helper {
         }
 
     }
+    public static Users GetEloopDriver(Eloop eloopData){
+        for (Users driver: MenuActivity._driverList) {
+            if(driver.ID == eloopData.tblUsersID){
+                return driver;
+            }
+        }
+        return null;
+    }
     public static boolean isOnline(Activity activity, Context context) {
         Boolean IsConnected = false;
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -398,11 +408,11 @@ public class Helper {
 
         Log.e(LOG_TAG, ex);
     }
-     public static String GetEloopEntry(String vehicle_ID){
-        String _result = "";
+     public static Eloop GetEloopEntry(String vehicle_ID){
+        Eloop _result = new Eloop();
         for (Eloop e: MenuActivity._eloopList) {
             if(e.DeviceId == Integer.parseInt(vehicle_ID)){
-                _result = e.PlateNumber;
+                _result = e;
                 break;
             }
         }

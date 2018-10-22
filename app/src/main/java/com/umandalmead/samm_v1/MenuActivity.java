@@ -513,7 +513,7 @@ public class MenuActivity extends AppCompatActivity implements
                             public void run() {
                                 HideRouteTabsAndSlidingPanel();
                             }
-                        }, 1000);
+                        }, 500);
 
                     }
                 });
@@ -828,9 +828,7 @@ public class MenuActivity extends AppCompatActivity implements
 
     }
     private void ZoomAndAnimateMapCamera(LatLng LATLNG_var1, int INT_zoomLevel){
-       // _googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
         _googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LATLNG_var1,INT_zoomLevel));
-        //_googleMap.animateCamera(CameraUpdateFactory.zoomTo(16), 2000, null);
     }
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
@@ -964,21 +962,12 @@ public class MenuActivity extends AppCompatActivity implements
                             }
                         });
 
-
-
-//                        HND_Loc_DataFetchTooLong.postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                if(!_BOOL_IsTerminalDataFetchDone && !_BOOL_IsTerminalDataFetchOnGoing)
-//                                    UpdateInfoPanelDetails(F_TM_ClickedTerminal.Description, "Data fetch taking longer than usual...");
-//                            }
-//                        }, 10000);
-
                     }
                 }
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle), _GlobalResource.getString(R.string.InfoLayout_description_not_available) , null,false);
+                    Users driverDetails= Helper.GetEloopDriver(Helper.GetEloopEntry(markerTitle));
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, driverDetails.firstName+" "+driverDetails.lastName, null,false);
                 }
                 return true;
             }
