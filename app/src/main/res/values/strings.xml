@@ -136,6 +136,7 @@
 
     <!--INFO LAYOUT RELATED-->
     <string name="InfoLayout_description_not_available">\nDescription not yet available</string>
+    <string name="crash_error">Sorry, an error is encountered</string>
     
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

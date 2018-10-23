@@ -199,7 +199,7 @@ public class SignUpActivity extends AppCompatActivity {
                                         }
                                         //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                         catch (Exception ex) {
-                                            Helper.logger(ex);
+                                            Helper.logger(ex,true);
 
                                         }
                                     }

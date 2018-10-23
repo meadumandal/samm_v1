@@ -63,7 +63,7 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
         }

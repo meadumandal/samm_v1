@@ -53,7 +53,7 @@ public class mySQLUpdateWaitingPassengerHistory extends AsyncTask<String, Void, 
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -88,7 +88,7 @@ public class mySQLUpdateWaitingPassengerHistory extends AsyncTask<String, Void, 
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
 
             }
         }

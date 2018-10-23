@@ -85,7 +85,7 @@ public class DriverUsersFragment extends Fragment {
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 

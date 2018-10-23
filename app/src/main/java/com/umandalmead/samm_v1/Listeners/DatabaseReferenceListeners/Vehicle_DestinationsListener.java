@@ -118,7 +118,7 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
             }
         } catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
     }

@@ -107,7 +107,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                 } catch (Exception ex) {
                     if (_LoaderDialog != null)
                         _LoaderDialog.dismiss();
-                    Helper.logger(ex);
+                    Helper.logger(ex,true);
                     return null;
                 }
             } else {
@@ -116,7 +116,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                 return null;
             }
         } catch (Exception ex) {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             if (_LoaderDialog != null)
                 _LoaderDialog.dismiss();
             return null;
@@ -179,7 +179,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                         }
                         catch(Exception ex)
                         {
-                            Helper.logger(ex);
+                            Helper.logger(ex,true);
                         }
 
                     }
@@ -194,7 +194,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
         catch(Exception ex)
         {
 
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

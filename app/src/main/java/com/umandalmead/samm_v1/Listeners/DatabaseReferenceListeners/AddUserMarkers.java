@@ -85,7 +85,7 @@ public class AddUserMarkers implements
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             Toast.makeText(this._activity, "Hello there!", Toast.LENGTH_LONG).show();
         }
 

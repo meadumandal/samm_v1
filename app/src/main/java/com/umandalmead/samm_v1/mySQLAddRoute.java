@@ -72,7 +72,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -113,7 +113,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 _promptMessage = ex.getMessage() + "\n";
 
             }

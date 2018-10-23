@@ -12,9 +12,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.InfoDialog;
 import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.SessionManager;
 
@@ -77,7 +79,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -155,7 +157,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
             }
             catch(Exception ex)
             {
-                _helper.logger(ex);
+                _helper.logger(ex,true);
             }
         }
         else
@@ -189,6 +191,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
                         FragmentManager fm = _activity.getFragmentManager();
                         new mySQLGetAdminUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
 
+
                     }
                 });
                 _swipeRefreshLayout.post(new Runnable() {
@@ -197,6 +200,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
                         new mySQLGetAdminUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
+
                     }
                 });
             }
@@ -207,7 +211,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 

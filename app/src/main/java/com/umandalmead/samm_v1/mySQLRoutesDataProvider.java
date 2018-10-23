@@ -21,6 +21,8 @@ import java.util.ArrayList;
 
 public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Routes>> {
     Context _context;
+    int _lineID = 0;
+    LoaderDialog _loaderDialog;
 
 
     public mySQLRoutesDataProvider(Context context)
@@ -28,6 +30,7 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
         this._context = context;
 
     }
+
     @Override
     protected ArrayList<Routes> doInBackground(Void... voids) {
 
@@ -48,16 +51,21 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
                 String jsonResponse = reader.readLine();
                 JSONArray jsonArray = new JSONArray(jsonResponse);
                 for(int index=0; index < jsonArray.length(); index++) {
+
                     JSONObject jsonobject = jsonArray.getJSONObject(index);
+
                     int id       = jsonobject.getInt("ID");
-                    String routeName  = jsonobject.getString("routeName");
-                    listRoutes.add(new Routes(id,routeName));
+                    int tblLineID = jsonobject.getInt("tblLineID");
+
+                        String routeName  = jsonobject.getString("routeName");
+                        listRoutes.add(new Routes(id,tblLineID,routeName));
+
                 }
                 return listRoutes;
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
         }
@@ -70,7 +78,8 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
     @Override
     protected void onPostExecute(ArrayList<Routes> listRoutes)
     {
-
+        if (_loaderDialog != null)
+            _loaderDialog.dismiss();
         MenuActivity._routeList = listRoutes;
     }
 }

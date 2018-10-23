@@ -79,7 +79,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -214,7 +214,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 

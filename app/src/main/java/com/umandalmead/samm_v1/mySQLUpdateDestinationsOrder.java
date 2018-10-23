@@ -82,7 +82,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -125,7 +125,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
                 {
                     StringWriter sw = new StringWriter();
                     ex.printStackTrace(new PrintWriter(sw));
-                    Helper.logger(ex);
+                    Helper.logger(ex,true);
                     _isSuccessful = false;
 
 
@@ -140,7 +140,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
         return _promptMessage;
@@ -184,7 +184,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 

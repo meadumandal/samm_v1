@@ -63,7 +63,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -135,7 +135,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
                     }
                     else
                     {
-                        helper.logger(ex);
+                        helper.logger(ex,true);
 
                     }
                     _LoaderDialog.dismiss();
@@ -151,7 +151,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             return ex.getMessage();
 
         }
@@ -188,7 +188,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

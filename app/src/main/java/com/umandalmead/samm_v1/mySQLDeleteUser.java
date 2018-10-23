@@ -57,7 +57,7 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 
@@ -100,7 +100,7 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
         catch(Exception ex)
         {
             _LoaderDialog.dismiss();
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             return ex.getMessage();
         }
     }
@@ -123,7 +123,7 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
     }
 

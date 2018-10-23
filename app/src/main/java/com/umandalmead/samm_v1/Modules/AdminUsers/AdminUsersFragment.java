@@ -2,7 +2,6 @@ package com.umandalmead.samm_v1.Modules.AdminUsers;
 
 
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -64,9 +63,7 @@ public class AdminUsersFragment extends Fragment {
                 public void onRefresh() {
                     swipeRefreshAdminUsers.setRefreshing(true);
                     FragmentManager fm = getActivity().getFragmentManager();
-
                     new mySQLGetAdminUsers(getActivity(), _LoaderDialog, adminUsersListView, fm,swipeRefreshAdminUsers).execute();
-
                 }
             });
             swipeRefreshAdminUsers.post(new Runnable() {
@@ -84,7 +81,7 @@ public class AdminUsersFragment extends Fragment {
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 

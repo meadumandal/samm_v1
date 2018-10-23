@@ -18,6 +18,7 @@ public class Constants {
     public static final String REPORTGENERATORS_API_FOLDER = "reportgenerators/";
     public static final String REPORTS_API_FOLDER = "reports/";
     public static final String ROUTES_API_FOLDER = "routes/";
+    public static final String LINE_API_FOLDER = "lines/";
     public static final String SETTINGS_API_FOLDER = "settings/";
     public static final String USERS_API_FOLDER = "users/";
     public static final String ADMIN_API_FOLDER = "users/admin/";

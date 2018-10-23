@@ -25,6 +25,7 @@ import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
+import com.umandalmead.samm_v1.Modules.Logger.mySQLSendErrorReport;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -123,7 +124,7 @@ public class Helper {
             return !ipAddr.equals("");
 
         } catch (Exception ex) {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             return false;
         }
     }
@@ -401,6 +402,13 @@ public class Helper {
         StringWriter sw = new StringWriter();
         ex.printStackTrace(new PrintWriter(sw));
         Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+    }
+    public static void logger(Exception ex, Boolean sendErrorReport)
+    {
+        StringWriter sw = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sw));
+        Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
+        new mySQLSendErrorReport().execute(ex.getMessage());
     }
     public static void logger(String ex)
     {

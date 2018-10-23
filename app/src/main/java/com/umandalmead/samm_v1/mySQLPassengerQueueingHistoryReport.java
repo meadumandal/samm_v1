@@ -81,7 +81,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -128,7 +128,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
             try{
@@ -160,7 +160,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
         }
@@ -267,7 +267,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
         _LoaderDialog.hide();
 

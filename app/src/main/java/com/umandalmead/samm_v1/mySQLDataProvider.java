@@ -57,7 +57,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -120,7 +120,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
                 returnValues.put("IsValid", 0);
                 returnValues.put("Message", "Problem contacting the server. Please try again later.");
 
-                Helper.logger(ex);
+                Helper.logger(ex,true);
 
                 return returnValues;
             }
@@ -167,7 +167,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
     }

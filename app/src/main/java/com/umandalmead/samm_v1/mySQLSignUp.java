@@ -57,7 +57,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -91,7 +91,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
-                _helper.logger(ex);
+                _helper.logger(ex,true);
 
 
             }

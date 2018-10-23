@@ -181,7 +181,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                                 }
                                // _vehicleAnimatedMarker.showInfoWindow();
                             } catch (Exception ex) {
-                                Helper.logger(ex);
+                                Helper.logger(ex,true);
 
                             }
                         }
@@ -193,7 +193,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                 }
             }
         } catch (Exception ex) {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
     }
     private void rotateMarker(final MarkerOptions marker, final float toRotation) {

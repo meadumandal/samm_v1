@@ -69,7 +69,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 
@@ -119,7 +119,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
                 }
                 catch(Exception ex){
 
-                    Helper.logger(ex);
+                    Helper.logger(ex,true);
                     returnString= "Error encountered upon deleting GPS. Please re-try";
                 }
 
@@ -135,7 +135,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
         catch(Exception ex)
         {
 
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             returnString =  ex.getMessage();
         }
         _LoaderDialog.dismiss();
@@ -191,7 +191,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
         {
             alertDialogBuilder.setTitle("Error");
             alertDialogBuilder.setMessage(ex.getMessage());
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

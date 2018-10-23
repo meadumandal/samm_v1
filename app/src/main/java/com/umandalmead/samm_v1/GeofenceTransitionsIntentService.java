@@ -89,7 +89,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
     }

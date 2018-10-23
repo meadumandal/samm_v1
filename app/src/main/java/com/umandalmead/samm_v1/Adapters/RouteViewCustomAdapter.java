@@ -113,9 +113,8 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                     convertView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            if(route.getRouteName().toLowerCase().contains("add route")) {
+                            if (((ViewHolder) view.getTag()).textRouteName.getText().toString().toLowerCase().contains("add route"))
                                 ((ManageRoutesActivity) _context).ProcessSelectedRoute(Enums.ActionType.ADD,null, null);
-                            }
                         }
                     });
 

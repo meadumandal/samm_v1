@@ -6,6 +6,7 @@ package com.umandalmead.samm_v1;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -115,6 +116,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.EntityObjects.Users;
@@ -123,6 +125,7 @@ import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarke
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddVehicleMarkers;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.Vehicle_DestinationsListener;
 import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersFragment;
+import com.umandalmead.samm_v1.Modules.AdminUsers.mySQLGetAdminUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
@@ -163,27 +166,32 @@ import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
+import org.acra.*;
+import org.acra.annotation.*;
+
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
 
+
+
 //endregion
 
-public class MenuActivity extends AppCompatActivity implements
-        NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback,
-        GoogleMap.OnMapLoadedCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener,
-        Route1.OnFragmentInteractionListener,
-        Route2.OnFragmentInteractionListener,
-        Route3.OnFragmentInteractionListener,
-        Html.ImageGetter,
-        LocationListener {
 
+    public class MenuActivity extends AppCompatActivity implements
+            NavigationView.OnNavigationItemSelectedListener,
+            OnMapReadyCallback,
+            GoogleMap.OnMapLoadedCallback,
+            GoogleApiClient.ConnectionCallbacks,
+            GoogleApiClient.OnConnectionFailedListener,
+            com.google.android.gms.location.LocationListener,
+            Route1.OnFragmentInteractionListener,
+            Route2.OnFragmentInteractionListener,
+            Route3.OnFragmentInteractionListener,
+            Html.ImageGetter,
+            LocationListener {
         //Put here all global variables related to Firebase
         public FirebaseDatabase _firebaseDB;
         public DatabaseReference _usersDBRef;
@@ -199,6 +207,8 @@ public class MenuActivity extends AppCompatActivity implements
         public HashMap<String, Long> _passengerCount = new HashMap<>();
         public static List<Eloop> _eloopList;
         public static ArrayList<Routes> _routeList;
+        public static ArrayList<Lines> _lineList;
+
         public static ArrayList<Users> _driverList;
         public static HashMap _driverMarkerHashmap = new HashMap();
 
@@ -231,7 +241,7 @@ public class MenuActivity extends AppCompatActivity implements
         public static LinearLayout _SearchLinearLayout;
         public  static EditText _CurrentLocationEditText;
         public static LinearLayout _MapsHolderLinearLayout;
-        public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton, _AddRouteFloatingButton;
+        public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton;
         public FloatingActionMenu _AdminToolsFloatingMenu;
         public Button _ReconnectGPSButton;
         public static ImageView FAB_SammIcon;
@@ -287,8 +297,10 @@ public class MenuActivity extends AppCompatActivity implements
         public Constants _constants;
         public static Boolean _IsOnSearchMode = false, _BOOL_IsTerminalDataFetchDone = false, _BOOL_IsTerminalDataFetchOnGoing = false, _BOOL_IsGPSAcquired=false;
         public static Terminal[] _PointsArray;
+        public static Routes[] _RoutesArray;
         public static Typeface FONT_PLATE,FONT_STATION;
         public static int _currentRouteIDSelected;
+        public static int _currentLineIDSelected;
         public static Boolean _HasExitedInfoLayout = false;
         public static CustomFrameLayout _mapRoot;
         public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
@@ -306,6 +318,8 @@ public class MenuActivity extends AppCompatActivity implements
         private String _AssignedELoop = "";
         private int _passengerCountInTerminal =0;
         public static HashMap<String, String> _currentRoutesOfEachLoop = new HashMap<>();
+
+        public static ArrayList<Users> _adminUsers = new ArrayList<Users>();
 
 
 
@@ -342,6 +356,7 @@ public class MenuActivity extends AppCompatActivity implements
         @Override
         protected void onCreate(Bundle savedInstanceState) {
         try {
+
             Log.i(_constants.LOG_TAG, "Creating MenuActivity...");
             setTheme(R.style.SplashTheme);
             super.onCreate(savedInstanceState);
@@ -358,8 +373,11 @@ public class MenuActivity extends AppCompatActivity implements
                 new mySQLGetEloopList(_context).execute();
                 //endregion
                 new mySQLRoutesDataProvider(_context).execute();
+//                new mySQLLinesDataProvider(_context).execute();
 
                 new mySQLGetDriverUsers(_context).execute();
+                new mySQLGetAdminUsers(_context).execute();
+
 
 
                 if (_sessionManager == null)
@@ -401,7 +419,7 @@ public class MenuActivity extends AppCompatActivity implements
                                 }
                             }
                         } catch (Exception ex) {
-                            Helper.logger(ex);
+                            Helper.logger(ex,true);
                         }
                     }
 
@@ -450,12 +468,13 @@ public class MenuActivity extends AppCompatActivity implements
                 _AddPointFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
                 _ViewGPSFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingViewGPS);
                 _AdminToolsFloatingMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
-                _AddRouteFloatingButton = (FloatingActionButton) findViewById(id.subFloatingAddRoute);
+
+
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest() && !_sessionManager.isDriver());
                 _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsAdmin());
-                _NavView.getMenu().findItem(R.id.nav_routes).setVisible(_sessionManager.getIsAdmin());
+
                 _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
@@ -527,16 +546,7 @@ public class MenuActivity extends AppCompatActivity implements
                         PlayButtonClickSound();
                     }
                 });
-                _AddRouteFloatingButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
-                        startActivity(addRouteIntent);
-                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                        finish();
-                        PlayButtonClickSound();
-                    }
-                });
+
 
 
                 _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
@@ -548,8 +558,10 @@ public class MenuActivity extends AppCompatActivity implements
                             UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                             FragmentManager fragment = getSupportFragmentManager();
                             fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
-                        } catch (Exception ex) {
-                            Helper.logger(ex);
+                        }
+                        catch(Exception ex)
+                        {
+                            Helper.logger(ex,true);
                         }
 
                     }
@@ -681,7 +693,7 @@ public class MenuActivity extends AppCompatActivity implements
 
         }catch(Exception ex)
         {
-            _helper.logger(ex);
+            _helper.logger(ex,true);
         }
 
     }
@@ -904,7 +916,7 @@ public class MenuActivity extends AppCompatActivity implements
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                final String markerTitle = marker.getTitle();
+                    final String markerTitle = marker.getTitle();
 
                 if(_terminalMarkerHashmap.containsKey(markerTitle))
                 {
@@ -1006,7 +1018,7 @@ public class MenuActivity extends AppCompatActivity implements
             }
         } catch (Exception ex) {
 
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
     }
     private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
@@ -1134,7 +1146,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
-                String url = _GlobalResource.getString(R.string.GM_maps_url);
+                String url = "https://maps.googleapis.com/maps/";
                 Retrofit retrofit = new Retrofit.Builder()
                         .baseUrl(url)
                         .addConverterFactory(GsonConverterFactory.create())
@@ -1142,7 +1154,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 RetrofitMaps service = retrofit.create(RetrofitMaps.class);
                 _BOOL_IsTerminalDataFetchOnGoing = true;
                 _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
-                Call<Directions> call = service.getDistanceDuration(_GlobalResource.getString(R.string.GM_unit), TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), _GlobalResource.getString(R.string.GM_mode));
+                Call<Directions> call = service.getDistanceDuration("metric", TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
                 call.enqueue(new Callback<Directions>() {
                     @Override
                     public void onResponse(Response<Directions> response, Retrofit retrofit) {
@@ -1159,7 +1171,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             }
                         } catch (Exception ex) {
                             Log.d("onResponse", "There is an error");
-                            Helper.logger(ex);
+                            Helper.logger(ex,true);
                         }
                     }
 
@@ -1198,7 +1210,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         }
                 } else {
                     // Permission denied, Disable the functionality that depends on this permission.
-                    Toast.makeText(this, _GlobalResource.getString(R.string.GM_location_permission_denied), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Location Permission Denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -1208,11 +1220,11 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     SmsManager smsManager = SmsManager.getDefault();
                     smsManager.sendTextMessage(_GPSMobileNumber, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
 
-                    Log.i(_constants.LOG_TAG, this._smsMessageForGPS + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
-                    Toast.makeText(this, this._smsMessageForGPS + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix), Toast.LENGTH_LONG).show();
+                    Log.i(_constants.LOG_TAG, this._smsMessageForGPS + " sent");
+                    Toast.makeText(this, this._smsMessageForGPS + " sent", Toast.LENGTH_LONG).show();
                 } else {
-                    _helper.logger(_GlobalResource.getString(R.string.SMS_sending_of_sms_failed));
-                    Toast.makeText(this, _GlobalResource.getString(R.string.SMS_sending_failed), Toast.LENGTH_LONG).show();
+                    _helper.logger("Sending of SMS failed");
+                    Toast.makeText(this, "SMS Failed, please try again", Toast.LENGTH_LONG).show();
                     return;
                 }
             }
@@ -1282,7 +1294,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 }
                                 catch(Exception ex)
                                 {
-                                    _helper.logger(ex);
+                                    _helper.logger(ex,true);
 
                                 }
 
@@ -1323,7 +1335,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     }
                     catch(Exception ex)
                     {
-                        _helper.logger(ex);
+                        _helper.logger(ex,true);
 
                     }
 
@@ -1392,11 +1404,14 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 DriverUsersFragment driverUsersFragment = new DriverUsersFragment();
                 fragment.beginTransaction().replace(R.id.content_frame, driverUsersFragment).commit();
             }
-            else if(id==R.id.nav_routes)
+
+            else if(id==R.id.nav_lines)
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
                 startActivity(addRouteIntent);
+                Intent addLineIntent = new Intent(MenuActivity.this, ManageLinesActivity.class);
+                startActivity(addLineIntent);
                 overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
                 finish();
             }
@@ -1408,7 +1423,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 }
                 catch(Exception ex)
                 {
-                    Helper.logger(ex);
+                    Helper.logger(ex,true);
                 }
             }
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1420,7 +1435,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
         return true;
@@ -1561,7 +1576,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 return Transaction.success(mutableData);
                             }
                             catch(Exception e) {
-                                _helper.logger(e);
+                                _helper.logger(e,true);
 
                             }
                             return null;
@@ -1674,7 +1689,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             }
                             //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                         } catch (Exception e) {
-                            _helper.logger(e);
+                            _helper.logger(e,true);
 
                         }
                     }
@@ -1687,7 +1702,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 //return _selectedPickUpPoint.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
             }
         } catch(Exception ex){
-            _helper.logger(ex);
+            _helper.logger(ex,true);
 
         }
 
@@ -1827,7 +1842,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }
             catch(Exception ex)
             {
-                _helper.logger(ex);
+                _helper.logger(ex,true);
 
             }
 
@@ -1931,7 +1946,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }
         catch(Exception ex)
         {
-            _helper.logger(ex);
+            _helper.logger(ex,true);
 
             _ProgressDialog.dismiss();
             Toast.makeText(getApplicationContext(),_GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -1966,7 +1981,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }
         catch(Exception ex)
         {
-            _helper.logger(ex);
+            _helper.logger(ex,true);
             _ProgressDialog.dismiss();
             Toast.makeText(getApplicationContext(),_GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage(), Toast.LENGTH_LONG).show();
         }
@@ -2138,7 +2153,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         }
                         catch(Exception ex)
                         {
-                            _helper.logger(ex);
+                            _helper.logger(ex,true);
 
                         }
 
@@ -2184,7 +2199,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 });
             }catch(Exception e)
             {
-                _helper.logger(e);
+                _helper.logger(e,true);
 
             }
 
@@ -2241,7 +2256,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             ArrayList<Routes> routesAdapterList = new ArrayList<>();
 
             driverAdapterList.add(new Users(0, _GlobalResource.getString(R.string.GPS_select_driver), "", "","","Driver", "", 1));
-            routesAdapterList.add(new Routes(0, _GlobalResource.getString(R.string.GPS_select_route)));
+            routesAdapterList.add(new Routes(0, 0,_GlobalResource.getString(R.string.GPS_select_route)));
+
             driverAdapterList.addAll(MenuActivity._driverList);
             routesAdapterList.addAll(MenuActivity._routeList);
 
@@ -2374,7 +2390,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         }
                     }catch(Exception ex)
                     {
-                        _helper.logger(ex);
+                        _helper.logger(ex,true);
                         Toast.makeText(getContext(), _GlobalResource.getString(R.string.error_an_error_occurred), Toast.LENGTH_LONG).show();
                     }
                 }

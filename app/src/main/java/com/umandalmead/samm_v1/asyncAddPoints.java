@@ -71,7 +71,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -148,7 +148,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
                 }
                 catch(Exception ex){
 
-                    Helper.logger(ex);
+                    Helper.logger(ex,true);
 
                     return "Error encountered : "+ex.getMessage()+". Please re-try";
                 }
@@ -161,7 +161,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             return ex.getMessage();
 
         }
@@ -209,7 +209,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
         catch(Exception ex)
         {
 
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
     }

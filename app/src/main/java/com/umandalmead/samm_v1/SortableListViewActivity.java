@@ -51,19 +51,20 @@ public class SortableListViewActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addpoints);
-        _helper = new Helper();
-        isItTheSame = true;
-        int index =0;
-
-        originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
-        pointsArrayInString = new String[MenuActivity._PointsArray.length];
-        int ctr = 0;
-        for(Terminal t: MenuActivity._PointsArray)
-        {
-            pointsArrayInString[ctr] = t.getValue();
-            ctr++;
-        }
         try {
+            _helper = new Helper();
+            isItTheSame = true;
+            int index =0;
+
+            originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
+            pointsArrayInString = new String[MenuActivity._PointsArray.length];
+            int ctr = 0;
+            for(Terminal t: MenuActivity._PointsArray)
+            {
+                pointsArrayInString[ctr] = t.getValue();
+                ctr++;
+            }
+
             ArrayAdapter adp = new ArrayAdapter(this, R.layout.listview_viewpoints, MenuActivity._PointsArray);
             setListAdapter(adp);
             InitializeToolbar(MenuActivity._FragmentTitle);
@@ -109,7 +110,7 @@ public class SortableListViewActivity extends ListActivity {
                                 }
                                 catch(Exception ex)
                                 {
-                                    Helper.logger(ex);
+                                    Helper.logger(ex,true);
                                 }
 
 
@@ -129,7 +130,7 @@ public class SortableListViewActivity extends ListActivity {
             }
             catch(Exception ex)
             {
-                _helper.logger(ex);
+                _helper.logger(ex,true);
             }
         }
         else
@@ -331,7 +332,7 @@ public class SortableListViewActivity extends ListActivity {
                 });
             }catch(Exception e)
             {
-                _helper.logger(e);
+                _helper.logger(e,true);
 
             }
 
@@ -433,7 +434,7 @@ public class SortableListViewActivity extends ListActivity {
                             }
                             catch(Exception ex)
                             {
-                                Helper.logger(ex);
+                                Helper.logger(ex,true);
                             }
 
 

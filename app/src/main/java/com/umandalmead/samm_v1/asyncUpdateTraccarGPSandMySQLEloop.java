@@ -76,7 +76,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -144,7 +144,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
             returnString = ex.getMessage();
 
         }
@@ -199,7 +199,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
         {
             alertDialogBuilder.setTitle("Error");
             alertDialogBuilder.setMessage(ex.getMessage());
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

@@ -77,7 +77,7 @@ public class EditGPSDialogFragment extends DialogFragment
             ArrayList<Routes> routesAdapterList = new ArrayList<>();
 
             driverAdapterList.add(new Users(0, "Select a driver for this PUV", "", "","","Driver", "", 1));
-            routesAdapterList.add(new Routes(0, "Select a route for this PUV"));
+            routesAdapterList.add(new Routes(0, 0, "Select a route for this PUV"));
 
             driverAdapterList.addAll(MenuActivity._driverList);
             routesAdapterList.addAll(MenuActivity._routeList);
@@ -277,7 +277,7 @@ public class EditGPSDialogFragment extends DialogFragment
                                     }
                                     catch(Exception ex)
                                     {
-                                        Helper.logger(ex);
+                                        Helper.logger(ex,true);
                                     }
 
 
@@ -299,7 +299,7 @@ public class EditGPSDialogFragment extends DialogFragment
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
         return builder;
 

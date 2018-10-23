@@ -104,7 +104,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                         return new JSONArray(jsonResponse);
                     } catch (Exception ex) {
                         _LoaderDialog.dismiss();
-                        Helper.logger(ex);
+                        Helper.logger(ex,true);
                         return null;
                     }
                 } else {
@@ -112,7 +112,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                     return null;
                 }
             } catch (Exception ex) {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 _LoaderDialog.dismiss();
                 return null;
 
@@ -174,7 +174,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                     catch(Exception ex)
                     {
                         Toast.makeText(_context, "Error occured in fetching data", Toast.LENGTH_LONG).show();
-                        Helper.logger(ex);
+                        Helper.logger(ex,true);
                     }
 
                 }
@@ -187,7 +187,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
         catch(Exception ex)
         {
 
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

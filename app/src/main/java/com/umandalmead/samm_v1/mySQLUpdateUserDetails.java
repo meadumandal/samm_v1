@@ -66,7 +66,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -102,7 +102,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
             }
             catch(Exception ex)
             {
-                helper.logger(ex);
+                helper.logger(ex,true);
                 _promptMessage += ex.getMessage() + "\n";
 
             }

@@ -76,7 +76,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
     }
 
@@ -144,7 +144,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
         }
@@ -217,7 +217,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

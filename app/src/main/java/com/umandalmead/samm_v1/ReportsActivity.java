@@ -273,7 +273,7 @@ public class ReportsActivity extends Fragment {
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
         return _view;

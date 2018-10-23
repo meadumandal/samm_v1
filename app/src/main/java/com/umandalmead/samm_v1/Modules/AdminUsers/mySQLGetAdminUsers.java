@@ -17,6 +17,7 @@ import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
 
@@ -49,6 +50,12 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
     private Constants _constants = new Constants();
 
 
+    public mySQLGetAdminUsers(Context context)
+    {
+        Log.i(_constants.LOG_TAG, "mySQLGetAdminUsers");
+        this._context = context;
+
+    }
 
     public mySQLGetAdminUsers(Context context,
                               LoaderDialog loaderDialog,
@@ -93,17 +100,20 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
 
                     return new JSONArray(jsonResponse);
                 } catch (Exception ex) {
-                    _LoaderDialog.dismiss();
-                    Helper.logger(ex);
+                    if (_LoaderDialog!= null)
+                        _LoaderDialog.dismiss();
+                    Helper.logger(ex,true);
                     return null;
                 }
             } else {
-                _LoaderDialog.dismiss();
+                if (_LoaderDialog!= null)
+                    _LoaderDialog.dismiss();
                 return null;
             }
         } catch (Exception ex) {
-            Helper.logger(ex);
-            _LoaderDialog.dismiss();
+            Helper.logger(ex,true);
+            if (_LoaderDialog!= null)
+                _LoaderDialog.dismiss();
             return null;
 
         }
@@ -133,48 +143,57 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
                 _dataModels.add(new Users(ID, username, emailAddress, firstName, lastName, userType, password, IsActive));
             }
 
-            _dataModels.add(new Users(0,"Add new admin user", "","","","","",1));
 
-            customAdapter =new adminUsersListViewCustomerAdapter(_dataModels, _context);
-            _listView.setAdapter(customAdapter);
 
-            _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    try {
-                        Boolean isAdd;
-                        if (_dataModels.get(position).username.substring(0, 7).equals("Add new"))
-                            isAdd = true;
-                        else
-                            isAdd = false;
-                        Gson gson = new Gson();
-                        String json = gson.toJson(_dataModels.get(position));
-                        Bundle bundle = new Bundle();
-                        bundle.putString("datamodel", json);
-                        SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable = new SerializableRefreshLayoutComponents(_swipeRefreshAdminUsers, _fragmentManager, _listView);
-                        bundle.putSerializable("swipeRefreshLayoutSerializable", swipeRefreshLayoutSerializable);
-                        bundle.putBoolean("isAdd", isAdd);
+            if (_listView!=null)
+            {
+                _dataModels.add(new Users(0, "Add new admin user", "", "","","","", 1));
+                customAdapter =new adminUsersListViewCustomerAdapter(_dataModels, _context);
+                _listView.setAdapter(customAdapter);
 
-                        EditAdminUserDialogFragment editAdminUserDialog = new EditAdminUserDialogFragment();
-                        editAdminUserDialog.setArguments(bundle);
-                        editAdminUserDialog.show(_fragmentManager ,"EditAdminUserDialog");
+                _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        try {
+                            Boolean isAdd;
+                            if (_dataModels.get(position).username.substring(0, 7).equals("Add new"))
+                                isAdd = true;
+                            else
+                                isAdd = false;
+                            Gson gson = new Gson();
+                            String json = gson.toJson(_dataModels.get(position));
+                            Bundle bundle = new Bundle();
+                            bundle.putString("datamodel", json);
+                            SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable = new SerializableRefreshLayoutComponents(_swipeRefreshAdminUsers, _fragmentManager, _listView);
+                            bundle.putSerializable("swipeRefreshLayoutSerializable", swipeRefreshLayoutSerializable);
+                            bundle.putBoolean("isAdd", isAdd);
+
+                            EditAdminUserDialogFragment editAdminUserDialog = new EditAdminUserDialogFragment();
+                            editAdminUserDialog.setArguments(bundle);
+                            editAdminUserDialog.show(_fragmentManager ,"EditAdminUserDialog");
+                        }
+                        catch(Exception ex)
+                        {
+                            Helper.logger(ex,true);
+                        }
+
                     }
-                    catch(Exception ex)
-                    {
-                        Helper.logger(ex);
-                    }
+                });
 
-                }
-            });
+                _swipeRefreshAdminUsers.setRefreshing(false);
+                _LoaderDialog.dismiss();
+            }
+            else
+            {
+                MenuActivity._adminUsers = _dataModels;
+            }
 
-            _swipeRefreshAdminUsers.setRefreshing(false);
-            _LoaderDialog.dismiss();
 
         }
         catch(Exception ex)
         {
 
-            Helper.logger(ex);
+            Helper.logger(ex,true);
 
         }
 

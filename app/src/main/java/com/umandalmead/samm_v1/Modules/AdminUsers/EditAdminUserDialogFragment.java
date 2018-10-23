@@ -171,7 +171,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                                     }
                                     catch(Exception ex)
                                     {
-                                        Helper.logger(ex);
+                                        Helper.logger(ex,true);
                                     }
 
 
@@ -194,7 +194,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
         return builder;
 

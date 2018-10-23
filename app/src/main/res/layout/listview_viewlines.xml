@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="right"
+    android:animateLayoutChanges="true"
+    android:descendantFocusability="blocksDescendants">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/lineitemLinearLayout">
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1"
+            android:id="@+id/layoutForAddIcon">
+            <ImageButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:background="@android:color/transparent"
+                android:paddingRight="20dp"
+                android:src="@drawable/ic_add_black_24dp"
+                android:id="@+id/lineDragger"
+                android:layout_gravity="right"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/lineID"
+                android:visibility="gone"/>
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.3">
+            <TextView
+                android:id="@+id/lineName"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="SAMM_xxxxx"
+                android:textColor="@color/colorBlack"
+                android:gravity="center_horizontal"
+                android:textSize="14dp"
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.3">
+            <TextView
+                android:id="@+id/adminUserName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="Yuri Sarmiento"
+                android:textColor="@color/colorBlack"
+                android:textSize="14dp" />
+        </RelativeLayout>
+        <!--<Button-->
+        <!--android:id="@+id/btnEditRouteName"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:visibility="gone"-->
+        <!--android:text="Edit"-->
+        <!--/>-->
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.1">
+            <ImageButton
+                android:id="@+id/imgbtnShowActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:src="@drawable/ic_more_actions_24dp"
+                android:background="@android:color/transparent"
+                android:visibility="gone"/>
+        </RelativeLayout>
+
+
+
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -1,13 +1,10 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -25,16 +22,13 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-import static com.umandalmead.samm_v1.MenuActivity._UserNameMenuItem;
-
 
 /**
  * Created by MeadRoseAnn on 06/30/2018
  */
 
 
-public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
+public class mySQLAddLine extends AsyncTask<String, Void, String>{
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -48,16 +42,19 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
     LoaderDialog _LoaderDialog;
     String _promptMessage;
     SessionManager _sessionManager;
-    ManageRoutesActivity.AddRouteDialog _addRouteDialog;
+    ManageLinesActivity.AddLineDialog _addLineDialog;
+
 
     private Constants _constants = new Constants();
-    public mySQLUpdateRoute(Context context, Activity activity, LoaderDialog loaderDialog, ManageRoutesActivity.AddRouteDialog addRouteDialog,  String promptMessage)
+    public mySQLAddLine(Context context, Activity activity, LoaderDialog loaderDialog, ManageLinesActivity.AddLineDialog addLineDialog, String promptMessage)
     {
         this._context = context;
         this._activity = activity;
         this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
-        this._addRouteDialog = addRouteDialog;
+        this._addLineDialog = addLineDialog;
+
+
 
         _sessionManager = new SessionManager(_context);
     }
@@ -68,7 +65,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _LoaderDialog = new LoaderDialog(_activity,"Please wait...", "Updating Route...");
+            _LoaderDialog = new LoaderDialog(_activity, "Please wait...","Adding Line...");
             _LoaderDialog.setCancelable(false);
             _LoaderDialog.show();
         }
@@ -82,35 +79,44 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
     @Override
     protected String doInBackground(String... params)
     {
-        String routeID;
-        String newRouteName;
-        routeID = params[0];
-        newRouteName = params[1];
+        String lineName;
+        String adminUserID;
+
+        lineName = params[0];
+        adminUserID = params[1];
 
 
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + "updateRoute.php";
+                String link = _constants.WEB_API_URL + _constants.LINE_API_FOLDER + "addLine.php";
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
-                postParameters.add(new BasicNameValuePair("routeID", routeID));
-                postParameters.add(new BasicNameValuePair("newRouteName", newRouteName));
+                postParameters.add(new BasicNameValuePair("lineName", lineName));
+                postParameters.add(new BasicNameValuePair("adminUserID", adminUserID));
                 httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
                 HttpResponse response = httpClient.execute(httpPost);
                 String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(strResponse);
+                if(json.getBoolean("status") == true)
+                {
+                    _promptMessage = "Successfully added new line!";
+                }
+                else
+                {
+                    _promptMessage = json.getString("message") +  "\n";
+                }
 
-                _promptMessage += json.getString("Message") +  "\n";
+
             }
             catch(Exception ex)
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
                 Helper.logger(ex,true);
-                _promptMessage += ex.getMessage() + "\n";
+                _promptMessage = ex.getMessage() + "\n";
 
             }
         }
@@ -120,22 +126,21 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
             _LoaderDialog.hide();
 
         }
-        return newRouteName;
+        return _promptMessage;
     }
 
     @Override
     protected void onPostExecute(String param)
     {
-
-
-        _LoaderDialog.hide();
-
         if(_promptMessage.trim().length()>0)
         {
+            _LoaderDialog.hide();
             InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
-            _addRouteDialog.hide();
+            ManageLinesActivity._swipeRefreshLines.setRefreshing(true);
+            new mySQLLinesDataProvider(_activity, ManageLinesActivity._lineListView).execute();
+            _addLineDialog.hide();
         }
 
     }

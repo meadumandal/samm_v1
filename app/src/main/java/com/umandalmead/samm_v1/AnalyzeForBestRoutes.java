@@ -135,7 +135,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             Loader.show();
 
         } catch (Exception ex) {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -161,19 +161,19 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 //                        destinationId_distance.put(dialog.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
                     Log.i(TAG, "Success retrofit");
                 } catch (MalformedURLException ex) {
-                    helper.logger(ex);
+                    helper.logger(ex,true);
 
                 } catch (IOException ex) {
-                    helper.logger(ex);
+                    helper.logger(ex,true);
                 } catch (Exception ex) {
-                    helper.logger(ex);
+                    helper.logger(ex,true);
                 }
 
             }
             try {
                 Collections.sort(_possibleTerminals);
             } catch (Exception ex) {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
             }
 
             Integer counter = 0;
@@ -191,7 +191,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 HashMap<String, Object> returnValues = new HashMap<String, Object>();
                 returnValues.put("IsValid", 0);
                 returnValues.put("Message", ex.getMessage());
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
             _topTerminals = topTerminals;
@@ -220,7 +220,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         try {
             new asyncPrepareRouteData(_activity,_context,L_TM_topTerminals,_SelectedTerminal, _googleMap, Loader).execute();
         } catch (Exception ex) {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
     }

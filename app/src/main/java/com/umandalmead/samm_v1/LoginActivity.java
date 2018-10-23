@@ -109,10 +109,10 @@ public class LoginActivity extends AppCompatActivity{
                     Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
                 }
             } catch (PackageManager.NameNotFoundException e) {
-                _helper.logger(e);
+                _helper.logger(e,true);
 
             } catch (NoSuchAlgorithmException e) {
-                _helper.logger(e);
+                _helper.logger(e,true);
             }
 
             callbackManager = CallbackManager.Factory.create();
@@ -211,8 +211,10 @@ public class LoginActivity extends AppCompatActivity{
                                                     InfoDialog dialog = new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
                                                     dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                                                     dialog.show();
-                                                } else {
-                                                    Helper.logger(task.getException());
+                                                }
+                                                else
+                                                {
+                                                    Helper.logger(task.getException(), true);
                                                 }
                                             }
                                         })
@@ -227,7 +229,7 @@ public class LoginActivity extends AppCompatActivity{
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
                                                 FP_Loader.dismiss();
-                                                _helper.logger(e);
+                                                _helper.logger(e,true);
                                             }
                                         });
 
@@ -240,8 +242,10 @@ public class LoginActivity extends AppCompatActivity{
 
 
                         }
-                    } catch (Exception ex) {
-                        Helper.logger(ex);
+                    }
+                    catch(Exception ex)
+                    {
+                        Helper.logger(ex,true);
                     }
 
 
@@ -363,7 +367,7 @@ public class LoginActivity extends AppCompatActivity{
                                     LogInLoader.hide();
                                     HideLogInProgressDialog();
                                     Toast.makeText(LoginActivity.this, "Error Occurred", Toast.LENGTH_LONG).show();
-                                    Helper.logger(ex);
+                                    Helper.logger(ex,true);
                                 }
                             }
 
@@ -418,7 +422,7 @@ public class LoginActivity extends AppCompatActivity{
                         if(!task.isSuccessful())
                         {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                            Helper.logger(task.getException());
+                            Helper.logger(task.getException(),true);
                             HideLogInProgressDialog();
                         }
                         else
@@ -449,7 +453,7 @@ public class LoginActivity extends AppCompatActivity{
                             }
                             catch(Exception ex)
                             {
-                                Helper.logger(ex);
+                                Helper.logger(ex,true);
                             }
 
                         }

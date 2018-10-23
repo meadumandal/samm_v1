@@ -6,10 +6,12 @@ package com.umandalmead.samm_v1.EntityObjects;
 
 public class Routes {
     int ID;
+    int tblLineID;
     String routeName;
-    public Routes(int ID, String routeName)
+    public Routes(int ID, int tblLineID, String routeName)
     {
         this.ID = ID;
+        this.tblLineID = tblLineID;
         this.routeName = routeName;
     }
     public void setID(int ID)
@@ -20,6 +22,8 @@ public class Routes {
     {
         return this.ID;
     }
+    public void setTblLineID(int tblLineID){this.tblLineID = tblLineID;}
+    public int getTblLineID(){return this.tblLineID;}
     public void setRouteName(String routeName)
     {
         this.routeName = routeName;

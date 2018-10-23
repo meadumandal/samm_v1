@@ -110,7 +110,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -148,7 +148,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
             }
             catch(Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
                 return null;
             }
         }
@@ -227,7 +227,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -277,7 +277,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
                     }
                     catch(Exception ex)
                     {
-                        Helper.logger(ex);
+                        Helper.logger(ex,true);
                     }
                 }
                 i++;
@@ -320,7 +320,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
             }
             catch (Exception ex)
             {
-                Helper.logger(ex);
+                Helper.logger(ex,true);
             }
 
 

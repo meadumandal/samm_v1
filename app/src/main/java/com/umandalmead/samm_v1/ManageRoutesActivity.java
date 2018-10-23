@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +40,8 @@ public class ManageRoutesActivity extends AppCompatActivity {
     private Context _context;
     private Activity _activity;
     public AddRouteDialog dialog;
+    int _lineID = 0;
+    Helper _helper = new Helper();
 
 
     @Override
@@ -49,10 +50,13 @@ public class ManageRoutesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_addroute);
         _context = getApplicationContext();
         _activity = ManageRoutesActivity.this;
+        _lineID = getIntent().getIntExtra("lineID", 0);
+
         ScrollListView = (NonScrollListView) findViewById(R.id.routelistview);
         try
         {
-            InitializeToolbar("Manage Routes");
+
+            InitializeToolbar(MenuActivity._FragmentTitle);
             SessionManager sessionManager = new SessionManager(_context);
             final NonScrollListView routeListview = (NonScrollListView) findViewById(R.id.routelistview);
             swipeRefreshRoute = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_routes);
@@ -73,7 +77,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
         }
         catch(Exception ex)
         {
-            Helper.logger(ex);
+            Helper.logger(ex,true);
         }
 
 
@@ -94,15 +98,35 @@ public class ManageRoutesActivity extends AppCompatActivity {
         ViewTitle.setText(fragmentName);
     }
     public void InitializeView(NonScrollListView NSRouteListView){
-        swipeRefreshRoute.setRefreshing(true);
-        FragmentManager fm = _activity.getFragmentManager();
-        new mySQLRoutesDataProvider(_activity).execute();
-        ArrayList<Routes> routeListCopy = new ArrayList<Routes>(MenuActivity._routeList);
-        customAdapter =new RouteViewCustomAdapter(routeListCopy, _activity,NSRouteListView,fm, swipeRefreshRoute);
-        ScrollListView.setAdapter(customAdapter);
-        swipeRefreshRoute.setRefreshing(false);
+        try
+        {
+            swipeRefreshRoute.setRefreshing(true);
+            FragmentManager fm = _activity.getFragmentManager();
+            LoaderDialog loaderDialog = new LoaderDialog(_activity, "Routes", "Loading routes");
+            loaderDialog.show();
+            ArrayList<Routes> routesByLineID = new ArrayList<Routes>();
+            if (_lineID!=0)
+                for(Routes route:MenuActivity._routeList)
+                {
+                    if (route.getTblLineID() == _lineID)
+                        routesByLineID.add(route);
+                }
+            else
+                routesByLineID = new ArrayList<Routes>(MenuActivity._routeList);
+            routesByLineID.add(new Routes(0,0, "Add Route"));
+
+            customAdapter =new RouteViewCustomAdapter(routesByLineID, _activity,NSRouteListView,fm, swipeRefreshRoute);
+            ScrollListView.setAdapter(customAdapter);
+            swipeRefreshRoute.setRefreshing(false);
+            loaderDialog.dismiss();
+        }
+        catch (Exception ex)
+        {
+            _helper.logger(ex,true);
+        }
+
     }
-    public  class AddRouteDialog extends Dialog implements android.view.View.OnClickListener{
+    public class AddRouteDialog extends Dialog implements android.view.View.OnClickListener{
         Button submitButton;
         EditText txtRouteName;
         TextView tvActionTitle;
@@ -187,7 +211,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
                             }
                             catch(Exception ex)
                             {
-                                Helper.logger(ex);
+                                Helper.logger(ex,true);
                             }
 
 

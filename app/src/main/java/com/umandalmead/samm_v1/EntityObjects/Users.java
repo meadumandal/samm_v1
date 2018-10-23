@@ -14,7 +14,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  */
 
 public class Users {
-    public int ID;
+    public Integer ID;
     public String username;
     public String emailAddress;
     public String firstName;
@@ -25,7 +25,7 @@ public class Users {
     public int IsActive;
 
 
-    public Users(int ID, String username, String emailAddress, String firstName, String lastName, String userType, String password, int IsActive)
+    public Users(Integer ID, String username, String emailAddress, String firstName, String lastName, String userType, String password, int IsActive)
     {
         this.ID = ID;
         this.username = username;
@@ -97,10 +97,7 @@ public class Users {
     }
 
     @Override
-    public String toString()
-    {
-        return username;
-    }
+    public String toString() {  return username; }
 
 
 
