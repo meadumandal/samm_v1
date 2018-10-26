@@ -88,7 +88,7 @@ public class mySQLLinesDataProvider extends AsyncTask<Void,Void, ArrayList<Lines
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             return null;
         }
     }

@@ -61,6 +61,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.google.android.gms.maps.model.JointType.ROUND;
+import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
 import static com.umandalmead.samm_v1.MenuActivity._LL_Arrival_Info;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
 import static com.umandalmead.samm_v1.MenuActivity._TV_TimeofArrival;
@@ -146,7 +147,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context)) {
             HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
-            String url = "https://maps.googleapis.com/maps/";
+            String url = _GlobalResource.getString(R.string.GM_maps_url);
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(url)
                     .addConverterFactory(GsonConverterFactory.create())

@@ -248,7 +248,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public  static TextView _DestinationTextView;
         //public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
-        public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _STR_SAMM_USERNAME="Please Wait...";
+        public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _STR_SAMM_USERNAME;
         public static MediaPlayer _buttonClick;
         private TextView _infoTitleTV, _infoDescriptionTV, _infoDescriptionTV2;
         private LinearLayout _infoLayout;
@@ -711,7 +711,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                 buildGoogleApiClient();
                 _googleMap.setMyLocationEnabled(true);
-                _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+                _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
             }
         }
         else {
@@ -942,7 +942,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                         ShowInfoLayout(TM_ClickedTerminal.Description, "\n"
                                 + _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data.." , R.drawable.ic_ecoloopstop_for_info);
+                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data.." , R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
                          _terminalsDBRef.child(marker.getTitle()).runTransaction(new Transaction.Handler() {
                             @Override
                             public Transaction.Result doTransaction(MutableData currentData) {
@@ -965,13 +965,21 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
                     Users driverDetails= Helper.GetEloopDriver(Helper.GetEloopEntry(markerTitle));
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, driverDetails.firstName+" "+driverDetails.lastName, null,R.drawable.eco_loop_for_info_transparent);
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, driverDetails.firstName+" "+driverDetails.lastName, null,R.drawable.eco_loop_for_info_transparent,Enums.InfoLayoutType.INFO_VEHICLE);
                 }
                 else{
-                    UserMarker UM_result = new UserMarker(markerTitle,_context);
-                    if(UM_result.UserType== Enums.UserType.SAMM_FACEBOOK)
-                        GetFacebookUsername(markerTitle);
-                    ShowInfoLayout(UM_result.UserTitle,UM_result.UserType.toString(),null,UM_result.UserInfoLayoutIcon);
+                    final UserMarker UM_result = new UserMarker(markerTitle,_context);
+                    Handler HD_FetchFBName = new Handler();
+
+                    if(UM_result.UserType== Enums.UserType.SAMM_FACEBOOK){
+                        HD_FetchFBName.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                GetFacebookUsername(markerTitle,UM_result);
+                            }
+                        }, 1500);
+                    }
+                    ShowInfoLayout(UM_result.UserTitle,UM_result.UserType.toString(),null,UM_result.UserInfoLayoutIcon,Enums.InfoLayoutType.INFO_PERSON);
                 }
                 return true;
             }
@@ -2613,10 +2621,11 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
     //Public methods for showing Dialogs from fragments which are previously attached to FABs onclick events.
 
-    public void ShowInfoLayout(String Title, String Description, String Description2, Integer Icon){
+    public void ShowInfoLayout(String Title, String Description, String Description2, Integer Icon, Enums.InfoLayoutType InfoType){
         try{
         ClearInfoPanelDetails();
-        InfoPanelShow(Title, Description,Description2, Icon);
+        _infoTitleTV.setTextSize(_helper.dpToPx(8,_context));
+        InfoPanelShow(Title, Description,Description2, Icon,InfoType);
         }
         catch(Exception ex){
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -2646,10 +2655,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
-    public void InfoPanelShow(final String InfoTitle, final String InfoDescription, final String InfoDescription2,final Integer Icon) {
+    public void InfoPanelShow(final String InfoTitle, final String InfoDescription, final String InfoDescription2,final Integer Icon, final Enums.InfoLayoutType infoType) {
             //final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
             final String finalTitle =  InfoTitle.toUpperCase();
-            final Typeface finalTitleFont = FONT_PLATE;// isStation ? FONT_STATION: FONT_PLATE;
+            final Typeface finalTitleFont = GetFontStyle(infoType);
             _infoTitleTV.setTypeface(null);
             if (_infoLayout.getVisibility() == View.INVISIBLE) {
                 if(!_IsOnSearchMode)
@@ -2717,7 +2726,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                InfoPanelShow(InfoTitle, InfoDescription,InfoDescription2, Icon);
+                                InfoPanelShow(InfoTitle, InfoDescription,InfoDescription2, Icon, infoType);
                             }
 
                             @Override
@@ -2847,7 +2856,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         LoaderDialog pleasewait = new LoaderDialog(MenuActivity.this,"Please wait","..");
         pleasewait.show();
     }
-        public void GetFacebookUsername(final String STR_FB_id){
+        public void GetFacebookUsername(final String STR_FB_id, final UserMarker userMarkerCache){
             try{
                 MenuActivity._usersDBRef.runTransaction(new Transaction.Handler() {
                     @Override
@@ -2857,9 +2866,11 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                     @Override
                     public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                        MenuActivity._STR_SAMM_USERNAME =  dataSnapshot.child(STR_FB_id).child("firstName").getValue() +" "
+                        String STR_tempName=dataSnapshot.child(STR_FB_id).child("firstName").getValue() +" "
                                 + dataSnapshot.child(STR_FB_id).child("lastName").getValue();
-                        UpdateInfoPanelDetails(MenuActivity._STR_SAMM_USERNAME,null,null);
+                        userMarkerCache.UserTitle=STR_tempName;
+                        UpdateInfoPanelDetails(userMarkerCache.UserTitle,null,null);
+
                     }
                 });
 
@@ -2881,6 +2892,18 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 Helper.logger(ex);
             }
             return result;
+    }
+    private Typeface GetFontStyle(Enums.InfoLayoutType layouttype){
+        Typeface TF_result = FONT_STATION;
+        try{
+            switch (layouttype){
+                case INFO_VEHICLE: TF_result = FONT_PLATE; _infoTitleTV.setTextSize(_helper.dpToPx(12,_context)); break;
+                default: TF_result = FONT_STATION;
+            }
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
+        return TF_result;
     }
 
 }

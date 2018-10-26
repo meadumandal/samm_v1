@@ -102,7 +102,7 @@ public class mySQLAddLine extends AsyncTask<String, Void, String>{
                 JSONObject json = new JSONObject(strResponse);
                 if(json.getBoolean("status") == true)
                 {
-                    _promptMessage = "Successfully added new line!";
+                    _promptMessage = MenuActivity._GlobalResource.getString(R.string.info_add_new_line_success);
                 }
                 else
                 {
@@ -122,7 +122,7 @@ public class mySQLAddLine extends AsyncTask<String, Void, String>{
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             _LoaderDialog.hide();
 
         }

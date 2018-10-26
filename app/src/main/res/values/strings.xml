@@ -9,9 +9,9 @@
 
     <!--ERROR MESSAGES-->
     <string name="error_create_account">Error encountered in creating account</string>
-    <string name="error_field_required">%1$s is required</string>
+    <string name="error_field_required" translatable="false">%1$s is required</string>
     <string name="error_passwordnotmatch">Passwords do not match!</string>
-    <string name="error_shortpassword">Passwords should be composed of %1$s-characters</string>
+    <string name="error_shortpassword" translatable="false">Passwords should be composed of %1$s-characters</string>
     <string name="error_username_invalid">Username must not be empty and must not contain special characters</string>
     <string name="error_username_not_exist">Username do not exists</string>
     <string name="error_username_alreadyexists">Username is already taken!</string>
@@ -21,6 +21,9 @@
     <string name="error_try_again_all_caps">TRY AGAIN</string>
     <string name="error_exception_with_concat">Exception : </string>
     <string name="error_please_supply_all_fields">Please supply all fields</string>
+    <string name="error_invalid_route_name">Please enter a valid route name</string>
+    <string name="error_not_connected">You are not connected to the internet. Please check your connection and try again.</string>
+    <string name="error_contacting_server">Problem contacting the server. Please try again later.</string>
 
     <!--NOTIFICATION MESSAGES-->
     <string name="success_please_verify_email">A verification E-mail has been sent!</string>
@@ -28,8 +31,8 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="facebook_app_id">379104749167400</string>
-    <string name="fb_login_protocol_scheme">fb379104749167400</string>
+    <string name="facebook_app_id" translatable="false">379104749167400</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb379104749167400</string>
     <string-array name="array_tripType">
         <item>Outbound</item>
         <item>Return</item>
@@ -52,6 +55,11 @@
     <!--ACTIVITY AND FRAGMENT TITLES-->
     <string name="title_total_distance">Total distance traveled</string>
     <string name="title_passenger_queueing_history">Passenger Queueing History"</string>
+    <string name="title_user_activity">User Profile</string>
+    <string name="title_about_activity">About</string>
+    <string name="title_manage_lines_activity">Manage Lines</string>
+    <string name="title_admin_users_fragment">Admin Users</string>
+    <string name="title_drivers_fragment">Drivers</string>
 
     <!--INFO MESSAGES-->
     <string name="info_add_route_success">Successfully added new route!</string>
@@ -60,10 +68,14 @@
     <string name="info_passenger_waited_singular"> passenger waited</string>
     <string name="info_please_select_date_range">Please select date range and click \'View'\ button</string>
     <string name="info_please_select_date_range_with_terminal">Please select date range, terminal and click \'View'\ button</string>
+    <string name="info_add_new_line_success">Successfully added new line!"</string>
+    <string name="info_points_modified">Points have been modified.</string>
+    <string name="info_confirm_save_changes">Save changes?</string>
+    <string name="info_delete_point_confirm">Are you sure you want to delete this point?</string>
 
     <!--PLACE AUTOCOMPLETE FRAGMENT-->
     <string name="PlaceAutoCompleteFragment_Hint">Where are you going?</string>
-    <string name="PlaceAutoCompleteFragment_FontColor">#000000</string>
+    <string name="PlaceAutoCompleteFragment_FontColor" translatable="false">#000000</string>
     
     <!--GPS RELATED-->
     <string name="Adding_Vehicle_GPS">Adding Vehicle GPS</string>
@@ -77,16 +89,19 @@
     <string name="GPS_add">Add</string>
     <string name="GPS_update">Update</string>
     <string name="GPS_delete">Delete</string>
+    <string name="GPS_update_success">Successfully updated GPS!</string>
+    <string name="GPS_adding_vehicle_gps">Adding Vehicle GPS"</string>
 
     <!--FACEBOOK RELEATED-->
-    <string name="Facebook_ProfilePic_Graph_URL">http://graph.facebook.com/</string>
-    <string name="Facebook_ProfilePic_Graph_URL_QueryString">/picture?type=large</string>
-    <string name="Error_NonFacebook_Username">/picture?type=large</string>
+    <string name="Facebook_ProfilePic_Graph_URL" translatable="false">http://graph.facebook.com/</string>
+    <string name="Facebook_ProfilePic_Graph_URL_QueryString" translatable="false">/picture?type=large</string>
+    <string name="Error_NonFacebook_Username" translatable="false">/picture?type=large</string>
     <string name="Error_looks_like_your_offline">Looks like you\'re offline</string>
+    <string name="Facebook_samm_page_url" translatable="false">https://www.facebook.com/SAMM.Ecoloop.Guide/</string>
 
     <!--SMS Sending RELATED-->
-    <string name="SMS_SENT">SMS_SENT</string>
-    <string name="SMS_DELIVERED">SMS_DELIVERED</string>
+    <string name="SMS_SENT" translatable="false">SMS_SENT</string>
+    <string name="SMS_DELIVERED" translatable="false">SMS_DELIVERED</string>
     <string name="SMS_Not_Online">Device is not online</string>
     <string name="SMS_please_select_network_provider">Select GSM SIM Network Provider</string>
     <string name="SMS_select_GPS_network">Select the network of the GPS of this PUV</string>
@@ -126,7 +141,7 @@
     <string name="GM_unit">metric</string>
     <string name="GM_mode">driving</string>
     <string name="GM_location_permission_denied">Location Permission Denied</string>
-    <string name="GM_maps_url">https://maps.googleapis.com/maps/</string>
+    <string name="GM_maps_url" translatable="false">https://maps.googleapis.com/maps/</string>
     <string name="GM_acquiring_gps">"acquiring gps signal..."</string>
     <string name="GM_gps_acquired">"gps signal acquired!"</string>
 
@@ -147,17 +162,37 @@
     <string name="dialog_points_update_error">Error in updating points</string>
     <string name="dialog_updating_routes">Updating route...</string>
     <string name="dialog_user_update_success_with_message">Update profile is done with the following message/s:\n\n</string>
+    <string name="dialog_point_added">We have successfully added the point on the map!</string>
+    <string name="dialog_point_updated">We have successfully updated the point on the map!</string>
+    <string name="dialog_point_deleted">We have successfully deleted the point from the map!</string>
+    <string name="dialog_add_route_title">Adding route</string>
+    <string name="dialog_delete_route_title">Deleting route</string>
+    <string name="dialog_please_wait_with_ellipsis">Please wait...</string>
+    <string name="dialog_confirm_delete_route">Are you sure you want to delete this route?</string>
+    <string name="dialog_routes_title">Routes</string>
+    <string name="dialog_routes_message_with_ellipsis">Loading routes...</string>
+    <string name="dialog_initialize_with_ellipsis">Initializing...</string>
+    <string name="dialog_updating_order_of_points">Updating order of points</string>
+    <string name="dialog_points_map_setup_please_wait">Please wait as we set up the points on the map</string>
+    <string name="dialog_points_map_update_please_wait">Please wait as we update the points on the map</string>
+    <string name="dialog_adding_points_title">Adding Pickup/Dropoff Point</string>
+    <string name="dialog_updating_points_title">Updating Pickup/Dropoff Point</string>
+    <string name="dialog_deleting_points_title">Deleting Pickup/Dropoff Point</string>
+    <string name="dialog_delete_point_title">Deleting point</string>
 
     <!--ERROR DIALOGS-->
     <string name="error_no_internet_connection">No Internet Connection</string>
     <string name="error_please_turn_on_wifi_or_mobile_data">Please turn on Wi-fi or Mobile data</string>
+    <string name="error_encountered_upon_adding_gps">Error encountered upon adding GPS. Please re-try</string>
+    <string name="error_encountered_with_colon">Error encountered : </string>
+    <string name="error_please_enter_emailaddress">Please enter an email address.</string>
 
     <!--VEHICLE SEARCHING MESSAGES-->
     <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
     <!--FONTS-->
-    <string name="FONT_TRENDER">font/Trender.ttf</string>
-    <string name="FONT_SAN_FRANCISCO_REG">font/San-Francisco-Regular.ttf</string>
-    <string name="FONT_LICENSE_PLATE">font/LicensePlate.ttf</string>
+    <string name="FONT_TRENDER" translatable="false">font/Trender.ttf</string>
+    <string name="FONT_SAN_FRANCISCO_REG" translatable="false">font/San-Francisco-Regular.ttf</string>
+    <string name="FONT_LICENSE_PLATE" translatable="false">font/LICENSE_PLATE.ttf</string>
 
     <!--TOOL TIPS-->
     <string name="ToolTip_show_menu_options">Tap to show menu options</string>
@@ -166,8 +201,8 @@
     <string name="ToolTip_search_here">Search here</string>
 
     <!--INFO LAYOUT RELATED-->
-    <string name="InfoLayout_description_not_available">\nDescription not yet available</string>
+    <string name="InfoLayout_description_not_available" translatable="false">\nDescription not yet available</string>
     <string name="crash_error">Sorry, an error is encountered</string>
-    
+
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

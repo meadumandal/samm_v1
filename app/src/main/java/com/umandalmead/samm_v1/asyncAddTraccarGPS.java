@@ -108,13 +108,13 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
                 catch(Exception ex){
                     _LoaderDialog.dismiss();
                     Helper.logger(ex,true);
-                    returnString= "Error encountered upon adding GPS. Please re-try";
+                    returnString= MenuActivity._GlobalResource.getString(R.string.error_encountered_upon_adding_gps);
                 }
             }
             else
             {
                 _LoaderDialog.dismiss();
-                returnString=  "Looks like you're offline";
+                returnString=  MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline);
             }
             return returnString;
         }

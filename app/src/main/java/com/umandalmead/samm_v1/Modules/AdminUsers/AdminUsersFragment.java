@@ -53,7 +53,7 @@ public class AdminUsersFragment extends Fragment {
         _myView =  inflater.inflate(R.layout.fragment_admin_users, container, false);
         try
         {
-            InitializeToolbar("Admin Users");
+            InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_admin_users_fragment));
 
             final NonScrollListView adminUsersListView = (NonScrollListView) _myView.findViewById(R.id.adminuserslistview);
             swipeRefreshAdminUsers = (SwipeRefreshLayout) _myView.findViewById(R.id.swipe_refresh_adminusers);

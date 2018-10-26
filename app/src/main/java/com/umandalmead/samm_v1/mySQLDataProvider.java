@@ -118,7 +118,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
             {
                 HashMap<String, Object> returnValues = new HashMap<String,Object>();
                 returnValues.put("IsValid", 0);
-                returnValues.put("Message", "Problem contacting the server. Please try again later.");
+                returnValues.put("Message", MenuActivity._GlobalResource.getString(R.string.error_contacting_server));
 
                 Helper.logger(ex,true);
 
@@ -129,7 +129,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
         {
             HashMap<String, Object> returnValues = new HashMap<String,Object>();
             returnValues.put("IsValid", 0);
-            returnValues.put("Message", "You are not connected to the internet. Please check your connection and try again.");
+            returnValues.put("Message", MenuActivity._GlobalResource.getString(R.string.error_not_connected));
             return returnValues;
         }
 

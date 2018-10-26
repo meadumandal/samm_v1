@@ -29,13 +29,13 @@ public class UserMarker {
             this.UserInfoLayoutIcon = R.drawable.samm_user_icon_info_layout_default;
         }
         else if(markerTitle.matches("\\d+")) {
-            this.UserTitle= MenuActivity._STR_SAMM_USERNAME;
+            this.UserTitle= "Please wait...";
             this.UserIcon = R.drawable.samm_user_map_icon_fb;
             this.UserType = Enums.UserType.SAMM_FACEBOOK;
             this.UserInfoLayoutIcon = R.drawable.samm_user_icon_info_layout_facebook;
         }
         else{
-            this.UserTitle=_sessionManager.getFullName().toUpperCase();
+            this.UserTitle=markerTitle;
             this.UserIcon = R.drawable.samm_user_map_icon_admin;
             this.UserType = Enums.UserType.SAMM_ADMINISTRATOR;
             this.UserInfoLayoutIcon = R.drawable.samm_user_icon_info_layout_admin;

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SAMM</string>
+    <string name="action_settings">Mga Setting</string>
+    <string name="error_create_account">Hindi magawa ang account</string>
+    <string name="error_passwordnotmatch">Hindi tugma ang mga password!</string>
+    <string name="error_exception_with_concat">Eksepsyon</string>
+    <string name="error_please_supply_all_fields">Kinakailangan punan ang lahat ng mga puwang</string>
+    <string name="error_invalid_route_name">Mangyaring magbigay ng tamang pangalan ng ruta</string>
+    <string name="error_not_connected">Wala kang koneksyon sa Internet. I-check ang iyong mga koneksyon at subukang muli.</string>
+    <string name="error_contacting_server">Hindi makontak ang server. Subukan muli maya maya.</string>
+    <string name="guest_nav_drawer_message">Hindi ka nakarehistro. Mag rehistro na ngayon upang malaman ang iba pang pakulo</string>
+    <string name="prompt_terminals">Pumili ng terminal</string>
+    <string name="title_total_distance">Kabuuang distansyang nilakbay</string>
+    <string name="title_passenger_queueing_history">Kasaysayan ng pagpila ng mga pasahero</string>
+    <string name="title_user_activity">Profile ng User</string>
+    <string name="title_about_activity">Tungkol sa app</string>
+    <string name="title_manage_lines_activity">Pamahalaan ang mga linya</string>
+    <string name="title_admin_users_fragment">Mga Admin</string>
+    <string name="title_drivers_fragment">Mga drayber</string>
+    <string name="info_add_route_success">Tagumpay ang pag dagdag ng bagong ruta!</string>
+    <string name="info_suffix_passengers_waited">nag hintay ang mga pasahero sa oras na ito.</string>
+    <string name="info_passengers_waited_plural">nag hintay ang pasahero</string>
+    <string name="info_passenger_waited_singular">nag hintay ang mga pasahero</string>
+    <string name="dialog_title_initializing_destinations">Inihahanda ang mga datos</string>
+    <string name="dialog_message_initializing_destinations">Ang app ay nag hahanda pa, mangyaring mag hintay...</string>
+    <string name="error_try_again_all_caps">SUBUKANG MULI</string>
+</resources>

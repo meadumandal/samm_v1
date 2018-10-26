@@ -71,7 +71,7 @@ public class UserProfileActivity extends Fragment {
 
         _view = inflater.inflate(R.layout.activity_user_profile, container, false);
         getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        InitializeToolbar("User Profile");
+        InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_user_activity));
         tv_firstName = (EditText)_view.findViewById(R.id.edit_firstName);
         tv_lastName = (EditText)_view.findViewById(R.id.edit_lastName);
         tv_password = (EditText)_view.findViewById(R.id.edit_password);

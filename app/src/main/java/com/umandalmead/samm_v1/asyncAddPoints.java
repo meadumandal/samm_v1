@@ -156,7 +156,7 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             else
             {
 
-                return  "Looks like you're offline";
+                return  MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline);
             }
         }
         catch(Exception ex)
@@ -186,13 +186,13 @@ public class asyncAddPoints extends AsyncTask<String, Void, String>{
             });
             if(s.equals("Success"))
             {
-                alertDialogBuilder.setTitle("Success");
+                alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_success));
                 if(_action.equals("add"))
-                    alertDialogBuilder.setMessage("We have successfully added the point on the map!");
+                    alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_point_added));
                 else if(_action.equals("update"))
-                    alertDialogBuilder.setMessage("We have successfully updated the point on the map!");
+                    alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_point_updated));
                 else
-                    alertDialogBuilder.setMessage("We have successfully deleted the point from the map!");
+                    alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_point_deleted));
                 new mySQLDestinationProvider(_context, this._activity, "", _map, _googleAPIClient, _Loader).execute();
 
             }

@@ -92,7 +92,7 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
             else
             {
                 _LoaderDialog.dismiss();
-                return "Looks like you're offline";
+                return MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline);
             }
             _LoaderDialog.dismiss();
             return "GPS deleted!";

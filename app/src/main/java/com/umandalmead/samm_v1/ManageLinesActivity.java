@@ -60,7 +60,7 @@ public class ManageLinesActivity extends AppCompatActivity {
         _helper = new Helper();
         try
         {
-            InitializeToolbar("Manage Lines");
+            InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_manage_lines_activity));
             SessionManager sessionManager = new SessionManager(_context);
             _lineListView = (NonScrollListView) findViewById(R.id.linelistview);
             _swipeRefreshLines = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_lines);

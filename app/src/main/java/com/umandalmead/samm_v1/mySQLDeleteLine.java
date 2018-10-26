@@ -108,22 +108,22 @@ public class mySQLDeleteLine extends AsyncTask<String, Void, String> {
                         _isSuccessful = false;
                         Helper.logger(ex,true);
 
-                        return "Error encountered : "+ex.getMessage()+". Please re-try";
+                        return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
                     }
                 }
                 catch(Exception ex)
                 {
                     _isSuccessful = false;
                     Helper.logger(ex,true);
-                    return "Error encountered : "+ex.getMessage()+". Please re-try";
+                    return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
                 }
             }
             else
             {
                 _isSuccessful = false;
-                Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+                Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
                 _LoaderDialog.hide();
-                return "Looks like you're offline";
+                return MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline);
 
             }
         }
@@ -131,7 +131,7 @@ public class mySQLDeleteLine extends AsyncTask<String, Void, String> {
         {
             _isSuccessful = false;
             Helper.logger(ex,true);
-            return "Error encountered : "+ex.getMessage()+". Please re-try";
+            return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
         }
     }
 

@@ -145,7 +145,7 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             else
             {
                 _LoaderDialog.dismiss();
-                returnString=  "Looks like you're offline";
+                returnString=  MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline);
             }
             return returnString + "/" + name + "/" +deviceId.toString();
         }
@@ -174,13 +174,13 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             });
             if(message.equals("Success"))
             {
-                alertDialogBuilder.setTitle("Success");
-                alertDialogBuilder.setMessage("Successfully updated GPS!");
+                alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_success));
+                alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.GPS_update_success));
 //              new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
             }
             else
             {
-                alertDialogBuilder.setTitle("Error");
+                alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_error));
                 alertDialogBuilder.setMessage(message);
             }
             alertDialogBuilder.show();

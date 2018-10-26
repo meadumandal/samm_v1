@@ -54,7 +54,7 @@ public class DriverUsersFragment extends Fragment {
         _myView =  inflater.inflate(R.layout.fragment_admin_users, container, false);
         try
         {
-            InitializeToolbar("Drivers");
+            InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_drivers_fragment));
 
             final NonScrollListView driversUserListView = (NonScrollListView) _myView.findViewById(R.id.adminuserslistview);
             swipeRefreshDriverUsers = (SwipeRefreshLayout) _myView.findViewById(R.id.swipe_refresh_adminusers);
@@ -78,7 +78,7 @@ public class DriverUsersFragment extends Fragment {
                     new mySQLGetDriverUsers(getActivity(), _LoaderDialog, driversUserListView, fm, swipeRefreshDriverUsers).execute();
                 }
             });
-            _LoaderDialog = new LoaderDialog(getActivity(), "Please wait", "Please wait");
+            _LoaderDialog = new LoaderDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
             _LoaderDialog.show();
 
 

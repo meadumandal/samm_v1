@@ -72,7 +72,7 @@ public class SortableListViewActivity extends ListActivity {
             mList.setDropListener(mDropListener);
 
             registerForContextMenu(mList);
-            _LoaderDialog = new LoaderDialog(this, "Adding Vehicle GPS","Initializing...");
+            _LoaderDialog = new LoaderDialog(this, MenuActivity._GlobalResource.getString(R.string.GPS_adding_vehicle_gps),MenuActivity._GlobalResource.getString(R.string.dialog_initialize_with_ellipsis));
             _LoaderDialog.setCancelable(false);
         }
         catch (Exception ex){
@@ -88,12 +88,12 @@ public class SortableListViewActivity extends ListActivity {
                 AlertDialog.Builder builder;
                 builder = new AlertDialog.Builder(SortableListViewActivity.this);
 
-                builder.setTitle("Points have been modified.")
-                        .setMessage("Save changes?")
+                builder.setTitle(MenuActivity._GlobalResource.getString(R.string.info_points_modified))
+                        .setMessage(MenuActivity._GlobalResource.getString(R.string.info_confirm_save_changes))
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    LoaderDialog PointsUpdateLoader = new LoaderDialog(SortableListViewActivity.this, "Please wait...", "Updating order of points");
+                                    LoaderDialog PointsUpdateLoader = new LoaderDialog(SortableListViewActivity.this,MenuActivity._GlobalResource.getString(R.string.dialog_updating_order_of_points) , MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
                                     PointsUpdateLoader.setCancelable(false);
                                     String pointsArray = Arrays.toString(pointsArrayInString);
 
@@ -341,19 +341,19 @@ public class SortableListViewActivity extends ListActivity {
 
         private void savePoint(String name, Double lat, Double lng, Integer tblRouteID)
         {
-            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, "Adding Pickup/Dropoff Point", "Please wait as we set up the points on the map");
+            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_adding_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_setup_please_wait));
             _LoaderDialog.show();
             new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void updatePoint(Integer ID, String name, Double lat, Double lng, Integer tblRouteID)
         {
-            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this,"Updating Pickup/Dropoff Point", "Please wait as we update the points on the map" );
+            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this,MenuActivity._GlobalResource.getString(R.string.dialog_updating_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
             _LoaderDialog.show();
             new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void deletePoint(Integer ID)
         {
-            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, "Deleting Pickup/Dropoff Point", "Please wait as we update the points on the map");
+            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_deleting_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
             _LoaderDialog.show();
             new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Delete", ID).execute();
         }
@@ -422,11 +422,12 @@ public class SortableListViewActivity extends ListActivity {
             builder = new AlertDialog.Builder(SortableListViewActivity.this);
 
             builder.setTitle("Delete Point")
-                    .setMessage("Are you sure you want to delete this point?")
+                    .setMessage(MenuActivity._GlobalResource.getString(R.string.info_delete_point_confirm))
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             try {
-                                LoaderDialog DeleteLoader = new LoaderDialog(SortableListViewActivity.this, "Please wait...", "Deleting point...");
+                                LoaderDialog DeleteLoader = new LoaderDialog(SortableListViewActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_deleting_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
+                                DeleteLoader.setCancelable(false);
                                 DeleteLoader.setCancelable(false);
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);

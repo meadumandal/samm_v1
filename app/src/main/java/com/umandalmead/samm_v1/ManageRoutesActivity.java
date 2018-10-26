@@ -102,7 +102,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
         {
             swipeRefreshRoute.setRefreshing(true);
             FragmentManager fm = _activity.getFragmentManager();
-            LoaderDialog loaderDialog = new LoaderDialog(_activity, "Routes", "Loading routes");
+            LoaderDialog loaderDialog = new LoaderDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_routes_title), MenuActivity._GlobalResource.getString(R.string.dialog_routes_message_with_ellipsis));
             loaderDialog.show();
             ArrayList<Routes> routesByLineID = new ArrayList<Routes>();
             if (_lineID!=0)
@@ -159,7 +159,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
             submitButton.setText(isNew ? "Save" : "Update");
             txtRouteName.setText(this._routeName);
 
-            _LoaderDialog = new LoaderDialog(_activity,"Adding Route...", "Please wait...");
+            _LoaderDialog = new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_add_route_title), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
             _LoaderDialog.setCancelable(false);
             submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -167,7 +167,7 @@ public class ManageRoutesActivity extends AppCompatActivity {
                     String newRouteName = txtRouteName.getText().toString();
                     if (newRouteName.isEmpty())
                     {
-                        Toast.makeText(_context,"Please enter a valid route name", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(_context,MenuActivity._GlobalResource.getString(R.string.error_invalid_route_name), Toast.LENGTH_SHORT).show();
                     }
                     else
                     {
@@ -199,11 +199,11 @@ public class ManageRoutesActivity extends AppCompatActivity {
             AlertDialog.Builder builder;
             builder = new AlertDialog.Builder(ManageRoutesActivity.this);
             builder.setTitle("Delete Point")
-                    .setMessage("Are you sure you want to delete this route?")
+                    .setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_confirm_delete_route))
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             try {
-                                LoaderDialog DeleteLoader = new LoaderDialog(ManageRoutesActivity.this, "Please wait...", "Deleting route...");
+                                LoaderDialog DeleteLoader = new LoaderDialog(ManageRoutesActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_delete_route_title), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
                                 DeleteLoader.setCancelable(false);
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ManageRoutesActivity.this);

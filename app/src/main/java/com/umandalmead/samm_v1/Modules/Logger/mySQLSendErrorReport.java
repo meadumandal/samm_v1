@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.R;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -78,7 +80,7 @@ public class mySQLSendErrorReport extends AsyncTask<String, Void, Void> {
             else
             {
                 _isSuccessful = false;
-                Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+                Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
 
             }
         }

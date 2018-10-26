@@ -45,6 +45,22 @@ public class Enums {
         }
 
     }
+    public enum InfoLayoutType{
+        INFO_STATION("Station",0),
+        INFO_VEHICLE("Vehicle",1),
+        INFO_PERSON("Person",2);
+        private String stringValue;
+        private int intValue;
+        private InfoLayoutType(String toString, int value){
+            stringValue = toString;
+            intValue = value;
+        }
+
+        @Override
+        public String toString() {
+            return stringValue;
+        }
+    }
     public enum GoogleMapType{
         MAP_TYPE_NORMAL("MAP_TYPE_NORMAL", 0),
         MAP_TYPE_SATELLITE("MAP_TYPE_SATELLITE", 1),

@@ -36,7 +36,7 @@ public class AboutActivity extends Fragment {
         SammTV = (TextView) myView.findViewById(R.id.SAMM_text);
         fbLike =  (LikeView) myView.findViewById(R.id.fb_like_view);
         SessionManager sessionManager = new SessionManager(myView.getContext());
-        InitializeToolbar("About");
+        InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_about_activity));
         InitializeFacebookLikeButton();
 
         if (sessionManager.getIsDeveloper()) {
@@ -50,7 +50,7 @@ public class AboutActivity extends Fragment {
     }
     private void InitializeFacebookLikeButton(){
         FacebookSdk.sdkInitialize(getContext());
-        fbLike.setObjectIdAndType("https://www.facebook.com/SAMM.Ecoloop.Guide/", LikeView.ObjectType.PAGE);
+        fbLike.setObjectIdAndType(MenuActivity._GlobalResource.getString(R.string.Facebook_samm_page_url), LikeView.ObjectType.PAGE);
     }
     public void InitializeToolbar(String fragmentName){
         FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);

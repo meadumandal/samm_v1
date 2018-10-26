@@ -130,14 +130,14 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
                         _isSuccessful = false;
                         Helper.logger(ex,true);
 
-                        return "Error encountered : "+ex.getMessage()+". Please re-try";
+                        return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
                     }
                 }
                 catch(Exception ex)
                 {
                     _isSuccessful = false;
                     Helper.logger(ex,true);
-                    return "Error encountered : "+ex.getMessage()+". Please re-try";
+                    return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
                 }
             }
             else
@@ -154,7 +154,7 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
         {
             _isSuccessful = false;
             Helper.logger(ex,true);
-            return "Error encountered : "+ex.getMessage()+". Please re-try";
+            return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
         }
     }
 
