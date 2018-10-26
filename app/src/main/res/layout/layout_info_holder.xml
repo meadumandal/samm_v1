@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/TextView_InfoTitle"
-                    android:textSize="16dp"
+                    android:textSize="20dp"
                     android:visibility="invisible"
                     android:textStyle="bold"
                     android:textColor="@color/colorWhite"

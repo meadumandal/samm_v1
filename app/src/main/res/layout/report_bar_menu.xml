@@ -3,48 +3,122 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
     android:fitsSystemWindows="true"
-    android:background="@color/colorWhite"
+    android:background="@color/colorBlack"
+    android:animateLayoutChanges="true"
     tools:context="com.umandalmead.samm_v1.ReportsActivity">
-
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appBarLayout"
+        android:id="@+id/reportsBarLayout"
         android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorBlack"
         android:theme="@style/AppTheme.AppBarOverlay">
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageButton
-                android:id="@+id/SAMMLogoFAB"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:src="@mipmap/ic_sammtrans"
-                android:background="@android:color/transparent"
-                />
-
+                android:orientation="horizontal">
+                <ImageButton
+                    android:id="@+id/SAMMLogoFAB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="7dp"
+                    android:src="@mipmap/ic_sammtrans"
+                    android:background="@android:color/transparent"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="35dp"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="REPORTS"
+                        android:textColor="@color/colorSprayBlue"
+                        android:layout_gravity="center"
+                        android:textSize="18dp"
+                        android:textStyle="bold"
+                        android:fontFamily="@string/FONT_LICENSE_PLATE"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Total KM per day"
+                        android:textColor="@color/colorWhiteEC"
+                        android:layout_gravity="center"
+                        android:textSize="15dp"
+                        android:id="@+id/textViewReportName"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.design.widget.AppBarLayout>
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/AppBar_ReportActions"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:animateLayoutChanges="true"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorDarkGrey"
+        android:theme="@style/AppTheme.AppBarOverlay">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="30dp"
+            android:layout_gravity="left|center_vertical"
+            android:gravity="left"
+            android:id="@+id/layout_terminalSelection"
+            >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="REPORTS: Total KM per day"
-                android:textColor="@color/colorWhiteEC"
-                android:layout_gravity="center"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                android:id="@+id/textViewReportName"
-                />
+                android:text="Terminal: "
+                android:textSize="15dp"
+                android:textColor="@color/colorWhiteEC"/>
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner_terminal"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/colorWhite"
+                ></Spinner>
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
             android:id="@+id/reportParameterLayout">
             <TextView
                 android:layout_width="wrap_content"
@@ -55,18 +129,11 @@
             <EditText
                 android:id="@+id/fromDate"
                 android:clickable="true"
-                android:editable="false"
                 android:hint="Date"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:layout_margin="5dp"
-                android:layout_marginTop="100dp"
                 android:width="100dp"
-                android:drawablePadding="5dp"
-                android:ems="12"
                 android:gravity="center|left"
-                android:maxLines="1"
-                android:paddingLeft="10dp"
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorWhite"
                 android:textAlignment="center"
@@ -82,18 +149,12 @@
             <EditText
                 android:id="@+id/toDate"
                 android:clickable="true"
-                android:editable="false"
                 android:hint="Date"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_margin="5dp"
-                android:layout_marginTop="100dp"
                 android:width="100dp"
-                android:drawablePadding="5dp"
-                android:ems="12"
                 android:gravity="center|left"
-                android:maxLines="1"
-                android:paddingLeft="10dp"
                 android:textColor="@color/colorWhite"
                 android:textColorHint="@color/colorWhite"
                 android:textAlignment="center"
@@ -101,44 +162,22 @@
                 android:backgroundTint="@color/colorAccent"
                 android:focusable="false"/>
 
+    <Button
+        android:id="@+id/btnViewReport"
+        android:layout_width="60dp"
+        android:layout_height="32dp"
+        android:layout_gravity="center"
+        android:background="@drawable/rounded_button_blue"
+        android:text="View"
+        android:textColor="@color/colorWhite"
+        android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/btnViewReport"
-                    style="?android:textAppearanceSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="42dp"
-                    android:layout_gravity="center"
-                    android:layout_weight=".4"
-                    android:background="@drawable/oval_background"
-                    android:text="View"
-                    android:textColor="@color/colorPrimaryDark"
-                    android:textStyle="bold" />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
-            android:id="@+id/layout_terminalSelection"
-            >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Terminal: "
-                android:textSize="15dp"
-                android:textColor="@color/colorWhiteEC"/>
-            <Spinner
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/spinner_terminal"
-                android:textColor="@color/colorWhite"
-                ></Spinner>
 
         </LinearLayout>
 
     </android.support.design.widget.AppBarLayout>
+</LinearLayout>
+
 
 
 

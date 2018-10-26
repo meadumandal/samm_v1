@@ -100,7 +100,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
             {
 
                 try{
-                    String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + "saveDestinationsOrder.php?";
+                    String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + _constants.SAVE_DESTINATIONS_ORDER_WITH_PENDING_QUERYSTRNG;
                     HttpClient httpClient = new DefaultHttpClient();
                     HttpPost httpPost = new HttpPost(link);
                     List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -133,7 +133,7 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
             }
             else
             {
-                Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+                Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
                 _LoaderDialog.hide();
 
             }
@@ -168,16 +168,16 @@ public class mySQLUpdateDestinationsOrder extends AsyncTask<String, Void, String
             if(_isSuccessful)
             {
 
-                this._alertDialogBuilder.setTitle("Success");
+                this._alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_success));
 
-                this._alertDialogBuilder.setMessage("We have successfully updated the order of points!");
+                this._alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_points_update_success));
 
 
                 new mySQLDestinationProvider(_context, this._activity, "", _googleMap, _googleAPI).execute();
             }
             else {
-                this._alertDialogBuilder.setTitle("Error");
-                this._alertDialogBuilder.setMessage("Error in updating points");
+                this._alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_error));
+                this._alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_points_update_error));
             }
             this._alertDialogBuilder.show();
 

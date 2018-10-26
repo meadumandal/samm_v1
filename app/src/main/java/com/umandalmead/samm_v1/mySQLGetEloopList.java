@@ -39,7 +39,7 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
         {
             try{
 
-                String link = constants.WEB_API_URL + constants.ELOOPS_API_FOLDER + "getEloops.php";
+                String link = constants.WEB_API_URL + constants.ELOOPS_API_FOLDER + constants.ELOOPS_API_FILE ;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -69,7 +69,7 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             return null;
         }
     }

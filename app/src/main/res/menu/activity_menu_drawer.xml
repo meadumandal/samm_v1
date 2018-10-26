@@ -52,7 +52,7 @@
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_close_black_24dp"
                 android:background="?attr/selectableItemBackground"
-                android:title="Logout" />
+                android:title="Log out" />
             <item
                 android:id="@+id/nav_login"
                 android:icon="@drawable/ic_signin"

@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.text.Html;
 import android.util.DisplayMetrics;
@@ -19,10 +20,16 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.EntityObjects.UserMarker;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
 import com.umandalmead.samm_v1.Modules.Logger.mySQLSendErrorReport;
@@ -391,8 +398,8 @@ public class Helper {
                 .addListenerForSingleValueEvent(
                         new SaveCurrentDestination(this._activity, this._context, currentDestination));
     }
-    public int dpToPx(float dp) {
-        DisplayMetrics metrics = _context.getResources().getDisplayMetrics();
+    public int dpToPx(float dp, Context context) {
+        DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         float fpixels = metrics.density * dp;
         int pixels = (int) (fpixels + 0.5f);
         return pixels;
@@ -468,22 +475,12 @@ public class Helper {
         }
         return null;
     }
-    public static void ShowGPSLoadingInfo(String STR_message, Boolean IsVisible){
-        int Visibility = IsVisible ? View.VISIBLE : View.INVISIBLE;
-        if(!IsVisible) {
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
-            lp.height = 0;
-            _AppBar.setLayoutParams(lp);
-            MenuActivity._SlideUpPanelContainer.setVisibility(View.VISIBLE);
-        }
-        else {
-            _AppBar.setVisibility(Visibility);
-            MenuActivity._SlideUpPanelContainer.setVisibility(View.INVISIBLE);
-        }
-        _RouteTabLayout.setVisibility(View.GONE);
-        _DestinationTextView.setVisibility(View.VISIBLE);
-        _DestinationTextView.setText(STR_message!=null? STR_message.toUpperCase(): null);
-        _DestinationTextView.setBackgroundResource(IsVisible ? R.color.colorNasturcianFlower : 0);
+    public static UserMarker GetUserMarkerDetails(String markerTitle, Context context){
+        UserMarker UM_result = new UserMarker(markerTitle,context);
+        return UM_result;
     }
 
+
+
 }
+

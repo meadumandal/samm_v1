@@ -41,7 +41,7 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
         {
             try{
 
-                String link = constants.WEB_API_URL + constants.ROUTES_API_FOLDER + "getRoutes.php";
+                String link = constants.WEB_API_URL + constants.ROUTES_API_FOLDER + constants.GET_ROUTES_API_FILE;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -71,7 +71,7 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             return null;
         }
     }

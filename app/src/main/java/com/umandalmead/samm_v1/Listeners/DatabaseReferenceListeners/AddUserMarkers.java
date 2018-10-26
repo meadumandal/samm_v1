@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import static com.umandalmead.samm_v1.Constants.USERS_API_DELETE_FILE_WITH_PENDING_QUERYSTRING;
 
 /**
  * Created by MeadRoseAnn on 1/17/2018.
@@ -74,11 +75,9 @@ public class AddUserMarkers implements
                 {
                     MarkerOptions markerOptions = new MarkerOptions();
                     markerOptions.position(latLng);
-                    //markerOptions.title("SAMM User");
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.samm_user_icon_orange));
-                    //markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                    markerOptions.title(username);
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(Helper.GetUserMarkerDetails(username, _activity.getApplicationContext()).UserIcon));
                     marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
-                    marker.showInfoWindow();
                     ((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
                 }
             }
@@ -107,4 +106,5 @@ public class AddUserMarkers implements
         String test = databaseError.getMessage();
 
     }
+
 }

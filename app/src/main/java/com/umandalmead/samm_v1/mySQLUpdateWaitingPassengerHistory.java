@@ -69,7 +69,7 @@ public class mySQLUpdateWaitingPassengerHistory extends AsyncTask<String, Void, 
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + "updatePassengerCounter.php?";
+                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER +  _constants.UPDATE_PASSENGER_COUNTER_WITH_PENDING_QUERYSTRING;
                 data += "numberOfWaitingPassengers=" + URLEncoder.encode(numberOfWaitingPassengers, "UTF-8")
                         + "&terminal=" + URLEncoder.encode(terminal, "UTF-8");
                 URL url = new URL(link);
@@ -94,7 +94,7 @@ public class mySQLUpdateWaitingPassengerHistory extends AsyncTask<String, Void, 
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
 
         }
         return null;

@@ -75,7 +75,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         try
         {
             super.onPreExecute();
-            _LoaderDialog = new LoaderDialog(_activity, "Fetching Data","Report is being generated");
+            _LoaderDialog = new LoaderDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_fetching_data),MenuActivity._GlobalResource.getString(R.string.dialog_generating_report));
             _LoaderDialog.setCancelable(false);
             _LoaderDialog.show();
         }
@@ -104,7 +104,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 String toDate = params[1];
                 String terminal = params[2];
 //                String _terminalAutoComplete =
-                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + "getPassengerQueueingHistory.php?terminal=" + terminal + "&fromDate="
+                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER +_constants.PASSENGERQUEUINGHISTORY_API_FILE_WITH_PENDING_QUERYSTRING +"terminal=" + terminal + "&fromDate="
                         + fromDate.toString() + "&toDate=" + toDate.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
@@ -136,7 +136,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 toDate = params[1];
                 terminal = params[2];
 //                String _terminalAutoComplete =
-                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + "getTerminalBusiestTimes.php?terminal=" + terminal + "&fromDate="
+                String link = _constants.WEB_API_URL + _constants.REPORTS_API_FOLDER + _constants.TERMINALBUSIESTTIME_API_FILE_WITH_PENDING_QUERYSTRING +"terminal=" + terminal + "&fromDate="
                         + fromDate.toString() + "&toDate=" + toDate.toString();
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
@@ -166,7 +166,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             return null;
         }
         return null;
@@ -188,7 +188,7 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
 
             if(queueingHistory.isEmpty())
             {
-                InfoDialog dialog=new InfoDialog(this._activity, "No records found");
+                InfoDialog dialog=new InfoDialog(this._activity, MenuActivity._GlobalResource.getString(R.string.dialog_no_record_found));
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
                 _LoaderDialog.hide();
@@ -235,10 +235,8 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                     tv_noOfWaitingPssngr.setBackground(new ColorDrawable(ContextCompat.getColor(_context, R.color.colorGreen)));
 
                 tv_noOfWaitingPssngr.setPadding(8,5,5,5);
-                if (history.count>1)
-                    tv_noOfWaitingPssngr.setText(history.count + " passengers waited");
-                else
-                    tv_noOfWaitingPssngr.setText(history.count + " passenger waited");
+                if (history.count>1)tv_noOfWaitingPssngr.setText(history.count + MenuActivity._GlobalResource.getString(R.string.info_passengers_waited_plural));
+                else tv_noOfWaitingPssngr.setText(history.count + MenuActivity._GlobalResource.getString(R.string.info_passenger_waited_singular));
                 tr.addView(tv_noOfWaitingPssngr);
                 cleanTable(passengerReportTable_history);
                 passengerReportTable_history.addView(tr);
@@ -254,14 +252,8 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
             strBusiestTimes = strBusiestTimes.substring(0, strBusiestTimes.length() - 1);
 
             tv_busiestTimes.setText(strBusiestTimes);
-            tv_passengersWaitedDuringThisTime.setText("* " + passengersWaitedDuringThisTime + " passengers waited during this time.");
+            tv_passengersWaitedDuringThisTime.setText("* " + passengersWaitedDuringThisTime + MenuActivity._GlobalResource.getString(R.string.info_suffix_passengers_waited));
 
-
-
-
-
-
-            //BarChart chart = (BarChart) this._activity.findViewById(R.id.reportChart);
 
 
         }

@@ -68,7 +68,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _LoaderDialog = new LoaderDialog(_activity,"Please wait...", "Updating Route...");
+            _LoaderDialog = new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_please_wait), MenuActivity._GlobalResource.getString(R.string.dialog_updating_routes));
             _LoaderDialog.setCancelable(false);
             _LoaderDialog.show();
         }
@@ -92,7 +92,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + "updateRoute.php";
+                String link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + _constants.ROUTE_UPDATE_API_FILE ;
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -116,7 +116,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             _LoaderDialog.hide();
 
         }

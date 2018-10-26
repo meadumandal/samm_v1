@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import static com.umandalmead.samm_v1.Constants.SMS_APN_GLOBE;
 
 
 /**
@@ -102,7 +103,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
             super.onPreExecute();
             if (_loader == null)
             {
-                _loader = new LoaderDialog(_activity,"Initializing Data" ,"The app is initializing, please wait...");
+                _loader = new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_title_initializing_destinations) ,MenuActivity._GlobalResource.getString(R.string.dialog_message_initializing_destinations));
                 _loader.setCancelable(false);
                 _loader.show();
             }
@@ -123,7 +124,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + "getDestinations.php?";
+                String link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + _constants.DESTINATIONS_API_FILE;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -154,7 +155,7 @@ public class mySQLDestinationProvider extends AsyncTask<Void,Void, List<Terminal
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             return null;
         }
 

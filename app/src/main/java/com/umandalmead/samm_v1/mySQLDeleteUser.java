@@ -80,7 +80,7 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
             {
-                URL url = new URL(_constants.WEB_API_URL + _constants.USERS_API_FOLDER+ "deleteUser.php?username="+username);
+                URL url = new URL(_constants.WEB_API_URL + _constants.USERS_API_FOLDER+ _constants.USERS_API_DELETE_FILE_WITH_PENDING_QUERYSTRING+"username="+username);
                 URLConnection conn = url.openConnection();
 
                 conn.setDoOutput(true);
@@ -116,8 +116,8 @@ public class mySQLDeleteUser extends AsyncTask<String, Void, String>{
                 }
             });
 
-            alertDialogBuilder.setTitle("Success");
-            alertDialogBuilder.setMessage("Successfully removed user!");
+            alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_success));
+            alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.dialog_succesfully_removed_user));
             alertDialogBuilder.show();
 
         }

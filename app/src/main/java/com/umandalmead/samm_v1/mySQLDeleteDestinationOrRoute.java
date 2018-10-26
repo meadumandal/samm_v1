@@ -31,6 +31,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
 import static com.umandalmead.samm_v1.MenuActivity._googleAPI;
 import static com.umandalmead.samm_v1.MenuActivity._googleMap;
 
@@ -98,9 +99,9 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
                 try{
                     String link = "";
                     if(_typeOfItemToDelete.equals("Destination"))
-                        link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + "deleteDestination.php?destinationid="+destinationID;
+                        link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + _constants.DESTINATIONS_API_DELETE_FILE_WITH_PENDING_QUERYSTRING+"destinationid="+destinationID;
                     else
-                        link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + "deleteRoute.php?routeID="+destinationID;
+                        link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + _constants.ROUTES_API_DELETE_FILE_WITH_PENDING_QUERYSTRING+"routeID="+destinationID;
                     URL url = new URL(link);
                     URLConnection conn = url.openConnection();
 
@@ -141,10 +142,11 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
             }
             else
             {
+                String STR_DefaultErrorMessage = _GlobalResource.getString(R.string.Error_looks_like_your_offline);
                 _isSuccessful = false;
-                Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+                Toast.makeText(this._context, STR_DefaultErrorMessage, Toast.LENGTH_LONG).show();
                 _LoaderDialog.hide();
-                return "Looks like you're offline";
+                return STR_DefaultErrorMessage;
 
             }
         }

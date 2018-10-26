@@ -13,7 +13,8 @@ public class Enums {
         HIDE_INFO_SEARCH("HideInfoSearch",4),
         HIDE_SEARCH_FRAGMENT_ON_SEARCH("HideSearchFragmentOnSearch", 5),
         ADMIN_HIDE_MAPS_LINEARLAYOUT("AdminHideMapsLinearLayout",6),
-        ADMIN_SHOW_MAPS_LINEARLAYOUT("AdminShowMapsLinearLayout",7);
+        ADMIN_SHOW_MAPS_LINEARLAYOUT("AdminShowMapsLinearLayout",7),
+        APPBAR_MIN_HEIGHT("AppBarMinHeight",8);
 
         private String stringValue;
         private int intValue;
@@ -24,6 +25,23 @@ public class Enums {
         @Override
         public String toString() {
             return stringValue;
+        }
+
+    }
+    public enum UserType{
+        SAMM_DEFAULT("SAMMER",0),
+        SAMM_FACEBOOK("SAMMER (Facebook)",1),
+        SAMM_ADMINISTRATOR("SAMMER (Administrator)",2);
+        private String stringValue;
+        private int intValue;
+        private UserType(String toString, int value){
+            stringValue = toString;
+            intValue = value;
+        }
+
+        @Override
+        public String toString() {
+           return stringValue;
         }
 
     }

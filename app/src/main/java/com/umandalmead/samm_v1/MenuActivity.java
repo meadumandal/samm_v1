@@ -119,6 +119,7 @@ import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.EntityObjects.UserMarker;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddPassengerCountLabel;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkers;
@@ -170,6 +171,7 @@ import org.acra.*;
 import org.acra.annotation.*;
 
 
+import static com.umandalmead.samm_v1.Constants.APPBAR_MIN_HEIGHT;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
@@ -193,8 +195,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             Html.ImageGetter,
             LocationListener {
         //Put here all global variables related to Firebase
-        public FirebaseDatabase _firebaseDB;
-        public DatabaseReference _usersDBRef;
+        public static FirebaseDatabase _firebaseDB;
+        public static DatabaseReference _usersDBRef;
         public static DatabaseReference _terminalsDBRef;
         public static DatabaseReference _driversDBRef;
         public DatabaseReference _vehicle_destinationsDBRef, _DriversDatabaseReference;
@@ -227,7 +229,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public ProgressDialog _ProgressDialog;
         public static ImageView _Slide_Expand;
         public static ScrollView _StepsScroller;
-        public static MenuItem UserNameMenuItem;
         public static TextView _TimeOfArrivalTextView;
         public static MenuItem _UserNameMenuItem;
         public static NavigationView _NavView;
@@ -242,7 +243,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public  static EditText _CurrentLocationEditText;
         public static LinearLayout _MapsHolderLinearLayout;
         public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton;
-        public FloatingActionMenu _AdminToolsFloatingMenu;
+        public static FloatingActionMenu _AdminToolsFloatingMenu;
         public Button _ReconnectGPSButton;
         public static ImageView FAB_SammIcon;
         public static FrameLayout FrameSearchBarHolder;
@@ -250,7 +251,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public  static TextView _DestinationTextView;
         //public static CardView _RoutesContainer_CardView;
         public static ProgressBar _LoopArrivalProgress;
-        public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _ProcessedTerminalTitle;
+        public static String _FragmentTitle, _SelectedTerminalMarkerTitle, _STR_SAMM_USERNAME="Please Wait...";
         public static MediaPlayer _buttonClick;
         private TextView _infoTitleTV, _infoDescriptionTV, _infoDescriptionTV2;
         private LinearLayout _infoLayout;
@@ -263,8 +264,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         //Arrival Info elements
         public static LinearLayout _LL_Arrival_Info;
         public static TextView _TV_Vehicle_Identifier, _TV_Vehicle_Description, _TV_TimeofArrival;
-        public static ShimmerLayout _SL_Map_Fragment,_SL_Vehicle_ETA;
-
+        public static ShimmerLayout _SL_Map_Fragment,_SL_Vehicle_ETA, _SL_AppBar_Top_TextView;
 
 
         //Put here other global variables
@@ -282,7 +282,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public Terminal _chosenDropOffPoint;
         public static ValueAnimator _markerAnimator;
         public Marker _vehicleMarker;
-        public Boolean _isUserLoggingOut = false;
+        public Boolean _isUserLoggingOut = false, _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
         public String _facebookImg;
         public static Boolean _isVehicleMarkerRotating = false, _IsPolyLineDrawn=false;
         public String _smsMessageForGPS;
@@ -428,9 +428,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                         Log.d(_constants.LOG_TAG, t.toString());
                     }
                 });
-                //_Toolbar = (Toolbar) findViewById(R.id.toolbar);
-                //setSupportActionBar(_Toolbar);
-                //_Toolbar.setTitle(_constants.APP_TITLE);
 
                 if (_firebaseDB == null || _usersDBRef == null || _vehicle_destinationsDBRef == null) {
                     _firebaseDB = FirebaseDatabase.getInstance();
@@ -455,14 +452,14 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _TimeOfArrivalTextView = (TextView) findViewById(R.id.toatextview);
                 _NavView = (NavigationView) findViewById(R.id.nav_view);
                 _MenuNav = (Menu) _NavView.getMenu();
-                UserNameMenuItem = _MenuNav.findItem(R.id.menu_username);
                 _UserNameMenuItem = _MenuNav.findItem(R.id.menu_username);
                 _NavHeaderView = _NavView.getHeaderView(0);
                 _ProfilePictureImg = (CircleImageView) _NavHeaderView.findViewById(R.id.imgLogo);
                 _HeaderUserFullName = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserFullName);
                 _HeaderUserEmail = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserEmail);
-                _UserNameMenuItem.setTitle(_sessionManager.getFullName());
+                _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
                 _HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
+                _ProfilePictureImg.setBackgroundResource(GetUserNavigationMenuPicture());
                 _HeaderUserEmail.setText(_sessionManager.getEmail());
                 _AddGPSFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingAddGPS);
                 _AddPointFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
@@ -490,15 +487,14 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _SlideUpPanelContainer.setTouchEnabled(false);
                 _SL_Map_Fragment = (ShimmerLayout) findViewById(id.SL_Map_Fragment);
                 _SL_Vehicle_ETA = (ShimmerLayout) findViewById(id.SL_Vehicle_ETA);
+                _SL_AppBar_Top_TextView = (ShimmerLayout) findViewById(id.SL_Appbar_Top_TextView);
                 _SL_Map_Fragment.startShimmerAnimation();
                 RouteTabs = (TabLayout) findViewById(R.id.route_tablayout);
                 viewPager = (ViewPager) findViewById(R.id.routepager);
                 _RouteStepsText = (WebView) findViewById(R.id.route_steps);
 
-                Helper.ShowGPSLoadingInfo("acquiring gps", true);
-                //disable adjusting app dimensions when soft keyboard is shown
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
+                ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
+                _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
                 if (_sessionManager.getIsAdmin())
@@ -568,11 +564,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 });
 
                 placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
-
                 placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_FontColor)));
                 placeAutoCompleteFragmentInstance.setTextSize(18);
-                //getResources().getString(R.string.guest_nav_drawer_message)
                 placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
+                placeAutoCompleteFragmentInstance.setText(null);
 
 
                 AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
@@ -689,7 +684,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             else{
                 _helper.showNoInternetPrompt(MenuActivity.this);
             }
-            UpdateUI(Enums.UIType.MAIN);
+
 
         }catch(Exception ex)
         {
@@ -785,7 +780,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         {
             if(!_BOOL_IsGPSAcquired) {
                 _BOOL_IsGPSAcquired=true;
-                Helper.ShowGPSLoadingInfo(null, false);
+                ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_gps_acquired), false);
 
             }
             if(!_isUserLoggingOut) {
@@ -812,15 +807,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_userCurrentLoc, 16);
                         _googleMap.animateCamera(cameraUpdate);
                         locationManager.removeUpdates(this);
-
-                        //move map camera with 2s delay
-//                        final Handler HND_CameraZoomDelay = new Handler();
-//                        HND_CameraZoomDelay.postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
-//                            }
-//                        }, 800);
 
                     }
 
@@ -956,7 +942,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                         ShowInfoLayout(TM_ClickedTerminal.Description, "\n"
                                 + _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data.." , true);
+                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data.." , R.drawable.ic_ecoloopstop_for_info);
                          _terminalsDBRef.child(marker.getTitle()).runTransaction(new Transaction.Handler() {
                             @Override
                             public Transaction.Result doTransaction(MutableData currentData) {
@@ -979,7 +965,13 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
                     Users driverDetails= Helper.GetEloopDriver(Helper.GetEloopEntry(markerTitle));
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, driverDetails.firstName+" "+driverDetails.lastName, null,false);
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, driverDetails.firstName+" "+driverDetails.lastName, null,R.drawable.eco_loop_for_info_transparent);
+                }
+                else{
+                    UserMarker UM_result = new UserMarker(markerTitle,_context);
+                    if(UM_result.UserType== Enums.UserType.SAMM_FACEBOOK)
+                        GetFacebookUsername(markerTitle);
+                    ShowInfoLayout(UM_result.UserTitle,UM_result.UserType.toString(),null,UM_result.UserInfoLayoutIcon);
                 }
                 return true;
             }
@@ -1348,25 +1340,17 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             {
                 _sessionManager.PassReportType(_constants.PASSENGER_REPORT_TYPE);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
-
+                UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
                 _sessionManager.PassReportType(_constants.VEHICLE_REPORT_TYPE);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if(id == R.id.menu_home){
                 UpdateUI(Enums.UIType.ADMIN_SHOW_MAPS_LINEARLAYOUT);
-                _RoutesPane.setVisibility(View.VISIBLE);
-
-                if(!_sessionManager.isGuest() && !_sessionManager.getIsAdmin())
-                {
-                    appBarLayoutParam.height = _constants.APPBAR_MAX_HEIGHT;
-                }
             }
             else if(id==R.id.nav_map_normal){
                 SetMapType(_googleMap, Enums.GoogleMapType.MAP_TYPE_NORMAL);
@@ -1393,14 +1377,12 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             else if (id==R.id.nav_adminusers)
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 AdminUsersFragment adminUsersFragment = new AdminUsersFragment();
                 fragment.beginTransaction().replace(R.id.content_frame, adminUsersFragment).commit();
             }
             else if (id==R.id.nav_drivers)
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
                 DriverUsersFragment driverUsersFragment = new DriverUsersFragment();
                 fragment.beginTransaction().replace(R.id.content_frame, driverUsersFragment).commit();
             }
@@ -2423,11 +2405,41 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 .build()
                 .show();
     }
+    public void ShowGPSLoadingInfo(String STR_message, Boolean IsVisible){
+        int Visibility = IsVisible ? View.VISIBLE : View.INVISIBLE;
+        if(!IsVisible) {
+            if(_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen)
+                MenuActivity._SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            if(_sessionManager.getIsAdmin())
+                MenuActivity._AdminToolsFloatingMenu.setPadding(0,0,0,_helper.dpToPx(80,_context));
+            final Handler HND_ShowPanel = new Handler();
+            HND_ShowPanel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
+                    UpdateUI(Enums.UIType.MAIN);
+                    _SL_AppBar_Top_TextView.stopShimmerAnimation();
+                }
+            }, 2000);
+        }
+        else {
+            CoordinatorLayout.LayoutParams AppBarLayout = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
+            AppBarLayout.height = _helper.dpToPx(20,_context);
+            _AppBar.setLayoutParams(AppBarLayout);
+            _AppBar.setVisibility(Visibility);
+            MenuActivity._SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+        }
+        _SL_AppBar_Top_TextView.startShimmerAnimation();
+        _DestinationTextView.setVisibility(View.VISIBLE);
+        _DestinationTextView.setText(STR_message!=null? STR_message.toUpperCase(): null);
+        _DestinationTextView.setBackgroundResource(IsVisible ? R.color.colorElectronBlue : R.color.colorWebFlatGreen);
+
+    }
     public void UpdateUI(Enums.UIType type){
         if(_sessionManager != null && _sessionManager.getMainTutorialStatus() != null) {
             switch (type) {
                 case MAIN:
-                    if (!_sessionManager.getMainTutorialStatus()) {
+                    if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
                         BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
                         BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
                         _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
@@ -2462,13 +2474,25 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     break;
                 case ADMIN_HIDE_MAPS_LINEARLAYOUT:
                     _MapsHolderLinearLayout.setVisibility(View.GONE);
+                    UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
                     _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                     _RoutesPane.setVisibility(View.INVISIBLE);
+                    _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
                     break;
                 case ADMIN_SHOW_MAPS_LINEARLAYOUT:
                     _MapsHolderLinearLayout.setVisibility(View.VISIBLE);
-                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                    _RoutesPane.setVisibility(View.VISIBLE);
+                    _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
+                    if(!_BOOL_IsGPSAcquired)
+                        ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
+                    if(_BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
+                        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        _RoutesPane.setVisibility(View.VISIBLE);
+                    }
+                    break;
+                case APPBAR_MIN_HEIGHT:
+                    CoordinatorLayout.LayoutParams AppBarLayout = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
+                    AppBarLayout.height = 0;
+                    _AppBar.setLayoutParams(AppBarLayout);
                     break;
                 default:
                     break;
@@ -2533,7 +2557,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 _IsOnSearchMode=false;
                 _selectedPickUpPoint = null;
 
-                asyncPrepareRouteData.RemoveListenerFromLoop(); //.RemoveListenerFromLoop();
+                asyncPrepareRouteData.RemoveListenerFromLoop();
                 _HasExitedInfoLayout = true;
                 _SL_Vehicle_ETA.stopShimmerAnimation();
                 _SL_Map_Fragment.startShimmerAnimation();
@@ -2589,10 +2613,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
     //Public methods for showing Dialogs from fragments which are previously attached to FABs onclick events.
 
-    public void ShowInfoLayout(String Title, String Description, String Description2, Boolean IsStation){
+    public void ShowInfoLayout(String Title, String Description, String Description2, Integer Icon){
         try{
         ClearInfoPanelDetails();
-        InfoPanelShow(Title, Description,Description2, IsStation);
+        InfoPanelShow(Title, Description,Description2, Icon);
         }
         catch(Exception ex){
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
@@ -2622,10 +2646,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             Toast.makeText(MenuActivity.this, ex.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
-    public void InfoPanelShow(final String InfoTitle, final String InfoDescription, final String InfoDescription2,final Boolean isStation) {
-            final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
+    public void InfoPanelShow(final String InfoTitle, final String InfoDescription, final String InfoDescription2,final Integer Icon) {
+            //final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
             final String finalTitle =  InfoTitle.toUpperCase();
-            final Typeface finalTitleFont = isStation ? FONT_STATION: FONT_PLATE;
+            final Typeface finalTitleFont = FONT_PLATE;// isStation ? FONT_STATION: FONT_PLATE;
             _infoTitleTV.setTypeface(null);
             if (_infoLayout.getVisibility() == View.INVISIBLE) {
                 if(!_IsOnSearchMode)
@@ -2651,7 +2675,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             @Override
                             public void onAnimationEnd(Animation animation) {
                                 UpdateInfoPanelDetails(finalTitle,InfoDescription, InfoDescription2);
-                                _infoImage.setImageResource(imageResId);
+                                _infoImage.setImageResource(Icon);
                                 _infoTitleTV.setTypeface(finalTitleFont);
                                 _infoTitleTV.setVisibility(View.VISIBLE);
                                 _infoDescriptionTV.setVisibility(View.VISIBLE);
@@ -2693,7 +2717,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                InfoPanelShow(InfoTitle, InfoDescription,InfoDescription2, isStation);
+                                InfoPanelShow(InfoTitle, InfoDescription,InfoDescription2, Icon);
                             }
 
                             @Override
@@ -2798,7 +2822,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     private void InitializeFonts(){
         try{
             FONT_PLATE = Typeface.createFromAsset(_context.getAssets(),
-                    _GlobalResource.getString(R.string.FONT_TRENDER));
+                    _GlobalResource.getString(R.string.FONT_LICENSE_PLATE));
             FONT_STATION = Typeface.createFromAsset(_context.getAssets(),
                     _GlobalResource.getString(R.string.FONT_TRENDER));
         }catch (Exception ex){
@@ -2819,7 +2843,45 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     public void PlayButtonClickSound(){
         _buttonClick.start();
     }
+    private void SearchBarClicked(){
+        LoaderDialog pleasewait = new LoaderDialog(MenuActivity.this,"Please wait","..");
+        pleasewait.show();
+    }
+        public void GetFacebookUsername(final String STR_FB_id){
+            try{
+                MenuActivity._usersDBRef.runTransaction(new Transaction.Handler() {
+                    @Override
+                    public Transaction.Result doTransaction(MutableData mutableData) {
+                        return Transaction.success(mutableData);
+                    }
 
+                    @Override
+                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                        MenuActivity._STR_SAMM_USERNAME =  dataSnapshot.child(STR_FB_id).child("firstName").getValue() +" "
+                                + dataSnapshot.child(STR_FB_id).child("lastName").getValue();
+                        UpdateInfoPanelDetails(MenuActivity._STR_SAMM_USERNAME,null,null);
+                    }
+                });
+
+            }catch (Exception ex){
+                Helper.logger(ex);
+            }
+
+        }
+
+    public int GetUserNavigationMenuPicture(){
+            int result = 0;
+            try{
+                if(_sessionManager.isGuest())
+                    result = R.drawable.samm_user_icon_info_layout_default;
+                else if(_sessionManager.getIsAdmin())
+                    result = R.drawable.samm_user_icon_info_layout_admin;
+
+            }catch (Exception ex){
+                Helper.logger(ex);
+            }
+            return result;
+    }
 
 }
 

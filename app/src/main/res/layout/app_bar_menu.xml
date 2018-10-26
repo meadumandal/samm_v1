@@ -6,11 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     tools:context="com.umandalmead.samm_v1.MenuActivity">
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvSAMM"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
     <include layout="@layout/content_menu" />
 
     <android.support.design.widget.AppBarLayout
@@ -21,15 +16,23 @@
         android:backgroundTint="@color/colorDarkGrey"
         android:visibility="gone"
         android:theme="@style/AppTheme.AppBarOverlay">
-        <TextView
-            android:id="@+id/DestinationTV"
+        <io.supercharge.shimmerlayout.ShimmerLayout
+            android:id="@+id/SL_Appbar_Top_TextView"
+            app:shimmer_color="@color/colorWhite"
+            app:shimmer_animation_duration="2500"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:background="@color/colorGrassGreen"
-            android:textColor="@color/colorWhite"
-            android:textStyle="bold"
-            android:gravity="center|center_vertical"
-            android:text="Current Location - Bellevue"/>
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/DestinationTV"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:background="@color/colorGrassGreen"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                android:gravity="center|center_vertical"
+                android:text="Current Location - Bellevue"/>
+        </io.supercharge.shimmerlayout.ShimmerLayout>
+
         <android.support.design.widget.TabLayout
             android:id="@+id/route_tablayout"
             android:layout_width="match_parent"

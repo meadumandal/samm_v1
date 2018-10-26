@@ -5,10 +5,17 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.INotificationSideChannel;
+import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,6 +38,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import io.supercharge.shimmerlayout.ShimmerLayout;
+
 public class ReportsActivity extends Fragment {
     public Calendar _calendar = Calendar.getInstance();
     public EditText _fromDateTextBox, _toDateTextBox;
@@ -44,6 +53,10 @@ public class ReportsActivity extends Fragment {
     private int _selectedIndex;
     public Spinner _spinner;
     public static ImageView _SAMMLogoFAB;
+    private AppBarLayout _ReportsAppBar, _AppBar_ReportActions;
+    private Button _btn_CreateReport;
+    private LinearLayout _LL_create_button_holder;
+    private ShimmerLayout _SL_btn_create_report;
 
     View _view;
 
@@ -65,15 +78,28 @@ public class ReportsActivity extends Fragment {
             _passengerReportTable_summary = (TableLayout) _view.findViewById(R.id.passengerReportTable_summary);
             _scrollVehicleReport = (ScrollView) _view.findViewById(R.id.scrollVehicleReport);
             _SAMMLogoFAB = (ImageView) _view.findViewById(R.id.SAMMLogoFAB);
-
-
+            _ReportsAppBar = (AppBarLayout) _view.findViewById(R.id.reportsBarLayout);
+            _AppBar_ReportActions = (AppBarLayout) _view.findViewById(R.id.AppBar_ReportActions);
+            _btn_CreateReport = (Button) _view.findViewById(R.id.btnCreateReport);
+            _LL_create_button_holder = (LinearLayout) _view.findViewById(R.id.LL_create_button_holder);
             _spinner = (Spinner) _view.findViewById(R.id.spinner_terminal);
-//            _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
-//                public void onClick(View v) {
-//                    DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//                    drawer.openDrawer(Gravity.LEFT);
-//                }
-//            });
+            _SL_btn_create_report = (ShimmerLayout) _view.findViewById(R.id.SL_btn_Create_Report);
+            _SL_btn_create_report.startShimmerAnimation();
+
+            _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+            });
+            _btn_CreateReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    _AppBar_ReportActions.setVisibility(View.VISIBLE);
+                    _LL_create_button_holder.setVisibility(View.GONE);
+                    _SL_btn_create_report.stopShimmerAnimation();
+                }
+            });
             this._sessionManager = new SessionManager(getContext());
             List<String> terminals = new ArrayList<>();
             terminals.add("--ALL--");
@@ -138,15 +164,15 @@ public class ReportsActivity extends Fragment {
 
             if(_sessionManager.GetReportType().equals(_constants.VEHICLE_REPORT_TYPE))
             {
-                _reportName.setText("REPORTS: Total distance traveled");
+                _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_total_distance));
                 _layoutTerminalSelection.setVisibility(View.GONE);
-                _initialTextView.setText("Please select date range and click 'View' button");
+                _initialTextView.setText(MenuActivity._GlobalResource.getString(R.string.info_please_select_date_range));
             }
             else if(_sessionManager.GetReportType().equals(_constants.PASSENGER_REPORT_TYPE))
             {
-                _reportName.setText("REPORTS: Passenger Queueing History");
+                _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_passenger_queueing_history));
                 _layoutTerminalSelection.setVisibility(View.VISIBLE);
-                _initialTextView.setText("Please select date range, terminal and click 'View' button");
+                _initialTextView.setText(MenuActivity._GlobalResource.getString(R.string.info_please_select_date_range_with_terminal));
             }
             final DatePickerDialog.OnDateSetListener fromDate = new DatePickerDialog.OnDateSetListener() {
 
@@ -242,7 +268,7 @@ public class ReportsActivity extends Fragment {
                         }
                         else
                         {
-                            Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), MenuActivity._GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
                         }
 
 
@@ -262,7 +288,7 @@ public class ReportsActivity extends Fragment {
                         }
                         else
                         {
-                            Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), MenuActivity._GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
                         }
 
                     }
@@ -278,7 +304,6 @@ public class ReportsActivity extends Fragment {
 
         return _view;
     }
-
     private void updateLabel(String dateType) {
         String myFormat = "MM/dd/yy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ENGLISH);

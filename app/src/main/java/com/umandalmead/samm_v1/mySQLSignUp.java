@@ -75,7 +75,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         {
 
             try{
-                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "signUp.php?";
+                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + _constants.SIGNUP_API_FILE_WITH_PENDING_QUERYSTRING;
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -98,7 +98,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
 
         }
         return null;

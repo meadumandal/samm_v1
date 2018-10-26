@@ -42,16 +42,16 @@ public class LoaderDialog extends Dialog {
         this.TV_LoaderMessage.setText(this._loaderMessage);
         this.TV_LoaderTitle.setText(this._loaderTitle);
         this._loaderImage = (ImageButton) findViewById(R.id.IB_samm_loader_circle);
-
+        this.dialog = new Dialog(_activity.getApplicationContext());
         Animation rotation;
         rotation = AnimationUtils.loadAnimation(_activity, R.anim.rotate);
         rotation.setFillAfter(true);
         this._loaderImage.startAnimation(rotation);
 
         //disable user tap
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+        dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+       setCancelable(false);
         //make view transparent
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 

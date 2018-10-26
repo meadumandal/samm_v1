@@ -175,14 +175,13 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                 }
             });
             clearLines();
-//            final Handler HND_UpdateUI = new Handler();
-//            HND_UpdateUI.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//
-//                }
-//            }, 1000);
-            ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+            final Handler HND_UpdateUI = new Handler();
+            HND_UpdateUI.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
+                }
+            }, 1500);
             MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
             new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
@@ -325,8 +324,8 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                                             loopAwaiting = true;
                                             _IsAllLoopParked = false;
                                             found = true;
-                                            GetTimeRemainingFromGoogle(Integer.parseInt(loopId), TM_CurrentDest);
-                                            AttachListenerToLoop(Integer.parseInt(loopId), TM_CurrentDest);
+                                            //GetTimeRemainingFromGoogle(Integer.parseInt(loopId), TM_CurrentDest);
+                                            //AttachListenerToLoop(Integer.parseInt(loopId), TM_CurrentDest);
                                         } else continue;
 
                                     }

@@ -14,10 +14,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,12 +44,15 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+import io.supercharge.shimmerlayout.ShimmerLayout;
+
 public class UserProfileActivity extends Fragment {
 
     View _view;
     EditText tv_firstName, tv_lastName, tv_password, tv_confirmPassword, tv_currentPassword;
 
-    public static ImageView userImage;
+    public static CircleImageView userImage;
     Button btn_save;
     SessionManager _sessionManager;
     String _promptMessage="";
@@ -54,8 +60,10 @@ public class UserProfileActivity extends Fragment {
     public static String _facebookImg;
     private TextView SammTV;
     private View myView;
-    private ImageButton FAB_SammIcon;
-    private TextView ViewTitle,tv_isFacebook;
+    private ImageButton FAB_SammIcon, IB_profile_loader_circle;
+    private TextView ViewTitle,tv_isFacebook,tv_NameDisplay, tv_userTypeDisplay;
+    private ShimmerLayout SL_FB_InfoMessageShimmer;
+    private LinearLayout LL_UserCredentialsHolder;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -70,25 +78,30 @@ public class UserProfileActivity extends Fragment {
         tv_confirmPassword = (EditText)_view.findViewById(R.id.edit_confirmpassword);
         tv_currentPassword = (EditText) _view.findViewById(R.id.edit_currentPassword);
         tv_isFacebook = (TextView) _view.findViewById(R.id.tv_isFacebook);
-        userImage = (ImageView) _view.findViewById(R.id.profileImg);
+        userImage = (CircleImageView) _view.findViewById(R.id.profileImg);
+        IB_profile_loader_circle = (ImageButton)  _view.findViewById(R.id.IB_profile_loader_circle);
         btn_save = (Button) _view.findViewById(R.id.btn_save);
+        tv_NameDisplay = (TextView) _view.findViewById(R.id.txtUserFullname);
+        LL_UserCredentialsHolder = (LinearLayout) _view.findViewById(R.id.LL_UserCredentialsHolder);
         _sessionManager = new SessionManager(getContext());
+        SL_FB_InfoMessageShimmer = (ShimmerLayout) _view.findViewById(R.id.SL_FBUser_Profile_InfoMessage);
 
-        _LoaderDialog = new LoaderDialog(this.getActivity(), "Updating...", "Updating your profile, please wait...");
+        _LoaderDialog = new LoaderDialog(this.getActivity(), "Updating", "Updating your profile, please wait...");
         _LoaderDialog.setCancelable(false);
 
         tv_firstName.setText(_sessionManager.getFirstName());
         tv_lastName.setText(_sessionManager.getLastName());
+        Animation rotation;
+        rotation = AnimationUtils.loadAnimation(this.getActivity(), R.anim.rotate);
+        rotation.setFillAfter(true);
+        this.IB_profile_loader_circle.startAnimation(rotation);
 
         if (_sessionManager.isFacebook())
         {
-            tv_firstName.setEnabled(false);
-            tv_lastName.setEnabled(false);
-            tv_password.setEnabled(false);
-            tv_confirmPassword.setEnabled(false);
-            tv_currentPassword.setEnabled(false);
-            btn_save.setEnabled(false);
+            LL_UserCredentialsHolder.setVisibility(View.GONE);
             tv_isFacebook.setVisibility(View.VISIBLE);
+            tv_isFacebook.setPadding(0,200,0,0);
+            SL_FB_InfoMessageShimmer.startShimmerAnimation();
             _facebookImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
             try {
                 FetchFBDPTask dptask = new FetchFBDPTask();
@@ -96,6 +109,15 @@ public class UserProfileActivity extends Fragment {
             } catch (Exception ex) {
                 Toast.makeText(getContext(), "Non-Facebook username!", Toast.LENGTH_LONG).show();
             }
+        }
+        else{
+            LL_UserCredentialsHolder.setVisibility(View.VISIBLE);
+            userImage.setVisibility(View.GONE);
+            IB_profile_loader_circle.setVisibility(View.GONE);
+            SL_FB_InfoMessageShimmer.setVisibility(View.GONE);
+        }
+        if(_sessionManager.isLoggedIn()){
+            tv_NameDisplay.setText(_sessionManager.getFullName().toUpperCase());
         }
 
 
@@ -215,7 +237,9 @@ public class UserProfileActivity extends Fragment {
         @Override
         protected void onPostExecute(Bitmap result) {
             if(result!=null) {
+                IB_profile_loader_circle.setVisibility(View.GONE);
                 userImage.setImageBitmap(result);
+                userImage.setVisibility(View.VISIBLE);
             }
         }
         private InputStream fetch(String address) throws MalformedURLException,IOException {

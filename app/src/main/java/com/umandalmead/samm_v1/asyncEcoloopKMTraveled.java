@@ -176,10 +176,10 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 plateNumber.setText(summary.plateNumber);
                 plateNumber.setTextColor(Color.BLACK);
                 plateNumber.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
-                plateNumber.setPadding(helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5));
+                plateNumber.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
                 plateNumber.setTypeface(null, Typeface.BOLD);
-                TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(helper.dpToPx(120), ActionBar.LayoutParams.WRAP_CONTENT);
-                textViewParams.setMargins(helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1));
+                TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(helper.dpToPx(120,_context), ActionBar.LayoutParams.WRAP_CONTENT);
+                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
 
                 plateNumber.setLayoutParams(textViewParams);
 
@@ -189,9 +189,9 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 distance.setGravity(Gravity.RIGHT);
                 distance.setTextColor(Color.BLACK);
                 distance.setBackgroundResource(R.color.colorWhite);
-                distance.setPadding(helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5));
-                textViewParams = new TableRow.LayoutParams(helper.dpToPx(110), ActionBar.LayoutParams.WRAP_CONTENT);
-                textViewParams.setMargins(helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1));
+                distance.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
+                textViewParams = new TableRow.LayoutParams(helper.dpToPx(110,_context), ActionBar.LayoutParams.WRAP_CONTENT);
+                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
                 distance.setLayoutParams(textViewParams);
 
 
@@ -200,9 +200,9 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 maxSpeed.setGravity(Gravity.RIGHT);
                 maxSpeed.setTextColor(Color.BLACK);
                 maxSpeed.setBackgroundResource(R.color.colorWhite);
-                maxSpeed.setPadding(helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5),helper.dpToPx(5));
-                textViewParams = new TableRow.LayoutParams(helper.dpToPx(100), ActionBar.LayoutParams.WRAP_CONTENT);
-                textViewParams.setMargins(helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1),helper.dpToPx(1));
+                maxSpeed.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
+                textViewParams = new TableRow.LayoutParams(helper.dpToPx(100,_context), ActionBar.LayoutParams.WRAP_CONTENT);
+                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
                 maxSpeed.setLayoutParams(textViewParams);
 
 
@@ -217,6 +217,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         }
         catch(Exception ex)
         {
+            _LoaderDialog.dismiss();
             Helper.logger(ex,true);
 
         }

@@ -17,7 +17,7 @@
             android:background="?android:attr/selectableItemBackgroundBorderless"
             tools:context="com.umandalmead.samm_v1.MapsActivity" />
     <include layout="@layout/layout_info_holder"
-        android:layout_width="match_parent" android:layout_height="wrap_content"/>
+        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
     <ImageButton
         android:id="@+id/SAMMLogoFAB"
         android:layout_width="wrap_content"
@@ -46,7 +46,6 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
         android:layout_gravity="bottom|right"
-        android:layout_marginBottom="80dp"
         android:layout_marginLeft="10dp"
         fab:menu_fab_size="normal"
         fab:menu_showShadow="true"

@@ -49,6 +49,18 @@
     <!--GENERAL-->
     <string name="ellipsis">...</string>
 
+    <!--ACTIVITY AND FRAGMENT TITLES-->
+    <string name="title_total_distance">Total distance traveled</string>
+    <string name="title_passenger_queueing_history">Passenger Queueing History"</string>
+
+    <!--INFO MESSAGES-->
+    <string name="info_add_route_success">Successfully added new route!</string>
+    <string name="info_suffix_passengers_waited">passengers waited during this time.</string>
+    <string name="info_passengers_waited_plural"> passengers waited</string>
+    <string name="info_passenger_waited_singular"> passenger waited</string>
+    <string name="info_please_select_date_range">Please select date range and click \'View'\ button</string>
+    <string name="info_please_select_date_range_with_terminal">Please select date range, terminal and click \'View'\ button</string>
+
     <!--PLACE AUTOCOMPLETE FRAGMENT-->
     <string name="PlaceAutoCompleteFragment_Hint">Where are you going?</string>
     <string name="PlaceAutoCompleteFragment_FontColor">#000000</string>
@@ -70,6 +82,7 @@
     <string name="Facebook_ProfilePic_Graph_URL">http://graph.facebook.com/</string>
     <string name="Facebook_ProfilePic_Graph_URL_QueryString">/picture?type=large</string>
     <string name="Error_NonFacebook_Username">/picture?type=large</string>
+    <string name="Error_looks_like_your_offline">Looks like you\'re offline</string>
 
     <!--SMS Sending RELATED-->
     <string name="SMS_SENT">SMS_SENT</string>
@@ -98,6 +111,7 @@
     <string name="USER_logout_confirm">Are you sure you want to log out?</string>
     <string name="USER_logout_dialog_title">Log out</string>
     <string name="USER_login_not_available_in_beta">Login not available in Beta version</string>
+    <string name="USER_Fb_was_used_to_login_info_message">You are using your Facebook account. \nEditing profile is not allowed.</string>
 
     <!--MOBILE NETWORKS-->
     <string name="NETWORK_GLOBE">Globe</string>
@@ -113,11 +127,26 @@
     <string name="GM_mode">driving</string>
     <string name="GM_location_permission_denied">Location Permission Denied</string>
     <string name="GM_maps_url">https://maps.googleapis.com/maps/</string>
+    <string name="GM_acquiring_gps">"acquiring gps signal..."</string>
+    <string name="GM_gps_acquired">"gps signal acquired!"</string>
 
     <!--DIALOG MESSAGES-->
     <string name="dialog_status_success">Success</string>
+    <string name="dialog_status_error">Error</string>
     <string name="dialog_title_analyzing_routes">Analyzing Routes</string>
     <string name="dialog_message_analyzing_routes">Please wait as we search for the best route...</string>
+    <string name="dialog_title_initializing_destinations">Initializing Data</string>
+    <string name="dialog_message_initializing_destinations">The app is initializing, please wait...</string>
+    <string name="dialog_please_wait">Please wait</string>
+    <string name="dialog_adding_route">Adding route...</string>
+    <string name="dialog_succesfully_removed_user">Successfully removed user!</string>
+    <string name="dialog_fetching_data">Fetching Data</string>
+    <string name="dialog_generating_report">Report is being generated</string>
+    <string name="dialog_no_record_found">No records found</string>
+    <string name="dialog_points_update_success">Successfully updated order of points!</string>
+    <string name="dialog_points_update_error">Error in updating points</string>
+    <string name="dialog_updating_routes">Updating route...</string>
+    <string name="dialog_user_update_success_with_message">Update profile is done with the following message/s:\n\n</string>
 
     <!--ERROR DIALOGS-->
     <string name="error_no_internet_connection">No Internet Connection</string>
@@ -127,6 +156,8 @@
     <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
     <!--FONTS-->
     <string name="FONT_TRENDER">font/Trender.ttf</string>
+    <string name="FONT_SAN_FRANCISCO_REG">font/San-Francisco-Regular.ttf</string>
+    <string name="FONT_LICENSE_PLATE">font/LicensePlate.ttf</string>
 
     <!--TOOL TIPS-->
     <string name="ToolTip_show_menu_options">Tap to show menu options</string>

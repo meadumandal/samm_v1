@@ -38,7 +38,6 @@ public class InfoDialog extends Dialog implements
         this.infoMessage = (TextView) findViewById(R.id.txtInfoMessage);
         this.infoMessage.setText(this._infoMessage);
         this.infoMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
         btnOk    = (Button) findViewById(R.id.btnOK);
         btnOk.setOnClickListener(this);
         MenuActivity.buttonEffect(btnOk);

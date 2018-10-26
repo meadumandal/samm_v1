@@ -86,7 +86,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
                 return "";
             }
             try{
-                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "updateUserDetails.php?";
+                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + _constants.USERS_UPDATE_API_FILE_WITH_PENDING_QUERYSTRING;
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -109,7 +109,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             _LoaderDialog.hide();
 
         }
@@ -124,11 +124,11 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
         _LoaderDialog.hide();
         _sessionManager.setFirstName(_newFirstName);
         _sessionManager.setLastName(_newLastName);
-        _UserNameMenuItem.setTitle(_sessionManager.getFullName());
+        _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
 
         if(_promptMessage.trim().length()>0)
         {
-            InfoDialog dialog=new InfoDialog(this._activity, "Update profile is done with the following message/s:\n\n" + _promptMessage);
+            InfoDialog dialog=new InfoDialog(this._activity, MenuActivity._GlobalResource.getString(R.string.dialog_user_update_success_with_message) + _promptMessage);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }

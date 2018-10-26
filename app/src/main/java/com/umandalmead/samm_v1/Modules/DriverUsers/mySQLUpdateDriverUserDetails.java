@@ -181,7 +181,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
         try
         {
             _LoaderDialog.hide();
-            _UserNameMenuItem.setTitle(_sessionManager.getFullName());
+            _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
 
             if(_status)
             {

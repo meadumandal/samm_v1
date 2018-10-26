@@ -2,6 +2,9 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 
 import com.umandalmead.samm_v1.LoaderDialog;
@@ -33,23 +36,32 @@ public class asyncCheckInternetConnectivity extends AsyncTask<Void, Void, Boolea
     @Override
     protected void onPostExecute(Boolean IsOnline) {
         super.onPostExecute(IsOnline);
-        if(!IsOnline){
-            _helper.showNoInternetPrompt(_actvity);
+        try {
+            if (!IsOnline) {
+                _helper.showNoInternetPrompt(_actvity);
+                _loader.dismiss();
+            } else {
+                _loader.dismiss();
+                this._actvity.startActivity(new Intent(this._actvity, LoginActivity.class));
+            }
+        }catch (Exception ex){
+            _loader.dismiss();
+            Helper.logger(ex);
         }
-        _loader.dismiss();
     }
 
     @Override
     protected Boolean doInBackground(Void... voids) {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        }
-        catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
+        Boolean IsConnected = false;
+        ConnectivityManager connectivityManager = (ConnectivityManager) _actvity.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        return false;
+        if (connectivityManager != null) {
+            NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+            IsConnected = (activeNetwork != null && activeNetwork.isConnectedOrConnecting());
+        } else {
+            IsConnected = false;
+        }
+
+        return IsConnected;
     }
 }

@@ -44,9 +44,10 @@ public class NoInternetDialog extends Dialog implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnTryAgain:
-                if(Helper.isOnline(_activity,getContext()))
-                    SL_TryAgain.startShimmerAnimation();
-                    this._activity.startActivity(new Intent(this._activity, LoginActivity.class));
+             //   if(Helper.isOnline(_activity,getContext()))
+                    SL_TryAgain.stopShimmerAnimation();
+             new asyncCheckInternetConnectivity(this._activity).execute();
+               //     this._activity.startActivity(new Intent(this._activity, LoginActivity.class));
                 break;
             default:
                 break;

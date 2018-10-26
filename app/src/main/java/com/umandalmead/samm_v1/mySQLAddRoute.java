@@ -66,7 +66,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _LoaderDialog = new LoaderDialog(_activity, "Please wait...","Adding Route...");
+            _LoaderDialog = new LoaderDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_please_wait),MenuActivity._GlobalResource.getString(R.string.dialog_adding_route));
             _LoaderDialog.setCancelable(false);
             _LoaderDialog.show();
         }
@@ -89,7 +89,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
         if (helper.isConnectedToInternet(this._context))
         {
             try{
-                String link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + "addRoute.php";
+                String link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + _constants.ADD_ROUTES_API_FILE;
                 HttpClient httpClient = new DefaultHttpClient();
                 HttpPost httpPost = new HttpPost(link);
                 List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -100,7 +100,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
                 JSONObject json = new JSONObject(strResponse);
                 if(json.getString("status") == "1")
                 {
-                    _promptMessage = "Successfully added new route!";
+                    _promptMessage = MenuActivity._GlobalResource.getString(R.string.info_add_route_success);
                 }
                 else
                 {
@@ -120,7 +120,7 @@ public class mySQLAddRoute extends AsyncTask<String, Void, String>{
         }
         else
         {
-            Toast.makeText(this._context, "Looks like you're offline", Toast.LENGTH_LONG).show();
+            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
             _LoaderDialog.hide();
 
         }

@@ -40,6 +40,7 @@
                     <FrameLayout
                         android:id="@+id/FrameSearchBarHolder"
                         android:layout_width="match_parent"
+                        android:onClick="SearchBarClicked"
                         android:layout_height="20dp"
                         android:visibility="visible"
                         android:background="@color/colorTransparent"
