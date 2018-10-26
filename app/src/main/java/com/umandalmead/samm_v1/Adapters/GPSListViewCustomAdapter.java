@@ -24,7 +24,7 @@ import java.util.ArrayList;
  * Created by MeadRoseAnn on 2/17/2018.
  */
 
-public class listViewCustomAdapter extends ArrayAdapter<GPS> implements View.OnClickListener {
+public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.OnClickListener {
     private ArrayList<GPS> dataSet;
     Context mContext;
     String TAG = "mead";
@@ -37,7 +37,7 @@ public class listViewCustomAdapter extends ArrayAdapter<GPS> implements View.OnC
         Button btnReconnectGPS;
     }
 
-    public listViewCustomAdapter(ArrayList<GPS> data, Context context) {
+    public GPSListViewCustomAdapter(ArrayList<GPS> data, Context context) {
         super(context, R.layout.listview_viewgps, data);
         this.dataSet = data;
         this.mContext=context;

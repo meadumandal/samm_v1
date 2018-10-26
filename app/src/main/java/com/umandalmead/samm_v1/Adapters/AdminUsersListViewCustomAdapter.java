@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * Created by MeadRoseAnn on 7/29/2018.
  */
 
-public class adminUsersListViewCustomerAdapter extends ArrayAdapter<Users> implements View.OnClickListener {
+public class AdminUsersListViewCustomAdapter extends ArrayAdapter<Users> implements View.OnClickListener {
     private ArrayList<Users> dataSet;
     Context mContext;
     String TAG = "mead";
@@ -37,7 +37,7 @@ public class adminUsersListViewCustomerAdapter extends ArrayAdapter<Users> imple
 
     }
 
-    public adminUsersListViewCustomerAdapter(ArrayList<Users> data, Context context) {
+    public AdminUsersListViewCustomAdapter(ArrayList<Users> data, Context context) {
         super(context, R.layout.listview_adminusers, data);
         this.dataSet = data;
         this.mContext=context;

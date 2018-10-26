@@ -7,10 +7,15 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
@@ -48,7 +53,7 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
     LoaderDialog _LoaderDialog;
     String _promptMessage;
     Boolean _status;
-    String newusername,newfirstname, newlastname, newpassword;
+    String newusername,newfirstname, newEmailAddress, newlastname, newpassword;
     Integer userID;
     SessionManager _sessionManager;
     EditAdminUserDialogFragment _editDialog;
@@ -89,9 +94,10 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
     {
         userID = Integer.parseInt(params[0]);
         newusername = params[1];
-        newfirstname = params[2];
-        newlastname = params[3];
-        newpassword = params[4];
+        newEmailAddress = params[2];
+        newfirstname = params[3];
+        newlastname = params[4];
+        newpassword = params[5];
 
         JSONObject json = new JSONObject();
 
@@ -109,13 +115,34 @@ public class mySQLUpdateAdminUserDetails extends AsyncTask<String, Void, String>
                     postParameters.add(new BasicNameValuePair("username", newusername));
                     postParameters.add(new BasicNameValuePair("firstname", newfirstname));
                     postParameters.add(new BasicNameValuePair("lastname", newlastname));
-                    postParameters.add(new BasicNameValuePair("emailaddress", Constants.ADMIN_EMAILADDRESS));
+                    postParameters.add(new BasicNameValuePair("emailaddress", newEmailAddress));
                     postParameters.add(new BasicNameValuePair("password", newpassword));
                     postParameters.add(new BasicNameValuePair("usertype", "Administrator"));
                     httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
                     HttpResponse response = httpClient.execute(httpPost);
                     String strResponse = EntityUtils.toString(response.getEntity());
                     json = new JSONObject(strResponse);
+                    if (json.getString("status").equals("1"))
+                    {
+                        FirebaseAuth auth = FirebaseAuth.getInstance();
+                        auth.createUserWithEmailAndPassword(newEmailAddress, newpassword)
+                                .addOnCompleteListener(_activity, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                        if(!task.isSuccessful())
+                                        {
+
+                                        }
+                                        else
+                                        {
+
+                                        };
+
+                                    }
+                                });
+                    }
+
                 }
                 else if (this._action.equals("Delete"))
                 {

@@ -291,8 +291,8 @@ public class LoginActivity extends AppCompatActivity{
                                         Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
                                     } else {
                                         if (!response.body().getEmailAddress().toLowerCase().equals(_constants.DRIVER_EMAILADDRESS)) {
-                                            if (response.body().getUserType().equals(Constants.ADMIN_USERTYPE)) {
-                                                ShowLogInProgressDialog("Admin");
+                                            if (response.body().getUserType().equals(Constants.ADMIN_USERTYPE) || response.body().getUserType().equalsIgnoreCase(Constants.SUPERADMIN_USERTYPE)) {
+                                                ShowLogInProgressDialog(response.body().getUserType());
                                                 MessageDigest md = MessageDigest.getInstance("MD5");
                                                 md.update(password.getBytes());
                                                 byte[] digest = md.digest();
@@ -304,19 +304,19 @@ public class LoginActivity extends AppCompatActivity{
                                                 //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
                                                 String hashedPassword = sb.toString();
                                                 if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
-                                                    signIn(response.body().getEmailAddress(), Constants.ADMIN_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                    signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
                                                 } else {
-                                                    Toast.makeText(getApplicationContext(), "Admin Password is incorrect", Toast.LENGTH_LONG).show();
+                                                    Toast.makeText(getApplicationContext(), response.body().getUserType()+" Password is incorrect", Toast.LENGTH_LONG).show();
                                                     HideLogInProgressDialog();
                                                 }
                                             } else {
-                                                ShowLogInProgressDialog("User");
-                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "");
+                                                ShowLogInProgressDialog(response.body().getUserType());
+                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
                                             }
 
                                         } else {
                                             FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
-                                            ShowLogInProgressDialog("Driver");
+                                            ShowLogInProgressDialog(response.body().getUserType());
                                             MessageDigest md = MessageDigest.getInstance("MD5");
                                             md.update(password.getBytes());
                                             byte[] digest = md.digest();
@@ -334,11 +334,11 @@ public class LoginActivity extends AppCompatActivity{
                                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                                         if (dataSnapshot != null) {
                                                             if (dataSnapshot.child("connections") == null)
-                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
+                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
                                                             else if (dataSnapshot.child("connections").getValue() == null)
-                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
+                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
                                                             else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
-                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString());
+                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
                                                             else {
 
                                                                 Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
@@ -411,7 +411,7 @@ public class LoginActivity extends AppCompatActivity{
             _helper.showNoInternetPrompt(LoginActivity.this);
         }
     }
-    private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final String param_deviceId)
+    private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final String param_deviceId, final String userType)
     {
         userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(param_email, param_password)
@@ -438,8 +438,8 @@ public class LoginActivity extends AppCompatActivity{
                                     isDriver = true;
 
                                 userDatabaseRef.child(sessionManager.getUsername()).removeValue();
-                                if(checkIfEmailVerified()){
-                                    sessionManager.CreateLoginSession(firstName,lastName, username,param_email,isDriver, false, deviceId, false);
+                                if(checkIfEmailVerified(userType)){
+                                    sessionManager.CreateLoginSession(firstName,lastName, username,param_email, deviceId, false, userType);
                                     Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -502,7 +502,7 @@ public class LoginActivity extends AppCompatActivity{
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = auth.getCurrentUser();
                             saveUserDetails(FirstName,LastName,token.getUserId().toString(),Email);
-                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email,false, false, "", true);
+                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email, "", true, Constants.PASSENGER_USERTYPE);
                             HideLogInProgressDialog();
                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                             startActivity(intent);
@@ -528,19 +528,19 @@ public class LoginActivity extends AppCompatActivity{
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
     }
     private void ShowLogInProgressDialog(String From){
-        LoaderDialog LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
+        LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
         LD_FBLoginLoader.show();
     }
     private void HideLogInProgressDialog(){
         LD_FBLoginLoader.hide();
     }
-    private Boolean checkIfEmailVerified()
+    private Boolean checkIfEmailVerified(String userType)
     {
 
         Boolean result =false;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userEmailAddress = user.getEmail().toLowerCase();
-        if(userEmailAddress.equals(_constants.ADMIN_EMAILADDRESS) || userEmailAddress.equals(_constants.DRIVER_EMAILADDRESS))
+        if (userType.equalsIgnoreCase("Administrator") || userType.equalsIgnoreCase("Driver") || userType.equalsIgnoreCase("SuperAdministrator"))
             return true;
         if (user.isEmailVerified())
         {

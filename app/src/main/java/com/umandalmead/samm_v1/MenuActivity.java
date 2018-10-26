@@ -6,7 +6,6 @@ package com.umandalmead.samm_v1;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Application;
 import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -167,8 +166,6 @@ import retrofit.Callback;
 import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
-import org.acra.*;
-import org.acra.annotation.*;
 
 
 import static com.umandalmead.samm_v1.Constants.APPBAR_MIN_HEIGHT;
@@ -384,7 +381,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     _sessionManager = new SessionManager(_context);
                 if (!_sessionManager.isLoggedIn()) {
                     String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "", false);
+                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", "", false, Constants.GUEST_USERTYPE);
                 }
                 setContentView(R.layout.activity_menu);
 
@@ -401,7 +398,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             if (response.body() != null) {
                                 if (response.body().getSetting() != null) {
                                     for (Setting setting : response.body().getSetting()) {
-                                        if (setting.getName().toLowerCase().equals(_sessionManager.IS_BETA.toLowerCase()))
+                                        if (setting.getName().toLowerCase().equals(_sessionManager.KEY_ISBETA.toLowerCase()))
                                             _sessionManager.setIsBeta(Boolean.valueOf(setting.getValue()));
                                         if (setting.getName().toLowerCase().equals("developerdeviceid")) {
                                             List<String> developerDeviceIds = Arrays.asList(setting.getValue().toLowerCase().split(","));
@@ -466,14 +463,17 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _ViewGPSFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingViewGPS);
                 _AdminToolsFloatingMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
 
-
-                _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
-                _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(!_sessionManager.isGuest() && !_sessionManager.isDriver());
-                _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin());
-                _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsAdmin());
-
+                //Hide or view nav menus based on user type
+                _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsSuperAdmin());
+                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(id.nav_lines).setVisible(_sessionManager.getIsSuperAdmin() || _sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
+                _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
+                _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin());
+
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
                 Search_BackBtn = (ImageView) findViewById(id.Search_BackBtn);
@@ -1292,7 +1292,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                                 _sessionManager.logoutUser();
                                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", false, true, "", false);
+                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", "", false, Constants.GUEST_USERTYPE);
                                 finish();
                                 startActivity(getIntent());
                                 Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.USER_logged_out), Toast.LENGTH_LONG).show();

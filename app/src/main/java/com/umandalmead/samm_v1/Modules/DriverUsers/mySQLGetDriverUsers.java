@@ -2,7 +2,6 @@ package com.umandalmead.samm_v1.Modules.DriverUsers;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import com.google.gson.Gson;
-import com.umandalmead.samm_v1.Adapters.adminUsersListViewCustomerAdapter;
+import com.umandalmead.samm_v1.Adapters.AdminUsersListViewCustomAdapter;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
@@ -29,7 +28,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 /**
@@ -46,7 +44,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
     public FragmentManager _fragmentManager;
 
     public SwipeRefreshLayout _swipeRefreshDriverUsers;
-    public adminUsersListViewCustomerAdapter customAdapter;
+    public AdminUsersListViewCustomAdapter customAdapter;
 
     private Constants _constants = new Constants();
 
@@ -153,7 +151,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
             {
                 _dataModels.add(new Users(0,"Add new driver", "","","","","",1));
 
-                customAdapter =new adminUsersListViewCustomerAdapter(_dataModels, _context);
+                customAdapter =new AdminUsersListViewCustomAdapter(_dataModels, _context);
                 _listView.setAdapter(customAdapter);
 
                 _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

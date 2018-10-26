@@ -46,6 +46,11 @@ public class Constants {
     public static final String ADMIN_EMAILADDRESS = "admin@samm.com";
     public static final String ADMIN_PASSWORD = "sammadmin";
     public static final String ADMIN_USERTYPE = "Administrator";
+    public static final String DRIVER_USERTYPE = "Driver";
+    public static final String PASSENGER_USERTYPE = "Passenger";
+    public static final String SUPERADMIN_USERTYPE = "SuperAdministrator";
+    public static final String GUEST_USERTYPE = "GUEST";
+
     public static final String PASSENGER_REPORT_TYPE = "passenger";
     public static final String VEHICLE_REPORT_TYPE = "ecoloop";
     public static final int APPBAR_MIN_HEIGHT = 0;

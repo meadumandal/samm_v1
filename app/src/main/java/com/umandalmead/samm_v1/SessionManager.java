@@ -28,18 +28,24 @@ public class SessionManager {
     public static final String KEY_EMAIL = "Email";
     public static final String KEY_DEVICEID = "DeviceId";
 
+    public static final String KEY_ISlOGIN = "IsLoggedIn";
+
+    public static final String KEY_ISFACEBOOKACCOUNT ="IsFacebook";
+    public static final String KEY_ERRORMSG = "ErrorMsg";
+    public static final String KEY_REPORTTYPE = "ReportType";
+    public static final String KEY_ISBETA = "IsBeta";
+    public static final String KEY_ISDEVELOPER = "IsDeveloper";
+
+    public static final String KEY_ISSUPERADMIN = "IsSuperAdmin";
+    public static final String KEY_ISADMIN = "IsAdmin";
+    public static final String KEY_ISPASSENGER = "IsPassenger";
     public static final String KEY_ISDRIVER = "IsDriver";
-    public static final String IS_LOGIN = "IsLoggedIn";
-    public static final String IS_GUEST = "IsGuest";
-    public static final String IS_FACEBOOK="IsFacebook";
-    public static final String ERROR_MSG = "ErrorMsg";
-    public static final String REPORT_TYPE = "ReportType";
-    public static final String IS_BETA = "IsBeta";
-    public static final String IS_DEVELOPER = "IsDeveloper";
-    public static final String IS_ADMIN = "IsAdmin";
-    public static final String  IS_MAINTOOLTIP_SHOWN = "IsMainToolTopShown";
-    public static final String  IS_ROUTETOOLTIP_SHOWN = "IsRouteToolTipShown";
-    public static final String CURRENT_MAPS_STYLE = "CurrentMapStyle";
+    public static final String KEY_ISGUEST = "IsGuest";
+
+    public static final String KEY_ISMAINTOOLTIPSHOWN = "IsMainToolTopShown";
+    public static final String KEY_ISROUTETOOLTIPSHOWN = "IsRouteToolTipShown";
+    public static final String KEY_CURRENTMAPSTYLE = "CurrentMapStyle";
+
     public SessionManager(Context context)
     {
         this._context = context;
@@ -48,54 +54,56 @@ public class SessionManager {
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    public void CreateLoginSession(String firstname, String lastname, String username, String email, boolean isDriver, boolean isGuest, String deviceId, boolean isFacebook)
+    public void CreateLoginSession(String firstname, String lastname, String username, String email, String deviceId, boolean isFacebook, String userType)
     {
         prefEditor.putString(KEY_FNAME, firstname);
         prefEditor.putString(KEY_LNAME, lastname);
         prefEditor.putString(KEY_USERNAME, username);
         prefEditor.putString(KEY_EMAIL, email);
-        prefEditor.putBoolean(KEY_ISDRIVER, isDriver);
-        prefEditor.putBoolean(IS_LOGIN, !isGuest);
-        prefEditor.putBoolean(IS_GUEST, isGuest);
+        prefEditor.putBoolean(KEY_ISlOGIN, !userType.equals(Constants.GUEST_USERTYPE));
         prefEditor.putString(KEY_DEVICEID, deviceId);
-        prefEditor.putBoolean(IS_FACEBOOK, isFacebook);
-        setIsAdmin(email.toLowerCase().equals(_constants.ADMIN_EMAILADDRESS));
+        prefEditor.putBoolean(KEY_ISFACEBOOKACCOUNT, isFacebook);
+        prefEditor.putBoolean(KEY_ISDRIVER, userType.equals(Constants.DRIVER_USERTYPE));
+        prefEditor.putBoolean(KEY_ISADMIN, userType.equals(Constants.ADMIN_USERTYPE));
+        prefEditor.putBoolean(KEY_ISSUPERADMIN, userType.equals(Constants.SUPERADMIN_USERTYPE));
+        prefEditor.putBoolean(KEY_ISGUEST, userType.equals(Constants.GUEST_USERTYPE));
+        prefEditor.putBoolean(KEY_ISPASSENGER, userType.equals(Constants.PASSENGER_USERTYPE));
         prefEditor.commit();
     }
     public Boolean getMainTutorialStatus()
     {
         try {
-            return pref.getBoolean(IS_MAINTOOLTIP_SHOWN, false);
+            return pref.getBoolean(KEY_ISMAINTOOLTIPSHOWN, false);
         }catch (Exception e){
             return false;
         }
     }
-    public Boolean getRouteTutorialStatus() {return pref.getBoolean(IS_ROUTETOOLTIP_SHOWN, false);}
+    public Boolean getRouteTutorialStatus() {return pref.getBoolean(KEY_ISROUTETOOLTIPSHOWN, false);}
     public void TutorialStatus(Enums.UIType type, Boolean isShown){
         switch(type){
-            case MAIN:prefEditor.putBoolean(IS_MAINTOOLTIP_SHOWN, isShown); break;
-            case SHOWING_ROUTES: prefEditor.putBoolean(IS_ROUTETOOLTIP_SHOWN, isShown); break;
+            case MAIN:prefEditor.putBoolean(KEY_ISMAINTOOLTIPSHOWN, isShown); break;
+            case SHOWING_ROUTES: prefEditor.putBoolean(KEY_ISROUTETOOLTIPSHOWN, isShown); break;
         }
         prefEditor.commit();
     }
-    public String getMapStylePreference() {return pref.getString(CURRENT_MAPS_STYLE, null);}
+    public String getMapStylePreference() {return pref.getString(KEY_CURRENTMAPSTYLE, null);}
     public void SetMapStylePreference(Enums.GoogleMapType type){
-        prefEditor.putString(CURRENT_MAPS_STYLE, type.toString());
+        prefEditor.putString(KEY_CURRENTMAPSTYLE, type.toString());
         prefEditor.commit();
     }
     public void PassReportType(String reportType)
     {
-        prefEditor.putString(REPORT_TYPE, reportType);
+        prefEditor.putString(KEY_REPORTTYPE, reportType);
         prefEditor.commit();
     }
     public String GetReportType()
     {
-        return pref.getString(REPORT_TYPE,null);
+        return pref.getString(KEY_REPORTTYPE,null);
     }
     public void CreateLoginSession(boolean isLoggedIn, String errorMsg)
     {
-        prefEditor.putBoolean(IS_LOGIN, isLoggedIn);
-        prefEditor.putString(ERROR_MSG, errorMsg);
+        prefEditor.putBoolean(KEY_ISlOGIN, isLoggedIn);
+        prefEditor.putString(KEY_ERRORMSG, errorMsg);
     }
     public HashMap<String,Object> getUserDetails()
     {
@@ -105,35 +113,53 @@ public class SessionManager {
         user.put(KEY_USERNAME, pref.getString(KEY_USERNAME,null));
         user.put(KEY_EMAIL, pref.getString(KEY_EMAIL,null));
         user.put(KEY_ISDRIVER, pref.getBoolean(KEY_ISDRIVER, false));
-        user.put(IS_LOGIN, pref.getString(KEY_FNAME,null));
+        user.put(KEY_ISlOGIN, pref.getString(KEY_FNAME,null));
         return user;
     }
     public Boolean getIsBeta()
     {
-        return pref.getBoolean(IS_BETA, false);
+        return pref.getBoolean(KEY_ISBETA, false);
     }
     public void setIsBeta(Boolean IsBeta)
     {
-        prefEditor.putBoolean(IS_BETA, IsBeta);
+        prefEditor.putBoolean(KEY_ISBETA, IsBeta);
         prefEditor.commit();
     }
 
     public Boolean getIsDeveloper()
     {
-        return pref.getBoolean(IS_DEVELOPER, false);
+        return pref.getBoolean(KEY_ISDEVELOPER, false);
     }
     public void setIsDeveloper(Boolean IsDeveloper)
     {
-        prefEditor.putBoolean(IS_DEVELOPER, IsDeveloper);
+        prefEditor.putBoolean(KEY_ISDEVELOPER, IsDeveloper);
         prefEditor.commit();
     }
     public Boolean getIsAdmin()
     {
-        return pref.getBoolean(IS_ADMIN, false);
+        return pref.getBoolean(KEY_ISADMIN, false);
     }
     public void setIsAdmin(Boolean IsAdmin)
     {
-        prefEditor.putBoolean(IS_ADMIN, IsAdmin);
+        prefEditor.putBoolean(KEY_ISADMIN, IsAdmin);
+        prefEditor.commit();
+    }
+    public Boolean getIsSuperAdmin()
+    {
+        return pref.getBoolean(KEY_ISSUPERADMIN, false);
+    }
+    public void setKeyIssuperadmin(Boolean IsSuperAdmin)
+    {
+        prefEditor.putBoolean(KEY_ISSUPERADMIN, IsSuperAdmin);
+        prefEditor.commit();
+    }
+    public Boolean getIsPassenger()
+    {
+        return pref.getBoolean(KEY_ISPASSENGER, false);
+    }
+    public void setKeyIspassenger(Boolean IsPassenger)
+    {
+        prefEditor.putBoolean(KEY_ISSUPERADMIN, IsPassenger);
         prefEditor.commit();
     }
     public String getUsername()
@@ -164,7 +190,7 @@ public class SessionManager {
     }
     public boolean isLoggedIn()
     {
-        return pref.getBoolean(IS_LOGIN, false) && firebaseAuth.getCurrentUser()!=null;
+        return pref.getBoolean(KEY_ISlOGIN, false) && firebaseAuth.getCurrentUser()!=null;
     }
     public boolean isDriver()
     {
@@ -176,12 +202,12 @@ public class SessionManager {
     }
     public boolean isGuest()
     {
-        return pref.getBoolean(IS_GUEST, false);
+        return pref.getBoolean(KEY_ISGUEST, false);
 
     }
     public boolean isFacebook()
     {
-        return pref.getBoolean(IS_FACEBOOK, false);
+        return pref.getBoolean(KEY_ISFACEBOOKACCOUNT, false);
     }
 
 

@@ -2,12 +2,10 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,14 +13,10 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
+import com.umandalmead.samm_v1.Adapters.GPSListViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 public class ViewGPSFragment extends Fragment {
@@ -40,7 +34,7 @@ public class ViewGPSFragment extends Fragment {
     ArrayList<GPS> dataModels;
     LoaderDialog _LoaderDialog;
 
-    private static listViewCustomAdapter adapter;
+    private static GPSListViewCustomAdapter adapter;
 
     Activity _activity;
 

@@ -1,28 +1,18 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Toast;
-import android.widget.ViewSwitcher;
 
 import com.google.gson.Gson;
-import com.umandalmead.samm_v1.Adapters.listViewCustomAdapter;
+import com.umandalmead.samm_v1.Adapters.GPSListViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
@@ -31,13 +21,9 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -53,7 +39,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
     public ArrayList<GPS> _dataModels;
     public FragmentManager _fragmentManager;
     public SwipeRefreshLayout _swipeRefreshGPS;
-    public listViewCustomAdapter customAdapter;
+    public GPSListViewCustomAdapter customAdapter;
 
     private Constants _constants = new Constants();
 
@@ -141,7 +127,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                 _dataModels.add(new GPS(ID, GPSName, GPSIMEI, GPSPhone, GPSNetwork, Status));
 
             }
-            customAdapter =new listViewCustomAdapter(_dataModels, _context);
+            customAdapter =new GPSListViewCustomAdapter(_dataModels, _context);
             _listView.setAdapter(customAdapter);
 
             _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

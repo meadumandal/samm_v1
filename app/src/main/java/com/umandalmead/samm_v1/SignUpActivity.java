@@ -171,7 +171,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 }
                                                                 else
                                                                 {
-                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress, false, false, "", false);
+                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress,  "", false, Constants.PASSENGER_USERTYPE);
                                                                     final FirebaseAuth.AuthStateListener _authListener = new FirebaseAuth.AuthStateListener() {
                                                                         @Override
                                                                         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {

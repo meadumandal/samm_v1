@@ -2,7 +2,6 @@ package com.umandalmead.samm_v1.Modules.AdminUsers;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,7 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import com.google.gson.Gson;
-import com.umandalmead.samm_v1.Adapters.adminUsersListViewCustomerAdapter;
+import com.umandalmead.samm_v1.Adapters.AdminUsersListViewCustomAdapter;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
@@ -45,7 +44,7 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
     public FragmentManager _fragmentManager;
 
     public SwipeRefreshLayout _swipeRefreshAdminUsers;
-    public adminUsersListViewCustomerAdapter customAdapter;
+    public AdminUsersListViewCustomAdapter customAdapter;
 
     private Constants _constants = new Constants();
 
@@ -148,7 +147,7 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
             if (_listView!=null)
             {
                 _dataModels.add(new Users(0, "Add new admin user", "", "","","","", 1));
-                customAdapter =new adminUsersListViewCustomerAdapter(_dataModels, _context);
+                customAdapter =new AdminUsersListViewCustomAdapter(_dataModels, _context);
                 _listView.setAdapter(customAdapter);
 
                 _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -170,6 +169,7 @@ public class mySQLGetAdminUsers extends AsyncTask<Void, Void, JSONArray>{
 
                             EditAdminUserDialogFragment editAdminUserDialog = new EditAdminUserDialogFragment();
                             editAdminUserDialog.setArguments(bundle);
+                            editAdminUserDialog.setCancelable(false);
                             editAdminUserDialog.show(_fragmentManager ,"EditAdminUserDialog");
                         }
                         catch(Exception ex)

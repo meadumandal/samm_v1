@@ -55,14 +55,15 @@ public class EditAdminUserDialogFragment extends DialogFragment {
 
             View view = getActivity().getLayoutInflater().inflate(R.layout.fragmentdialog_edit_admin_user, new LinearLayout(getActivity()), false);
 
-            final EditText edit_firstname = (EditText) view.findViewById(R.id.firstname);
-            final EditText edit_lastname = (EditText) view.findViewById(R.id.lastname);
-            final EditText edit_username = (EditText) view.findViewById(R.id.username);
-            final EditText edit_password = (EditText) view.findViewById(R.id.password);
-            final TextView textLabel = (TextView) view.findViewById(R.id.txtActionLabel);
-            final EditText edit_confirmPassword = (EditText) view.findViewById(R.id.confirmPassword);
-            Button btnUpdate = (Button) view.findViewById(R.id.btnUpdateAdminUser);
-            Button btnDelete = (Button) view.findViewById(R.id.btnDeleteAdminUser);
+            final EditText edit_firstname = view.findViewById(R.id.firstname);
+            final EditText edit_lastname =  view.findViewById(R.id.lastname);
+            final EditText edit_username = view.findViewById(R.id.username);
+            final EditText edit_emailAddress = view.findViewById(R.id.emailaddress);
+            final EditText edit_password = view.findViewById(R.id.password);
+            final TextView textLabel = view.findViewById(R.id.txtActionLabel);
+            final EditText edit_confirmPassword = view.findViewById(R.id.confirmPassword);
+            Button btnUpdate = view.findViewById(R.id.btnUpdateAdminUser);
+            Button btnDelete = view.findViewById(R.id.btnDeleteAdminUser);
 
             Bundle argumentsBundle = getArguments();
             if(argumentsBundle !=null)
@@ -107,6 +108,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                     SaveChangesLoader.setCancelable(false);
 
                     String new_username = edit_username.getText().toString();
+                    String new_emailAddress = edit_emailAddress.getText().toString();
                     String new_firstname = edit_firstname.getText().toString();
                     String new_lastname = edit_lastname.getText().toString();
                     String password = edit_password.getText().toString();
@@ -118,7 +120,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                         if (_isAdd) //If new entry
                         {
                             Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
-                            new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_firstname, new_lastname, password);
+                            new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_emailAddress, new_firstname, new_lastname, password);
 
                         }
                         else //EDIT
@@ -132,7 +134,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                             else
                             {
                                 Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, null, null));
-                                new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username, new_firstname, new_lastname, null);
+                                new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_emailAddress, new_firstname, new_lastname, null);
                             }
 
                         }
