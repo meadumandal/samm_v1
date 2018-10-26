@@ -415,7 +415,7 @@ public class Helper {
         StringWriter sw = new StringWriter();
         ex.printStackTrace(new PrintWriter(sw));
         Log.e(LOG_TAG, "StackTrace: " + sw.toString() + " | Message: " + ex.getMessage());
-        new mySQLSendErrorReport().execute(ex.getMessage());
+        //new mySQLSendErrorReport().execute(ex.getMessage());
     }
     public static void logger(String ex)
     {
