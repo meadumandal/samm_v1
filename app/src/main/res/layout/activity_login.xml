@@ -66,6 +66,14 @@
                 android:textSize="16sp" />
 
         </android.support.design.widget.TextInputLayout>
+
+        <CheckBox
+            android:id="@+id/checkBox_showPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Show Password"
+            android:textColor="@color/colorWhiteEC"
+            android:buttonTint="@color/colorWhiteEC"/>
     </LinearLayout>
 
     <LinearLayout

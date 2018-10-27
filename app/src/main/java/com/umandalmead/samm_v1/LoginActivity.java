@@ -13,11 +13,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -99,6 +102,17 @@ public class LoginActivity extends AppCompatActivity{
             Log.i(TAG, "device is online");
             FacebookSdk.sdkInitialize(getApplicationContext());
             setContentView(R.layout.activity_login);
+            CheckBox checkbox_showpassword = (CheckBox) findViewById(R.id.checkBox_showPassword);
+
+            checkbox_showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if (isChecked)
+                        passwordField.setTransformationMethod(null);
+                    else
+                        passwordField.setTransformationMethod(new PasswordTransformationMethod());
+                }
+            });
             try {
                 PackageInfo info = getPackageManager().getPackageInfo(
                         "com.umandalmead.samm_v1",
