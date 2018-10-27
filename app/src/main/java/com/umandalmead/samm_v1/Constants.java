@@ -48,6 +48,8 @@ public class Constants {
     public static final String ADMIN_USERTYPE = "Administrator";
     public static final String DRIVER_USERTYPE = "Driver";
     public static final String PASSENGER_USERTYPE = "Passenger";
+    public static final String FB_AUTH_TYPE = "FacebookAuth";
+    public static final String EMAIL_AUTH_TYPE = "EmailAuth";
     public static final String SUPERADMIN_USERTYPE = "SuperAdministrator";
     public static final String GUEST_USERTYPE = "GUEST";
 

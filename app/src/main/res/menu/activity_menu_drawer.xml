@@ -12,6 +12,13 @@
                 android:icon="@drawable/ic_home_black_24dp"
                 />
             <item
+                android:id="@+id/nav_superadminusers"
+                android:title="SuperAdmin Users"
+                android:background="?attr/selectableItemBackground"
+                android:icon="@drawable/admin_icon"
+                />
+
+            <item
                 android:id="@+id/nav_adminusers"
                 android:title="Admin Users"
                 android:background="?attr/selectableItemBackground"

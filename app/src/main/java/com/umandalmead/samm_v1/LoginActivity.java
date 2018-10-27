@@ -121,7 +121,6 @@ public class LoginActivity extends AppCompatActivity{
             facebookLoginButton = (LoginButton) findViewById(R.id.login_button_fb);
             facebookLoginButton.setReadPermissions("email", "public_profile");
             MenuActivity.buttonEffect(facebookLoginButton);
-            MenuActivity.buttonEffect(forgotPasswordTextView);
             _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
             facebookLoginButton.setOnClickListener(new View.OnClickListener() {
@@ -188,57 +187,95 @@ public class LoginActivity extends AppCompatActivity{
             passwordField = (EditText) findViewById(R.id.password);
             btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
             MenuActivity.buttonEffect(btn_SignIn);
+
             forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
                     try {
+                        final ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this);
                         final LoaderDialog FP_Loader = new LoaderDialog(LoginActivity.this, "Please wait...", "Sending password reset link to your e-mail");
                         FP_Loader.show();
-                        if (usernameField.getText().toString().trim().length() == 0) {
+                        if (usernameField.getText().toString().trim().length() == 0 || !Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches()) {
                             FP_Loader.dismiss();
-                            ErrorDialog dialog = new ErrorDialog(LoginActivity.this, "Please enter an email address.");
-                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                            dialog.show();
+                            errorDialog.setErrorMessage("Please enter an e-mail address.");
+                            errorDialog.show();
                         } else {
-                            if (Patterns.EMAIL_ADDRESS.matcher(usernameField.getText().toString()).matches()) {
-                                FirebaseAuth.getInstance().sendPasswordResetEmail(usernameField.getText().toString())
-                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    FP_Loader.dismiss();
-                                                    InfoDialog dialog = new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
-                                                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                                    dialog.show();
-                                                }
-                                                else
-                                                {
-                                                    Helper.logger(task.getException(), true);
-                                                }
-                                            }
-                                        })
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
+                            final String username = usernameField.getText().toString();
+                            String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
+                            Retrofit retrofit = new Retrofit.Builder()
+                                    .baseUrl(url)
+                                    .addConverterFactory(GsonConverterFactory.create())
+                                    .build();
+                            RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
+                            Call<UserPOJO> call = service.getUserDetails(username, username);
+                            call.enqueue(new Callback<UserPOJO>() {
+                                @Override
+                                public void onResponse(final Response<UserPOJO> response, Retrofit retrofit) {
+                                    try {
 
-
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
+                                        if (response.body() == null) {
+                                            FP_Loader.dismiss();
+                                            errorDialog.setErrorMessage("Username/Email Address does not exist");
+                                            errorDialog.show();
+                                        } else {
+                                            if (response.body().getAuthType().equalsIgnoreCase(Constants.FB_AUTH_TYPE)) {
                                                 FP_Loader.dismiss();
-                                                _helper.logger(e,true);
-                                            }
-                                        });
+                                                errorDialog.setErrorMessage("It seems that this e-mail address is linked with a Facebook account. Resetting password is not allowed.");
+                                                errorDialog.show();
+                                            } else {
+                                                FirebaseAuth.getInstance().sendPasswordResetEmail(username)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    FP_Loader.dismiss();
+                                                                    InfoDialog dialog = new InfoDialog(LoginActivity.this, "Password reset link has been sent to your e-mail");
+                                                                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                                                    dialog.show();
+                                                                }
+                                                                else
+                                                                {
+                                                                    errorDialog.setErrorMessage(task.getException().getMessage());
+                                                                    errorDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                                                                    errorDialog.show();
+                                                                }
+                                                            }
+                                                        })
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
 
-                            } else {
-                                FP_Loader.dismiss();
-                                ErrorDialog dialog = new ErrorDialog(LoginActivity.this, "Please enter an e-mail address");
-                                dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                                dialog.show();
-                            }
+
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                FP_Loader.dismiss();
+                                                                errorDialog.setErrorMessage("Error Occured");
+                                                                errorDialog.show();
+                                                                _helper.logger(e,true);
+                                                            }
+                                                        });
+                                            }
+                                        }
+                                    }
+                                    //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
+                                    catch (Exception ex) {
+                                        HideLogInProgressDialog();
+                                        Toast.makeText(LoginActivity.this, "Error Occurred", Toast.LENGTH_LONG).show();
+                                        Helper.logger(ex,true);
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Throwable t) {
+                                    Log.d(Constants.LOG_TAG, t.toString());
+                                }
+                            });
+
+
 
 
                         }
@@ -272,7 +309,8 @@ public class LoginActivity extends AppCompatActivity{
                     final String username = usernameField.getText().toString();
                     final String password = passwordField.getText().toString();
                     if (username.trim().isEmpty() || password.trim().isEmpty()) {
-                        Toast.makeText(LoginActivity.this, "Invalid username and password", Toast.LENGTH_SHORT).show();
+                        ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "Invalid username and password");
+                        errorDialog.show();
                         LogInLoader.dismiss();
                     } else {
                         String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
@@ -288,32 +326,12 @@ public class LoginActivity extends AppCompatActivity{
                                 try {
                                     LogInLoader.hide();
                                     if (response.body() == null) {
-                                        Toast.makeText(LoginActivity.this, "Username does not exist", Toast.LENGTH_LONG).show();
+                                        ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "Username does not exist");
+                                        errorDialog.show();
                                     } else {
-                                        if (!response.body().getEmailAddress().toLowerCase().equals(_constants.DRIVER_EMAILADDRESS)) {
-                                            if (response.body().getUserType().equals(Constants.ADMIN_USERTYPE) || response.body().getUserType().equalsIgnoreCase(Constants.SUPERADMIN_USERTYPE)) {
-                                                ShowLogInProgressDialog(response.body().getUserType());
-                                                MessageDigest md = MessageDigest.getInstance("MD5");
-                                                md.update(password.getBytes());
-                                                byte[] digest = md.digest();
-
-                                                StringBuffer sb = new StringBuffer();
-                                                for (byte b : digest) {
-                                                    sb.append(String.format("%02x", b & 0xff));
-                                                }
-                                                //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
-                                                String hashedPassword = sb.toString();
-                                                if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
-                                                    signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
-                                                } else {
-                                                    Toast.makeText(getApplicationContext(), response.body().getUserType()+" Password is incorrect", Toast.LENGTH_LONG).show();
-                                                    HideLogInProgressDialog();
-                                                }
-                                            } else {
-                                                ShowLogInProgressDialog(response.body().getUserType());
-                                                signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
-                                            }
-
+                                        if (!response.body().getUserType().equals(Constants.DRIVER_USERTYPE)) {
+                                            ShowLogInProgressDialog(response.body().getUserType());
+                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
                                         } else {
                                             FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
                                             ShowLogInProgressDialog(response.body().getUserType());
@@ -446,7 +464,8 @@ public class LoginActivity extends AppCompatActivity{
                                     Toast.makeText(LoginActivity.this, ("Logged in as "+ username ), Toast.LENGTH_LONG).show();
                                 }
                                 else{
-                                    Toast.makeText(LoginActivity.this, ("Unable to log in, E-mail address is not yet verified."), Toast.LENGTH_LONG).show();
+                                    ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "Unable to login:\nE-mail Address is not yet verified.");
+                                    errorDialog.show();
                                     HideLogInProgressDialog();
                                 }
 
@@ -525,10 +544,10 @@ public class LoginActivity extends AppCompatActivity{
             userDatabaseRef = userDatabase.getReference("users");
 
         userDatabaseRef.child(username).setValue(user);
-        new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
+        new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress, Constants.FB_AUTH_TYPE);
     }
     private void ShowLogInProgressDialog(String From){
-        LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From +" Log In",  "Please wait as we log you in...");
+        LD_FBLoginLoader = new LoaderDialog(LoginActivity.this,From,  "Please wait as we log you in...");
         LD_FBLoginLoader.show();
     }
     private void HideLogInProgressDialog(){

@@ -26,6 +26,9 @@ public class UserPOJO {
     @SerializedName("userType")
     public String userType;
 
+    @SerializedName("authType")
+    public String authType;
+
     @SerializedName("password")
     public String password;
 
@@ -44,6 +47,8 @@ public class UserPOJO {
 
     public String getUserType(){ return this.userType; }
 
+    public String getAuthType(){ return this.authType; }
+
     public String getPassword(){ return this.password; }
 
     public String getIsActive() { return this.IsActive; }
@@ -59,6 +64,8 @@ public class UserPOJO {
     public void setDeviceId(String deviceId) {this.deviceId = deviceId;}
 
     public void setUserType(String userType) {this.userType = userType;}
+
+    public void setAuthType(String authType) {this.authType = authType;}
 
     public void setPassword(String password) {this.password = password;}
 

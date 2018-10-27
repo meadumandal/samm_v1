@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/curvedshapedialog"
+    android:background="@drawable/loader_background"
     android:orientation="vertical">
 
     <ImageView
@@ -33,13 +33,12 @@
             android:layout_centerHorizontal="true"
             android:layout_marginLeft="70dp"
             android:layout_marginRight="70dp"
-            android:fontFamily="casual"
-            android:text="---"
+            android:text="Error Message"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorWhiteEC"
             android:textSize="14sp"
-            android:textStyle="bold"
+
             tools:layout_editor_absoluteX="52dp"
             tools:layout_editor_absoluteY="275dp" />
     </LinearLayout>

@@ -128,6 +128,7 @@ import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersFragment;
 import com.umandalmead.samm_v1.Modules.AdminUsers.mySQLGetAdminUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
+import com.umandalmead.samm_v1.Modules.SuperAdminUsers.SuperAdminUsersFragment;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Setting;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Settings;
@@ -464,6 +465,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _AdminToolsFloatingMenu = (FloatingActionMenu) findViewById(R.id.AdminFloatingActionMenu);
 
                 //Hide or view nav menus based on user type
+                _NavView.getMenu().findItem(id.nav_superadminusers).setVisible(_sessionManager.getIsSuperAdmin());
                 _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsSuperAdmin());
                 _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(id.nav_lines).setVisible(_sessionManager.getIsSuperAdmin() || _sessionManager.getIsAdmin());
@@ -1381,6 +1383,12 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     GuestInfo.show();
                 }
 
+            }
+            else if (id==R.id.nav_superadminusers)
+            {
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
+                SuperAdminUsersFragment superAdminUsersFragment = new SuperAdminUsersFragment();
+                fragment.beginTransaction().replace(R.id.content_frame, superAdminUsersFragment).commit();
             }
             else if (id==R.id.nav_adminusers)
             {

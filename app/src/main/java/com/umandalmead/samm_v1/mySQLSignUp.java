@@ -69,6 +69,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
         String firstName = params[1];
         String lastName = params[2];
         String emailAddress = params[3];
+        String authType = params[4];
         String data = "";
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context))
@@ -83,6 +84,7 @@ public class mySQLSignUp extends AsyncTask<String, Void, Void>{
                 postParameters.add(new BasicNameValuePair("firstName", firstName));
                 postParameters.add(new BasicNameValuePair("lastName", lastName));
                 postParameters.add(new BasicNameValuePair("emailAddress", emailAddress));
+                postParameters.add(new BasicNameValuePair("authType", authType));
                 httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
                 HttpResponse response = httpClient.execute(httpPost);
                 String strResponse = EntityUtils.toString(response.getEntity());

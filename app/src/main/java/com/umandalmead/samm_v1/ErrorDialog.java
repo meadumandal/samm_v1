@@ -27,7 +27,17 @@ public class ErrorDialog extends Dialog implements
         this._errorMessage = errorMessage;
 
     }
+    public ErrorDialog(Activity activity) {
+        super(activity);
+        // TODO Auto-generated constructor stub
+        this._activity = activity;
+        this._errorMessage = "";
 
+    }
+    public void setErrorMessage(String errorMessage)
+    {
+        this._errorMessage = errorMessage;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +49,7 @@ public class ErrorDialog extends Dialog implements
 
         btnOk    = (Button) findViewById(R.id.btnOK);
         btnOk.setOnClickListener(this);
-
+        getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
 
     }

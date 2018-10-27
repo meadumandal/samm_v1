@@ -255,7 +255,7 @@ public class SignUpActivity extends AppCompatActivity {
     {
         User user = new User(username, firstName, lastName, emailAddress);
         userDatabaseReference.child(username).setValue(user);
-        new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress);
+        new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress, Constants.EMAIL_AUTH_TYPE);
     }
     private void ShowSignUpProgressDialog(){
         SignUpProgDiag = new ProgressDialog(SignUpActivity.this);
