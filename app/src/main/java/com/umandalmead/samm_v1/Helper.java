@@ -19,6 +19,8 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -258,7 +260,8 @@ public class Helper {
         }
         return STR_LOC_Result;
     }
-    public static void InitializeSearchingRouteUI(Boolean BOOL_IsSearchingDone, Boolean BOOL_IsResultNegative, String STR_HTMLMessage,String STR_Distance, String STR_TimeRemaining){
+    public static void InitializeSearchingRouteUI(Boolean BOOL_IsSearchingDone, Boolean BOOL_IsResultNegative, String STR_HTMLMessage,String STR_Distance, String STR_TimeRemaining,Context context){
+
         if(BOOL_IsSearchingDone) {
             _LoopArrivalProgress.setVisibility(View.INVISIBLE);
             if(!BOOL_IsResultNegative && STR_HTMLMessage != null && STR_Distance!= null && STR_TimeRemaining!=null){
@@ -274,20 +277,20 @@ public class Helper {
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
             else if(BOOL_IsResultNegative){
                 _LL_Arrival_Info.setVisibility(View.GONE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
             else{
                 _LL_Arrival_Info.setVisibility(View.GONE);
                 _TimeOfArrivalTextView.setBackgroundResource(0);
                 _TimeOfArrivalTextView.setText(null);
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
         }
         else {
@@ -297,14 +300,14 @@ public class Helper {
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
 
             }
             else{
                 _LL_Arrival_Info.setVisibility(View.GONE);
                 _TimeOfArrivalTextView.setBackgroundResource(0);
                 _TimeOfArrivalTextView.setText(null);
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(130);
+                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
 
             }
         }
@@ -368,10 +371,16 @@ public class Helper {
 
     }
     public static Users GetEloopDriver(Eloop eloopData){
-        for (Users driver: MenuActivity._driverList) {
-            if(driver.ID == eloopData.tblUsersID){
-                return driver;
+        try {
+            if(MenuActivity._driverList.size() > 0) {
+                for (Users driver : MenuActivity._driverList) {
+                    if (driver.ID == eloopData.tblUsersID) {
+                        return driver;
+                    }
+                }
             }
+        }catch (Exception ex){
+            Helper.logger(ex);
         }
         return null;
     }
@@ -398,7 +407,7 @@ public class Helper {
                 .addListenerForSingleValueEvent(
                         new SaveCurrentDestination(this._activity, this._context, currentDestination));
     }
-    public int dpToPx(float dp, Context context) {
+    public static int dpToPx(float dp, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         float fpixels = metrics.density * dp;
         int pixels = (int) (fpixels + 0.5f);
@@ -475,9 +484,16 @@ public class Helper {
         }
         return null;
     }
-    public static UserMarker GetUserMarkerDetails(String markerTitle, Context context){
-        UserMarker UM_result = new UserMarker(markerTitle,context);
+    public static UserMarker GetUserMarkerDetails(String entry, Context context){
+            UserMarker UM_result = new UserMarker(entry,context);
         return UM_result;
+    }
+    public static Boolean IsPossibleAdminBasedOnFirebaseUserKey(String STR_FirebaseUserKey){
+        if(STR_FirebaseUserKey.matches("\\d+") || STR_FirebaseUserKey.contains("guest")){
+          return false;
+        }else {
+            return true;
+        }
     }
 
 

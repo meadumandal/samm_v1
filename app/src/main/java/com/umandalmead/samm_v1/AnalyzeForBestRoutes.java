@@ -207,14 +207,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
     }
 
-    private void addMarker(LatLng destination) {
-
-        MarkerOptions options = new MarkerOptions();
-        options.position(destination);
-        options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-        this._map.addMarker(options);
-
-    }
 
     @Override
     protected void onPostExecute(List<Terminal> L_TM_topTerminals) {

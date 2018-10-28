@@ -4,6 +4,7 @@
     android:layout_height="wrap_content"
     android:id="@+id/Info_Layout"
     android:layout_gravity="center|top"
+    android:gravity="center"
     android:visibility="invisible">
     <RelativeLayout
         android:layout_width="360dp"
@@ -44,7 +45,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/TextView_InfoTitle"
-                    android:textSize="15dp"
                     android:visibility="invisible"
                     android:textStyle="bold"
                     android:textColor="@color/colorWhite"

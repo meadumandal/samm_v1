@@ -2,9 +2,11 @@ package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.umandalmead.samm_v1.EntityObjects.UserMarker;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -19,6 +21,8 @@ import com.umandalmead.samm_v1.SessionManager;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import javax.net.ssl.SNIHostName;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.USERS_API_DELETE_FILE_WITH_PENDING_QUERYSTRING;
@@ -53,11 +57,7 @@ public class AddUserMarkers implements
             {
                 Marker marker;
                 marker = (Marker) ((MenuActivity)this._activity)._userMarkerHashmap.get(username);
-                if(marker !=null)
-                {
-                    marker.remove();
-                    ((MenuActivity)this._activity)._userMarkerHashmap.remove(username);
-                }
+
                 Object Latitude = dataSnapshot.child("Latitude").getValue();
                 Object Longitude = dataSnapshot.child("Longitude").getValue();
                 double lat, lng;
@@ -71,14 +71,37 @@ public class AddUserMarkers implements
                     lng = (double) Longitude;
 
                 LatLng latLng = new LatLng(lat, lng);
+
                 if (((MenuActivity)this._activity)._googleMap !=null)
                 {
-                    MarkerOptions markerOptions = new MarkerOptions();
-                    markerOptions.position(latLng);
-                    markerOptions.title(username);
-                    markerOptions.icon(BitmapDescriptorFactory.fromResource(Helper.GetUserMarkerDetails(username, _activity.getApplicationContext()).UserIcon));
-                    marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
-                    ((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
+
+                    if(marker !=null)
+                    {
+                        //marker.remove();
+                        marker.setPosition(latLng);
+                        //((MenuActivity)this._activity)._userMarkerHashmap.remove(username);
+                    }else{
+                        String STR_IconGetterFlag = null,
+                                STR_Snippet=dataSnapshot.child("emailAddress").getValue()!=null?dataSnapshot.child("emailAddress").getValue().toString(): null;
+                        MarkerOptions markerOptions = new MarkerOptions();
+                        markerOptions.position(latLng);
+                        markerOptions.snippet(STR_Snippet);
+                        markerOptions.title(username);
+                        if(Helper.IsPossibleAdminBasedOnFirebaseUserKey(username)){
+                            STR_IconGetterFlag = STR_Snippet == null? username: STR_Snippet;
+                        }else {
+                            STR_IconGetterFlag = username;
+                        }
+                        markerOptions.title(username);
+                        UserMarker UM_user = Helper.GetUserMarkerDetails(STR_IconGetterFlag, _activity.getApplicationContext());
+                        // markerOptions.snippet(markerOptions.getSnippet() + ","+UM_user.UserType.toString());
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(UM_user.UserIcon));
+                        //marker.setPosition(latLng);
+                        marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
+                        ((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
+                    }
+                    //marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
+                    //((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
                 }
             }
         }

@@ -238,6 +238,7 @@ public class UserProfileActivity extends Fragment {
         protected void onPostExecute(Bitmap result) {
             if(result!=null) {
                 IB_profile_loader_circle.setVisibility(View.GONE);
+                IB_profile_loader_circle.setImageResource(0);
                 userImage.setImageBitmap(result);
                 userImage.setVisibility(View.VISIBLE);
             }

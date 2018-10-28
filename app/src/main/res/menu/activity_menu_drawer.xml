@@ -114,7 +114,6 @@
                 android:background="?attr/selectableItemBackground"
                 android:icon="@drawable/ic_info_outline_black_24dp"
                 android:title="About" />
-
         </menu>
     </item>
     <!--<item android:title="ADMIN TOOLS">-->

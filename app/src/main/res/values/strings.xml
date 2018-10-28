@@ -60,6 +60,7 @@
     <string name="title_manage_lines_activity">Manage Lines</string>
     <string name="title_admin_users_fragment">Admin Users</string>
     <string name="title_drivers_fragment">Drivers</string>
+    <string name="title_signup_activity">Sign Up</string>
 
     <!--INFO MESSAGES-->
     <string name="info_add_route_success">Successfully added new route!</string>
@@ -193,7 +194,7 @@
     <string name="FONT_TRENDER" translatable="false">font/Trender.ttf</string>
     <string name="FONT_SAN_FRANCISCO_REG" translatable="false">font/San-Francisco-Regular.ttf</string>
     <string name="FONT_LICENSE_PLATE" translatable="false">font/LICENSE_PLATE.ttf</string>
-
+    <string name="FONT_ROBOTO_MEDIUM" translatable="false">font/Roboto-Medium.ttf</string>
     <!--TOOL TIPS-->
     <string name="ToolTip_show_menu_options">Tap to show menu options</string>
     <string name="ToolTip_search_again">Tap to search again</string>

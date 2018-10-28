@@ -94,7 +94,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="30dp"
-            android:layout_gravity="left|center_vertical"
+            android:layout_gravity="center|center_horizontal"
             android:gravity="left"
             android:id="@+id/layout_terminalSelection"
             >

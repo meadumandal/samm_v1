@@ -11,17 +11,20 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,7 +85,6 @@ public class LoginActivity extends AppCompatActivity{
     private Constants _constants = new Constants();
     private MediaPlayer _buttonClick;
     public LoaderDialog LD_FBLoginLoader;
-
 
 
     @Override
@@ -161,9 +163,13 @@ public class LoginActivity extends AppCompatActivity{
                                         String user_lastname = me.optString("last_name");
                                         String user_firstname = me.optString("first_name");
                                         String user_email = response.getJSONObject().optString("email");
-
-
-                                        handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
+                                        try {
+                                            handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
+                                        }
+                                        catch (Exception ex){
+                                            HideLogInProgressDialog();
+                                            Helper.logger(ex);
+                                        }
 
                                     }
                                 }
@@ -588,4 +594,5 @@ public class LoginActivity extends AppCompatActivity{
     private void PlayButtonClickSound(){
         _buttonClick.start();
     }
+
 }

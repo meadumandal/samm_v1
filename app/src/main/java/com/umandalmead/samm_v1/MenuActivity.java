@@ -128,6 +128,7 @@ import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersFragment;
 import com.umandalmead.samm_v1.Modules.AdminUsers.mySQLGetAdminUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
+import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDrivers;
 import com.umandalmead.samm_v1.Modules.SuperAdminUsers.SuperAdminUsersFragment;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Setting;
@@ -457,7 +458,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _HeaderUserEmail = (TextView) _NavHeaderView.findViewById(R.id.HeaderUserEmail);
                 _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
                 _HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
-                _ProfilePictureImg.setBackgroundResource(GetUserNavigationMenuPicture());
+                _ProfilePictureImg.setBackgroundResource(_sessionManager.isFacebook() ? 0: GetUserNavigationMenuPicture());
                 _HeaderUserEmail.setText(_sessionManager.getEmail());
                 _AddGPSFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingAddGPS);
                 _AddPointFloatingButton = (FloatingActionButton) findViewById(R.id.subFloatingAddPoint);
@@ -498,7 +499,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
                 _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
-
+                new mySQLGetDrivers(MenuActivity.this, getApplicationContext()).execute();
                 if (_sessionManager.getIsAdmin())
                     _AdminToolsFloatingMenu.setVisibility(View.VISIBLE);
                 else
@@ -797,9 +798,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     _userCurrentLoc = new LatLng(lat, lng);
                     saveLocation(lat, lng);
                     MarkerOptions markerOptions = new MarkerOptions();
+                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.samm_user_location_map_icon));
                     markerOptions.position(_userCurrentLoc);
-
-                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
 
                     _userCurrentLocMarker = _googleMap.addMarker(markerOptions);
 
@@ -966,11 +966,16 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 }
                 //vehicle has been clicked instead
                 else if(_driverMarkerHashmap.containsKey(markerTitle)){
-                    Users driverDetails= Helper.GetEloopDriver(Helper.GetEloopEntry(markerTitle));
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, driverDetails.firstName+" "+driverDetails.lastName, null,R.drawable.eco_loop_for_info_transparent,Enums.InfoLayoutType.INFO_VEHICLE);
+                    Users driverDetails = Helper.GetEloopDriver(Helper.GetEloopEntry(markerTitle));
+                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, (driverDetails!= null ? driverDetails.firstName : "")+" "
+                            +(driverDetails!=null ? driverDetails.lastName : ""), null,R.drawable.eco_loop_for_info_transparent,Enums.InfoLayoutType.INFO_VEHICLE);
                 }
                 else{
-                    final UserMarker UM_result = new UserMarker(markerTitle,_context);
+                    String STR_IconGetterFlag=marker.getTitle();
+                    if(Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerTitle))
+                        STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag: marker.getSnippet();
+
+                    final UserMarker UM_result = new UserMarker(STR_IconGetterFlag,_context);
                     Handler HD_FetchFBName = new Handler();
 
                     if(UM_result.UserType== Enums.UserType.SAMM_FACEBOOK){
@@ -2439,6 +2444,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }, 2000);
         }
         else {
+            MenuActivity._BOOL_IsGPSAcquired=false;
             CoordinatorLayout.LayoutParams AppBarLayout = (CoordinatorLayout.LayoutParams) MenuActivity._AppBar.getLayoutParams();
             AppBarLayout.height = _helper.dpToPx(20,_context);
             _AppBar.setLayoutParams(AppBarLayout);
@@ -2578,10 +2584,10 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 _SL_Vehicle_ETA.stopShimmerAnimation();
                 _SL_Map_Fragment.startShimmerAnimation();
                 _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                Helper.InitializeSearchingRouteUI(true, false, null, null, null );
+                Helper.InitializeSearchingRouteUI(true, false, null, null, null ,_context);
             }
         }, 1000);
-        _SlideUpPanelContainer.setPanelHeight(130);
+        _SlideUpPanelContainer.setPanelHeight(_helper.dpToPx(60,_context));
         _SlideUpPanelContainer.setTouchEnabled(false);
 
     }
@@ -2632,7 +2638,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     public void ShowInfoLayout(String Title, String Description, String Description2, Integer Icon, Enums.InfoLayoutType InfoType){
         try{
         ClearInfoPanelDetails();
-        _infoTitleTV.setTextSize(_helper.dpToPx(8,_context));
+        _infoTitleTV.setTextSize(_helper.dpToPx(6,_context));
         InfoPanelShow(Title, Description,Description2, Icon,InfoType);
         }
         catch(Exception ex){
@@ -2665,7 +2671,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
     public void InfoPanelShow(final String InfoTitle, final String InfoDescription, final String InfoDescription2,final Integer Icon, final Enums.InfoLayoutType infoType) {
             //final int imageResId = isStation ? R.drawable.ic_ecoloopstop_for_info : R.drawable.eco_loop_for_info_transparent;
-            final String finalTitle =  InfoTitle.toUpperCase();
+            final String finalTitle =  InfoTitle;
             final Typeface finalTitleFont = GetFontStyle(infoType);
             _infoTitleTV.setTypeface(null);
             if (_infoLayout.getVisibility() == View.INVISIBLE) {
@@ -2755,7 +2761,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
     public void UpdateInfoPanelDetails(String Title, String Description, String Description2){
         if(_InfoPanel_IsEditingEnabled) {
-            _infoTitleTV.setText(Title);
+                _infoTitleTV.setText(Title);
             if(Description!=null)
                  _infoDescriptionTV.setText(Description);
             if(Description2!=null)
@@ -2841,7 +2847,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             FONT_PLATE = Typeface.createFromAsset(_context.getAssets(),
                     _GlobalResource.getString(R.string.FONT_LICENSE_PLATE));
             FONT_STATION = Typeface.createFromAsset(_context.getAssets(),
-                    _GlobalResource.getString(R.string.FONT_TRENDER));
+                    _GlobalResource.getString(R.string.FONT_ROBOTO_MEDIUM));
         }catch (Exception ex){
             Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage());
         }
@@ -2874,9 +2880,12 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                     @Override
                     public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
-                        String STR_tempName=dataSnapshot.child(STR_FB_id).child("firstName").getValue() +" "
-                                + dataSnapshot.child(STR_FB_id).child("lastName").getValue();
-                        userMarkerCache.UserTitle=STR_tempName;
+                        String STR_firstName= dataSnapshot.child(STR_FB_id).child("firstName").getValue() == null? null : dataSnapshot.child(STR_FB_id).child("firstName").getValue().toString();
+                        String STR_lastName = dataSnapshot.child(STR_FB_id).child("lastName").getValue() == null? null: dataSnapshot.child(STR_FB_id).child("lastName").getValue().toString();
+                        if(STR_firstName == null && STR_lastName == null)
+                            userMarkerCache.UserTitle=null;
+                        else
+                            userMarkerCache.UserTitle=STR_firstName + " " + STR_lastName;
                         UpdateInfoPanelDetails(userMarkerCache.UserTitle,null,null);
 
                     }
@@ -2889,12 +2898,14 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }
 
     public int GetUserNavigationMenuPicture(){
-            int result = 0;
+            int result = R.drawable.samm_user_icon_info_layout_sammer_registered;
             try{
                 if(_sessionManager.isGuest())
                     result = R.drawable.samm_user_icon_info_layout_default;
                 else if(_sessionManager.getIsAdmin())
                     result = R.drawable.samm_user_icon_info_layout_admin;
+                else if(_sessionManager.getIsSuperAdmin())
+                    result = R.drawable.samm_user_icon_info_layout_superadmin;
 
             }catch (Exception ex){
                 Helper.logger(ex);
@@ -2905,7 +2916,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         Typeface TF_result = FONT_STATION;
         try{
             switch (layouttype){
-                case INFO_VEHICLE: TF_result = FONT_PLATE; _infoTitleTV.setTextSize(_helper.dpToPx(12,_context)); break;
+                case INFO_VEHICLE: TF_result = FONT_PLATE; _infoTitleTV.setTextSize(_helper.dpToPx(10,_context)); break;
+                case INFO_PERSON: TF_result = FONT_STATION; _infoTitleTV.setTextSize(_helper.dpToPx(8,_context)); break;
                 default: TF_result = FONT_STATION;
             }
         }catch (Exception ex){

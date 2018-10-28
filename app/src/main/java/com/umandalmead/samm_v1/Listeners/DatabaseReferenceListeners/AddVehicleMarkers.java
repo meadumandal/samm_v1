@@ -89,7 +89,6 @@ public class AddVehicleMarkers implements ChildEventListener {
         try {
             final String deviceId = dataSnapshot.getKey();
             double lat, lng;
-
             Object Latitude = dataSnapshot.child("Lat").getValue();
             Object Longitude = dataSnapshot.child("Lng").getValue();
             String routeIDs = dataSnapshot.child("routeIDs").getValue().toString();

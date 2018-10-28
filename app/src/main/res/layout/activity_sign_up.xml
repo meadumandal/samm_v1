@@ -1,264 +1,284 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:gravity="center_horizontal|center_vertical"
     android:background="@color/colorPrimaryDark"
-
     tools:context=".SignUpActivity">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="50dp"
-        android:gravity="center_vertical">
-        <ImageView
-            android:id="@+id/imgLogo"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/samm_transparent" />
-
-    </LinearLayout>
-    <LinearLayout
+    <include layout="@layout/samm_toolbar" android:layout_height="wrap_content" android:layout_width="wrap_content"></include>
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="30dp"
-        android:gravity="center_horizontal"
-        >
-        <TextView
-            android:id="@+id/textNewAcct"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="53dp"
-            android:text="NEW ACCOUNT"
-            android:textAlignment="center"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#ffffff"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:typeface="sans" />
-    </LinearLayout>
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:paddingLeft="45dp"
-        android:paddingRight="45dp"
-        android:paddingTop="100dp">
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_firstName"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
-
-        <EditText
-            android:id="@+id/edit_firstName"
-
+        android:layout_height="match_parent"
+        android:layout_gravity="center|center_vertical">
+        <LinearLayout
             android:layout_width="match_parent"
+            android:layout_gravity="center|center_vertical"
+            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:hint="First Name"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/imgLogo"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/samm_transparent" />
+                <io.supercharge.shimmerlayout.ShimmerLayout
+                    android:id="@+id/SL_NewAccount"
+                    app:shimmer_color="@color/colorBlack"
+                    app:shimmer_animation_duration="1500"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/textNewAcct"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="New Account"
+                        android:textAlignment="center"
+                        android:textAppearance="?android:attr/textAppearanceMedium"
+                        android:textColor="#ffffff"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:typeface="sans" />
+                </io.supercharge.shimmerlayout.ShimmerLayout>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TIL_edit_firstName"
+                    >
+
+                    <EditText
+                        android:id="@+id/edit_firstName"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"
+                        android:backgroundTint="@android:color/white"
+                        android:hint="First Name"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#ffffff"
+                        android:ellipsize="start"
+                        android:gravity="center_horizontal"/>
+                </android.support.design.widget.TextInputLayout>
 
 
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_lastName"
-        android:layout_below="@+id/TIL_edit_firstName"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TIL_edit_lastName"
+                    >
 
-        <EditText
-            android:id="@+id/edit_lastName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:hint="Last Name"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_address"
-        android:layout_below="@+id/TIL_edit_lastName"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
+                    <EditText
+                        android:id="@+id/edit_lastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"
+                        android:backgroundTint="@android:color/white"
+                        android:hint="Last Name"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#ffffff"
+                        android:ellipsize="start"
+                        android:gravity="center_horizontal"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TIL_edit_address"
+                    android:layout_below="@+id/TIL_edit_lastName"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    >
 
-        <EditText
-            android:id="@+id/edit_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/edit_lastName"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:ems="10"
-            android:hint="Email Address"
-            android:inputType="textEmailAddress"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/TIL_textRoute"
-        android:layout_below="@+id/TIL_edit_address"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
+                    <EditText
+                        android:id="@+id/edit_address"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/edit_lastName"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"
+                        android:backgroundTint="@android:color/white"
+                        android:ems="10"
+                        android:hint="Email Address"
+                        android:inputType="textEmailAddress"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#ffffff"
+                        android:ellipsize="start"
+                        android:gravity="center_horizontal"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TIL_textRoute"
+                    android:layout_below="@+id/TIL_edit_address"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    >
 
-        <EditText
-            android:id="@+id/textRoute"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:hint="Username"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/textRoute"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentStart="true"
+                        android:backgroundTint="@android:color/white"
+                        android:hint="Username"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#ffffff"
+                        android:ellipsize="start"
+                        android:gravity="center_horizontal"/>
+                </android.support.design.widget.TextInputLayout>
 
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_password"
-        android:layout_below="@+id/TIL_textRoute"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TIL_edit_password"
+                    android:layout_below="@+id/TIL_textRoute"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    >
 
-        <EditText
-            android:id="@+id/edit_password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/textRoute"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:ems="10"
-            android:hint="Password"
-            android:inputType="textPassword"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
-    <android.support.design.widget.TextInputLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/TIL_edit_confirmpassword"
-        android:layout_below="@+id/TIL_edit_password"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        >
+                    <EditText
+                        android:id="@+id/edit_password"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/textRoute"
+                        android:layout_alignParentStart="true"
+                        android:backgroundTint="@android:color/white"
+                        android:ems="10"
+                        android:hint="Password"
+                        android:inputType="textPassword"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#ffffff"
+                        android:ellipsize="start"
+                        android:gravity="center_horizontal"/>
+                </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/TIL_edit_confirmpassword"
+                    >
 
-        <EditText
-            android:id="@+id/edit_confirmpassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/edit_password"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="@android:color/white"
-            android:ems="10"
-            android:hint="Confirm Password"
-            android:inputType="textPassword"
-            android:textAlignment="center"
-            android:textColor="#ffffff"
-            android:textColorHint="#ffffff"
-            android:ellipsize="start"
-            android:gravity="center_horizontal"/>
-    </android.support.design.widget.TextInputLayout>
+                    <EditText
+                        android:id="@+id/edit_confirmpassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@+id/edit_password"
+                        android:layout_alignParentStart="true"
+                        android:backgroundTint="@android:color/white"
+                        android:ems="10"
+                        android:hint="Confirm Password"
+                        android:inputType="textPassword"
+                        android:textAlignment="center"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#ffffff"
+                        android:ellipsize="start"
+                        android:gravity="center_horizontal"/>
+                </android.support.design.widget.TextInputLayout>
 
 
-        <Button
-            android:id="@+id/btn_save"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/TIL_edit_confirmpassword"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/signup_oval_background"
-            android:text="Sign Up"
-            android:textColor="#FFFFFF"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+                <Button
+                    android:id="@+id/btn_save"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_below="@+id/TIL_edit_confirmpassword"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/signup_oval_background"
+                    android:text="Submit"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
 
 
 
-        <!--<TextView-->
-            <!--android:id="@+id/linkDriver"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_below="@+id/textAlreadyAMember"-->
-            <!--android:layout_centerHorizontal="true"-->
-            <!--android:text="I'm a driver"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:textColor="@color/colorWhite" />-->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone" />
+                <!--<TextView-->
+                <!--android:id="@+id/linkDriver"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_below="@+id/textAlreadyAMember"-->
+                <!--android:layout_centerHorizontal="true"-->
+                <!--android:text="I'm a driver"-->
+                <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+                <!--android:textColor="@color/colorWhite" />-->
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center|bottom"
+                    android:layout_marginBottom="20dp"
+                    android:visibility="gone" />
 
-    </RelativeLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_marginTop="15dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center|center_vertical"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/textAlreadyAMember"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    android:text="Already a member?"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/colorWhite" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="600dp"
-        android:orientation="horizontal"
-        android:gravity="bottom|center_horizontal">
-        <TextView
-            android:id="@+id/textAlreadyAMember"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Already a member?   "
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/colorWhite" />
+                <TextView
+                    android:id="@+id/linkSignIn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="40dp"
+                    android:text="Log In"
+                    android:textStyle="bold"
+                    android:onClick="LoginLinkClicked"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/colorWhite" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
-        <TextView
-            android:id="@+id/linkSignIn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Log In"
-            android:textStyle="bold"
-            android:onClick="LoginLinkClicked"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="@color/colorWhite" />
-    </LinearLayout>
-</RelativeLayout>
+    <!--<LinearLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_marginLeft="100dp"-->
+        <!--android:layout_marginTop="30dp"-->
+        <!--android:gravity="center_horizontal"-->
+        <!--&gt;-->
+
+    <!--</LinearLayout>-->
+
+
+
+</LinearLayout>
 

@@ -29,9 +29,10 @@ public class Enums {
 
     }
     public enum UserType{
-        SAMM_DEFAULT("SAMMER",0),
+        SAMM_DEFAULT("SAMMER (Guest)",0),
         SAMM_FACEBOOK("SAMMER (Facebook)",1),
-        SAMM_ADMINISTRATOR("SAMMER (Administrator)",2);
+        SAMM_ADMINISTRATOR("SAMMER (Administrator)",2),
+        SAMM_DEFAULT_REGISTERED("Registered SAMMER",3);
         private String stringValue;
         private int intValue;
         private UserType(String toString, int value){

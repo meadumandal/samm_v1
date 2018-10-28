@@ -130,7 +130,15 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     }
     public void createRouteTabs(final List<String> L_STR_TotalTimeList, final List<List<String>> L_L_STR_DirectionStepsList, final List<Terminal> L_TM_AllPossibleTerminals, final List<List<String>> L_L_STR_TerminalPointsList) {
         try {
-            ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
+
+            final Handler HND_ShowPanel = new Handler();
+            HND_ShowPanel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
+                }
+            }, 1000);
+
             MenuActivity._selectedPickUpPoint = _L_Terminals.get(0);
             if (L_TM_AllPossibleTerminals.size() == 0 || L_TM_AllPossibleTerminals == null)
                 throw new Exception("Unable to find route for this destination.");
@@ -153,13 +161,6 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                     RemoveListenerFromLoop();
                     clearLines();
                     PlayButtonClickSound();
-                    //final Handler HND_UpdateUI = new Handler();
-//                    HND_UpdateUI.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//
-//                        }
-//                    }, 1000);
                     ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                     drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
@@ -181,7 +182,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                 public void run() {
                     ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                 }
-            }, 1500);
+            }, 2000);
             MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
             new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
@@ -271,7 +272,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal TM_CurrentDest) {
         try {
             if (TM_CurrentDest != null) {
-                Helper.InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...", null,null);
+                Helper.InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...", null,null, _context);
                 final List<Terminal> LTM_DestList_Sorted = MenuActivity._terminalList;
                 Collections.sort(LTM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 FB = FirebaseDatabase.getInstance();
@@ -320,7 +321,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                                         loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
                                         String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if (loopAwaiting && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
-                                            Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null);
+                                            Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null,_context);
                                             loopAwaiting = true;
                                             _IsAllLoopParked = false;
                                             found = true;
@@ -400,7 +401,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                         }
                     }
                     if (_IsAllLoopParked) {
-                        Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null);
+                        Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null,_context);
 
                     }
 
@@ -408,7 +409,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
             });
         }
         catch(Exception ex){
-
+            Helper.logger(ex);
         }
     }
     public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Destination) {
@@ -435,7 +436,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop).PlateNumber,Distance, TimeofArrival.toString());
+                                    Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop).PlateNumber,Distance, TimeofArrival.toString(),_context);
                                 }
                             } catch (Exception ex) {
                                 Log.d("onResponse", "There is an error");

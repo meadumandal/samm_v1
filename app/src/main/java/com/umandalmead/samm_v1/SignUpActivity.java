@@ -13,7 +13,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -29,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.supercharge.shimmerlayout.ShimmerLayout;
 import retrofit.Call;
 import retrofit.Callback;
 import retrofit.GsonConverterFactory;
@@ -47,6 +50,9 @@ public class SignUpActivity extends AppCompatActivity {
     private static String TAG = "mead";
     private ProgressDialog SignUpProgDiag;
     private Constants _constants = new Constants();
+    private ImageButton FAB_SammIcon;
+    private TextView ViewTitle;
+    private ShimmerLayout _SL_NewAccount;
 
 
     @Override
@@ -57,6 +63,8 @@ public class SignUpActivity extends AppCompatActivity {
         btn_signUp = (Button)findViewById(R.id.btn_save);
         progressBar= (ProgressBar) findViewById(R.id.progressBar);
         sessionManager = new SessionManager(getApplicationContext());
+        _SL_NewAccount = (ShimmerLayout) findViewById(R.id.SL_NewAccount);
+        _SL_NewAccount.startShimmerAnimation();
        // link_driver = (TextView) findViewById(R.id.linkDriver);
 
 
@@ -74,6 +82,7 @@ public class SignUpActivity extends AppCompatActivity {
 //                startActivity(i);
 //            }
 //        });
+        InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_signup_activity));
         btn_signUp.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -178,10 +187,12 @@ public class SignUpActivity extends AppCompatActivity {
                                                                             FirebaseUser user = firebaseAuth.getCurrentUser();
                                                                             if (user != null) {
                                                                                //User account creation succesded, send verification email, and redirect to log in page.
+                                                                                _SL_NewAccount.stopShimmerAnimation();
                                                                                 sendVerificationEmail();
                                                                                 saveUserDetails(firstName, lastName, username, emailAddress);
                                                                             } else {
                                                                                 //User signed out.
+                                                                                _SL_NewAccount.stopShimmerAnimation();
                                                                                 FirebaseAuth.getInstance().removeAuthStateListener(this);
                                                                                 startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                                                                             }
@@ -270,6 +281,22 @@ public class SignUpActivity extends AppCompatActivity {
     public void LoginLinkClicked(View v){
         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
         finish();
+    }
+    public void InitializeToolbar(String fragmentName){
+        FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
+        FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
+        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                _SL_NewAccount.stopShimmerAnimation();
+                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                finish();
+            }
+        });
+        ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setText(fragmentName);
     }
 
 }
