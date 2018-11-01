@@ -353,49 +353,59 @@ public class LoginActivity extends AppCompatActivity{
                                             ShowLogInProgressDialog(response.body().getUserType());
                                             signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
                                         } else {
-                                            FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
-                                            ShowLogInProgressDialog(response.body().getUserType());
-                                            MessageDigest md = MessageDigest.getInstance("MD5");
-                                            md.update(password.getBytes());
-                                            byte[] digest = md.digest();
+                                            if (response.body().getDeviceId()==null)
+                                            {
 
-                                            StringBuffer sb = new StringBuffer();
-                                            for (byte b : digest) {
-                                                sb.append(String.format("%02x", b & 0xff));
+                                                ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "You have no asssigned vehicle.");
+                                                errorDialog.show();
                                             }
-                                            //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
-                                            String hashedPassword = sb.toString();
-                                            if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
-                                                DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
-                                                _driverDatabaseReference.child(response.body().getDeviceId().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                                    @Override
-                                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                                        if (dataSnapshot != null) {
-                                                            if (dataSnapshot.child("connections") == null)
-                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
-                                                            else if (dataSnapshot.child("connections").getValue() == null)
-                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
-                                                            else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
-                                                                signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
-                                                            else {
+                                            else
+                                            {
+                                                FirebaseDatabase _firebaseDatabase = FirebaseDatabase.getInstance();
+                                                ShowLogInProgressDialog(response.body().getUserType());
+                                                MessageDigest md = MessageDigest.getInstance("MD5");
+                                                md.update(password.getBytes());
+                                                byte[] digest = md.digest();
 
-                                                                Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
-                                                            }
+                                                StringBuffer sb = new StringBuffer();
+                                                for (byte b : digest) {
+                                                    sb.append(String.format("%02x", b & 0xff));
+                                                }
+                                                //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
+                                                String hashedPassword = sb.toString();
+                                                if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
+                                                    DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
+                                                    _driverDatabaseReference.child(response.body().getDeviceId().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                        @Override
+                                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                                            if (dataSnapshot != null) {
+                                                                if (dataSnapshot.child("connections") == null)
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                else if (dataSnapshot.child("connections").getValue() == null)
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                else {
+
+                                                                    Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
+                                                                }
 //                                                        {
 //                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
 //                                                        }
+                                                            }
                                                         }
-                                                    }
 
-                                                    @Override
-                                                    public void onCancelled(DatabaseError databaseError) {
+                                                        @Override
+                                                        public void onCancelled(DatabaseError databaseError) {
 
-                                                    }
-                                                });
-                                            } else {
-                                                Toast.makeText(getApplicationContext(), "Driver Password is incorrect", Toast.LENGTH_LONG).show();
-                                                HideLogInProgressDialog();
+                                                        }
+                                                    });
+                                                } else {
+                                                    Toast.makeText(getApplicationContext(), "Driver Password is incorrect", Toast.LENGTH_LONG).show();
+                                                    HideLogInProgressDialog();
+                                                }
                                             }
+
                                         }
 
                                     }
