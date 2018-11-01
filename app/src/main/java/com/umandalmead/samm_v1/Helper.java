@@ -2,7 +2,9 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -80,6 +82,9 @@ public class Helper {
     public MenuActivity _activity;
     public Context _context;
     public SessionManager _sessionManager;
+    private static Resources _GlobalResource;
+    public static Typeface FONT_PLATE,FONT_STATION, FONT_RUBIK_REGULAR, FONT_RUBIK_BOLD, FONT_RUBIK_MEDIUM, FONT_ROBOTO_CONDENDSED_BOLD, FONT_RUBIK_BLACK;
+
 
 
     public Helper(Activity activity, Context context)
@@ -87,6 +92,8 @@ public class Helper {
         this._activity = (MenuActivity) activity;
         this._context = context;
         this._sessionManager = new SessionManager(_context);
+        this._GlobalResource = _context.getResources();
+        InitializeFonts(_context);
     }
     public Helper()
     {
@@ -266,28 +273,29 @@ public class Helper {
             _LoopArrivalProgress.setVisibility(View.INVISIBLE);
             if(!BOOL_IsResultNegative && STR_HTMLMessage != null && STR_Distance!= null && STR_TimeRemaining!=null){
                 _LL_Arrival_Info.setVisibility(View.VISIBLE);
+                MenuActivity._SL_Vehicle_ETA.startShimmerAnimation();
                 _TV_Vehicle_Identifier.setText(STR_HTMLMessage);
                 _TV_Vehicle_Description.setText(STR_Distance+ Constants.VEHICLE_REMAINING_TIME_SUFFIX);
+                _TV_TimeofArrival.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
                 _TV_TimeofArrival.setText(STR_TimeRemaining);
                 _TimeOfArrivalTextView.setVisibility(View.INVISIBLE);
-
             }
             else if(STR_HTMLMessage !=null && STR_HTMLMessage.toLowerCase().contains(Constants.VEHICLE_ALREADY_WAITING_CONTAINS)){
-                _LL_Arrival_Info.setVisibility(View.GONE);
+                _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
+                //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
             else if(BOOL_IsResultNegative){
-                _LL_Arrival_Info.setVisibility(View.GONE);
+                _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
+                //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
             else{
-                _LL_Arrival_Info.setVisibility(View.GONE);
+                _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(0);
                 _TimeOfArrivalTextView.setText(null);
                 MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
@@ -296,18 +304,18 @@ public class Helper {
         else {
             _LoopArrivalProgress.setVisibility(View.VISIBLE);
             if(STR_HTMLMessage != null && STR_HTMLMessage.toLowerCase().contains(Constants.VEHICLE_SEARCHING_CONTAINS)){
-                _LL_Arrival_Info.setVisibility(View.GONE);
+                _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
+                //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
 
             }
             else{
-                _LL_Arrival_Info.setVisibility(View.GONE);
+                _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(0);
                 _TimeOfArrivalTextView.setText(null);
-                MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
+                //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
 
             }
         }
@@ -467,6 +475,8 @@ public class Helper {
         return minValue;
     }
     public static Boolean IsStringEqual(String STR_Entry_1, String STR_Entry_2){
+        if(STR_Entry_1==null || STR_Entry_2 == null)
+            return false;
         return STR_Entry_1.toLowerCase().equals(STR_Entry_2.toLowerCase());
     }
 
@@ -495,7 +505,21 @@ public class Helper {
             return true;
         }
     }
-
+    public static void InitializeFonts(Context _context){
+        try{
+            FONT_PLATE = Typeface.createFromAsset(_context.getAssets(),
+                    _GlobalResource.getString(R.string.FONT_LICENSE_PLATE));
+            FONT_STATION = Typeface.createFromAsset(_context.getAssets(),
+                    _GlobalResource.getString(R.string.FONT_ROBOTO_MEDIUM));
+            FONT_RUBIK_BOLD = Typeface.createFromAsset(_context.getAssets(), _GlobalResource.getString(R.string.FONT_Rubik_Bold));
+            FONT_RUBIK_REGULAR = Typeface.createFromAsset(_context.getAssets(), _GlobalResource.getString(R.string.FONT_Rubik_Regular));
+            FONT_RUBIK_MEDIUM = Typeface.createFromAsset(_context.getAssets(), _GlobalResource.getString(R.string.FONT_ROBOTO_MEDIUM));
+            FONT_ROBOTO_CONDENDSED_BOLD = Typeface.createFromAsset(_context.getAssets(), _GlobalResource.getString(R.string.FONT_RobotoCondensed_Bold));
+            FONT_RUBIK_BLACK = Typeface.createFromAsset(_context.getAssets(), _GlobalResource.getString(R.string.FONT_Rubik_Black));
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
+    }
 
 
 }

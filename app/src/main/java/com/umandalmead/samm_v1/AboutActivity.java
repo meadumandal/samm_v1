@@ -38,7 +38,7 @@ public class AboutActivity extends Fragment {
         SessionManager sessionManager = new SessionManager(myView.getContext());
         InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_about_activity));
         InitializeFacebookLikeButton();
-
+        SammTV.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
         if (sessionManager.getIsDeveloper()) {
             SammTV.setText(Html.fromHtml("<i>Developed by: E & M <i>"));
         } else {
@@ -53,15 +53,20 @@ public class AboutActivity extends Fragment {
         fbLike.setObjectIdAndType(MenuActivity._GlobalResource.getString(R.string.Facebook_samm_page_url), LikeView.ObjectType.PAGE);
     }
     public void InitializeToolbar(String fragmentName){
-        FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);
-        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
-                drawerLayout.openDrawer(Gravity.LEFT);
-            }
-        });
-        ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
-        ViewTitle.setText(fragmentName);
+        try {
+            FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);
+            FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+            });
+            ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
+            ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+            ViewTitle.setText(fragmentName);
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
     }
 }

@@ -108,15 +108,20 @@ public class ViewGPSFragment extends Fragment {
     }
 
     public void InitializeToolbar(String fragmentName){
-        FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);
-        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
-                drawerLayout.openDrawer(Gravity.LEFT);
-            }
-        });
-        ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
-        ViewTitle.setText(fragmentName);
+        try {
+            FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);
+            FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+            });
+            ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
+            ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+            ViewTitle.setText(fragmentName);
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
     }
 }

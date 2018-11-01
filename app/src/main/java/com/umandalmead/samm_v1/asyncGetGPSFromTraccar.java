@@ -142,6 +142,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                             if (e.DeviceId == selectedGPS.getID())
                             {
                                 selectedEloop = e;
+                                break;
                             }
                         }
                         String jsonSelectedGPS = gson.toJson(selectedGPS);

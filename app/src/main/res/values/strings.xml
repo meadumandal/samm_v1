@@ -149,9 +149,9 @@
     <!--DIALOG MESSAGES-->
     <string name="dialog_status_success">Success</string>
     <string name="dialog_status_error">Error</string>
-    <string name="dialog_title_analyzing_routes">Analyzing Routes</string>
+    <string name="dialog_title_analyzing_routes">Analyzing routes</string>
     <string name="dialog_message_analyzing_routes">Please wait as we search for the best route...</string>
-    <string name="dialog_title_initializing_destinations">Initializing Data</string>
+    <string name="dialog_title_initializing_destinations">Initializing data</string>
     <string name="dialog_message_initializing_destinations">The app is initializing, please wait...</string>
     <string name="dialog_please_wait">Please wait</string>
     <string name="dialog_adding_route">Adding route...</string>
@@ -195,6 +195,17 @@
     <string name="FONT_SAN_FRANCISCO_REG" translatable="false">font/San-Francisco-Regular.ttf</string>
     <string name="FONT_LICENSE_PLATE" translatable="false">font/LICENSE_PLATE.ttf</string>
     <string name="FONT_ROBOTO_MEDIUM" translatable="false">font/Roboto-Medium.ttf</string>
+    <string name="FONT_Rubik_Black" translatable="false">font/Rubik/Rubik-Black.ttf</string>
+    <string name="FONT_Rubik_BlackItalic" translatable="false">font/Rubik/Rubik-BlackItalic.ttf</string>
+    <string name="FONT_Rubik_Bold" translatable="false">font/Rubik/Rubik-Bold.ttf</string>
+    <string name="FONT_Rubik_BoldItalic" translatable="false">font/Rubik/Rubik-BoldItalic.ttf</string>
+    <string name="FONT_Rubik_Italic" translatable="false">font/Rubik/Rubik-Italic.ttf</string>
+    <string name="FONT_Rubik_Light" translatable="false">font/Rubik/Rubik-Light.ttf</string>
+    <string name="FONT_Rubik_LightItalic" translatable="false">font/Rubik/Rubik-LightItalic.ttf</string>
+    <string name="FONT_Rubik_Medium" translatable="false">font/Rubik/Rubik-Medium.ttf</string>
+    <string name="FONT_Rubik_MediumItalic" translatable="false">font/Rubik/Rubik-MediumItalic.ttf</string>
+    <string name="FONT_Rubik_Regular" translatable="false">font/Rubik/Rubik-Regular.ttf</string>
+    <string name="FONT_RobotoCondensed_Bold" translatable="false">font/Roboto_Condensed/RobotoCondensed-Bold.ttf</string>
     <!--TOOL TIPS-->
     <string name="ToolTip_show_menu_options">Tap to show menu options</string>
     <string name="ToolTip_search_again">Tap to search again</string>

@@ -28,12 +28,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
+                android:layout_marginLeft="15dp"
                 android:textColor="@color/colorWhiteEC"
                 android:text="Fragment Name"
-                android:textSize="20dp"
-                android:gravity="center"
+                android:textSize="17sp"
+                android:gravity="left"
                 android:layout_marginRight="45dp"
-                android:layout_gravity="center"
+                android:layout_gravity="left|center_vertical"
                 android:id="@+id/samm_toolbar_title" />
             <ImageView
                 android:id="@+id/topnav_addButton"

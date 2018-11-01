@@ -26,10 +26,10 @@
     <item>
         <shape>
             <solid android:color="@color/colorShadowedSteel" />
-            <corners android:bottomRightRadius="12dp"
-                android:bottomLeftRadius="12dp"
-                android:topLeftRadius="12dp"
-                android:topRightRadius="12dp"/>
+            <corners android:bottomRightRadius="8dp"
+                android:bottomLeftRadius="8dp"
+                android:topLeftRadius="10dp"
+                android:topRightRadius="10dp"/>
         </shape>
     </item>
 </layer-list>

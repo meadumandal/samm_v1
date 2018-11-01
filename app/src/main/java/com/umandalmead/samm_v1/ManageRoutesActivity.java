@@ -83,19 +83,25 @@ public class ManageRoutesActivity extends AppCompatActivity {
 
     }
     public void InitializeToolbar(String fragmentName){
-        FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
-        FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
-        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent menuIntent = new Intent(ManageRoutesActivity.this, MenuActivity.class);
-                startActivity(menuIntent);
-                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                finish();
-            }
-        });
-        ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
-        ViewTitle.setText(fragmentName);
+        try {
+            FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
+            FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
+            FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent menuIntent = new Intent(ManageRoutesActivity.this, MenuActivity.class);
+                    startActivity(menuIntent);
+                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                    finish();
+                }
+            });
+            ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
+            ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+            ViewTitle.setText(fragmentName);
+        }
+        catch (Exception ex){
+            Helper.logger(ex);
+        }
     }
     public void InitializeView(NonScrollListView NSRouteListView){
         try

@@ -12,7 +12,6 @@
     tools:showIn="@layout/app_bar_menu">
 
 
-
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
         xmlns:sothree="http://schemas.android.com/apk/res-auto"
         android:id="@+id/sliding_layout"
@@ -21,10 +20,8 @@
         android:gravity="bottom"
 
         android:clickable="true"
-
         sothree:umanoClipPanel="true"
         sothree:umanoOverlay="true"
-        sothree:umanoDragView="@+id/route_content"
         sothree:umanoFadeColor="@android:color/transparent"
         sothree:umanoPanelHeight="65dp"
         sothree:umanoShadowHeight="20dp">
@@ -55,13 +52,12 @@
         </LinearLayout>
         <LinearLayout
             xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:layout_width="wrap_content"
-            android:layout_height="250dp"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
             android:clickable="true"
             android:visibility="visible"
             android:orientation="vertical"
             android:animateLayoutChanges="true"
-            android:background="@drawable/rounded_layout"
             android:id="@+id/route_content">
             <include
                 layout="@layout/activity_slide_panel_01"

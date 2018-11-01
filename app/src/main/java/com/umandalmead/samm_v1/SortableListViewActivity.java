@@ -174,6 +174,7 @@ public class SortableListViewActivity extends ListActivity {
             }
         });
         ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
         ViewTitle.setText(fragmentName);
     }
     @Override

@@ -15,8 +15,11 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
@@ -28,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 
@@ -55,7 +59,7 @@ import static com.umandalmead.samm_v1.MenuActivity._userCurrentLoc;
  * Created by eleazerarcilla on 21/10/2018.
  */
 
-public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
+public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
     protected Activity _activity;
     protected Context _context;
     LoaderDialog _dialog;
@@ -67,7 +71,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     private List<String> _L_AllPoints = new ArrayList<String>();
     private Terminal _chosenTerminal;
     private GoogleMap _map;
-    public static Polyline _redPolyLine, _magentaPolyLine;
+    public static Polyline  _skyBluePolyLine;
     private static List<LatLng> listLatLng = new ArrayList<>();
     private  LoaderDialog _loader;
     private static DatabaseReference DriversDatabaseReference, VehicleDestinationDatabaseReference, _S_VehicleDestinationDatabaseReference;
@@ -76,7 +80,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     private String _AssignedELoop = "";
     private Boolean _IsAllLoopParked = true;
     private List<Integer> _ListOfLoops = new ArrayList<Integer>();
-
+    private Constants _constants = new Constants();
     public asyncPrepareRouteData(Activity activity, Context context, List<Terminal> L_TM_topTerminals, Terminal terminal, GoogleMap googlemap,LoaderDialog loaderDialog){
         this._activity = activity;
         this._context = context;
@@ -89,6 +93,9 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
+        MenuActivity.RouteTabs.removeAllTabs();
+        _SlideUpPanelContainer.setPanelHeight(220);
+        Helper.InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...", null,null, _context);
     }
 
     @Override
@@ -96,7 +103,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
         List<Object> Objects = new ArrayList<Object>();
         try{
            // long startTime = System.currentTimeMillis();
-            int ctr = 0;
+            int ctr = 0, INT_TMSize= _L_Terminals.size();
             for (Terminal terminal : _L_Terminals) {
                 String TotalTime = "";
                 List<String> DirectionSteps = new ArrayList<String>();
@@ -111,6 +118,8 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                     String Instructions = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
                     DirectionSteps.add(Instructions);
                 }
+
+                publishProgress((ctr/INT_TMSize)*100);
                 _L_L_STR_TerminalPointsList.add(_L_AllPoints);
                 _L_L_STR_DirectionStepsList.add(DirectionSteps);
                 ctr++;
@@ -123,6 +132,12 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     }
 
     @Override
+    protected void onProgressUpdate(Integer... values) {
+        super.onProgressUpdate(values);
+        Log.i(_constants.LOG_TAG, values[0].toString());
+    }
+
+    @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
         createRouteTabs(_L_STR_TotalTimeList,_L_L_STR_DirectionStepsList,_L_Terminals,_L_L_STR_TerminalPointsList);
@@ -130,20 +145,17 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
     }
     public void createRouteTabs(final List<String> L_STR_TotalTimeList, final List<List<String>> L_L_STR_DirectionStepsList, final List<Terminal> L_TM_AllPossibleTerminals, final List<List<String>> L_L_STR_TerminalPointsList) {
         try {
-
             final Handler HND_ShowPanel = new Handler();
+            final Handler HND_UpdateUI = new Handler();
             HND_ShowPanel.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     ((MenuActivity)_activity).ShowRouteTabsAndSlidingPanel();
                 }
-            }, 1000);
-
+            }, 1200);
             MenuActivity._selectedPickUpPoint = _L_Terminals.get(0);
             if (L_TM_AllPossibleTerminals.size() == 0 || L_TM_AllPossibleTerminals == null)
                 throw new Exception("Unable to find route for this destination.");
-
-            MenuActivity.RouteTabs.removeAllTabs();
             for (Terminal entry : L_TM_AllPossibleTerminals) {
                 MenuActivity.RouteTabs.addTab( MenuActivity.RouteTabs.newTab().setText(entry.Description));
             }
@@ -152,16 +164,15 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
             MenuActivity.RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
-                    MenuActivity.viewPager.setCurrentItem(tab.getPosition());
+                    Helper.InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...", null,null, _context);
                     MenuActivity._RouteTabSelectedIndex = tab.getPosition();
-
+                    if(MenuActivity._SlideUpPanelContainer.getPanelState()== SlidingUpPanelLayout.PanelState.COLLAPSED)
+                        MenuActivity._SlideUpPanelContainer.setPanelHeight(220);
                     new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
                     MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(tab.getPosition());
                     GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
-                    clearLines();
                     PlayButtonClickSound();
-                    ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                     drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
 
@@ -175,18 +186,16 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
 
                 }
             });
-            clearLines();
-            final Handler HND_UpdateUI = new Handler();
+            drawLines(L_L_STR_TerminalPointsList.get(0).get(0));
             HND_UpdateUI.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     ((MenuActivity)asyncPrepareRouteData.this._activity).UpdateUI(Enums.UIType.SHOWING_ROUTES);
                 }
-            }, 2000);
-            MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(0);
+            }, 1500);
             new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
             GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
-            drawLines(L_L_STR_TerminalPointsList.get(0).get(0));
+
         } catch (Exception ex) {
             //Loader.dismiss();
             Helper.logger(ex);
@@ -198,11 +207,8 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
         MenuActivity._buttonClick.start();
     }
     public static void clearLines() {
-        if (_redPolyLine != null && _redPolyLine.getPoints().size() >0) {
-            _redPolyLine.remove();
-        }
-        if(_magentaPolyLine != null && _magentaPolyLine.getPoints().size() >0) {
-            _magentaPolyLine.remove();
+        if(_skyBluePolyLine != null && _skyBluePolyLine.getPoints().size() >0) {
+            _skyBluePolyLine.remove();
         }
         if(!listLatLng.isEmpty()) {
             listLatLng.clear();
@@ -210,6 +216,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
 
     }
     private void drawLines(String points) {
+        clearLines();
         int width = _activity.getResources().getDisplayMetrics().widthPixels;
         int height = _activity.getResources().getDisplayMetrics().heightPixels;
         int padding = (int) (height * 0.20);
@@ -235,44 +242,18 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
 
     }
     private void animatePolyLine() {
-        PolylineOptions magentaPolyOptions = new PolylineOptions();
-        magentaPolyOptions.width(5);
-        magentaPolyOptions.color(Color.MAGENTA);
-        magentaPolyOptions.startCap(new SquareCap());
-        magentaPolyOptions.endCap(new SquareCap());
-        magentaPolyOptions.jointType(ROUND);
-        magentaPolyOptions.addAll(listLatLng);
-        _magentaPolyLine = this._map.addPolyline(magentaPolyOptions);
+        PolylineOptions polyLineOptions = new PolylineOptions();
+        polyLineOptions.addAll(listLatLng);
+        polyLineOptions.width(20f);
+        polyLineOptions.color(Color.rgb(0, 178, 255));
+        _skyBluePolyLine = this._map.addPolyline(polyLineOptions);
 
-        PolylineOptions redPolyOptions = new PolylineOptions();
-        redPolyOptions.width(5);
-        redPolyOptions.color(Color.RED);
-        redPolyOptions.startCap(new SquareCap());
-        redPolyOptions.endCap(new SquareCap());
-        redPolyOptions.jointType(ROUND);
-        _redPolyLine = this._map.addPolyline(redPolyOptions);
-
-        ValueAnimator animator = ValueAnimator.ofInt(0, 100);
-        animator.setDuration(2000);
-        animator.setInterpolator(new LinearInterpolator());
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                List<LatLng> points = _magentaPolyLine.getPoints();
-                int percentValue = (int) animator.getAnimatedValue();
-                int size = points.size();
-                int newPoints = (int) (size * (percentValue / 100.0f));
-                List<LatLng> p = points.subList(0, newPoints);
-                _redPolyLine.setPoints(p);
-
-            }
-        });
-        animator.start();
+        List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot(), new Gap(10f));
+        _skyBluePolyLine.setPattern(pattern);
     }
     public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal TM_CurrentDest) {
         try {
             if (TM_CurrentDest != null) {
-                Helper.InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...", null,null, _context);
                 final List<Terminal> LTM_DestList_Sorted = MenuActivity._terminalList;
                 Collections.sort(LTM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
                 FB = FirebaseDatabase.getInstance();
@@ -439,6 +420,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Void,Void>{
                                     Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop).PlateNumber,Distance, TimeofArrival.toString(),_context);
                                 }
                             } catch (Exception ex) {
+                                    Helper.InitializeSearchingRouteUI(true,true,"Data Error!",null,null,_context);
                                 Log.d("onResponse", "There is an error");
                                 Helper.logger(ex);
                             }

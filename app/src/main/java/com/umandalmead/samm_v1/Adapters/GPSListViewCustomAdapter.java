@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.umandalmead.samm_v1.EntityObjects.GPS;
+import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
 
@@ -28,6 +29,7 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
     private ArrayList<GPS> dataSet;
     Context mContext;
     String TAG = "mead";
+    Helper _helper;
 
     // View lookup cache
     private static class ViewHolder {
@@ -80,7 +82,9 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
             viewHolder.txtGPSStatus = (TextView) convertView.findViewById(R.id.gpsstatus);
             viewHolder.layoutGPSItem = (LinearLayout) convertView.findViewById(R.id.gpsitemLinearLayout);
             viewHolder.btnReconnectGPS = (Button) convertView.findViewById(R.id.btnReconnectGPS);
-
+            viewHolder.txtGPSName.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+            viewHolder.txtGPSStatus.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
+            viewHolder.btnReconnectGPS.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
 
             result=convertView;
 
@@ -118,7 +122,7 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
         lastPosition = position;
 
         viewHolder.txtGPSName.setText(dataModel.getGPSName());
-        viewHolder.txtGPSStatus.setText(dataModel.getStatus());
+        viewHolder.txtGPSStatus.setText(dataModel.getStatus() != null? dataModel.getStatus().toUpperCase():"N/A");
         if(dataModel.getStatus().toLowerCase().equals("online"))
 
             viewHolder.layoutGPSItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorGreen));

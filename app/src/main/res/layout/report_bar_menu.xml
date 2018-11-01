@@ -43,37 +43,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="35dp"
+                android:layout_marginLeft="15dp"
+                android:gravity="left"
+                android:layout_gravity="left|center_vertical"
                 android:orientation="vertical">
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center">
+                    android:layout_gravity="left"
+                    android:gravity="left">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="REPORTS"
+                        android:id="@+id/TV_ReportTitle"
                         android:textColor="@color/colorSprayBlue"
                         android:layout_gravity="center"
-                        android:textSize="18dp"
+                        android:textSize="17sp"
                         android:textStyle="bold"
                         android:fontFamily="@string/FONT_LICENSE_PLATE"
                         />
                 </LinearLayout>
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center">
+                    android:layout_gravity="left"
+                    android:gravity="left">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Total KM per day"
                         android:textColor="@color/colorWhiteEC"
                         android:layout_gravity="center"
-                        android:textSize="15dp"
+                        android:textSize="12sp"
                         android:id="@+id/textViewReportName"
                         />
                 </LinearLayout>
@@ -94,7 +98,7 @@
             android:orientation="horizontal"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="30dp"
-            android:layout_gravity="center|center_horizontal"
+            android:layout_gravity="center"
             android:gravity="left"
             android:id="@+id/layout_terminalSelection"
             >

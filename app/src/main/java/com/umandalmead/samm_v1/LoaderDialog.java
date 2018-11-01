@@ -39,6 +39,8 @@ public class LoaderDialog extends Dialog {
         setContentView(R.layout.dialog_loader);
         this.TV_LoaderMessage = (TextView) findViewById(R.id.loader_message);
         this.TV_LoaderTitle = (TextView) findViewById(R.id.loader_title) ;
+        this.TV_LoaderTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+        this.TV_LoaderMessage.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
         this.TV_LoaderMessage.setText(this._loaderMessage);
         this.TV_LoaderTitle.setText(this._loaderTitle);
         this._loaderImage = (ImageButton) findViewById(R.id.IB_samm_loader_circle);

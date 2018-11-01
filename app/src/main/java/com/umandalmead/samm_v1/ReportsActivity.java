@@ -57,7 +57,7 @@ public class ReportsActivity extends Fragment {
     private Button _btn_CreateReport;
     private LinearLayout _LL_create_button_holder;
     private ShimmerLayout _SL_btn_create_report;
-
+    private TextView _TV_ActivityTitle, _TV_ReportSubTitle;
     View _view;
 
 
@@ -84,6 +84,8 @@ public class ReportsActivity extends Fragment {
             _LL_create_button_holder = (LinearLayout) _view.findViewById(R.id.LL_create_button_holder);
             _spinner = (Spinner) _view.findViewById(R.id.spinner_terminal);
             _SL_btn_create_report = (ShimmerLayout) _view.findViewById(R.id.SL_btn_Create_Report);
+            _TV_ActivityTitle = (TextView) _view.findViewById(R.id.TV_ReportTitle);
+            _TV_ReportSubTitle = (TextView) _view.findViewById(R.id.textViewReportName);
             _SL_btn_create_report.startShimmerAnimation();
 
             _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
@@ -101,6 +103,8 @@ public class ReportsActivity extends Fragment {
                 }
             });
             this._sessionManager = new SessionManager(getContext());
+            _TV_ActivityTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+            _TV_ReportSubTitle.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
             List<String> terminals = new ArrayList<>();
             terminals.add("--ALL--");
             for (Terminal t : MenuActivity._terminalList)

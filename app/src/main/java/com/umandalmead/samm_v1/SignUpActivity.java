@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -83,6 +84,7 @@ public class SignUpActivity extends AppCompatActivity {
 //            }
 //        });
         InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_signup_activity));
+
         btn_signUp.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -296,6 +298,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
         ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
         ViewTitle.setText(fragmentName);
     }
 

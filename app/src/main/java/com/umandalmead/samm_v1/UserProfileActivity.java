@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -96,6 +97,8 @@ public class UserProfileActivity extends Fragment {
         rotation.setFillAfter(true);
         this.IB_profile_loader_circle.startAnimation(rotation);
 
+        getActivity().getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         if (_sessionManager.isFacebook())
         {
             LL_UserCredentialsHolder.setVisibility(View.GONE);
@@ -112,9 +115,10 @@ public class UserProfileActivity extends Fragment {
         }
         else{
             LL_UserCredentialsHolder.setVisibility(View.VISIBLE);
-            userImage.setVisibility(View.GONE);
             IB_profile_loader_circle.setVisibility(View.GONE);
             SL_FB_InfoMessageShimmer.setVisibility(View.GONE);
+            //userImage.setBackgroundResource(Helper.GetUserMarkerDetails(_sessionManager.getUsername(),getContext()).UserInfoLayoutIcon);
+            userImage.setVisibility(View.GONE);
         }
         if(_sessionManager.isLoggedIn()){
             tv_NameDisplay.setText(_sessionManager.getFullName().toUpperCase());
@@ -255,15 +259,20 @@ public class UserProfileActivity extends Fragment {
     }
 
     public void InitializeToolbar(String fragmentName){
-        FAB_SammIcon = (ImageButton) _view.findViewById(R.id.SAMMLogoFAB);
-        FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
-                drawerLayout.openDrawer(Gravity.LEFT);
-            }
-        });
-        ViewTitle = (TextView) _view.findViewById(R.id.samm_toolbar_title);
-        ViewTitle.setText(fragmentName);
+        try {
+            FAB_SammIcon = (ImageButton) _view.findViewById(R.id.SAMMLogoFAB);
+            FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                    drawerLayout.openDrawer(Gravity.LEFT);
+                }
+            });
+            ViewTitle = (TextView) _view.findViewById(R.id.samm_toolbar_title);
+            ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+            ViewTitle.setText(fragmentName);
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
     }
 }

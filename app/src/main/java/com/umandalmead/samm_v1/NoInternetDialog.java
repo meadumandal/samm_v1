@@ -21,10 +21,12 @@ public class NoInternetDialog extends Dialog implements
     public Dialog dialog;
     public Button btnTryAgain;
     private ShimmerLayout SL_TryAgain;
+    private Helper _helper;
     public NoInternetDialog(Activity activity) {
         super(activity);
         // TODO Auto-generated constructor stub
         this._activity = activity;
+        this._helper = new Helper(activity, activity.getApplicationContext());
     }
 
     @Override
@@ -35,6 +37,7 @@ public class NoInternetDialog extends Dialog implements
         btnTryAgain = (Button) findViewById(R.id.btnTryAgain);
         SL_TryAgain = (ShimmerLayout) findViewById(R.id.SL_TryAgain);
         SL_TryAgain.startShimmerAnimation();
+        btnTryAgain.setTypeface(_helper.FONT_RUBIK_BOLD);
         btnTryAgain.setOnClickListener(this);
         MenuActivity.buttonEffect(btnTryAgain);
 

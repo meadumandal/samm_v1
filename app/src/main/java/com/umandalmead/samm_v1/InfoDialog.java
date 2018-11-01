@@ -40,6 +40,7 @@ public class InfoDialog extends Dialog implements
         this.infoMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         btnOk    = (Button) findViewById(R.id.btnOK);
         btnOk.setOnClickListener(this);
+        btnOk.setTypeface(MenuActivity.FONT_RUBIK_BLACK);
         MenuActivity.buttonEffect(btnOk);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 

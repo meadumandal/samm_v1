@@ -4,17 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/main_content"
     android:background="@color/colorWhite"
     tools:context="com.umandalmead.samm_v1.MenuActivity">
     <include layout="@layout/content_menu" />
-
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appBarLayout"
         android:animateLayoutChanges="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorDarkGrey"
-        android:visibility="gone"
+        android:backgroundTint="@color/colorTransparent"
+        android:visibility="invisible"
         android:theme="@style/AppTheme.AppBarOverlay">
         <io.supercharge.shimmerlayout.ShimmerLayout
             android:id="@+id/SL_Appbar_Top_TextView"
@@ -29,6 +29,7 @@
                 android:background="@color/colorGrassGreen"
                 android:textColor="@color/colorWhite"
                 android:textStyle="bold"
+                android:textSize="14sp"
                 android:gravity="center|center_vertical"
                 android:text="Current Location - Bellevue"/>
         </io.supercharge.shimmerlayout.ShimmerLayout>
@@ -37,7 +38,8 @@
             android:id="@+id/route_tablayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
+            android:visibility="invisible"
+            android:background="@color/colorDarkGrey"
             app:tabBackground="@color/colorDarkGrey"
             app:tabSelectedTextColor="@color/colorWhite"
             app:tabTextColor="@color/colorWhite">

@@ -37,6 +37,49 @@
         android:padding="1dp"
         />
 
+<LinearLayout
+    android:id="@+id/LL_mapActions"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top|right"
+    android:orientation="vertical">
+    <ImageButton
+        android:id="@+id/IB_myLocation"
+        android:layout_gravity="right"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:src="@drawable/ic_my_location_black_24dp"
+        android:background="@drawable/circular_buttons"
+        android:padding="1dp"/>
+
+    <ImageButton
+        android:id="@+id/IB_mapType"
+        android:layout_gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="50dip"
+        android:layout_height="50dip"
+        android:src="@drawable/ic_layers_black_24dp"
+        android:background="@drawable/circular_buttons"
+        android:padding="1dp"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorTransparent"
+        android:elevation="10dp"
+        android:animateLayoutChanges="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="50dp"
+        android:orientation="vertical">
+        <include layout="@layout/map_layers_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+</LinearLayout>
+
 
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/AdminFloatingActionMenu"

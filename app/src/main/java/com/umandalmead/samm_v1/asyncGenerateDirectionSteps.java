@@ -54,25 +54,22 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
     protected void onPostExecute(String finalInstructions) {
         super.onPostExecute(finalInstructions);
         MenuActivity._RouteStepsText.loadDataWithBaseURL(_constants.ROUTES_BASEURI, finalInstructions, _constants.ROUTES_MIMETYPE, _constants.ROUTES_ENCODING, null);
-        MenuActivity._RouteStepsText.scrollTo(0,0);
+
         _loader.dismiss();
     }
     public String SelectedTabInstructions(List<String> STR_StepsList, String STR_TotalTime, Terminal TM_Terminal) {
-        String Step =
-                "<h3 style='padding-left:5%;color:#4834d4'>Suggested Actions</h3><body style='margin: 0; padding: 0'><table style='padding-left:5%; padding-right:2%;'><tr><td width='20%'><userImg style='height:60%; border-radius:50%;' src= 'drawable/ic_walking.png'></td>" +
-//                        "<td style='padding-left:7%;'><medium style='background:#2196F3; color:white;border-radius:10%; padding: 7px;'>WALK</medium></td></tr>" +
-                        "<td style='padding-left:7%;'><b>Walk your way to " + TM_Terminal.getDescription() + " Terminal </b></td></tr>" +
-                        "<tr><td width='20%' style='text-align:center'><small>" + CleanTotalTime(STR_TotalTime) + "</small></td><td></td></tr>";
 
+        String Step = "<html><head><style type=\"text/css\">@font-face {font-family: MyFont;src: url(\"file:///android_asset/font/Rubik/Rubik-Regular.ttf\")}body {font-family: MyFont;font-size: medium;text-align: justify;}</style></head><h3 style='padding-left:5%;color:#4834d4;'>Suggested Actions</h3><body style='margin: 0; padding: 0'>";
+        Step+="<div style=\"text-align: left; margin-left: 2%; margin-right: 4%\">" + "\t<div style=\"font-weight: bold;text-align: center;\">Walk your way to "+TM_Terminal.getDescription()+"</div><div style='text-align: center;'>("+STR_TotalTime+")</div>\n";
         if (STR_StepsList != null) {
             for (int x = 0; x < STR_StepsList.size(); x++) {
-                Step += "<tr><td></td><td>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".</td><tr>";
+                Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='"+GetDirectionIcon(STR_StepsList.get(x))+"'>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".</div>";
                 if ((x + 1) == STR_StepsList.size()) {
-                    Step += "<tr><td></td><td>" + (x + 2) + ". " + GenerateFinalStep(_chosenTerminal, TM_Terminal);
+                    Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='" + GetDirectionIcon("final") + "'>" + (x + 2) + ". " + GenerateFinalStep(_chosenTerminal, TM_Terminal);
                 }
             }
         }
-        return Step + "</table></body>";
+        return Step + "</div</body></html>";
     }
 
     public String CleanDirectionStep(String STR_Step) {
@@ -91,6 +88,33 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
         return STR_Step;
     }
 
+    private String GetDirectionIcon(String STR_Step){
+        String STR_Result = "file:///android_res/drawable/";
+        if(STR_Step!=null){
+           String STR_temp=STR_Step.toLowerCase();
+            STR_temp= STR_temp.replace("<b>","");
+            STR_temp= STR_temp.replace("</b>","");
+            if(STR_temp.contains("slight left")){
+                STR_Result+="slight_left.png";
+            }
+            else if(STR_temp.contains("slight right")){
+                STR_Result+="slight_right.png";
+            }
+            else if(STR_temp.contains("head") || STR_temp.contains("continue")){
+                STR_Result+="head.png";
+            }
+            else if(STR_temp.contains("turn right")){
+                STR_Result+="turn_right.png";
+            }
+            else if(STR_temp.contains("turn left")){
+                STR_Result+="turn_left.png";
+            }
+            else if(STR_temp.contains("final")){
+                STR_Result+="checked.png";
+            }
+        }
+        return  STR_Result;
+    }
     public String CleanTotalTime(String STR_TotalTime_Unlean) {
         if (STR_TotalTime_Unlean != null) {
             if (STR_TotalTime_Unlean.contains("hours")) {
@@ -112,7 +136,7 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
                 return "Ride the e-loop and alight on <b>"
                         +dist
                         +GeneratePrefix(dist)
-                        +" stop</b>.</td><tr>";
+                        +" stop</b>.</div>";
             }
         }
         return "";

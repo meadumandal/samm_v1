@@ -25,6 +25,7 @@ public class AddStationPointFragment extends Fragment {
         myView = inflater.inflate(R.layout.activity_addroute, container, false);
         FAB_SammIcon = (ImageButton) myView.findViewById(R.id.SAMMLogoFAB);
         ViewTitle = (TextView) myView.findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
         ViewTitle.setText("Add Point");
         SessionManager sessionManager = new SessionManager(myView.getContext());
         return myView;
