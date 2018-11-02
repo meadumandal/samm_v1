@@ -284,6 +284,7 @@ public class Helper {
                 _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+                _TimeOfArrivalTextView.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
                 //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
@@ -291,6 +292,7 @@ public class Helper {
                 _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
+                _TimeOfArrivalTextView.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
                 //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
@@ -307,6 +309,7 @@ public class Helper {
                 _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+                _TimeOfArrivalTextView.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
                 //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
 

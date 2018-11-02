@@ -64,7 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Searching for nearest E-loop..."
-                    android:textSize="13dp"
+                    android:textSize="14sp"
                     android:textColor="@color/colorWhite"
                     android:textStyle="bold"
                     android:gravity="center"
@@ -83,7 +83,12 @@
 
             </FrameLayout>
 
-            <ScrollView
+        <ViewStub
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout="@layout/routes_list_panel_for_driver"
+            android:id="@+id/ViewStub_RoutesPanel"/>
+        <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:animateLayoutChanges="true"

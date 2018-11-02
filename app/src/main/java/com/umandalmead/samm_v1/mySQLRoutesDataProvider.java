@@ -1,5 +1,6 @@
 package com.umandalmead.samm_v1;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -21,12 +22,14 @@ import java.util.ArrayList;
 
 public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Routes>> {
     Context _context;
+    Activity _activity;
     int _lineID = 0;
     LoaderDialog _loaderDialog;
 
 
-    public mySQLRoutesDataProvider(Context context)
+    public mySQLRoutesDataProvider(Activity activity, Context context)
     {
+        this._activity = activity;
         this._context = context;
 
     }
@@ -81,5 +84,9 @@ public class mySQLRoutesDataProvider extends AsyncTask<Void,Void, ArrayList<Rout
         if (_loaderDialog != null)
             _loaderDialog.dismiss();
         MenuActivity._routeList = listRoutes;
+       SessionManager session = new SessionManager(_context);
+       if(session.isDriver()){
+           ((MenuActivity)mySQLRoutesDataProvider.this._activity).InflateDriverRoutesPanel();
+       }
     }
 }

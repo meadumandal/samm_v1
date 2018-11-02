@@ -60,10 +60,16 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
     public String SelectedTabInstructions(List<String> STR_StepsList, String STR_TotalTime, Terminal TM_Terminal) {
 
         String Step = "<html><head><style type=\"text/css\">@font-face {font-family: MyFont;src: url(\"file:///android_asset/font/Rubik/Rubik-Regular.ttf\")}body {font-family: MyFont;font-size: medium;text-align: justify;}</style></head><h3 style='padding-left:5%;color:#4834d4;'>Suggested Actions</h3><body style='margin: 0; padding: 0'>";
-        Step+="<div style=\"text-align: left; margin-left: 2%; margin-right: 4%\">" + "\t<div style=\"font-weight: bold;text-align: center;\">Walk your way to "+TM_Terminal.getDescription()+"</div><div style='text-align: center;'>("+STR_TotalTime+")</div>\n";
+        Step+="<div style=\"text-align: left; margin-left: 2%; margin-right: 4%; padding-bottom: 5%;\">" + "\t<div style=\"font-weight: bold;text-align: center;\">Walk your way to "+TM_Terminal.getDescription()+" terminal</div><div style='text-align: center;'>("+STR_TotalTime+")</div>\n";
         if (STR_StepsList != null) {
             for (int x = 0; x < STR_StepsList.size(); x++) {
-                Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='"+GetDirectionIcon(STR_StepsList.get(x))+"'>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".</div>";
+                Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='"+GetDirectionIcon(STR_StepsList.get(x))+"'>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".<div style=\"\n" +
+                        "    border-bottom: 1px solid #00000026;\n" +
+                        "    margin-top: 0.5%;\n" +
+                        "    margin-left: 8%;\n" +
+                        "    align-items: center;\n" +
+                        "    width: inherit;\n" +
+                        "\"></div></div>";
                 if ((x + 1) == STR_StepsList.size()) {
                     Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='" + GetDirectionIcon("final") + "'>" + (x + 2) + ". " + GenerateFinalStep(_chosenTerminal, TM_Terminal);
                 }
@@ -136,7 +142,13 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
                 return "Ride the e-loop and alight on <b>"
                         +dist
                         +GeneratePrefix(dist)
-                        +" stop</b>.</div>";
+                        +" stop</b>.<div style=\"\n" +
+                        "    border-bottom: 1px solid #00000026;\n" +
+                        "    margin-top: 0.5%;\n" +
+                        "    margin-left: 8%;\n" +
+                        "    align-items: center;\n" +
+                        "    width: inherit;\n" +
+                        "\"></div></div>";
             }
         }
         return "";

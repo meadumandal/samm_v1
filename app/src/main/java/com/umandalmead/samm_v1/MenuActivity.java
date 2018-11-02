@@ -51,6 +51,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -380,7 +381,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 //region EloopList
                 new mySQLGetEloopList(_context).execute();
                 //endregion
-                new mySQLRoutesDataProvider(_context).execute();
+                new mySQLRoutesDataProvider(MenuActivity.this, _context).execute();
 //                new mySQLLinesDataProvider(_context).execute();
 
                 new mySQLGetDriverUsers(_context).execute();
@@ -623,6 +624,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 });
                 placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
                 placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_FontColor)));
+                placeAutoCompleteFragmentInstance.setTypeface(FONT_RUBIK_REGULAR);
                 placeAutoCompleteFragmentInstance.setTextSize(18);
                 placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
                 placeAutoCompleteFragmentInstance.setText(null);
@@ -2556,6 +2558,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 case ADMIN_SHOW_MAPS_LINEARLAYOUT:
                     _MapsHolderLinearLayout.setVisibility(View.VISIBLE);
                     _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
+                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     if(!_BOOL_IsGPSAcquired)
                         ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
                     if(_BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
@@ -2576,9 +2579,11 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         FrameSearchBarHolder.setVisibility(View.INVISIBLE);
         _SL_Map_Fragment.stopShimmerAnimation();
         if(_sessionManager.isDriver()){
-            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            _SlideUpPanelContainer.setTouchEnabled(true);
+            _SlideUpPanelContainer.setPanelHeight(220);
             _RoutesPane.setVisibility(View.VISIBLE);
             _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
+            _StepsScroller.setVisibility(View.GONE);
         }
         else {
             _SlideUpPanelContainer.setTouchEnabled(true);
@@ -2689,7 +2694,6 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 @Override
                 public void onClick(View view) {
                     PlayButtonClickSound();
-                    ToggleMapTools();
                     InfoPanelHide();
                 }
             });
@@ -2807,6 +2811,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         _infoDescriptionTV2.setText(null);
     }
     public void InfoPanelHide() {
+        ToggleMapTools();
         Animation slide_down_bounce = AnimationUtils.loadAnimation(getApplicationContext(),
                 R.anim.slide_down_bounce);
         _infoLayout.startAnimation(slide_down_bounce);
@@ -3005,6 +3010,44 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     private void ToggleMapTools() {
         _LL_MapActions.setVisibility(_LL_MapActions.getVisibility() == View.INVISIBLE ? View.VISIBLE : View.INVISIBLE);
         _LL_MapStyleHolder.setVisibility(View.INVISIBLE);
+    }
+    public void InflateDriverRoutesPanel(){
+        ViewStub _VS_RoutesPanel = (ViewStub) findViewById(id.ViewStub_RoutesPanel);
+        _VS_RoutesPanel.inflate();
+        ShimmerLayout SL_SelectYourRoute = (ShimmerLayout) findViewById(id.SL_SelectYourRoute);
+        SL_SelectYourRoute.startShimmerAnimation();
+        final LinearLayout LL_RoutesListDisplay = (LinearLayout) findViewById(id.LL_RoutesListDisplay);
+        if(_routeList.size() >0) {
+            for (final Routes routeEntry : _routeList) {
+                LinearLayout.LayoutParams btnParams = new LinearLayout.LayoutParams(Helper.dpToPx(130,_context), Helper.dpToPx(130,_context));
+                btnParams.setMargins(7,0,7,0);
+                Button BTN_routeButton = new Button(this);
+                BTN_routeButton.setLayoutParams(btnParams);
+                BTN_routeButton.setTextSize(Helper.dpToPx(7, _context));
+                BTN_routeButton.setText(routeEntry.getRouteName());
+                BTN_routeButton.setTypeface(FONT_RUBIK_BOLD);
+                BTN_routeButton.setBackgroundResource(R.drawable.rounded_corner_route_panel);
+                BTN_routeButton.setMaxLines(1);
+                BTN_routeButton.setEllipsize(TextUtils.TruncateAt.END);
+                BTN_routeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        //unselect other routes
+                        for (Integer i = 0; LL_RoutesListDisplay.getChildCount()!=i;i++){
+                            View v = LL_RoutesListDisplay.getChildAt(i);
+                            v.setBackgroundResource(R.drawable.rounded_corner_route_panel);
+                            ((Button)v).setTextColor(getApplication().getResources().getColor(R.color.colorBlack));
+                        }
+                        //then apply UI style to the selected
+                        view.setBackgroundResource(R.drawable.selected_route);
+                        ((Button)view).setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
+                        ((Button)view).setTypeface(FONT_RUBIK_BOLD);
+                        _driversDBRef.child(_sessionManager.getKeyDeviceid()).child("routeIDs").setValue(String.valueOf(routeEntry.getID()));
+                    }
+                });
+                LL_RoutesListDisplay.addView(BTN_routeButton);
+            }
+        }
     }
 }
 

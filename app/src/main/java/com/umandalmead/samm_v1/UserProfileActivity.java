@@ -48,6 +48,8 @@ import java.net.URL;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.supercharge.shimmerlayout.ShimmerLayout;
 
+import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
+
 public class UserProfileActivity extends Fragment {
 
     View _view;
@@ -103,6 +105,7 @@ public class UserProfileActivity extends Fragment {
         {
             LL_UserCredentialsHolder.setVisibility(View.GONE);
             tv_isFacebook.setVisibility(View.VISIBLE);
+            tv_isFacebook.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
             tv_isFacebook.setPadding(0,200,0,0);
             SL_FB_InfoMessageShimmer.startShimmerAnimation();
             _facebookImg = "http://graph.facebook.com/" + _sessionManager.getUsername().trim() + "/picture?type=large";
@@ -122,6 +125,7 @@ public class UserProfileActivity extends Fragment {
         }
         if(_sessionManager.isLoggedIn()){
             tv_NameDisplay.setText(_sessionManager.getFullName().toUpperCase());
+            tv_NameDisplay.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
         }
 
 
