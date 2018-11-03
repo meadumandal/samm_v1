@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent" android:background="@color/colorDarkGrey"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:animateLayoutChanges="true"
+    android:background="@color/colorDarkGrey"
 
     android:layout_height="match_parent">
   <include layout="@layout/samm_toolbar"
@@ -26,7 +30,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:scrollHorizontally="false"
-                android:text="aaa"
+                android:text="@string/dialog_please_wait_with_ellipsis"
                 android:textAlignment="center"
                 android:textColor="@color/colorWhite" />
             <com.facebook.share.widget.LikeView
@@ -34,6 +38,42 @@
                 android:layout_marginTop="50dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"></com.facebook.share.widget.LikeView>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/SAMM_version"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:scrollHorizontally="false"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorWhite" />
+                <io.supercharge.shimmerlayout.ShimmerLayout
+                    android:id="@+id/SL_LatestVersion"
+                    android:layout_width="wrap_content"
+                    app:shimmer_animation_duration="1000"
+                    app:shimmer_color="@color/colorBlack"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_horizontal">
+                    <TextView
+                        android:layout_marginTop="5dp"
+                        android:id="@+id/SAMM_LatestVersion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp"
+                        android:scrollHorizontally="false"
+                        android:text="@string/info_checking_latest_version"
+                        android:textAlignment="center"
+                        android:textColor="@color/colorLightGrey" />
+                </io.supercharge.shimmerlayout.ShimmerLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
 
 </LinearLayout>

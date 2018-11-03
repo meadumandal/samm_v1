@@ -18,6 +18,7 @@
             app:shimmer_color="@color/colorWhite"
             android:id="@+id/SL_SelectYourRoute">
             <TextView
+                android:id="@+id/TV_RoutePanelTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"

@@ -217,6 +217,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static ArrayList<Lines> _lineList;
 
         public static ArrayList<Users> _driverList;
+        public static ArrayList<Setting> _AL_applicationSettings;
         public static HashMap _driverMarkerHashmap = new HashMap();
 
         //Put here all global variables related to sending SMS
@@ -2480,7 +2481,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     public void ShowGPSLoadingInfo(String STR_message, Boolean IsVisible){
         int Visibility = IsVisible ? View.VISIBLE : View.INVISIBLE;
         if(!IsVisible) {
-            if(_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen)
+            if(_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin()))
                 MenuActivity._SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             if(_sessionManager.getIsAdmin())
                 MenuActivity._AdminToolsFloatingMenu.setPadding(0,0,0,_helper.dpToPx(80,_context));
@@ -2561,7 +2562,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     if(!_BOOL_IsGPSAcquired)
                         ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
-                    if(_BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
+                    if(_BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
                         _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                         _RoutesPane.setVisibility(View.VISIBLE);
                     }
@@ -3015,6 +3016,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         ViewStub _VS_RoutesPanel = (ViewStub) findViewById(id.ViewStub_RoutesPanel);
         _VS_RoutesPanel.inflate();
         ShimmerLayout SL_SelectYourRoute = (ShimmerLayout) findViewById(id.SL_SelectYourRoute);
+        final TextView TV_DriverRoutePanelTitle = (TextView) findViewById(id.TV_RoutePanelTitle);
         SL_SelectYourRoute.startShimmerAnimation();
         final LinearLayout LL_RoutesListDisplay = (LinearLayout) findViewById(id.LL_RoutesListDisplay);
         if(_routeList.size() >0) {
@@ -3042,6 +3044,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         view.setBackgroundResource(R.drawable.selected_route);
                         ((Button)view).setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
                         ((Button)view).setTypeface(FONT_RUBIK_BOLD);
+                        TV_DriverRoutePanelTitle.setText("Selected: "+routeEntry.getRouteName().toUpperCase());
                         _driversDBRef.child(_sessionManager.getKeyDeviceid()).child("routeIDs").setValue(String.valueOf(routeEntry.getID()));
                     }
                 });
