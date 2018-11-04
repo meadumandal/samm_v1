@@ -1,11 +1,25 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.ManageLines;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.InfoDialog;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -19,8 +33,11 @@ import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.umandalmead.samm_v1.MenuActivity._manageStationsFragment;
 
 
 /**
@@ -42,17 +59,26 @@ public class mySQLUpdateLine extends AsyncTask<String, Void, String>{
     LoaderDialog _LoaderDialog;
     String _promptMessage;
     SessionManager _sessionManager;
-    ManageLinesActivity.AddLineDialog _addLineDialog;
+    ManageLinesFragment.AddLineDialog _addLineDialog;
+    ManageLinesFragment _manageLinesFragment;
+    FragmentManager _fragmentManager;
+    String _updatedLinesDataInJSONFormat, _updatedStationDataInJSONFormat;
+    Boolean _isSuccessful = false;
+    Helper _helper;
 
     private Constants _constants = new Constants();
-    public mySQLUpdateLine(Context context, Activity activity, LoaderDialog loaderDialog, ManageLinesActivity.AddLineDialog addLineDialog,  String promptMessage)
+    public mySQLUpdateLine(Context context, Activity activity, LoaderDialog loaderDialog,
+                           ManageLinesFragment.AddLineDialog addLineDialog, String promptMessage,
+                           ManageLinesFragment manageLinesFragment, FragmentManager fragmentManager)
     {
         this._context = context;
         this._activity = activity;
         this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._addLineDialog = addLineDialog;
-
+        this._manageLinesFragment = manageLinesFragment;
+        this._fragmentManager = fragmentManager;
+        this._helper = new Helper(_activity, _context);
         _sessionManager = new SessionManager(_context);
     }
 
@@ -99,15 +125,28 @@ public class mySQLUpdateLine extends AsyncTask<String, Void, String>{
                 HttpResponse response = httpClient.execute(httpPost);
                 String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(strResponse);
+                if(json.getBoolean("status") == true)
+                {
+                    _isSuccessful = true;
+                    _promptMessage = MenuActivity._GlobalResource.getString(R.string.info_update_line_success);
+                    _updatedLinesDataInJSONFormat = json.getString("lineList");
+                    _updatedStationDataInJSONFormat = json.getString("stationList");
 
-                _promptMessage += json.getString("message") +  "\n";
+
+                }
+                else
+                {
+                    _isSuccessful = false;
+                    _promptMessage = json.getString("message") +  "\n";
+                }
+
             }
             catch(Exception ex)
             {
                 StringWriter sw = new StringWriter();
                 ex.printStackTrace(new PrintWriter(sw));
                 Helper.logger(ex,true);
-                _promptMessage += ex.getMessage() + "\n";
+                _promptMessage += "An error is encountered" + "\n";
 
             }
         }
@@ -124,16 +163,19 @@ public class mySQLUpdateLine extends AsyncTask<String, Void, String>{
     protected void onPostExecute(String param)
     {
 
-        if(_promptMessage.trim().length()>0)
+        _LoaderDialog.hide();
+        InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+        _addLineDialog.hide();
+        if(_isSuccessful)
         {
-            _LoaderDialog.hide();
-            InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
-            ManageLinesActivity._swipeRefreshLines.setRefreshing(true);
-            new mySQLLinesDataProvider(_activity, ManageLinesActivity._lineListView).execute();
-            _addLineDialog.hide();
-        }
 
+            ManageLinesFragment._swipeRefreshLines.setRefreshing(true);
+            _helper.UpdateLinesData(_manageLinesFragment, _updatedLinesDataInJSONFormat);
+            _helper.UpdateStationsData(_manageStationsFragment, _updatedStationDataInJSONFormat);
+            _helper.UpdateStationMarkersOnTheMap(MenuActivity._terminalList, MenuActivity._googleMap, MenuActivity._googleAPI);
+            ManageLinesFragment._swipeRefreshLines.setRefreshing(false);
+        }
     }
 }

@@ -149,7 +149,7 @@ public class mySQLDataProvider extends AsyncTask<HashMap<String, String>, Void, 
                 String email = result.get("EmailAddress").toString();
                 boolean isDriver = Boolean.valueOf(result.get("IsDriver").toString());
 
-                sessionManager.CreateLoginSession(firstName,lastName,userName,email,"", false,"");
+                sessionManager.CreateLoginSession(firstName,lastName,userName,0,email,"", false,"");
 
                 Intent i = new Intent(this._context, MenuActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

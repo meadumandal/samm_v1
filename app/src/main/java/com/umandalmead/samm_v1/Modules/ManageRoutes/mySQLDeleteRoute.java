@@ -1,45 +1,43 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.ManageRoutes;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.umandalmead.samm_v1.Adapters.RouteViewCustomAdapter;
+import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.InfoDialog;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.NonScrollListView;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
 import static com.umandalmead.samm_v1.MenuActivity._googleAPI;
 import static com.umandalmead.samm_v1.MenuActivity._googleMap;
+import static com.umandalmead.samm_v1.MenuActivity._manageLinesFragment;
+import static com.umandalmead.samm_v1.MenuActivity._manageRoutesFragment;
+import static com.umandalmead.samm_v1.MenuActivity._manageStationsFragment;
+import static com.umandalmead.samm_v1.MenuActivity._terminalList;
 
 /**
  * Created by MeadRoseAnn on 7/22/2018.
  */
 
-public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, String> {
+public class mySQLDeleteRoute extends AsyncTask<String, Void, Void> {
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -56,19 +54,25 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
     String _promptMessage;
     SessionManager _sessionManager;
     private Constants _constants = new Constants();
-    public Helper _helper = new Helper();
-    public String _typeOfItemToDelete;
+    public Helper _helper;
     Boolean _isSuccessful;
+    NonScrollListView _routesListView;
 
-    public mySQLDeleteDestinationOrRoute(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage, AlertDialog.Builder alertDialog, String typeOfItemToDelete)
+    String _updatedStationsDataInJSONFormat;
+    String _updatedRoutesDataInJSONFormat;
+    ManageRoutesFragment _manageRoutesFragment;
+
+    public mySQLDeleteRoute(Context context, Activity activity, NonScrollListView listView, LoaderDialog loaderDialog, String promptMessage, AlertDialog.Builder alertDialog, ManageRoutesFragment manageRoutesFragment)
+
     {
         this._context = context;
         this._activity = activity;
         this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._alertDialogBuilder = alertDialog;
-        this._typeOfItemToDelete = typeOfItemToDelete;
-
+        this._routesListView = listView;
+        this._manageRoutesFragment = manageRoutesFragment;
+        this._helper = new Helper(_activity,_context);
         _sessionManager = new SessionManager(_context);
     }
 
@@ -88,20 +92,18 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
 
     }
     @Override
-    protected String doInBackground(String... params)
+    protected Void doInBackground(String... params)
     {
         try
         {
-            String destinationID = params[0];
+            String routeID = params[0];
             if (_helper.isConnectedToInternet(this._context))
             {
 
                 try{
                     String link = "";
-                    if(_typeOfItemToDelete.equals("Destination"))
-                        link = _constants.WEB_API_URL + _constants.DESTINATIONS_API_FOLDER + _constants.DESTINATIONS_API_DELETE_FILE_WITH_PENDING_QUERYSTRING+"destinationid="+destinationID;
-                    else
-                        link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + _constants.ROUTES_API_DELETE_FILE_WITH_PENDING_QUERYSTRING+"routeID="+destinationID;
+
+                    link = _constants.WEB_API_URL + _constants.ROUTES_API_FOLDER + _constants.ROUTES_API_DELETE_FILE_WITH_PENDING_QUERYSTRING+"routeID="+routeID;
                     URL url = new URL(link);
                     URLConnection conn = url.openConnection();
 
@@ -114,30 +116,39 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
                     try
                     {
                         json = new JSONObject(jsonResponse);
-                        if ((Boolean)json.get("status")==true)
-                        {
 
+                        _isSuccessful = true;
+                        if(json.getBoolean("status") == true)
+                        {
                             _isSuccessful = true;
-                            return json.get("msg").toString();
+                            _promptMessage = MenuActivity._GlobalResource.getString(R.string.info_delete_route_success);
+                            _updatedStationsDataInJSONFormat = json.getString("stationList");
+                            _updatedRoutesDataInJSONFormat = json.getString("routeList");
+
+
                         }
                         else
                         {
                             _isSuccessful = false;
-                            return json.get("msg").toString();
+                            _promptMessage = json.getString("message") +  "\n";
+
                         }
+
                     }
                     catch(Exception ex){
                         _isSuccessful = false;
                         Helper.logger(ex,true);
 
-                        return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
+                        _promptMessage =  MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
+
                     }
                 }
                 catch(Exception ex)
                 {
                     _isSuccessful = false;
                     Helper.logger(ex,true);
-                    return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
+                    _promptMessage =  MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
+
                 }
             }
             else
@@ -146,7 +157,8 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
                 _isSuccessful = false;
                 Toast.makeText(this._context, STR_DefaultErrorMessage, Toast.LENGTH_LONG).show();
                 _LoaderDialog.hide();
-                return STR_DefaultErrorMessage;
+                _promptMessage =  STR_DefaultErrorMessage;
+
 
             }
         }
@@ -154,53 +166,30 @@ public class mySQLDeleteDestinationOrRoute extends AsyncTask<String, Void, Strin
         {
             _isSuccessful = false;
             Helper.logger(ex,true);
-            return MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
+            _promptMessage = MenuActivity._GlobalResource.getString(R.string.error_encountered_with_colon)+ex.getMessage()+". Please re-try";
+
         }
+        return null;
     }
 
     @Override
-    protected void onPostExecute(String param)
+    protected void onPostExecute(Void v)
     {
 
 
         _LoaderDialog.hide();
+        InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
 
-        try
+        if(_isSuccessful)
         {
 
-            this._alertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
-            this._alertDialogBuilder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    // RefreshList();
-                }
-            });
-
-            if(_isSuccessful)
-                this._alertDialogBuilder.setTitle("Success");
-            else
-                this._alertDialogBuilder.setTitle("Error");
-
-            this._alertDialogBuilder.setMessage(param);
-
-
-            new mySQLDestinationProvider(_context, this._activity, "", _googleMap, _googleAPI, _LoaderDialog).execute();
-
-
-
-            this._alertDialogBuilder.show();
-
-
-
-        }
-        catch(Exception ex)
-        {
-
-            Helper.logger(ex,true);
-
+            ManageRoutesFragment._swipeRefreshRoute.setRefreshing(true);
+            _helper.UpdateRoutesData(_manageRoutesFragment, _updatedRoutesDataInJSONFormat);
+            _helper.UpdateStationsData(_manageStationsFragment, _updatedStationsDataInJSONFormat);
+            _helper.UpdateStationMarkersOnTheMap(_terminalList, _googleMap, _googleAPI);
+            ManageRoutesFragment._swipeRefreshRoute.setRefreshing(false);
         }
 
 

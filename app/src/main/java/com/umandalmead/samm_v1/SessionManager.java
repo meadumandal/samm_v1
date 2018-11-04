@@ -27,6 +27,7 @@ public class SessionManager {
     public static final String KEY_USERNAME = "Username";
     public static final String KEY_EMAIL = "Email";
     public static final String KEY_DEVICEID = "DeviceId";
+    public static final String KEY_USERID = "UserID";
 
     public static final String KEY_ISlOGIN = "IsLoggedIn";
 
@@ -54,11 +55,12 @@ public class SessionManager {
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    public void CreateLoginSession(String firstname, String lastname, String username, String email, String deviceId, boolean isFacebook, String userType)
+    public void CreateLoginSession(String firstname, String lastname, String username,Integer userID, String email, String deviceId, boolean isFacebook, String userType)
     {
         prefEditor.putString(KEY_FNAME, firstname);
         prefEditor.putString(KEY_LNAME, lastname);
         prefEditor.putString(KEY_USERNAME, username);
+        prefEditor.putInt(KEY_USERID, userID);
         prefEditor.putString(KEY_EMAIL, email);
         prefEditor.putBoolean(KEY_ISlOGIN, !userType.equals(Constants.GUEST_USERTYPE));
         prefEditor.putString(KEY_DEVICEID, deviceId);
@@ -191,6 +193,17 @@ public class SessionManager {
     public boolean isLoggedIn()
     {
         return pref.getBoolean(KEY_ISlOGIN, false) && firebaseAuth.getCurrentUser()!=null;
+    }
+    public Integer getUserID()
+    {
+        return pref.getInt(KEY_USERID,0);
+    }
+    public void setUserID(Integer userID)
+    {
+        prefEditor.remove(KEY_USERID);
+        prefEditor.putInt(KEY_USERID, userID);
+        prefEditor.commit();
+
     }
     public boolean isDriver()
     {

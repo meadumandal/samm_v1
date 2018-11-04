@@ -1,14 +1,23 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.ManageRoutes;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.TextView;
+import android.view.Menu;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.InfoDialog;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -22,11 +31,9 @@ import org.json.JSONObject;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-import static com.umandalmead.samm_v1.MenuActivity._UserNameMenuItem;
 
 
 /**
@@ -34,7 +41,7 @@ import static com.umandalmead.samm_v1.MenuActivity._UserNameMenuItem;
  */
 
 
-public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
+public class mySQLUpdateRoute extends AsyncTask<String, Void, Void>{
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -48,18 +55,26 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
     LoaderDialog _LoaderDialog;
     String _promptMessage;
     SessionManager _sessionManager;
-    ManageRoutesActivity.AddRouteDialog _addRouteDialog;
+    ManageRoutesFragment.AddRouteDialog _addRouteDialog;
+    Helper _helper;
+    ManageRoutesFragment _manageRoutesFragment;
+    Boolean _isSuccessful = false;
+    String _updatedLinesDataInJSONFormat;
+    String _updatedRoutesDataInJSONFormat;
 
     private Constants _constants = new Constants();
-    public mySQLUpdateRoute(Context context, Activity activity, LoaderDialog loaderDialog, ManageRoutesActivity.AddRouteDialog addRouteDialog,  String promptMessage)
+    public mySQLUpdateRoute(Context context, Activity activity, LoaderDialog loaderDialog, ManageRoutesFragment.AddRouteDialog addRouteDialog, String promptMessage,
+                            ManageRoutesFragment manageRoutesFragment)
     {
         this._context = context;
         this._activity = activity;
         this._LoaderDialog = loaderDialog;
         this._promptMessage = promptMessage;
         this._addRouteDialog = addRouteDialog;
-
+        this._helper = new Helper(_activity, _context);
+        this._manageRoutesFragment = manageRoutesFragment;
         _sessionManager = new SessionManager(_context);
+
     }
 
     @Override
@@ -68,7 +83,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _LoaderDialog = new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_please_wait), MenuActivity._GlobalResource.getString(R.string.dialog_updating_routes));
+            _LoaderDialog = new LoaderDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_please_wait), MenuActivity._GlobalResource.getString(R.string.dialog_updating_routes));
             _LoaderDialog.setCancelable(false);
             _LoaderDialog.show();
         }
@@ -80,7 +95,7 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
 
     }
     @Override
-    protected String doInBackground(String... params)
+    protected Void doInBackground(String... params)
     {
         String routeID;
         String newRouteName;
@@ -103,7 +118,20 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
                 String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(strResponse);
 
-                _promptMessage += json.getString("Message") +  "\n";
+                if(json.getBoolean("status") == true)
+                {
+                    _isSuccessful = true;
+                    _promptMessage = MenuActivity._GlobalResource.getString(R.string.info_update_route_success);
+                    _updatedLinesDataInJSONFormat = json.getString("lineList");
+                    _updatedRoutesDataInJSONFormat = json.getString("routeList");
+
+
+                }
+                else
+                {
+                    _isSuccessful = false;
+                    _promptMessage = json.getString("message") +  "\n";
+                }
             }
             catch(Exception ex)
             {
@@ -120,23 +148,27 @@ public class mySQLUpdateRoute extends AsyncTask<String, Void, String>{
             _LoaderDialog.hide();
 
         }
-        return newRouteName;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(String param)
+    protected void onPostExecute(Void v)
     {
 
 
         _LoaderDialog.hide();
-
-        if(_promptMessage.trim().length()>0)
+        InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+        _addRouteDialog.hide();
+        if(_isSuccessful)
         {
-            InfoDialog dialog=new InfoDialog(this._activity, _promptMessage);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
-            _addRouteDialog.hide();
+
+            ManageRoutesFragment._swipeRefreshRoute.setRefreshing(true);
+            _helper.UpdateRoutesData(_manageRoutesFragment, _updatedRoutesDataInJSONFormat);
+            ManageRoutesFragment._swipeRefreshRoute.setRefreshing(false);
         }
+
 
     }
 }

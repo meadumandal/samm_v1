@@ -2,6 +2,7 @@ package com.umandalmead.samm_v1.EntityObjects;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.vision.text.Line;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 
 import java.util.Comparator;
@@ -24,6 +25,7 @@ public class Terminal implements Comparable<Terminal>{
     public String GeofenceId;
     public Directions directionsFromCurrentLocation;
     public int DestinationPicture = -1;
+    public String LineName;
 
 
 
@@ -31,7 +33,7 @@ public class Terminal implements Comparable<Terminal>{
     {
 
     }
-    public Terminal(int ID,int tblRouteID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture)
+    public Terminal(int ID,int tblRouteID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture, String LineName)
     {
         this.ID =ID;
         this.tblRouteID = tblRouteID;
@@ -44,6 +46,7 @@ public class Terminal implements Comparable<Terminal>{
         this.GeofenceId = GeofenceId;
         this.directionsFromCurrentLocation = DirectionsFromCurrentLocation;
         this.DestinationPicture = DestinationPicture;
+        this.LineName = LineName;
 
     }
 
@@ -108,6 +111,8 @@ public class Terminal implements Comparable<Terminal>{
     public int getDestinationPicture() {
         return DestinationPicture;
     }
+    public String getLineName() {return this.LineName;}
+    public void setLineName(String LineName){this.LineName = LineName;}
     //endregion
 
 

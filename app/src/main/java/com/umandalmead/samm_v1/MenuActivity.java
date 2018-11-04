@@ -135,6 +135,12 @@ import com.umandalmead.samm_v1.Modules.AdminUsers.mySQLGetAdminUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDrivers;
+import com.umandalmead.samm_v1.Modules.ManageLines.ManageLinesFragment;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.mySQLRoutesDataProvider;
+import com.umandalmead.samm_v1.Modules.ManageStations.ManageStationsFragment;
+import com.umandalmead.samm_v1.Modules.ManageStations.mySQLAddStation;
+import com.umandalmead.samm_v1.Modules.ManageStations.mySQLStationProvider;
 import com.umandalmead.samm_v1.Modules.SuperAdminUsers.SuperAdminUsersFragment;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Setting;
@@ -176,7 +182,6 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 
-import static com.umandalmead.samm_v1.Constants.APPBAR_MIN_HEIGHT;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
@@ -307,7 +312,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static Routes[] _RoutesArray;
         public static Typeface FONT_PLATE,FONT_STATION, FONT_RUBIK_REGULAR, FONT_RUBIK_BOLD, FONT_RUBIK_MEDIUM, FONT_ROBOTO_CONDENDSED_BOLD, FONT_RUBIK_BLACK;
         public static int _currentRouteIDSelected;
-        public static int _currentLineIDSelected;
+        public static Integer _currentLineIDSelected;
         public static Boolean _HasExitedInfoLayout = false;
         public static CustomFrameLayout _mapRoot;
         public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
@@ -330,6 +335,17 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static HashMap<String, String> _currentRoutesOfEachLoop = new HashMap<>();
 
         public static ArrayList<Users> _adminUsers = new ArrayList<Users>();
+        public String _currentFragment ="";
+        public final FragmentManager _fragmentManager = getSupportFragmentManager();
+
+        //Declare all fragments here:
+        public static ManageLinesFragment _manageLinesFragment;
+        public static ManageRoutesFragment _manageRoutesFragment;
+        public static ManageStationsFragment _manageStationsFragment;
+
+
+
+
 
 
 
@@ -382,6 +398,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 //region EloopList
                 new mySQLGetEloopList(_context).execute();
                 //endregion
+
                 new mySQLRoutesDataProvider(MenuActivity.this, _context).execute();
 //                new mySQLLinesDataProvider(_context).execute();
 
@@ -395,7 +412,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     _sessionManager = new SessionManager(_context);
                 if (!_sessionManager.isLoggedIn()) {
                     String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", "", false, Constants.GUEST_USERTYPE);
+                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0,  "", "", false, Constants.GUEST_USERTYPE);
                 }
                 setContentView(R.layout.activity_menu);
 
@@ -747,6 +764,18 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _helper.showNoInternetPrompt(MenuActivity.this);
             }
 
+            _fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+                    FragmentManager.BackStackEntry backStackEntryAt = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1);
+                    _currentFragment = backStackEntryAt.getName();
+
+                }
+            });
+            _manageLinesFragment = new ManageLinesFragment();
+            _manageRoutesFragment = new ManageRoutesFragment();
+            _manageStationsFragment = new ManageStationsFragment();
+
 
         }catch(Exception ex)
         {
@@ -952,7 +981,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(_constants.LOG_TAG, "Google API Client is connected...");
-        new mySQLDestinationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
+        new mySQLStationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
         _locationRequest = new LocationRequest();
         _locationRequest.setInterval(0);
         _locationRequest.setFastestInterval(0);
@@ -997,7 +1026,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             }
                         }, 3000);
 
-                        ShowInfoLayout(TM_ClickedTerminal.Description,
+                        ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
                                         _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
                                 _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
                         _terminalsDBRef.child(marker.getTitle()).runTransaction(new Transaction.Handler() {
@@ -1012,7 +1041,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                 long passengercount = 0;
                                 passengercount = DS_Terminals.getChildrenCount();
                                 _passengerCountInTerminal = (int) passengercount;
-                                UpdateInfoPanelDetails(TM_ClickedTerminal.Description,
+                                UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
                                         _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
                             }
                         });
@@ -1142,7 +1171,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                                     //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
                                                     //Jul-22
                                                     GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
-                                                    // Toast.makeText(_context, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
+                                                    // Toast.makeText(_activity, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
 
                                                 }
                                                 _ListOfLoops.clear();
@@ -1171,7 +1200,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                                 found = true;
                                                 _IsAllLoopParked = false;
                                                 GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
-                                                //Toast.makeText(_context, "else if hit!", Toast.LENGTH_LONG).show();
+                                                //Toast.makeText(_activity, "else if hit!", Toast.LENGTH_LONG).show();
 
                                                 break;
                                             }
@@ -1190,7 +1219,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                     if (_IsAllLoopParked) {
                         if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_CurrentDest.getValue())) {
-                            UpdateInfoPanelDetails(TM_CurrentDest.Description,
+                            UpdateInfoPanelDetails(TM_CurrentDest.LineName + "-" + TM_CurrentDest.Description,
                                      _helper.getEmojiByUnicode(0x1F6BB)
                                             + " : " + _passengerCountInTerminal
                                             + " passenger(s) waiting",
@@ -1231,7 +1260,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                 String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
                                 if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
-                                    UpdateInfoPanelDetails(TM_Destination.Description, _helper.getEmojiByUnicode(0x1F6BB)
+                                    UpdateInfoPanelDetails(TM_Destination + "-" + TM_Destination.Description, _helper.getEmojiByUnicode(0x1F6BB)
                                             + " : " + _passengerCountInTerminal + " passenger(s) waiting" ,
                                              _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
                                 }
@@ -1303,11 +1332,52 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
     @Override
     public void onBackPressed() {
-        if (_MainDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            _MainDrawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        try
+        {
+            if (_currentFragment !="") {
+                switch (_currentFragment) {
+
+                    case Constants.FRAGMENTNAME_MANAGELINES:
+                        UpdateUI(Enums.UIType.ADMIN_SHOW_MAPS_LINEARLAYOUT);
+                        Enums.GoogleMapType mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
+                        try{
+                            mapType = Enums.GoogleMapType.valueOf(_sessionManager.getMapStylePreference());
+                        }catch (Exception ex){
+                            Helper.logger(ex);
+                        }
+                        SetMapType(_googleMap, mapType);
+
+                        return;
+                    case Constants.FRAGMENTNAME_MANAGEROUTES:
+                        _fragmentManager.beginTransaction().replace(R.id.content_frame, _manageLinesFragment)
+                                .addToBackStack(Constants.FRAGMENTNAME_MANAGELINES)
+                                .commit();
+                        return;
+                    case Constants.FRAGMENTNAME_MANAGESTATIONS:
+                        _manageStationsFragment.HandleChangesInOrderOfPoints();
+
+                        return;
+
+
+                }
+            }
+            else
+            {
+                if (_MainDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    _MainDrawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    super.onBackPressed();
+                }
+            }
+
+
+
         }
+        catch(Exception ex)
+        {
+            _helper.logger(ex);
+        }
+
     }
 
     @Override
@@ -1339,7 +1409,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         // Handle navigation view item clicks here.
         try {
             int id = item.getItemId();
-            FragmentManager fragment = getSupportFragmentManager();
+
 
             if (id == R.id.nav_logout) {
                 AlertDialog.Builder builder;
@@ -1366,7 +1436,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
                                 _sessionManager.logoutUser();
                                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, "", "", false, Constants.GUEST_USERTYPE);
+                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
                                 finish();
                                 startActivity(getIntent());
                                 Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.USER_logged_out), Toast.LENGTH_LONG).show();
@@ -1385,7 +1455,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             }
             else if(id==R.id.nav_about){
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                fragment.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, new AboutActivity()).commit();
 
             }
             else if (id==R.id.nav_login)
@@ -1415,13 +1485,13 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 _sessionManager.PassReportType(_constants.PASSENGER_REPORT_TYPE);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
-                fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
                 _sessionManager.PassReportType(_constants.VEHICLE_REPORT_TYPE);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                fragment.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if(id == R.id.menu_home){
                 UpdateUI(Enums.UIType.ADMIN_SHOW_MAPS_LINEARLAYOUT);
@@ -1436,7 +1506,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             else if(id==R.id.menu_username) {
                 if (!_sessionManager.isGuest()) {
                     UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                    fragment.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
+                    _fragmentManager.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
                 } else {
                     InfoDialog GuestInfo = new InfoDialog(MenuActivity.this, getResources().getString(R.string.guest_nav_drawer_message));
                     GuestInfo.show();
@@ -1447,36 +1517,46 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 SuperAdminUsersFragment superAdminUsersFragment = new SuperAdminUsersFragment();
-                fragment.beginTransaction().replace(R.id.content_frame, superAdminUsersFragment).commit();
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, superAdminUsersFragment).commit();
             }
             else if (id==R.id.nav_adminusers)
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 AdminUsersFragment adminUsersFragment = new AdminUsersFragment();
-                fragment.beginTransaction().replace(R.id.content_frame, adminUsersFragment).commit();
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, adminUsersFragment).commit();
             }
             else if (id==R.id.nav_drivers)
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 DriverUsersFragment driverUsersFragment = new DriverUsersFragment();
-                fragment.beginTransaction().replace(R.id.content_frame, driverUsersFragment).commit();
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, driverUsersFragment).commit();
             }
 
             else if(id==R.id.nav_lines)
             {
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesActivity.class);
-                startActivity(addRouteIntent);
-                Intent addLineIntent = new Intent(MenuActivity.this, ManageLinesActivity.class);
-                startActivity(addLineIntent);
-                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                finish();
+                if (_sessionManager.getIsAdmin())
+                {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt("adminUserID", _sessionManager.getUserID());
+                    _manageLinesFragment.setArguments(bundle);
+
+                }
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, _manageLinesFragment)
+                        .addToBackStack(Constants.FRAGMENTNAME_MANAGELINES)
+                        .commit();
+//                Intent addRouteIntent = new Intent(MenuActivity.this, ManageRoutesFragment.class);
+//                startActivity(addRouteIntent);
+//                Intent addLineIntent = new Intent(MenuActivity.this, ManageLinesFragment.class);
+//                startActivity(addLineIntent);
+//                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+//                finish();
             }
             else if (id == R.id.nav_vehicles)
             {
                 try {
                     UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                    fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
+                    _fragmentManager.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
                 }
                 catch(Exception ex)
                 {
@@ -2263,21 +2343,22 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 
         private void savePoint(String name, Double lat, Double lng, String preposition, Terminal terminalReference)
         {
-            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_adding),_GlobalResource.getString(R.string.GPS_updating_points_on_map));
-            _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,_GlobalResource.getString(R.string.GPS_add), 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+//            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_adding),_GlobalResource.getString(R.string.GPS_updating_points_on_map));
+//            _LoaderDialog.show();
+//
+//            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,_GlobalResource.getString(R.string.GPS_add), 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
         }
         private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Terminal terminalReference)
         {
-            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_updating), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
-            _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_update) , ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+//            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_updating), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
+//            _LoaderDialog.show();
+//            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_update) , ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
         }
         private void deletePoint(Integer ID)
         {
-            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_deleting), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
-            _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_delete) , ID).execute();
+//            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_deleting), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
+//            _LoaderDialog.show();
+//            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_delete) , ID).execute();
         }
     }
 

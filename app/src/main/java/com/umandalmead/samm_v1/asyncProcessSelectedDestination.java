@@ -1,28 +1,27 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.Menu;
 import android.widget.Toast;
 
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
-import com.umandalmead.samm_v1.EntityObjects.GPS;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by eleazerarcilla on 21/10/2018.
  */
 
-public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, Terminal>{
+public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<Terminal>>{
     Context _context;
-    Activity _activity;
+    MenuActivity _activity;
     LoaderDialog _LoaderDialog;
     String progressMessage;
     public static String TAG="mead";
@@ -31,11 +30,13 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, Termi
     private List<Terminal> _TerminalList;
     private  Place _place;
     private Boolean _IsPossibleTerminalsEmpty, _IsOnline = false;
+    private HashMap<Routes, Integer> _numberOfStationsPerRoute = new HashMap<>();
+    private ArrayList<Integer> _routeIDsThatServeTheChosenDropOffPoint = new ArrayList<>();
     Helper _helper;
 
 
     public asyncProcessSelectedDestination(Activity activity, Context context, List<Terminal> terminalList, Place place){
-        this._activity = activity;
+        this._activity = (MenuActivity) activity;
         this._context = context;
         this._TerminalList = terminalList;
         this._LoaderDialog = new LoaderDialog(_activity,"Searching","Please wait...");
@@ -51,8 +52,9 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, Termi
     }
 
     @Override
-    protected Terminal doInBackground(Void... voids) {
+    protected List<Terminal> doInBackground(Void... voids) {
         try {
+
             double prevDistance = 0.0;
             int ctr = 0;
             if(_TerminalList.size()>0) {
@@ -72,26 +74,91 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, Termi
                     }
                     ctr++;
                 }
-                _IsPossibleTerminalsEmpty = _helper.FindNearestPickUpPoints(_ChosenTerminal,_activity,_context);
             }
+            for(Routes route: _activity._routeList)
+            {
+                Integer iStationCount = 0;
+                for(Terminal terminal:_activity._terminalList)
+                {
+                    if (terminal.tblRouteID == route.getID())
+                    {
+                        iStationCount++;
+                        if (terminal.getValue().equals(_ChosenTerminal.getValue()))
+                        {
+                            if (!_routeIDsThatServeTheChosenDropOffPoint.contains(route.getID()))
+                                _routeIDsThatServeTheChosenDropOffPoint.add(route.getID());
+                        }
+                    }
 
+                }
+                _numberOfStationsPerRoute.put(route, iStationCount);
+            }
+            HashMap<Terminal, Integer> halfwayIndexOfEachRoute = new HashMap<>();
+            List<Terminal> possiblePickUpPoints = new ArrayList<>();
+
+            for(Terminal terminal: _activity._terminalList)
+            {
+                if (_routeIDsThatServeTheChosenDropOffPoint.contains(terminal.getTblRouteID()))
+                {
+                    int stationGap = Math.abs(terminal.getOrderOfArrival() - _ChosenTerminal.getOrderOfArrival());
+                    for(Map.Entry<Routes, Integer> numberOfStation: _numberOfStationsPerRoute.entrySet())
+                    {
+                        if (numberOfStation.getKey().getID() == terminal.tblRouteID)
+                        {
+                            if (stationGap<=numberOfStation.getValue()/2)
+                            {
+                                possiblePickUpPoints.add(terminal);
+                                break;
+                            }
+
+                        }
+                    }
+                }
+            }
+            return possiblePickUpPoints;
         }catch (Exception ex){
             Helper.logger(ex);
         }
-        return _ChosenTerminal;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(Terminal terminal) {
+    protected void onPostExecute(List<Terminal> possibleTerminals) {
              _LoaderDialog.dismiss();
-            if (!_IsPossibleTerminalsEmpty) {
+            if (possibleTerminals.size()>0) {
                 new AnalyzeForBestRoutes(_context, _activity,
                         MenuActivity._googleMap, MenuActivity._userCurrentLoc,
-                        MenuActivity._possiblePickUpPointList, terminal)
+                        possibleTerminals, _ChosenTerminal)
                         .execute();
             } else {
                 Toast.makeText(_context, "Unable to process, data returned was empty!", Toast.LENGTH_SHORT).show();
             }
 
     }
+//    public List<Terminal> FindPossiblePickUpPoints(Terminal dropOffPoint) {
+//
+//        List<Terminal> possiblePickUpPoints = new ArrayList<>();
+//        if(_helper.isOnline(_activity,_activity))
+//        {
+//            // ArrayList<Terminal> dropOffPointList = GetAllDestinationRegardlessOfTheirTableRouteIds(dropOffPoint);
+//            Terminal chosenTerminal =dropOffPoint;
+//            //saveDestination(chosenTerminal.Value);
+//
+//
+//            for(Terminal terminal : _activity._terminalList)
+//            {
+//                if (terminal.Direction.equals(chosenTerminal.Direction) && terminal.tblRouteID == chosenTerminal.tblRouteID)
+//                {
+//                    if(terminal.OrderOfArrival < chosenTerminal.OrderOfArrival)
+//                        possiblePickUpPoints.add(terminal);
+//                }
+//            }
+//            return possiblePickUpPoints;
+//        }
+//        else
+//        {
+//            return possiblePickUpPoints;
+//        }
+//
+//    }
 }

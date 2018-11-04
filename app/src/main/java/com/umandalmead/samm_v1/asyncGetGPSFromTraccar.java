@@ -12,7 +12,7 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.umandalmead.samm_v1.Adapters.GPSListViewCustomAdapter;
+import com.umandalmead.samm_v1.Modules.TrackedPUVs.GPSListViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 

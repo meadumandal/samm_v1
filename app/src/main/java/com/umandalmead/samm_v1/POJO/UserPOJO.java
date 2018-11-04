@@ -35,7 +35,12 @@ public class UserPOJO {
     @SerializedName("IsActive")
     public String IsActive;
 
+    @SerializedName("UserID")
+    public Integer UserID;
+
     public String getUsername() { return this.username; }
+
+    public Integer getUserID() { return this.UserID; }
 
     public String getFirstName() { return this.firstName; }
 
@@ -54,6 +59,8 @@ public class UserPOJO {
     public String getIsActive() { return this.IsActive; }
 
     public void setUsername(String username){this.username = username;}
+
+    public void setUserID(Integer userID) {this.UserID = userID;}
 
     public void setFirstName(String firstName){this.firstName = firstName;}
 

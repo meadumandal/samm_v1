@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Adapters;
+package com.umandalmead.samm_v1.Modules.ManageStations;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -18,10 +18,10 @@ import java.util.ArrayList;
  * Created by eleazerarcilla on 03/02/2018.
  */
 
-public class DestinationAdapter extends ArrayAdapter<Terminal>{
+public class StationCustomAdapter extends ArrayAdapter<Terminal>{
     ArrayList<Terminal> _terminal, _tempTerminal, _suggestions;
 
-    public DestinationAdapter(Context context, ArrayList<Terminal> objects) {
+    public StationCustomAdapter(Context context, ArrayList<Terminal> objects) {
         super(context, android.R.layout.simple_list_item_1, objects);
         this._terminal = objects;
         this._tempTerminal = new ArrayList<Terminal>(objects);

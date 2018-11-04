@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Adapters;
+package com.umandalmead.samm_v1.Modules.AdminUsers;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -23,7 +23,7 @@ import java.util.ArrayList;
  * Created by MeadRoseAnn on 7/29/2018.
  */
 
-public class AdminUsersListViewCustomAdapter extends ArrayAdapter<Users> implements View.OnClickListener {
+public class AdminUsersCustomAdapter extends ArrayAdapter<Users> implements View.OnClickListener {
     private ArrayList<Users> dataSet;
     Context mContext;
     String TAG = "mead";
@@ -37,7 +37,7 @@ public class AdminUsersListViewCustomAdapter extends ArrayAdapter<Users> impleme
 
     }
 
-    public AdminUsersListViewCustomAdapter(ArrayList<Users> data, Context context) {
+    public AdminUsersCustomAdapter(ArrayList<Users> data, Context context) {
         super(context, R.layout.listview_adminusers, data);
         this.dataSet = data;
         this.mContext=context;

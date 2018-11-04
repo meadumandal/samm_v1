@@ -351,7 +351,7 @@ public class LoginActivity extends AppCompatActivity{
                                     } else {
                                         if (!response.body().getUserType().equals(Constants.DRIVER_USERTYPE)) {
                                             ShowLogInProgressDialog(response.body().getUserType());
-                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), "", response.body().getUserType());
+                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(), "", response.body().getUserType());
                                         } else {
                                             if (response.body().getDeviceId()==null)
                                             {
@@ -380,11 +380,11 @@ public class LoginActivity extends AppCompatActivity{
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                                             if (dataSnapshot != null) {
                                                                 if (dataSnapshot.child("connections") == null)
-                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(),  response.body().getDeviceId().toString(), response.body().getUserType());
                                                                 else if (dataSnapshot.child("connections").getValue() == null)
-                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(),  response.body().getDeviceId().toString(), response.body().getUserType());
                                                                 else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
-                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(), response.body().getDeviceId().toString(), response.body().getUserType());
                                                                 else {
 
                                                                     Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
@@ -459,7 +459,7 @@ public class LoginActivity extends AppCompatActivity{
             _helper.showNoInternetPrompt(LoginActivity.this);
         }
     }
-    private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final String param_deviceId, final String userType)
+    private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final Integer param_userid,  final String param_deviceId, final String userType)
     {
         userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(param_email, param_password)
@@ -487,7 +487,7 @@ public class LoginActivity extends AppCompatActivity{
 
                                 userDatabaseRef.child(sessionManager.getUsername()).removeValue();
                                 if(checkIfEmailVerified(userType)){
-                                    sessionManager.CreateLoginSession(firstName,lastName, username,param_email, deviceId, false, userType);
+                                    sessionManager.CreateLoginSession(firstName,lastName, username, param_userid, param_email, deviceId, false, userType);
                                     Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -551,7 +551,7 @@ public class LoginActivity extends AppCompatActivity{
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = auth.getCurrentUser();
                             saveUserDetails(FirstName,LastName,token.getUserId().toString(),Email);
-                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),Email, "", true, Constants.PASSENGER_USERTYPE);
+                            sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),0, Email, "", true, Constants.PASSENGER_USERTYPE);
                             HideLogInProgressDialog();
                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                             startActivity(intent);

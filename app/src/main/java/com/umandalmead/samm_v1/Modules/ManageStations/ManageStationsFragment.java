@@ -1,20 +1,20 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.ManageStations;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ListFragment;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -27,7 +27,16 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.Enums;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.mySQLDeleteRoute;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.TouchInterceptor;
 
 import java.util.Arrays;
 
@@ -35,7 +44,7 @@ import java.util.Arrays;
  * Created by eleazerarcilla on 01/07/2018.
  */
 
-public class SortableListViewActivity extends ListActivity {
+public class ManageStationsFragment extends ListFragment{
     private View myView;
     private ImageButton FAB_SammIcon;
     private  TextView ViewTitle;
@@ -44,17 +53,36 @@ public class SortableListViewActivity extends ListActivity {
     public Boolean isItTheSame;
     public String[] pointsArrayInString;
     Helper _helper;
+    View _myView;
+    ManageStationsFragment _manageStationsFragment;
 
 
     private ImageView BtnAddPoint;
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addpoints);
+        _manageStationsFragment = this;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
+    {
+
+        _myView = inflater.inflate(R.layout.activity_addpoints, container, false);
+
         try {
+            Integer routeID =0 ;
+            Bundle bundle = getArguments();
+            if (bundle!=null)
+                routeID = bundle.getInt("routeID");
+
             _helper = new Helper();
             isItTheSame = true;
             int index =0;
+
+            _helper.FilterStationsForManageStationsModule(routeID);
 
             originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
             pointsArrayInString = new String[MenuActivity._PointsArray.length];
@@ -65,93 +93,98 @@ public class SortableListViewActivity extends ListActivity {
                 ctr++;
             }
 
-            ArrayAdapter adp = new ArrayAdapter(this, R.layout.listview_viewpoints, MenuActivity._PointsArray);
+
+            ArrayAdapter adp = new ArrayAdapter(getContext(), R.layout.listview_viewpoints, MenuActivity._PointsArray);
             setListAdapter(adp);
             InitializeToolbar(MenuActivity._FragmentTitle);
+
+            _LoaderDialog = new LoaderDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.GPS_adding_vehicle_gps),MenuActivity._GlobalResource.getString(R.string.dialog_initialize_with_ellipsis));
+            _LoaderDialog.setCancelable(false);
+        }
+        catch (Exception ex){
+            Toast.makeText(getContext(), ex.getMessage().toString(), Toast.LENGTH_LONG).show();
+        }
+        return _myView;
+    }
+    @Override
+    public void onViewCreated (View view, Bundle savedInstanceState) {
+        try
+        {
             mList = (TouchInterceptor) getListView();
             mList.setDropListener(mDropListener);
 
             registerForContextMenu(mList);
-            _LoaderDialog = new LoaderDialog(this, MenuActivity._GlobalResource.getString(R.string.GPS_adding_vehicle_gps),MenuActivity._GlobalResource.getString(R.string.dialog_initialize_with_ellipsis));
-            _LoaderDialog.setCancelable(false);
         }
-        catch (Exception ex){
-            Toast.makeText(SortableListViewActivity.this, ex.getMessage().toString(), Toast.LENGTH_LONG).show();
+        catch(Exception ex)
+        {
+            _helper.logger(ex);
         }
+
     }
-    private void HandleChangesInOrderOfPoints()
+
+
+
+
+
+    public void HandleChangesInOrderOfPoints()
     {
         if(checkIfOrderIsModified(originalPointsArray, MenuActivity._PointsArray) == true)
         {
-            try
-            {
-                AlertDialog.Builder builder;
-                builder = new AlertDialog.Builder(SortableListViewActivity.this);
+            AlertDialog.Builder builder;
+            builder = new AlertDialog.Builder(getActivity());
 
-                builder.setTitle(MenuActivity._GlobalResource.getString(R.string.info_points_modified))
-                        .setMessage(MenuActivity._GlobalResource.getString(R.string.info_confirm_save_changes))
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    LoaderDialog PointsUpdateLoader = new LoaderDialog(SortableListViewActivity.this,MenuActivity._GlobalResource.getString(R.string.dialog_updating_order_of_points) , MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
-                                    PointsUpdateLoader.setCancelable(false);
-                                    String pointsArray = Arrays.toString(pointsArrayInString);
+            builder.setTitle(MenuActivity._GlobalResource.getString(R.string.info_points_modified))
+                .setMessage(MenuActivity._GlobalResource.getString(R.string.info_confirm_save_changes))
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            LoaderDialog PointsUpdateLoader = new LoaderDialog(getActivity(),MenuActivity._GlobalResource.getString(R.string.dialog_updating_order_of_points) , MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
+                            PointsUpdateLoader.setCancelable(false);
+                            String pointsArray = Arrays.toString(pointsArrayInString);
 
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);
-                                    new mySQLUpdateDestinationsOrder(getApplicationContext(), SortableListViewActivity.this,PointsUpdateLoader,"", alertDialogBuilder).execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                            new mySQLUpdateStationOrder(getContext(), getActivity(), PointsUpdateLoader, alertDialogBuilder).execute(pointsArray.substring(1, pointsArray.length()-1),String.valueOf(MenuActivity._currentRouteIDSelected));
 
-                                    originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
+                            originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
 
 
-//                                    Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
-//                                    startActivity(routeIntent);
-//                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-//                                    finish();
-                                }
-                                catch(Exception ex)
-                                {
-                                    Helper.logger(ex,true);
-                                }
+    //                                    Intent routeIntent = new Intent(ManageStationsFragment.this, ManageRoutesFragment.class);
+    //                                    startActivity(routeIntent);
+    //                                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+    //                                    finish();
+                        }
+                        catch(Exception ex)
+                        {
+                            Helper.logger(ex,true);
+                        }
 
 
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
-                                startActivity(routeIntent);
-                                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                                finish();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-
-            }
-            catch(Exception ex)
-            {
-                _helper.logger(ex,true);
-            }
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        _manageStationsFragment.getFragmentManager().beginTransaction().replace(R.id.content_frame, MenuActivity._manageRoutesFragment)
+                                .addToBackStack(Constants.FRAGMENTNAME_MANAGEROUTES)
+                                .commit();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
         }
         else
         {
-            try {
-                Intent routeIntent = new Intent(SortableListViewActivity.this, ManageRoutesActivity.class);
-                startActivity(routeIntent);
-                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                finish();
-            }catch (Exception ex){
-                Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
-            }
+            _manageStationsFragment.getFragmentManager().beginTransaction().replace(R.id.content_frame, MenuActivity._manageRoutesFragment)
+                    .addToBackStack(Constants.FRAGMENTNAME_MANAGEROUTES)
+                    .commit();
         }
 
 
     }
 
     public void InitializeToolbar(String fragmentName){
-        FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
+        FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
         FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
-        BtnAddPoint = (ImageView) findViewById(R.id.topnav_addButton);
+        BtnAddPoint = (ImageView) _myView.findViewById(R.id.topnav_addButton);
         BtnAddPoint.setVisibility(View.VISIBLE);
         BtnAddPoint.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -159,7 +192,7 @@ public class SortableListViewActivity extends ListActivity {
                 try {
                     AddNewStationPoint("Add");
                 }catch (Exception ex){
-                    Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -169,20 +202,19 @@ public class SortableListViewActivity extends ListActivity {
                 try {
                     HandleChangesInOrderOfPoints();
                 }catch (Exception ex){
-                    Toast.makeText(getApplicationContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
             }
         });
-        ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
+        ViewTitle = (TextView) _myView.findViewById(R.id.samm_toolbar_title);
         ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
         ViewTitle.setText(fragmentName);
     }
     @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
+    public void onListItemClick(ListView l, View v, int position, long id) {
         Terminal selection = MenuActivity._PointsArray[position];
-        Toast.makeText(this, selection.Value, Toast.LENGTH_SHORT).show();
-        final PopupMenu popup = new PopupMenu(getApplicationContext(), v, Gravity.RIGHT);
-        popup.getMenuInflater().inflate(R.menu.popup_route_actions, popup.getMenu());
+        final PopupMenu popup = new PopupMenu(getContext(), v, Gravity.RIGHT);
+        popup.getMenuInflater().inflate(R.menu.popup_station_actions, popup.getMenu());
         popup.show();
         AttachPopupEvents(popup, selection);
 
@@ -307,11 +339,11 @@ public class SortableListViewActivity extends ListActivity {
 
 
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0) {
-                                Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
                             } else {
 
                                 savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected);
-                                SortableListViewActivity.AddPointDialog.this.dismiss();
+                                ManageStationsFragment.AddPointDialog.this.dismiss();
                             }
                         }
                         else if(_action.equals("update"))
@@ -322,10 +354,10 @@ public class SortableListViewActivity extends ListActivity {
 
 
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 ) {
-                                Toast.makeText(getApplicationContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
                             } else {
                                 updatePoint(_destinationThatWillBeEdited.getID(), name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected);
-                                SortableListViewActivity.AddPointDialog.this.dismiss();
+                                ManageStationsFragment.AddPointDialog.this.dismiss();
                             }
                         }
 
@@ -342,21 +374,22 @@ public class SortableListViewActivity extends ListActivity {
 
         private void savePoint(String name, Double lat, Double lng, Integer tblRouteID)
         {
-            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_adding_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_setup_please_wait));
+            _LoaderDialog = new LoaderDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.dialog_adding_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_setup_please_wait));
             _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI,"Add", 0).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
+
+            new mySQLAddStation(getContext(), _LoaderDialog, getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI, 0, _manageStationsFragment).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void updatePoint(Integer ID, String name, Double lat, Double lng, Integer tblRouteID)
         {
-            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this,MenuActivity._GlobalResource.getString(R.string.dialog_updating_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
+            _LoaderDialog = new LoaderDialog(getActivity(),MenuActivity._GlobalResource.getString(R.string.dialog_updating_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
             _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Update", ID).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
+            new mySQLUpdateStation(getContext(), _LoaderDialog,getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI,  ID, _manageStationsFragment).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
         }
         private void deletePoint(Integer ID)
         {
-            _LoaderDialog = new LoaderDialog(SortableListViewActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_deleting_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
+            _LoaderDialog = new LoaderDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.dialog_deleting_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
             _LoaderDialog.show();
-            new asyncAddPoints(getApplicationContext(), _LoaderDialog, SortableListViewActivity.this, MenuActivity._googleMap, MenuActivity._googleAPI, "Delete", ID).execute();
+//            new mySQLDeleteStation(getContext(), _LoaderDialog, getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI, ID, _manageStationsFragment).execute();
         }
     }
     public  class AddRouteDialog extends Dialog implements android.view.View.OnClickListener{
@@ -384,7 +417,7 @@ public class SortableListViewActivity extends ListActivity {
             submitButton = (Button) findViewById(R.id.btnNewRoute);
             txtRouteName = (EditText) findViewById(R.id.textRouteName);
             tvActionTitle = (TextView) findViewById(R.id.textviewActionTitle);
-            tvActionTitle.setText(isNew ? "New route name" : "Edit route name");
+            tvActionTitle.setText(isNew ? "NEW ROUTE NAME" : "EDIT ROUTE NAME");
             submitButton.setText(isNew ? "Save" : "Update");
             txtRouteName.setText(this._routeName);
             submitButton.setOnClickListener(new View.OnClickListener() {
@@ -402,17 +435,17 @@ public class SortableListViewActivity extends ListActivity {
         }
     }
     public void AddNewStationPoint(String DialogAction){
-        AddPointDialog dialog = new AddPointDialog(SortableListViewActivity.this, DialogAction);
+        AddPointDialog dialog = new AddPointDialog(getActivity(), DialogAction);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
     public void ModifyStationPoint(String DialogTitle, Terminal DestinationToBeEdited){
         try {
-            AddPointDialog dialog = new AddPointDialog(SortableListViewActivity.this, "Update", DestinationToBeEdited);
+            AddPointDialog dialog = new AddPointDialog(getActivity(), "Update", DestinationToBeEdited);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }catch (Exception ex){
-            Toast.makeText(getApplicationContext(),ex.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getContext(),ex.getMessage(), Toast.LENGTH_LONG).show();
         }
 
     }
@@ -420,19 +453,21 @@ public class SortableListViewActivity extends ListActivity {
         Terminal t = SelectedTerminal;
         if(Action == Enums.ActionType.DELETE){
             AlertDialog.Builder builder;
-            builder = new AlertDialog.Builder(SortableListViewActivity.this);
+            builder = new AlertDialog.Builder(getActivity());
 
             builder.setTitle("Delete Point")
                     .setMessage(MenuActivity._GlobalResource.getString(R.string.info_delete_point_confirm))
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             try {
-                                LoaderDialog DeleteLoader = new LoaderDialog(SortableListViewActivity.this, MenuActivity._GlobalResource.getString(R.string.dialog_deleting_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
+                                LoaderDialog DeleteLoader = new LoaderDialog(getActivity(),
+                                        MenuActivity._GlobalResource.getString(R.string.dialog_deleting_points_title),
+                                        MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
                                 DeleteLoader.setCancelable(false);
                                 DeleteLoader.setCancelable(false);
 
-                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(SortableListViewActivity.this);
-                                new mySQLDeleteDestinationOrRoute(getApplicationContext(), SortableListViewActivity.this, DeleteLoader,"", alertDialogBuilder, "Destination").execute(String.valueOf(SelectedTerminal.getID()));
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                                new mySQLDeleteStation(getContext(), getActivity(),  DeleteLoader, alertDialogBuilder, _manageStationsFragment).execute(String.valueOf(SelectedTerminal.getID()));
                             }
                             catch(Exception ex)
                             {
@@ -458,9 +493,9 @@ public class SortableListViewActivity extends ListActivity {
     }
     public void ProcessSelectedRoute(Enums.ActionType Action, @Nullable String RouteName){
         if(Action == Enums.ActionType.DELETE){
-            Toast.makeText(SortableListViewActivity.this, "Delete action here", Toast.LENGTH_LONG).show();
+            Toast.makeText(getActivity(), "Delete action here", Toast.LENGTH_LONG).show();
         }else {
-            SortableListViewActivity.AddRouteDialog dialog = new SortableListViewActivity.AddRouteDialog(SortableListViewActivity.this, Action, RouteName);
+            ManageStationsFragment.AddRouteDialog dialog = new ManageStationsFragment.AddRouteDialog(getActivity(), Action, RouteName);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }
@@ -493,8 +528,9 @@ public class SortableListViewActivity extends ListActivity {
 
 
             };
-    @Override
-    public void onBackPressed() {
-        HandleChangesInOrderOfPoints();
-    }
+
+//    @Override
+//    public void onBackPressed() {
+//        HandleChangesInOrderOfPoints();
+//    }
 }

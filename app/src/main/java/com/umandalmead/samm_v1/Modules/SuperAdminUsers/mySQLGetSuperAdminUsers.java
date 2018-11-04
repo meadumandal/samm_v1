@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import com.google.gson.Gson;
-import com.umandalmead.samm_v1.Adapters.AdminUsersListViewCustomAdapter;
+import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersCustomAdapter;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Helper;
@@ -44,7 +44,7 @@ public class mySQLGetSuperAdminUsers extends AsyncTask<Void, Void, JSONArray>{
     public FragmentManager _fragmentManager;
 
     public SwipeRefreshLayout _swipeRefreshAdminUsers;
-    public AdminUsersListViewCustomAdapter customAdapter;
+    public AdminUsersCustomAdapter customAdapter;
 
     private Constants _constants = new Constants();
 
@@ -147,7 +147,7 @@ public class mySQLGetSuperAdminUsers extends AsyncTask<Void, Void, JSONArray>{
             if (_listView!=null)
             {
                 _dataModels.add(new Users(0, "Add new superadmin user", "", "","","","", 1));
-                customAdapter =new AdminUsersListViewCustomAdapter(_dataModels, _context);
+                customAdapter =new AdminUsersCustomAdapter(_dataModels, _context);
                 _listView.setAdapter(customAdapter);
 
                 _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

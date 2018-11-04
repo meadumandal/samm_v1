@@ -1,20 +1,18 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.ManageLines;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -25,11 +23,18 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.umandalmead.samm_v1.Adapters.LineViewCustomAdapter;
-import com.umandalmead.samm_v1.EntityObjects.Lines;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.umandalmead.samm_v1.EntityObjects.Users;
+import com.umandalmead.samm_v1.Enums;
+import com.umandalmead.samm_v1.ErrorDialog;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.NonScrollListView;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 
 import java.util.ArrayList;
 
@@ -37,8 +42,8 @@ import java.util.ArrayList;
  * Created by eleazerarcilla on 01/07/2018.
  */
 
-public class ManageLinesActivity extends AppCompatActivity {
-    private View myView;
+public class ManageLinesFragment extends Fragment {
+    private View _myView;
     private ImageButton FAB_SammIcon;
     private TextView ViewTitle;
     public static SwipeRefreshLayout _swipeRefreshLines;
@@ -48,59 +53,98 @@ public class ManageLinesActivity extends AppCompatActivity {
     private Activity _activity;
     public AddLineDialog dialog;
     public Helper _helper;
+    private ManageLinesFragment _manageLinesFragment;
+    public static Integer _adminUserID;
+    public static FloatingActionButton FAB_addLine;
 
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addline);
-        _context = getApplicationContext();
-        _activity = ManageLinesActivity.this;
+        _manageLinesFragment = this;
 
-        _helper = new Helper();
+    }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState)
+    {
         try
         {
-            InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_manage_lines_activity));
-            SessionManager sessionManager = new SessionManager(_context);
-            _lineListView = (NonScrollListView) findViewById(R.id.linelistview);
-            _swipeRefreshLines = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_lines);
-            _swipeRefreshLines.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    _swipeRefreshLines.setRefreshing(true);
-                    new mySQLLinesDataProvider(_activity, _lineListView).execute();
+            _myView =  inflater.inflate(R.layout.activity_addline, container, false);
+            _context = getContext();
+            _activity = getActivity();
+            FAB_addLine = _myView.findViewById(R.id.floatingActionButton_addLine);
 
-                }
-            });
-            _swipeRefreshLines.post(new Runnable() {
+            Bundle arguments = getArguments();
+            if (arguments!=null)
+            {
+                _adminUserID = arguments.getInt("adminUserID");
+            }
+            else
+            {
+                _adminUserID =0;
+            }
+
+
+
+            _helper = new Helper();
+            try
+            {
+                InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_manage_lines_activity));
+                SessionManager sessionManager = new SessionManager(_context);
+                _lineListView = (NonScrollListView) _myView.findViewById(R.id.linelistview);
+                _swipeRefreshLines = (SwipeRefreshLayout) _myView.findViewById(R.id.swipe_refresh_lines);
+                _swipeRefreshLines.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        _swipeRefreshLines.setRefreshing(true);
+                        new mySQLLinesDataProvider(_activity, _lineListView, _manageLinesFragment, getFragmentManager()).execute(_adminUserID.toString());
+
+                    }
+                });
+                _swipeRefreshLines.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        _swipeRefreshLines.setRefreshing(true);
+                        new mySQLLinesDataProvider(_activity, _lineListView, _manageLinesFragment, getFragmentManager()).execute(_adminUserID.toString());
+                    }
+                });
+            }
+            catch(Exception ex)
+            {
+                Helper.logger(ex,true);
+            }
+            FAB_addLine.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void run() {
-                    _swipeRefreshLines.setRefreshing(true);
-                    new mySQLLinesDataProvider(_activity, _lineListView).execute();
+                public void onClick(View view) {
+                    ProcessSelectedLine(Enums.ActionType.ADD,null, null, null);
                 }
             });
+            return _myView;
         }
         catch(Exception ex)
         {
-            Helper.logger(ex,true);
+            _helper.logger(ex);
+
         }
+        return null;
 
 
     }
     public void InitializeToolbar(String fragmentName){
         try {
-            FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
+            FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
             FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
             FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent menuIntent = new Intent(ManageLinesActivity.this, MenuActivity.class);
-                    startActivity(menuIntent);
-                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                    finish();
+    //                Intent menuIntent = new Intent(ManageLinesFragment.this, MenuActivity.class);
+    //                startActivity(menuIntent);
+    //                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+    //                finish();
                 }
             });
-            ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);
+            ViewTitle = (TextView) _myView.findViewById(R.id.samm_toolbar_title);
             ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
             ViewTitle.setText(fragmentName);
         }catch (Exception ex){
@@ -145,7 +189,7 @@ public class ManageLinesActivity extends AppCompatActivity {
             txtLineName = (EditText) findViewById(R.id.textLineName);
             spinnerAdminUser = (Spinner) findViewById(R.id.spinnerAdminUsers);
             tvActionTitle = (TextView) findViewById(R.id.textviewActionTitle);
-            tvActionTitle.setText(isNew ? "New line name" : "Edit line name");
+            tvActionTitle.setText(isNew ? "NEW LINE NAME" : "EDIT LINE NAME");
             submitButton.setText(isNew ? "Save" : "Update");
             txtLineName.setText(this._lineName);
 
@@ -240,23 +284,25 @@ public class ManageLinesActivity extends AppCompatActivity {
 
                     if (newLineName.isEmpty())
                     {
-                        Toast.makeText(_context,"Please enter a valid line name", Toast.LENGTH_SHORT).show();
+                        ErrorDialog errorDialog = new ErrorDialog(_activity, "Please enter a valid line name");
+                        errorDialog.show();
                         return;
                     }
                     if (chosenLineAdmin.ID == 0)
                     {
-                        Toast.makeText(_context,"Please select an administrator", Toast.LENGTH_SHORT).show();
+                        ErrorDialog errorDialog = new ErrorDialog(_activity, "Please select the administrator of this line");
+                        errorDialog.show();
                         return;
                     }
                     else
                     {
                         if(isNew)
                         {
-                            new mySQLAddLine(_context,_activity, _LoaderDialog, dialog,"").execute(txtLineName.getText().toString(), chosenLineAdmin.ID.toString());
+                            new mySQLAddLine(_context,_activity, _LoaderDialog, dialog,"", _manageLinesFragment, getFragmentManager()).execute(txtLineName.getText().toString(), chosenLineAdmin.ID.toString());
                         }
                         else
                         {
-                            new mySQLUpdateLine(_context,_activity, _LoaderDialog, dialog,"").execute(String.valueOf(_lineID), txtLineName.getText().toString(), chosenLineAdmin.ID.toString());
+                            new mySQLUpdateLine(_context,_activity, _LoaderDialog, dialog,"", _manageLinesFragment, getFragmentManager()).execute(String.valueOf(_lineID), txtLineName.getText().toString(), chosenLineAdmin.ID.toString());
                         }
                     }
                 }
@@ -276,17 +322,17 @@ public class ManageLinesActivity extends AppCompatActivity {
         {
             if(action == Enums.ActionType.DELETE){
                 AlertDialog.Builder builder;
-                builder = new AlertDialog.Builder(ManageLinesActivity.this);
+                builder = new AlertDialog.Builder(_activity);
                 builder.setTitle("Delete Line")
                         .setMessage("Are you sure you want to delete this line?")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 try {
-                                    LoaderDialog DeleteLoader = new LoaderDialog(ManageLinesActivity.this, "Please wait...", "Deleting line...");
+                                    LoaderDialog DeleteLoader = new LoaderDialog(_activity, "Please wait...", "Deleting line...");
                                     DeleteLoader.setCancelable(false);
 
-                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(ManageLinesActivity.this);
-                                    new mySQLDeleteLine(getApplicationContext(), ManageLinesActivity.this, DeleteLoader, alertDialogBuilder).execute(String.valueOf(id));
+                                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(_activity);
+                                    new mySQLDeleteLine(getContext(), _activity, DeleteLoader, alertDialogBuilder, _manageLinesFragment, getFragmentManager()).execute(String.valueOf(id));
                                 }
                                 catch(Exception ex)
                                 {
@@ -305,9 +351,9 @@ public class ManageLinesActivity extends AppCompatActivity {
                         .show();
 
 
-                //Toast.makeText(ManageRoutesActivity.this, "Delete action here", Toast.LENGTH_LONG).show();
+                //Toast.makeText(ManageRoutesFragment.this, "Delete action here", Toast.LENGTH_LONG).show();
             }else {
-                dialog = new AddLineDialog(ManageLinesActivity.this, action, lineID, lineName, adminUserID);
+                dialog = new AddLineDialog(_activity, action, lineID, lineName, adminUserID);
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
             }

@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Adapters;
+package com.umandalmead.samm_v1.Modules.TrackedPUVs;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;

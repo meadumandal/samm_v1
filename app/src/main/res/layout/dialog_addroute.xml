@@ -18,7 +18,7 @@
 
     <LinearLayout
         android:id="@+id/frmAddNewRoute"
-        android:layout_width="fill_parent"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_margin="20dp">
@@ -29,7 +29,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:id="@+id/textviewActionTitle"/>
+                android:id="@+id/textviewActionTitle"
+                android:text="Title"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:textColor="@color/colorBlack"/>
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

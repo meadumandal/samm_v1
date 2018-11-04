@@ -19,9 +19,27 @@
             <com.umandalmead.samm_v1.NonScrollListView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-
-                android:id="@+id/routelistview"></com.umandalmead.samm_v1.NonScrollListView>
+                android:dividerHeight="0dp"
+                android:divider="@null"
+                android:id="@+id/routelistview"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                ></com.umandalmead.samm_v1.NonScrollListView>
 
         </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
+    <com.github.clans.fab.FloatingActionButton
+        android:id="@+id/floatingActionButton_addRoute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="bottom|right"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/fab_add">
+
+
+
+    </com.github.clans.fab.FloatingActionButton>
 </FrameLayout>

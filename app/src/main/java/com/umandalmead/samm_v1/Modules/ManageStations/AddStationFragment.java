@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.ManageStations;
 
 
 import android.os.Bundle;
@@ -9,10 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddStationPointFragment extends Fragment {
+public class AddStationFragment extends Fragment {
     private View myView;
     private ImageButton FAB_SammIcon;
     private TextView ViewTitle;

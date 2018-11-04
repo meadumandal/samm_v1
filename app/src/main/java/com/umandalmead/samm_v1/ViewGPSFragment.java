@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.umandalmead.samm_v1.Adapters.GPSListViewCustomAdapter;
+import com.umandalmead.samm_v1.Modules.TrackedPUVs.GPSListViewCustomAdapter;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 
 import java.util.ArrayList;

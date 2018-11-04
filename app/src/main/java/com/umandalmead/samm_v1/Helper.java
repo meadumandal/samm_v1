@@ -1,7 +1,10 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -9,55 +12,61 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
-import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ArrayAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
-import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
+import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.EntityObjects.UserMarker;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.SaveCurrentDestination;
-import com.umandalmead.samm_v1.Modules.Logger.mySQLSendErrorReport;
+import com.umandalmead.samm_v1.Modules.ManageLines.LineViewCustomAdapter;
+import com.umandalmead.samm_v1.Modules.ManageLines.ManageLinesFragment;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
+import com.umandalmead.samm_v1.Modules.ManageRoutes.RouteViewCustomAdapter;
+import com.umandalmead.samm_v1.Modules.ManageStations.ManageStationsFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-import static com.umandalmead.samm_v1.MenuActivity._AppBar;
-import static com.umandalmead.samm_v1.MenuActivity._DestinationTextView;
 import static com.umandalmead.samm_v1.MenuActivity._LL_Arrival_Info;
 import static com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
-import static com.umandalmead.samm_v1.MenuActivity._RouteTabLayout;
 import static com.umandalmead.samm_v1.MenuActivity._TV_TimeofArrival;
 import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Description;
 import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Identifier;
@@ -84,6 +93,8 @@ public class Helper {
     public SessionManager _sessionManager;
     private static Resources _GlobalResource;
     public static Typeface FONT_PLATE,FONT_STATION, FONT_RUBIK_REGULAR, FONT_RUBIK_BOLD, FONT_RUBIK_MEDIUM, FONT_ROBOTO_CONDENDSED_BOLD, FONT_RUBIK_BLACK;
+    Integer _counter = 0;
+
 
 
 
@@ -357,30 +368,30 @@ public class Helper {
 
         return poly;
     }
-    public Boolean FindNearestPickUpPoints(Terminal dropOffPoint, Activity activity, Context context) {
-        if(isOnline(activity,context))
-        {
-           // ArrayList<Terminal> dropOffPointList = GetAllDestinationRegardlessOfTheirTableRouteIds(dropOffPoint);
-            Terminal chosenTerminal =dropOffPoint;
-            saveDestination(chosenTerminal.Value);
-
-            (this._activity)._possiblePickUpPointList = new ArrayList<>();
-            for(Terminal terminal : (this._activity)._terminalList)
-            {
-                if (terminal.Direction.equals(chosenTerminal.Direction) && terminal.tblRouteID == chosenTerminal.tblRouteID)
-                {
-                    if(terminal.OrderOfArrival < chosenTerminal.OrderOfArrival)
-                        (this._activity)._possiblePickUpPointList.add(terminal);
-                }
-            }
-            return (this._activity)._possiblePickUpPointList.size() <= 0;
-        }
-        else
-        {
-            return false;
-        }
-
-    }
+//    public Boolean FindPossiblePickUpPoints(Terminal dropOffPoint, Activity activity, Context context) {
+//        if(isOnline(activity,context))
+//        {
+//           // ArrayList<Terminal> dropOffPointList = GetAllDestinationRegardlessOfTheirTableRouteIds(dropOffPoint);
+//            Terminal chosenTerminal =dropOffPoint;
+//            saveDestination(chosenTerminal.Value);
+//
+//            (this._activity)._possiblePickUpPointList = new ArrayList<>();
+//            for(Terminal terminal : (this._activity)._terminalList)
+//            {
+//                if (terminal.Direction.equals(chosenTerminal.Direction) && terminal.tblRouteID == chosenTerminal.tblRouteID)
+//                {
+//                    if(terminal.OrderOfArrival < chosenTerminal.OrderOfArrival)
+//                        (this._activity)._possiblePickUpPointList.add(terminal);
+//                }
+//            }
+//            return (this._activity)._possiblePickUpPointList.size() <= 0;
+//        }
+//        else
+//        {
+//            return false;
+//        }
+//
+//    }
     public static Users GetEloopDriver(Eloop eloopData){
         try {
             if(MenuActivity._driverList.size() > 0) {
@@ -523,6 +534,263 @@ public class Helper {
             Helper.logger(ex);
         }
     }
+
+    /**
+     * This returns a list of Station "Values" based on RouteID
+     * Can be used for filtering the list of stations that an admin user can view on the Manage Stations Module
+     * @param routeID
+     * @return an array of Terminal
+     */
+    public Terminal[] FilterStationsForManageStationsModule(Integer routeID){
+        List<Terminal> terminalListBasedOnRouteID = new ArrayList<>();
+        for (Terminal entry: MenuActivity._terminalList) {
+            if(entry.tblRouteID == routeID)
+            {
+                terminalListBasedOnRouteID.add(entry);
+            }
+        }
+        MenuActivity._PointsArray =  terminalListBasedOnRouteID.toArray(new Terminal[terminalListBasedOnRouteID.size()]);
+        terminalListBasedOnRouteID.toArray(new Terminal[terminalListBasedOnRouteID.size()]);
+        MenuActivity._currentRouteIDSelected = routeID;
+        return terminalListBasedOnRouteID.toArray(new Terminal[terminalListBasedOnRouteID.size()]);
+
+    }
+    /**
+     * This updates the station markers on the map
+     * Call this when user adds, edits or deletes a station
+     * @param StationList
+     * @param googleMap
+     */
+
+    public void UpdateStationMarkersOnTheMap(List<Terminal> StationList, GoogleMap googleMap, GoogleApiClient googleApiClient)
+    {
+        googleMap.clear();
+        MenuActivity._terminalMarkerHashmap = new HashMap<>();
+
+        for (Terminal station : StationList)
+        {
+            if(station.Lat >0 && station.Lng >0)
+            {
+                double lat = station.Lat;
+                double lng = station.Lng;
+                LatLng latLng = new LatLng(lat, lng);
+                MarkerOptions markerOptions = new MarkerOptions();
+                markerOptions.position(latLng);
+
+                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
+                markerOptions.snippet("0 passenger/s waiting");
+                markerOptions.title(station.Value);
+                Marker marker = googleMap.addMarker(markerOptions);
+
+                // marker.showInfoWindow();
+
+                MenuActivity._terminalMarkerHashmap.put(station.Value, marker);
+            }
+        }
+        startGeofence(StationList, googleMap, googleApiClient);
+    }
+    // Start Geofence creation process
+    private void startGeofence(List<Terminal> listTerminals, GoogleMap googleMap, GoogleApiClient googleApiClient) {
+
+
+        Log.i(LOG_TAG, "startGeofence()");
+        List<Geofence> geofences = createGeoFence(listTerminals);
+        GeofencingRequest geofenceRequest = createGeofenceRequest(geofences);
+        addGeofence(geofenceRequest, googleMap, googleApiClient, listTerminals);
+    }
+    private GeofencingRequest createGeofenceRequest(List<Geofence> geofence)
+    {
+        Log.i(LOG_TAG, "createGeofenceRequest()");
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(geofence);
+        return builder.build();
+    }
+    public List<Geofence> createGeoFence(List<Terminal> listTerminals)
+    {
+        Log.i(LOG_TAG, "createGeoFence");
+        int i = 0;
+
+        String geofenceRequestId = "";
+        List<Geofence> geofenceList = new ArrayList<>();
+        if (listTerminals != null)
+            for (Terminal terminal : listTerminals) {
+                if(terminal.Lat>0 && terminal.Lng>0) {
+                    try
+                    {
+                        geofenceRequestId = UUID.randomUUID().toString();
+                        geofenceList.add(new Geofence.Builder()
+                                .setRequestId(geofenceRequestId)
+                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+//                                .setLoiteringDelay(5000)
+                                .setCircularRegion(terminal.Lat, terminal.Lng, Constants.GEOFENCE_RADIUS)
+                                .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                                .build());
+
+                        listTerminals.get(i).GeofenceId = geofenceRequestId;
+                    }
+                    catch(Exception ex)
+                    {
+                        ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.error_generic));
+                        errorDialog.show();
+                        logger(ex,true);
+                    }
+                }
+                i++;
+
+//                if(i==1)
+//                    break;
+                //drawGeofence(new LatLng(terminal.Lat, terminal.Lng));
+            }
+
+        return geofenceList;
+    }
+    // Add the created GeofenceRequest to the device's monitoring list
+    private void addGeofence(GeofencingRequest request,  final GoogleMap googleMap, GoogleApiClient googleApiClient,final List<Terminal> terminals) {
+
+        Log.d(LOG_TAG, "addGeofence");
+        if (checkPermission())
+            try
+            {
+                PendingIntent pendingIntent = createGeofencePendingIntent();
+
+                LocationServices.GeofencingApi.removeGeofences(googleApiClient, pendingIntent);
+                LocationServices.GeofencingApi.addGeofences(
+                        googleApiClient,
+                        request,
+                        pendingIntent
+                ).setResultCallback(new ResultCallback<com.google.android.gms.common.api.Status>() {
+
+                    @Override
+                    public void onResult(com.google.android.gms.common.api.Status status) {
+                        if (status.isSuccess()) {
+                            Log.i(LOG_TAG, "Success Saving Geofence");
+                            drawGeofence(terminals, googleMap);
+                        } else {
+                            logger("Registering geofence failed: " + status.getStatusMessage() +
+                                    " : " + status.getStatusCode());
+
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.error_generic));
+                errorDialog.show();
+                logger(ex);
+            }
+
+
+
+    }
+    // Check for permission to access Location
+    private boolean checkPermission() {
+        try
+        {
+            Log.d(LOG_TAG, "checkPermission()");
+            // Ask for permission if it wasn't granted yet
+            return (ContextCompat.checkSelfPermission(this._activity, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED );
+        }
+        catch(Exception ex)
+        {
+            logger(ex);
+            return false;
+        }
+    }
+    private PendingIntent createGeofencePendingIntent()
+    {
+        Log.i(LOG_TAG, "createGeofencePendingIntent()");
+        Intent intent = new Intent(this._activity, GeofenceTransitionsIntentService.class);
+        PendingIntent pendingIntent = PendingIntent.getService(this._activity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        this._activity.startService(intent);
+        return pendingIntent;
+
+
+    }
+    private void drawGeofence(List<Terminal> terminals, GoogleMap googleMap) {
+        Log.d(LOG_TAG, "drawGeofence()");
+        for(Terminal d: terminals)
+        {
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(new LatLng(d.Lat, d.Lng))
+                    .strokeColor(Color.argb(50, 70,70,70))
+                    .fillColor( Color.argb(100, 150,150,150) )
+                    .radius( Constants.GEOFENCE_RADIUS );
+            googleMap.addCircle( circleOptions );
+        }
+
+    }
+    public void UpdateRoutesData(ManageRoutesFragment manageRoutesFragment, String updatedRoutesDataInJSONFormat)
+    {
+
+        try
+        {
+            Type listTypeOfRoute = new TypeToken<List<Routes>>(){}.getType();
+            String routesList = (updatedRoutesDataInJSONFormat);
+            Gson gson = new Gson();
+            MenuActivity._routeList = gson.fromJson(routesList, listTypeOfRoute);
+
+            ArrayList<Routes> routesByLineID = new ArrayList<Routes>();
+            if (MenuActivity._currentLineIDSelected!=0)
+                for(Routes route:MenuActivity._routeList)
+                {
+                    if (route.getTblLineID() == MenuActivity._currentLineIDSelected)
+                        routesByLineID.add(route);
+                }
+            else
+                routesByLineID = new ArrayList<Routes>(MenuActivity._routeList);
+
+            RouteViewCustomAdapter customAdapter =new RouteViewCustomAdapter(routesByLineID,
+                    _activity,
+                    manageRoutesFragment._routesListView,
+                    manageRoutesFragment.getFragmentManager(),
+                    manageRoutesFragment._swipeRefreshRoute,
+                    manageRoutesFragment);
+            MenuActivity._manageRoutesFragment._routesListView.setAdapter(customAdapter);
+        }
+        catch(Exception ex)
+        {
+            logger(ex);
+        }
+
+
+
+    }
+    public void UpdateStationsData(ManageStationsFragment manageStationsFragment, String updatedStationsDataInJSONFormat)
+    {
+
+        Type listTypeOfTerminal = new TypeToken<List<Terminal>>(){}.getType();
+        String stationList = (updatedStationsDataInJSONFormat);
+        Gson gson = new Gson();
+
+        MenuActivity._terminalList = gson.fromJson(stationList, listTypeOfTerminal);
+
+        FilterStationsForManageStationsModule(MenuActivity._currentRouteIDSelected);
+        ArrayAdapter adp = new ArrayAdapter(_context, R.layout.listview_viewpoints, MenuActivity._PointsArray);
+        MenuActivity._manageStationsFragment.setListAdapter(adp);
+
+    }
+    public void UpdateLinesData(ManageLinesFragment manageLinesFragment, String updatedLinesDataInJSONFormat)
+    {
+
+        Type listTypeOfLines = new TypeToken<List<Lines>>(){}.getType();
+        String lineList = (updatedLinesDataInJSONFormat);
+        Gson gson = new Gson();
+        MenuActivity._lineList = gson.fromJson(lineList, listTypeOfLines);
+
+        LineViewCustomAdapter customAdapter =new LineViewCustomAdapter(MenuActivity._lineList,
+                _activity,
+                manageLinesFragment._lineListView,
+                manageLinesFragment.getFragmentManager(),
+                manageLinesFragment._swipeRefreshLines,
+                manageLinesFragment);
+        MenuActivity._manageLinesFragment._lineListView.setAdapter(customAdapter);
+
+
+    }
+
 
 
 }

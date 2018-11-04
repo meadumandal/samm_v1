@@ -1,12 +1,14 @@
-package com.umandalmead.samm_v1.Adapters;
+package com.umandalmead.samm_v1.Modules.ManageLines;
 
-import android.app.FragmentManager;
+
+import android.support.v4.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,14 +22,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.Enums;
 import com.umandalmead.samm_v1.Helper;
-import com.umandalmead.samm_v1.ManageLinesActivity;
-import com.umandalmead.samm_v1.ManageRoutesActivity;
+
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 
 import java.util.ArrayList;
 
@@ -37,23 +40,27 @@ import java.util.ArrayList;
 
 public class LineViewCustomAdapter extends ArrayAdapter<Lines> implements View.OnClickListener{
     private NonScrollListView _LineListView;
+    private ManageLinesFragment _manageLinesFragment;
     private Context _context;
     private ArrayList<Lines> _lines = new ArrayList<Lines>();
     private SwipeRefreshLayout _SwipeRefreshLine;
-    private FragmentManager _FragmentManager;
+    private FragmentManager     _FragmentManager;
     private int lastPosition = -1;
     Helper _helper = new Helper();
+    SessionManager _sessionManager;
 
 
 
     public LineViewCustomAdapter(ArrayList<Lines> data, Context cont,NonScrollListView listView, FragmentManager fm,
-                                  SwipeRefreshLayout swipeRefreshRoute){
+                                  SwipeRefreshLayout swipeRefreshRoute, ManageLinesFragment manageLinesFragment){
         super(cont, R.layout.listview_viewlines, data);
         this._context = cont;
         this._lines = data;
         this._SwipeRefreshLine = swipeRefreshRoute;
         this._LineListView = listView;
         this._FragmentManager = fm;
+        this._manageLinesFragment = manageLinesFragment;
+        this._sessionManager = new SessionManager(_context);
 
     }
 
@@ -103,29 +110,43 @@ public class LineViewCustomAdapter extends ArrayAdapter<Lines> implements View.O
             final Lines line = _lines.get(position);
 
             final PopupMenu popup = new PopupMenu(_context, convertView, Gravity.RIGHT);
+
+
+
             popup.getMenuInflater().inflate(R.menu.popup_line_actions, popup.getMenu());
-            viewHolder.textLineName.setText(line.getName());
-            viewHolder.textAdminUsername.setText(line.getAdminUserName());
-
-
-            if(line.getName().toLowerCase().contains("add line")) {
-                viewHolder.layoutLineItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        //Mysterious bug hacky solution: Double check if the clicked view is the "ADD LINE" row
-                        if (((ViewHolder) view.getTag()).textLineName.getText().toString().toLowerCase().contains("add line"))
-                            ((ManageLinesActivity) _context).ProcessSelectedLine(Enums.ActionType.ADD,null, null, null);
-                    }
-                });
-
+            Menu popupMenu = popup.getMenu();
+            if(_sessionManager.getIsSuperAdmin())
+            {
+                popupMenu.findItem(R.id.itemEdit).setVisible(true);
+                popupMenu.findItem(R.id.itemDelete).setVisible(true);
             }
-            else {
-                viewHolder.layoutLineItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorSprayBlue));
+            else
+            {
+                popupMenu.findItem(R.id.itemEdit).setVisible(false);
+                popupMenu.findItem(R.id.itemDelete).setVisible(false);
+            }
+            viewHolder.textLineName.setText(line.getName());
+            viewHolder.textAdminUsername.setText("Managed by: " + line.getAdminUserName());
+
+
+//            if(line.getName().toLowerCase().contains("add line")) {
+//                viewHolder.layoutLineItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
+//                convertView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        //Mysterious bug hacky solution: Double check if the clicked view is the "ADD LINE" row
+//                        if (((ViewHolder) view.getTag()).textLineName.getText().toString().toLowerCase().contains("add line"))
+//                            _manageLinesFragment.ProcessSelectedLine(Enums.ActionType.ADD,null, null, null);
+//                    }
+//                });
+//
+//            }
+//            else {
+//                viewHolder.layoutLineItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorSprayBlue));
                 viewHolder.imgbtnShowMoreActions.setVisibility(View.VISIBLE);
                 viewHolder.layoutForAddIcon.setVisibility(View.GONE);
                 viewHolder.dragger.setVisibility(View.GONE);
-            }
+//            }
 
             viewHolder.imgbtnShowMoreActions.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -140,10 +161,18 @@ public class LineViewCustomAdapter extends ArrayAdapter<Lines> implements View.O
                     if (item.getTitle().toString().equalsIgnoreCase("view routes"))
                     {
                         MenuActivity._FragmentTitle =line.getName();
+                        MenuActivity._FragmentTitle =line.getName();
+                        MenuActivity._FragmentTitle =line.getName();
+                        MenuActivity._currentLineIDSelected = line.getID();
                         try {
-                            Intent addRouteIntent = new Intent(_context, ManageRoutesActivity.class);
-                            addRouteIntent.putExtra("lineID", line.getID());
-                            _context.startActivity(addRouteIntent);
+
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("lineID", line.getID());
+                            MenuActivity._manageRoutesFragment.setArguments(bundle);
+                            _FragmentManager.beginTransaction().replace(R.id.content_frame,MenuActivity._manageRoutesFragment)
+                                    .addToBackStack(Constants.FRAGMENTNAME_MANAGEROUTES)
+                                    .commit();
+
                         }catch(Exception ex){
                             Toast.makeText(_context,ex.getMessage().toString(), Toast.LENGTH_LONG).show();
                         }
@@ -152,7 +181,7 @@ public class LineViewCustomAdapter extends ArrayAdapter<Lines> implements View.O
                     {
                         Enums.ActionType action = item.getTitle().toString().equalsIgnoreCase("edit") ? Enums.ActionType.EDIT : Enums.ActionType.DELETE;
                         try {
-                            ((ManageLinesActivity) _context).ProcessSelectedLine(action, line.getID(), line.getName(), line.getAdmin_User_ID());
+                            _manageLinesFragment.ProcessSelectedLine(action, line.getID(), line.getName(), line.getAdmin_User_ID());
 
                         }catch (Exception ex){
                             Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_LONG).show();

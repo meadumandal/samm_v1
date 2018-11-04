@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.umandalmead.samm_v1.ManageLinesActivity">
+    tools:context="com.umandalmead.samm_v1.Modules.ManageLines.ManageLinesFragment">
 
 </android.support.constraint.ConstraintLayout>

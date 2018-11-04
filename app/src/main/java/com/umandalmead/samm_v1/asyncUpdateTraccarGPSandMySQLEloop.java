@@ -185,7 +185,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                         new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
                     }
                 });
-//              new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
+//              new mySQLSignUp(_activity, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
             }
             else
             {
@@ -193,7 +193,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                 alertDialogBuilder.setMessage(message);
             }
             alertDialogBuilder.show();
-//        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
+//        Toast.makeText(_activity, s, Toast.LENGTH_LONG).show();
         }
         catch(Exception ex)
         {

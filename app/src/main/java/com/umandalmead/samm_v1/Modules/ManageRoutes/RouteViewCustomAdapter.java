@@ -1,12 +1,8 @@
-package com.umandalmead.samm_v1.Adapters;
+package com.umandalmead.samm_v1.Modules.ManageRoutes;
 
-import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.support.annotation.NonNull;
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.Gravity;
@@ -24,21 +20,16 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Enums;
-import com.umandalmead.samm_v1.InfoDialog;
-import com.umandalmead.samm_v1.ManageRoutesActivity;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
-import com.umandalmead.samm_v1.SortableListViewActivity;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 /**
  * Created by eleazerarcilla on 20/06/2018.
@@ -51,18 +42,19 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
     private SwipeRefreshLayout _SwipeRefreshRoute;
     private FragmentManager _FragmentManager;
     private int lastPosition = -1;
+    ManageRoutesFragment _manageRouesFragment;
 
 
 
     public RouteViewCustomAdapter(ArrayList<Routes> data, Context cont,NonScrollListView listView, FragmentManager fm,
-                                  SwipeRefreshLayout swipeRefreshRoute){
+                                  SwipeRefreshLayout swipeRefreshRoute, ManageRoutesFragment manageRoutesFragment){
         super(cont, R.layout.listview_viewroutes, data);
         this._context = cont;
         this._TestData = data;
         this._SwipeRefreshRoute = swipeRefreshRoute;
         this._RouteListView = listView;
         this._FragmentManager = fm;
-
+        this._manageRouesFragment = manageRoutesFragment;
     }
 
     private static class ViewHolder {
@@ -90,7 +82,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                 convertView = inflater.inflate(R.layout.listview_viewroutes, parent, false);
                 viewHolder.textRouteName = (TextView) convertView.findViewById(R.id.routeName);
                 viewHolder.layoutRouteItem = (LinearLayout) convertView.findViewById(R.id.routeitemLinearLayout);
-                viewHolder.dragger = (ImageButton) convertView.findViewById(R.id.routeDragger);
+//                viewHolder.dragger = (ImageButton) convertView.findViewById(R.id.routeDragger);
                 viewHolder.viewRoute = (Button) convertView.findViewById(R.id.btnViewRoute);
                 viewHolder.imgbtnShowMoreActions =(ImageButton) convertView.findViewById(R.id.imgbtnShowActions);
                 result=convertView;
@@ -108,23 +100,23 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
             final PopupMenu popup = new PopupMenu(_context, convertView, Gravity.RIGHT);
             popup.getMenuInflater().inflate(R.menu.popup_route_actions, popup.getMenu());
             viewHolder.textRouteName.setText(route.getRouteName());
-            if(route.getRouteName().toLowerCase().contains("add route")) {
-                viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
-                    convertView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (((ViewHolder) view.getTag()).textRouteName.getText().toString().toLowerCase().contains("add route"))
-                                ((ManageRoutesActivity) _context).ProcessSelectedRoute(Enums.ActionType.ADD,null, null);
-                        }
-                    });
-
-            }
-            else {
-                viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorSprayBlue));
+//            if(route.getRouteName().toLowerCase().contains("add route")) {
+//                viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
+//                    convertView.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            if (((ViewHolder) view.getTag()).textRouteName.getText().toString().toLowerCase().contains("add route"))
+//                                _manageRouesFragment.ProcessSelectedRoute(Enums.ActionType.ADD,null, null);
+//                        }
+//                    });
+//
+//            }
+//            else {
+//                viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorSprayBlue));
                 viewHolder.imgbtnShowMoreActions.setVisibility(View.VISIBLE);
-                viewHolder.viewRoute.setVisibility(View.VISIBLE);
-                viewHolder.dragger.setVisibility(View.GONE);
-            }
+//                viewHolder.viewRoute.setVisibility(View.VISIBLE);
+//                viewHolder.dragger.setVisibility(View.GONE);
+//            }
 
             viewHolder.imgbtnShowMoreActions.setOnClickListener(new View.OnClickListener(){
                 @Override
@@ -138,9 +130,15 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                 public void onClick(View view) {
                     MenuActivity._FragmentTitle = route.getRouteName();
                     try {
-                        PopulatePoints(route.getID());
-                        Intent intent = new Intent(_context, SortableListViewActivity.class);
-                        _context.startActivity(intent);
+//                        PopulatePoints(route.getID());
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("routeID", route.getID());
+                        MenuActivity._manageStationsFragment.setArguments(bundle);
+                        _FragmentManager.beginTransaction().replace(R.id.content_frame, MenuActivity._manageStationsFragment)
+                                .addToBackStack(Constants.FRAGMENTNAME_MANAGESTATIONS)
+                                .commit();
+
+
                     }catch(Exception ex){
                         Toast.makeText(_context,ex.getMessage().toString(), Toast.LENGTH_LONG).show();
                     }
@@ -148,14 +146,31 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
             });
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 public boolean onMenuItemClick(MenuItem item) {
-                    Enums.ActionType action = item.getTitle().toString().equalsIgnoreCase("edit") ? Enums.ActionType.EDIT : Enums.ActionType.DELETE;
                     try {
-                        ((ManageRoutesActivity) _context).ProcessSelectedRoute(action, route.getID(), route.getRouteName());
-                        return true;
-                    }catch (Exception ex){
-                       Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_LONG).show();
-                        return true;
+                        String clickedMenu = item.getTitle().toString();
+                        Enums.ActionType action = Enums.ActionType.EDIT;
+                        if (clickedMenu.equalsIgnoreCase("edit") || clickedMenu.equalsIgnoreCase("delete")) {
+                            if (clickedMenu.equalsIgnoreCase("edit"))
+                                action = Enums.ActionType.EDIT;
+                            else
+                                action = Enums.ActionType.DELETE;
+
+                            _manageRouesFragment.ProcessSelectedRoute(action, route.getID(), route.getRouteName());
+
+                        } else { //View Routes
+                            MenuActivity._FragmentTitle = route.getRouteName();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("routeID", route.getID());
+                            MenuActivity._manageStationsFragment.setArguments(bundle);
+                            _FragmentManager.beginTransaction().replace(R.id.content_frame, MenuActivity._manageStationsFragment)
+                                    .addToBackStack(Constants.FRAGMENTNAME_MANAGESTATIONS)
+                                    .commit();
+                        }
+
+                    } catch (Exception ex) {
+                        Toast.makeText(_context, ex.getMessage(), Toast.LENGTH_LONG).show();
                     }
+                    return true;
                 }
             });
 

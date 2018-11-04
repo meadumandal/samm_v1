@@ -96,14 +96,14 @@
             android:label="@string/title_activity_user_profile"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".ManageRoutesActivity"
+            android:name=".Modules.ManageRoutes.ManageRoutesFragment"
             android:label="Manage Routes"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".SortableListViewActivity"
+            android:name=".Modules.ManageStations.ManageStationsFragment"
             android:label="Manage Points"
             android:theme="@style/AppTheme" />
-        <activity android:name=".ManageLinesActivity"></activity>
+        <activity android:name=".Modules.ManageLines.ManageLinesFragment"></activity>
     </application>
 
 </manifest>
