@@ -14,7 +14,7 @@ import java.util.Comparator;
 //MySQL Entity
 
 public class Terminal implements Comparable<Terminal>{
-    public int ID;
+    public Integer ID;
     public int tblRouteID;
     public String Value;
     public String Description;
@@ -22,10 +22,13 @@ public class Terminal implements Comparable<Terminal>{
     public String Direction;
     public Double Lat;
     public Double Lng;
+
     public String GeofenceId;
     public Directions directionsFromCurrentLocation;
     public int DestinationPicture = -1;
     public String LineName;
+    public String isMainTerminal;
+    public String routeName;
 
 
 
@@ -33,7 +36,20 @@ public class Terminal implements Comparable<Terminal>{
     {
 
     }
-    public Terminal(int ID,int tblRouteID, String Value, String Description, int OrderOfArrival, String Direction, Double Lat, Double Lng, String GeofenceId, Directions DirectionsFromCurrentLocation, int DestinationPicture, String LineName)
+    public Terminal(int ID,
+                    int tblRouteID,
+                    String Value,
+                    String Description,
+                    int OrderOfArrival,
+                    String Direction,
+                    Double Lat,
+                    Double Lng,
+                    String GeofenceId,
+                    Directions DirectionsFromCurrentLocation,
+                    int DestinationPicture,
+                    String LineName,
+                    String isMainTerminal,
+                    String routeName)
     {
         this.ID =ID;
         this.tblRouteID = tblRouteID;
@@ -47,6 +63,8 @@ public class Terminal implements Comparable<Terminal>{
         this.directionsFromCurrentLocation = DirectionsFromCurrentLocation;
         this.DestinationPicture = DestinationPicture;
         this.LineName = LineName;
+        this.isMainTerminal = isMainTerminal;
+        this.routeName = routeName;
 
     }
 
@@ -96,6 +114,13 @@ public class Terminal implements Comparable<Terminal>{
     {
         this.DestinationPicture = DestinationPicture;
     }
+    public void setIsMainTerminal(String isMainTerminal){
+        this.isMainTerminal = isMainTerminal;
+    }
+    public String getIsMainTerminal()
+    {
+        return this.isMainTerminal;
+    }
     //endregion
     //region GETTERS
     public int getID(){return this.ID;}
@@ -113,6 +138,8 @@ public class Terminal implements Comparable<Terminal>{
     }
     public String getLineName() {return this.LineName;}
     public void setLineName(String LineName){this.LineName = LineName;}
+    public String getRouteName(){return this.routeName;}
+    public void setRouteName(String routeName){this.routeName = routeName;}
     //endregion
 
 

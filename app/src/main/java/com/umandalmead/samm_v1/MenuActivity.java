@@ -324,6 +324,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static  CoordinatorLayout.LayoutParams _AppBarLayout;
         public static DrawerLayout _MainDrawerLayout;
         public static View _MAINCONTENT;
+        public static Activity _activity;
 
 
 
@@ -592,16 +593,16 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                     }
                 });
-
-                _AddPointFloatingButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AddPointDialog dialog = new AddPointDialog(MenuActivity.this, "ADD");
-                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog.show();
-                        PlayButtonClickSound();
-                    }
-                });
+//
+//                _AddPointFloatingButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        AddPointDialog dialog = new AddPointDialog(MenuActivity.this, "ADD");
+//                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                        dialog.show();
+//                        PlayButtonClickSound();
+//                    }
+//                });
 
 
 
@@ -774,7 +775,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             });
             _manageLinesFragment = new ManageLinesFragment();
             _manageRoutesFragment = new ManageRoutesFragment();
+
             _manageStationsFragment = new ManageStationsFragment();
+            _activity = MenuActivity.this;
+
 
 
         }catch(Exception ex)
@@ -998,86 +1002,97 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                    final String markerTitle = marker.getTitle();
-            if(markerTitle!=null) {
-                if (_terminalMarkerHashmap.containsKey(markerTitle)) {
-                    if (_sessionManager.getIsDeveloper() && !_sessionManager.isGuest() && !_sessionManager.isDriver()) {
-                        //if admin only:
-                        AddPointDialog dialog = new AddPointDialog(MenuActivity.this, "Update", marker.getTitle());
-                        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        dialog.show();
-                    } else {
-                        for (Terminal terminal : _terminalList) {
-                            if (terminal.Value.toLowerCase().equals(markerTitle)) {
-                                TM_ClickedTerminal = terminal;
+                final String markerTitle = marker.getTitle();
+                Integer markerID = 0;
+                final String markerValue;
+                if(markerTitle!=null) {
+                    if (markerTitle.contains("-"))
+                    {
+                        String[] str = markerTitle.split("-");
+                        markerID = Integer.parseInt(str[0]);
+                        markerValue = str[1];
+                    }
+                    else
+                    {
+                        markerValue = markerTitle;
+                    }
+
+                    if (_terminalMarkerHashmap.containsKey(markerValue)) {
+                        if (_sessionManager.getIsDeveloper() || _sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()) {
+                            //if admin only:
+                            _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
+                        } else {
+                            for (Terminal terminal : _terminalList) {
+                                if (terminal.ID.equals(markerID)) {
+                                    TM_ClickedTerminal = terminal;
+                                }
+
                             }
+                            _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
+                            final Handler HND_Loc_DataFetchDelay = new Handler();
+                            final Handler HND_Loc_DataFetchTooLong = new Handler();
+                            final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
+                            HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
+                            HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
+                            HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    GetAndDisplayEloopETA(F_TM_ClickedTerminal);
+                                }
+                            }, 3000);
+
+                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
+                                            _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
+                                    _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
+                            _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                @Override
+                                public Transaction.Result doTransaction(MutableData currentData) {
+
+                                    return Transaction.success(currentData);
+                                }
+
+                                @Override
+                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                    long passengercount = 0;
+                                    passengercount = DS_Terminals.getChildrenCount();
+                                    _passengerCountInTerminal = (int) passengercount;
+                                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
+                                }
+                            });
 
                         }
-                        _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
-                        final Handler HND_Loc_DataFetchDelay = new Handler();
-                        final Handler HND_Loc_DataFetchTooLong = new Handler();
-                        final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
-                        HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
-                        HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
-                        HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                GetAndDisplayEloopETA(F_TM_ClickedTerminal);
-                            }
-                        }, 3000);
+                    }
+                    //vehicle has been clicked instead
+                    else if (_driverMarkerHashmap.containsKey(markerValue)) {
+                        _SelectedTerminalMarkerTitle = null;
+                        Users driverDetails = Helper.GetEloopDriver(Helper.GetEloopEntry(markerValue));
+                        ShowInfoLayout(Helper.GetEloopEntry(markerValue).PlateNumber, (driverDetails != null ? driverDetails.firstName : "") + " "
+                                + (driverDetails != null ? driverDetails.lastName : ""), null, R.drawable.eco_loop_for_info_transparent, Enums.InfoLayoutType.INFO_VEHICLE);
+                    } else if (markerValue.equals("YOU")) {
+                        _SelectedTerminalMarkerTitle = null;
+                    }
+                    //samm user marker has been clicked
+                    else {
+                        _SelectedTerminalMarkerTitle = null;
+                        String STR_IconGetterFlag = markerValue;
+                        if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerValue))
+                            STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
 
-                        ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
-                                        _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
-                        _terminalsDBRef.child(marker.getTitle()).runTransaction(new Transaction.Handler() {
-                            @Override
-                            public Transaction.Result doTransaction(MutableData currentData) {
+                        final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
+                        Handler HD_FetchFBName = new Handler();
 
-                                return Transaction.success(currentData);
-                            }
-
-                            @Override
-                            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
-                                long passengercount = 0;
-                                passengercount = DS_Terminals.getChildrenCount();
-                                _passengerCountInTerminal = (int) passengercount;
-                                UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                        _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
-                            }
-                        });
-
+                        if (UM_result.UserType == Enums.UserType.SAMM_FACEBOOK) {
+                            HD_FetchFBName.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    GetFacebookUsername(markerValue, UM_result);
+                                }
+                            }, 1500);
+                        }
+                        ShowInfoLayout(UM_result.UserTitle, UM_result.UserType.toString(), null, UM_result.UserInfoLayoutIcon, Enums.InfoLayoutType.INFO_PERSON);
                     }
                 }
-                //vehicle has been clicked instead
-                else if (_driverMarkerHashmap.containsKey(markerTitle)) {
-                    _SelectedTerminalMarkerTitle = null;
-                    Users driverDetails = Helper.GetEloopDriver(Helper.GetEloopEntry(markerTitle));
-                    ShowInfoLayout(Helper.GetEloopEntry(markerTitle).PlateNumber, (driverDetails != null ? driverDetails.firstName : "") + " "
-                            + (driverDetails != null ? driverDetails.lastName : ""), null, R.drawable.eco_loop_for_info_transparent, Enums.InfoLayoutType.INFO_VEHICLE);
-                } else if (markerTitle.equals("YOU")) {
-                    _SelectedTerminalMarkerTitle = null;
-                }
-                //samm user marker has been clicked
-                else {
-                    _SelectedTerminalMarkerTitle = null;
-                    String STR_IconGetterFlag = marker.getTitle();
-                    if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerTitle))
-                        STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
-
-                    final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
-                    Handler HD_FetchFBName = new Handler();
-
-                    if (UM_result.UserType == Enums.UserType.SAMM_FACEBOOK) {
-                        HD_FetchFBName.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                GetFacebookUsername(markerTitle, UM_result);
-                            }
-                        }, 1500);
-                    }
-                    ShowInfoLayout(UM_result.UserTitle, UM_result.UserType.toString(), null, UM_result.UserInfoLayoutIcon, Enums.InfoLayoutType.INFO_PERSON);
-                }
-            }
                 return true;
             }
         });
@@ -2169,198 +2184,198 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
 
 
-    public class AddPointDialog extends Dialog implements
-            android.view.View.OnClickListener {
-        View myView;
-        String _action;
-        Button btnAddPoints, btnDeletePoints;
-        EditText editName;
-        EditText editLat;
-        EditText editLng;
-        Spinner spinnerPrePosition, spinnerTerminalReference;
-        String _destinationValueForEdit = "";
-        public String TAG = "mead";
-
-
-        public AddPointDialog(Activity activity, String action) {
-            super(activity);
-            this._action = action.toLowerCase();
-        }
-        public AddPointDialog(Activity activity, String action, String destinationValueforEdit) {
-            super(activity);
-            this._action = action.toLowerCase();
-            this._destinationValueForEdit = destinationValueforEdit;
-        }
-
-
-        @Override
-        public void onClick(View view) {
-            PlayButtonClickSound();
-        }
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            try {
-                requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-                setContentView(R.layout.dialog_add_point);
-                btnAddPoints = (Button) findViewById(R.id.btnAddPoint);
-
-                editName = (EditText) findViewById(R.id.terminalName);
-                editLat = (EditText) findViewById(R.id.lat);
-                editLng = (EditText) findViewById(R.id.lng);
-                TextView txtAction = (TextView) findViewById(R.id.txtActionLabel);
-                final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
-                spinnerPrePosition = (Spinner) findViewById(R.id.spinner_preposition);
-                spinnerTerminalReference = (Spinner) findViewById(R.id.spinner_terminalReference);
-                Integer orderOfArrival = 0;
-                final Integer destinationIDforEdit=0;
-
-                ArrayAdapter<Terminal> terminalReferencesAdapter = new ArrayAdapter<Terminal>(getApplicationContext(), R.layout.spinner_item, MenuActivity._terminalList);
-
-                spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
-                if(_action.equals("add"))
-                {
-                    btnAddPoints.setText("ADD");
-                    txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
-                    btnDeletePoints.setVisibility(View.GONE);
-                }
-                else {
-
-                    btnAddPoints.setText("UPDATE");
-
-                    for(Terminal d: _terminalList)
-                    {
-                        if (d.Value.equals(_destinationValueForEdit))
-                        {
-                            txtDestinationIDForEdit.setText(String.valueOf(d.ID));
-                            editName.setText(d.Description);
-                            editLat.setText(d.Lat.toString());
-                            editLng.setText(d.Lng.toString());
-                            orderOfArrival = d.OrderOfArrival;
-
-                            break;
-                        }
-                    }
-                    txtAction.setText("EDIT PICKUP/DROPOFF POINT");
-                    int index = 0;
-                    for(Terminal d: _terminalList)
-                    {
-                        if (d.OrderOfArrival == orderOfArrival + 1)
-                        {
-                            spinnerPrePosition.setSelection(0);
-                            spinnerTerminalReference.setSelection(index);
-                            break;
-                        }else if (d.OrderOfArrival == orderOfArrival - 1)
-                        {
-                            spinnerPrePosition.setSelection(1);
-                            spinnerTerminalReference.setSelection(index);
-                            break;
-                        }
-                        index++;
-                    }
-
-                }
-                final DialogInterface.OnClickListener dialog_deletepoint = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                PlayButtonClickSound();
-                                deletePoint(Integer.parseInt(txtDestinationIDForEdit.getText().toString()));
-                                break;
-
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                PlayButtonClickSound();
-                                //No button clicked
-                                break;
-                        }
-                    }
-                };
-                btnDeletePoints.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        try {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                            builder.setMessage("Are you sure?").setPositiveButton("Yes", dialog_deletepoint)
-                                    .setNegativeButton("No", dialog_deletepoint).show();
-
-                        }
-                        catch(Exception ex)
-                        {
-                            _helper.logger(ex,true);
-
-                        }
-
-                    }
-                });
-                btnAddPoints.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if(_action.equals("add")) {
-                            PlayButtonClickSound();
-                            String name = editName.getText().toString();
-                            String lat = editLat.getText().toString();
-                            String lng = editLng.getText().toString();
-                            String preposition = spinnerPrePosition.getSelectedItem().toString();
-                            Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
-                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
-                                Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
-                            } else {
-
-                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
-                                AddPointDialog.this.dismiss();
-                            }
-                        }
-                        else if(_action.equals("update"))
-                        {
-                            PlayButtonClickSound();
-                            String name = editName.getText().toString();
-                            String lat = editLat.getText().toString();
-                            String lng = editLng.getText().toString();
-                            String preposition = spinnerPrePosition.getSelectedItem().toString();
-                            Integer destinationID = Integer.parseInt(txtDestinationIDForEdit.getText().toString());
-                            Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
-                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
-                                Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
-                            } else {
-
-                                updatePoint(destinationID, name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
-                                AddPointDialog.this.dismiss();
-                            }
-                        }
-
-                    }
-                });
-            }catch(Exception e)
-            {
-                _helper.logger(e,true);
-
-            }
-
-            _LoaderDialog.dismiss();
-        }
-
-        private void savePoint(String name, Double lat, Double lng, String preposition, Terminal terminalReference)
-        {
-//            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_adding),_GlobalResource.getString(R.string.GPS_updating_points_on_map));
-//            _LoaderDialog.show();
+//    public class AddPointDialog extends Dialog implements
+//            android.view.View.OnClickListener {
+//        View myView;
+//        String _action;
+//        Button btnAddPoints, btnDeletePoints;
+//        EditText editName;
+//        EditText editLat;
+//        EditText editLng;
+//        Spinner spinnerPrePosition, spinnerTerminalReference;
+//        String _destinationValueForEdit = "";
+//        public String TAG = "mead";
 //
-//            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,_GlobalResource.getString(R.string.GPS_add), 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
-        }
-        private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Terminal terminalReference)
-        {
-//            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_updating), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
-//            _LoaderDialog.show();
-//            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_update) , ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
-        }
-        private void deletePoint(Integer ID)
-        {
-//            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_deleting), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
-//            _LoaderDialog.show();
-//            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_delete) , ID).execute();
-        }
-    }
+//
+//        public AddPointDialog(Activity activity, String action) {
+//            super(activity);
+//            this._action = action.toLowerCase();
+//        }
+//        public AddPointDialog(Activity activity, String action, String destinationValueforEdit) {
+//            super(activity);
+//            this._action = action.toLowerCase();
+//            this._destinationValueForEdit = destinationValueforEdit;
+//        }
+//
+//
+//        @Override
+//        public void onClick(View view) {
+//            PlayButtonClickSound();
+//        }
+//        @Override
+//        protected void onCreate(Bundle savedInstanceState) {
+//            super.onCreate(savedInstanceState);
+//            try {
+//                requestWindowFeature(Window.FEATURE_NO_TITLE);
+//
+//                setContentView(R.layout.dialog_add_point);
+//                btnAddPoints = (Button) findViewById(R.id.btnAddPoint);
+//
+//                editName = (EditText) findViewById(R.id.terminalName);
+//                editLat = (EditText) findViewById(R.id.lat);
+//                editLng = (EditText) findViewById(R.id.lng);
+//                TextView txtAction = (TextView) findViewById(R.id.txtActionLabel);
+//                final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
+//                spinnerPrePosition = (Spinner) findViewById(R.id.spinner_preposition);
+//                spinnerTerminalReference = (Spinner) findViewById(R.id.spinner_terminalReference);
+//                Integer orderOfArrival = 0;
+//                final Integer destinationIDforEdit=0;
+//
+//                ArrayAdapter<Terminal> terminalReferencesAdapter = new ArrayAdapter<Terminal>(getApplicationContext(), R.layout.spinner_item, MenuActivity._terminalList);
+//
+//                spinnerTerminalReference.setAdapter(terminalReferencesAdapter);
+//                if(_action.equals("add"))
+//                {
+//                    btnAddPoints.setText("ADD");
+//                    txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
+//                    btnDeletePoints.setVisibility(View.GONE);
+//                }
+//                else {
+//
+//                    btnAddPoints.setText("UPDATE");
+//
+//                    for(Terminal d: _terminalList)
+//                    {
+//                        if (d.Value.equals(_destinationValueForEdit))
+//                        {
+//                            txtDestinationIDForEdit.setText(String.valueOf(d.ID));
+//                            editName.setText(d.Description);
+//                            editLat.setText(d.Lat.toString());
+//                            editLng.setText(d.Lng.toString());
+//                            orderOfArrival = d.OrderOfArrival;
+//
+//                            break;
+//                        }
+//                    }
+//                    txtAction.setText("EDIT PICKUP/DROPOFF POINT");
+//                    int index = 0;
+//                    for(Terminal d: _terminalList)
+//                    {
+//                        if (d.OrderOfArrival == orderOfArrival + 1)
+//                        {
+//                            spinnerPrePosition.setSelection(0);
+//                            spinnerTerminalReference.setSelection(index);
+//                            break;
+//                        }else if (d.OrderOfArrival == orderOfArrival - 1)
+//                        {
+//                            spinnerPrePosition.setSelection(1);
+//                            spinnerTerminalReference.setSelection(index);
+//                            break;
+//                        }
+//                        index++;
+//                    }
+//
+//                }
+//                final DialogInterface.OnClickListener dialog_deletepoint = new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        switch (which){
+//                            case DialogInterface.BUTTON_POSITIVE:
+//                                PlayButtonClickSound();
+//                                deletePoint(Integer.parseInt(txtDestinationIDForEdit.getText().toString()));
+//                                break;
+//
+//                            case DialogInterface.BUTTON_NEGATIVE:
+//                                PlayButtonClickSound();
+//                                //No button clicked
+//                                break;
+//                        }
+//                    }
+//                };
+//                btnDeletePoints.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        try {
+//                            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+//                            builder.setMessage("Are you sure?").setPositiveButton("Yes", dialog_deletepoint)
+//                                    .setNegativeButton("No", dialog_deletepoint).show();
+//
+//                        }
+//                        catch(Exception ex)
+//                        {
+//                            _helper.logger(ex,true);
+//
+//                        }
+//
+//                    }
+//                });
+//                btnAddPoints.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        if(_action.equals("add")) {
+//                            PlayButtonClickSound();
+//                            String name = editName.getText().toString();
+//                            String lat = editLat.getText().toString();
+//                            String lng = editLng.getText().toString();
+//                            String preposition = spinnerPrePosition.getSelectedItem().toString();
+//                            Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
+//                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
+//                                Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
+//                            } else {
+//
+//                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+//                                AddPointDialog.this.dismiss();
+//                            }
+//                        }
+//                        else if(_action.equals("update"))
+//                        {
+//                            PlayButtonClickSound();
+//                            String name = editName.getText().toString();
+//                            String lat = editLat.getText().toString();
+//                            String lng = editLng.getText().toString();
+//                            String preposition = spinnerPrePosition.getSelectedItem().toString();
+//                            Integer destinationID = Integer.parseInt(txtDestinationIDForEdit.getText().toString());
+//                            Terminal terminalReference = (Terminal) spinnerTerminalReference.getSelectedItem();
+//                            if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 || preposition.trim().length() == 0 || terminalReference == null) {
+//                                Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
+//                            } else {
+//
+//                                updatePoint(destinationID, name, Double.parseDouble(lat), Double.parseDouble(lng), preposition, terminalReference);
+//                                AddPointDialog.this.dismiss();
+//                            }
+//                        }
+//
+//                    }
+//                });
+//            }catch(Exception e)
+//            {
+//                _helper.logger(e,true);
+//
+//            }
+//
+//            _LoaderDialog.dismiss();
+//        }
+//
+//        private void savePoint(String name, Double lat, Double lng, String preposition, Terminal terminalReference)
+//        {
+////            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_adding),_GlobalResource.getString(R.string.GPS_updating_points_on_map));
+////            _LoaderDialog.show();
+////
+////            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI,_GlobalResource.getString(R.string.GPS_add), 0).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+//        }
+//        private void updatePoint(Integer ID, String name, Double lat, Double lng, String preposition, Terminal terminalReference)
+//        {
+////            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_updating), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
+////            _LoaderDialog.show();
+////            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_update) , ID).execute(name, lat.toString(), lng.toString(), preposition, String.valueOf(terminalReference.ID));
+//        }
+//        private void deletePoint(Integer ID)
+//        {
+////            _LoaderDialog = new LoaderDialog(MenuActivity.this, _GlobalResource.getString(R.string.GPS_deleting), _GlobalResource.getString(R.string.GPS_updating_points_on_map));
+////            _LoaderDialog.show();
+////            new mySQLAddStation(getApplicationContext(), _LoaderDialog, MenuActivity.this, _googleMap, _googleAPI, _GlobalResource.getString(R.string.GPS_delete) , ID).execute();
+//        }
+//    }
 
     public class AddGPSDialog extends Dialog implements
             android.view.View.OnClickListener {
@@ -2392,7 +2407,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             ArrayList<Routes> routesAdapterList = new ArrayList<>();
 
             driverAdapterList.add(new Users(0, _GlobalResource.getString(R.string.GPS_select_driver), "", "","","Driver", "", 1));
-            routesAdapterList.add(new Routes(0, 0,_GlobalResource.getString(R.string.GPS_select_route)));
+            routesAdapterList.add(new Routes(0, 0,_GlobalResource.getString(R.string.GPS_select_route), 0));
 
             driverAdapterList.addAll(MenuActivity._driverList);
             routesAdapterList.addAll(MenuActivity._routeList);

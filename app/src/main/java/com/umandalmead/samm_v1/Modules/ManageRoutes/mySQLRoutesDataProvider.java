@@ -103,9 +103,9 @@ public class mySQLRoutesDataProvider extends AsyncTask<String,Void, ArrayList<Ro
 
                     int id       = jsonobject.getInt("ID");
                     int tblLineID = jsonobject.getInt("tblLineID");
-
-                        String routeName  = jsonobject.getString("routeName");
-                        listRoutes.add(new Routes(id,tblLineID,routeName));
+                    String routeName  = jsonobject.getString("routeName");
+                    int noOfStations = jsonobject.getInt("noOfStations");
+                        listRoutes.add(new Routes(id,tblLineID,routeName, noOfStations));
 
                 }
                 return listRoutes;

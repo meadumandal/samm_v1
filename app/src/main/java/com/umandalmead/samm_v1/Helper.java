@@ -238,6 +238,7 @@ public class Helper {
         }
         return result;
     }
+
     public static Boolean IsSameRoute(Terminal TM_Terminal_1, Terminal TM_Terminal_2){
         Boolean BOOL_LOC_Result = false;
         if(TM_Terminal_1.getTblRouteID() == TM_Terminal_2.getTblRouteID())
@@ -579,7 +580,7 @@ public class Helper {
 
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
                 markerOptions.snippet("0 passenger/s waiting");
-                markerOptions.title(station.Value);
+                markerOptions.title(station.ID.toString()+"-"+ station.getValue());
                 Marker marker = googleMap.addMarker(markerOptions);
 
                 // marker.showInfoWindow();
@@ -789,6 +790,18 @@ public class Helper {
         MenuActivity._manageLinesFragment._lineListView.setAdapter(customAdapter);
 
 
+    }
+
+    public Integer getNoOfStationsByRouteID(Integer routeID)
+    {
+        for(Routes route:MenuActivity._routeList)
+        {
+            if (route.getID() == routeID)
+            {
+                return route.getNoOfStations();
+            }
+        }
+        return 0;
     }
 
 

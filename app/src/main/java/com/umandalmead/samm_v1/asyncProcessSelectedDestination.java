@@ -10,6 +10,13 @@ import com.google.android.gms.maps.model.LatLng;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +61,7 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<
     @Override
     protected List<Terminal> doInBackground(Void... voids) {
         try {
+            List<Terminal> possiblePickUpPoints = new ArrayList<>();
 
             double prevDistance = 0.0;
             int ctr = 0;
@@ -75,46 +83,71 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<
                     ctr++;
                 }
             }
-            for(Routes route: _activity._routeList)
+                String link = Constants.WEB_API_URL
+                    + Constants.DESTINATIONS_API_FOLDER
+                    + Constants.DESTINATIONS_API_GET_POSSIBLE_STATIONS
+                    + "destinationID=" + _ChosenTerminal.ID.toString();
+            URL url = new URL(link);
+            URLConnection urlConn = url.openConnection();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));
+            String jsonResponse = bufferedReader.readLine();
+            JSONArray jsonArray = new JSONArray(jsonResponse);
+            for(int index = 0; index < jsonArray.length(); index++)
             {
-                Integer iStationCount = 0;
-                for(Terminal terminal:_activity._terminalList)
-                {
-                    if (terminal.tblRouteID == route.getID())
-                    {
-                        iStationCount++;
-                        if (terminal.getValue().equals(_ChosenTerminal.getValue()))
-                        {
-                            if (!_routeIDsThatServeTheChosenDropOffPoint.contains(route.getID()))
-                                _routeIDsThatServeTheChosenDropOffPoint.add(route.getID());
-                        }
-                    }
-
-                }
-                _numberOfStationsPerRoute.put(route, iStationCount);
+                JSONObject jsonObject = jsonArray.getJSONObject(index);
+                Integer ID = jsonObject.getInt("ID");
+                Integer tblRouteID = jsonObject.getInt("tblRouteID");
+                String Value = jsonObject.getString("Value");
+                String Description = jsonObject.getString("Description");
+                Integer OrderOfArrival = jsonObject.getInt("OrderOfArrival");
+                String Direction = jsonObject.getString("Direction");
+                Double Lat = jsonObject.getDouble("Lat");
+                Double Lng = jsonObject.getDouble("Lng");
+                Integer isMainTerminal = jsonObject.getInt("isMainTerminal");
+                Integer IsActive = jsonObject.getInt("IsActive");
+                possiblePickUpPoints.add(new Terminal(ID, tblRouteID,Value, Description, OrderOfArrival,Direction, Lat, Lng,"",null,0, "", isMainTerminal.toString(),""));
             }
-            HashMap<Terminal, Integer> halfwayIndexOfEachRoute = new HashMap<>();
-            List<Terminal> possiblePickUpPoints = new ArrayList<>();
 
-            for(Terminal terminal: _activity._terminalList)
-            {
-                if (_routeIDsThatServeTheChosenDropOffPoint.contains(terminal.getTblRouteID()))
-                {
-                    int stationGap = Math.abs(terminal.getOrderOfArrival() - _ChosenTerminal.getOrderOfArrival());
-                    for(Map.Entry<Routes, Integer> numberOfStation: _numberOfStationsPerRoute.entrySet())
-                    {
-                        if (numberOfStation.getKey().getID() == terminal.tblRouteID)
-                        {
-                            if (stationGap<=numberOfStation.getValue()/2)
-                            {
-                                possiblePickUpPoints.add(terminal);
-                                break;
-                            }
-
-                        }
-                    }
-                }
-            }
+//            for(Routes route: _activity._routeList)
+//            {
+//                Integer iStationCount = 0;
+//                for(Terminal terminal:_activity._terminalList)
+//                {
+//                    if (terminal.tblRouteID == route.getID())
+//                    {
+//                        iStationCount++;
+//                        if (terminal.getValue().equals(_ChosenTerminal.getValue()))
+//                        {
+//                            if (!_routeIDsThatServeTheChosenDropOffPoint.contains(route.getID()))
+//                                _routeIDsThatServeTheChosenDropOffPoint.add(route.getID());
+//                        }
+//                    }
+//
+//                }
+//                _numberOfStationsPerRoute.put(route, iStationCount);
+//            }
+//            HashMap<Terminal, Integer> halfwayIndexOfEachRoute = new HashMap<>();
+//            List<Terminal> possiblePickUpPoints = new ArrayList<>();
+//
+//            for(Terminal terminal: _activity._terminalList)
+//            {
+//                if (_routeIDsThatServeTheChosenDropOffPoint.contains(terminal.getTblRouteID()))
+//                {
+//                    int stationGap = Math.abs(terminal.getOrderOfArrival() - _ChosenTerminal.getOrderOfArrival());
+//                    for(Map.Entry<Routes, Integer> numberOfStation: _numberOfStationsPerRoute.entrySet())
+//                    {
+//                        if (numberOfStation.getKey().getID() == terminal.tblRouteID)
+//                        {
+//                            if (stationGap<=numberOfStation.getValue()/2)
+//                            {
+//                                possiblePickUpPoints.add(terminal);
+//                                break;
+//                            }
+//
+//                        }
+//                    }
+//                }
+//            }
             return possiblePickUpPoints;
         }catch (Exception ex){
             Helper.logger(ex);

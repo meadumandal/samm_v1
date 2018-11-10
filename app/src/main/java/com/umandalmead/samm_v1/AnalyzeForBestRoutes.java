@@ -61,6 +61,7 @@ import retrofit.Response;
 import retrofit.Retrofit;
 
 import static com.google.android.gms.maps.model.JointType.ROUND;
+import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
 import static com.umandalmead.samm_v1.MenuActivity._LL_Arrival_Info;
 import static com.umandalmead.samm_v1.MenuActivity._RouteStepsText;
@@ -79,7 +80,7 @@ import static com.umandalmead.samm_v1.MenuActivity._userCurrentLoc;
 
 public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> {
     public static Polyline _line;
-    final String TAG = "mead";
+
     Context _context;
     Activity _activity;
     GoogleMap _map;
@@ -160,7 +161,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                     Directions directions = call.execute().body();
                     d.directionsFromCurrentLocation = directions;
 //                        destinationId_distance.put(dialog.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
-                    Log.i(TAG, "Success retrofit");
+                    Log.i(LOG_TAG, "Success retrofit");
                 } catch (MalformedURLException ex) {
                     helper.logger(ex,true);
 

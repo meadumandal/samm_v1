@@ -106,6 +106,7 @@ public class mySQLUpdateStation extends AsyncTask<String, Void, Void>{
             String lat="";
             String lng="";
             String tblRouteID = "";
+            String isMainTerminal = "";
             _routeID = 0;
 
 
@@ -113,6 +114,7 @@ public class mySQLUpdateStation extends AsyncTask<String, Void, Void>{
             lat = params[1];
             lng = params[2];
             tblRouteID = params[3];
+            isMainTerminal = params[4];
             _routeID = Integer.parseInt(tblRouteID);
 
 
@@ -125,7 +127,8 @@ public class mySQLUpdateStation extends AsyncTask<String, Void, Void>{
                         + "&lat=" + lat
                         + "&lng=" + lng
                         + "&tblRouteID=" +tblRouteID.toString()
-                        + "&direction=CW";
+                        + "&direction=CW"
+                        + "&isMainTerminal=" + isMainTerminal;
 
 
                 URL url = new URL(link);

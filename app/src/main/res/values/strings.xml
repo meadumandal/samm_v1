@@ -51,6 +51,7 @@
 
     <!--GENERAL-->
     <string name="ellipsis">...</string>
+    <string name="sign_board_separator"> or </string>
 
     <!--ACTIVITY AND FRAGMENT TITLES-->
     <string name="title_total_distance">Total distance traveled</string>

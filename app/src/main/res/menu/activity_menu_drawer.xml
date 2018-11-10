@@ -12,6 +12,15 @@
                 android:icon="@drawable/ic_home_black_24dp"
                 />
             <item
+                android:id="@+id/nav_about"
+                android:background="?attr/selectableItemBackground"
+                android:icon="@drawable/ic_info_outline_black_24dp"
+                android:title="About" />
+        </menu>
+    </item>
+    <item android:id="@+id/menu_tools" android:title="ADMIN TOOLS">
+        <menu>
+            <item
                 android:id="@+id/nav_superadminusers"
                 android:title="SuperAdmin Users"
                 android:background="?attr/selectableItemBackground"
@@ -45,7 +54,9 @@
                 />
         </menu>
     </item>
-    <item android:title="ACCOUNT">
+
+
+    <item android:title="ACCOUNT MANAGEMENT">
         <menu>
             <item
                 android:id="@+id/menu_username"
@@ -80,23 +91,7 @@
                 android:title="Ecoloop Flow"/>
         </menu>
     </item>
-    <item android:title="SAMM HELP">
-        <menu>
-            <!--<item-->
-                <!--android:id="@+id/nav_share"-->
-                <!--android:icon="@drawable/ic_zoom_out_map_black_24dp"-->
-                <!--android:title="Full Map" />-->
-            <!--<item-->
-                <!--android:id="@+id/nav_report"-->
-                <!--android:icon="@drawable/ic_report_problem_black_24dp"-->
-                <!--android:title="Report" />-->
-            <item
-                android:id="@+id/nav_about"
-                android:background="?attr/selectableItemBackground"
-                android:icon="@drawable/ic_info_outline_black_24dp"
-                android:title="About" />
-        </menu>
-    </item>
+
     <!--<item android:title="ADMIN TOOLS">-->
         <!--<menu>-->
 

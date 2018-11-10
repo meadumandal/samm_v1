@@ -24,7 +24,7 @@
             android:id="@+id/txtActionLabel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="ADD PICKUP/DROPOFF POINT"
+            android:text="ADD STATION"
             android:textAlignment="center"
             android:textColor="@color/colorBlack"
             android:textSize="20dp"
@@ -144,6 +144,13 @@
                 <!--android:foregroundTint="@color/colorAccent" />-->
         <!--</LinearLayout>-->
 
+        <CheckBox
+            android:id="@+id/chk_isMainTerminal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorBlack"
+            android:text="Mark this as main pick-up/drop-off station" />
+
         <Button
             android:id="@+id/btnAddPoint"
             style="?android:textAppearanceSmall"
@@ -153,7 +160,7 @@
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
             android:backgroundTint="@color/colorAccent"
-            android:text="Add Pick-up/Drop-off Point"
+            android:text="Add Pick-up/Drop-off Station"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
         <!--<Button-->

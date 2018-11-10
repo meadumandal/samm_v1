@@ -13,6 +13,7 @@ public class Constants {
     public static final String WEB_API_URL = "http://samm.website/sammAPI/";
     public static final String DESTINATIONS_API_FOLDER = "destinations/";
     public static final String DESTINATIONS_API_FILE = "getDestinations.php?";
+    public static final String DESTINATIONS_API_GET_POSSIBLE_STATIONS = "getPossibleStations.php?";
     public static final String DESTINATIONS_API_DELETE_FILE_WITH_PENDING_QUERYSTRING = "deleteDestination.php?";
     public static final String SAVE_DESTINATIONS_ORDER_WITH_PENDING_QUERYSTRNG = "saveDestinationsOrder.php?";
     public static final String DEVICES_API_FOLDER = "devices/";

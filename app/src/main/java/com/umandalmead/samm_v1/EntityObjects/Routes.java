@@ -8,11 +8,13 @@ public class Routes {
     int ID;
     int tblLineID;
     String routeName;
-    public Routes(int ID, int tblLineID, String routeName)
+    int noOfStations;
+    public Routes(int ID, int tblLineID, String routeName, int noOfStations)
     {
         this.ID = ID;
         this.tblLineID = tblLineID;
         this.routeName = routeName;
+        this.noOfStations = noOfStations;
     }
     public void setID(int ID)
     {
@@ -32,6 +34,9 @@ public class Routes {
     {
         return this.routeName;
     }
+    public int getNoOfStations(){ return this.noOfStations;}
+    public void setNoOfStations(int noOfStations) {this.noOfStations = noOfStations;}
+
     @Override
     public String toString()
     {

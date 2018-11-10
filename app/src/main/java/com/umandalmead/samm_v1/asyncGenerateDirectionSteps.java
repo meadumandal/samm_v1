@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.view.Menu;
 
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
@@ -23,6 +24,7 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
     private Terminal _prospectTerminal;
     private Constants _constants = new Constants();
     private LoaderDialog _loader;
+    private Helper _helper = new Helper();
     public asyncGenerateDirectionSteps(Activity activity, Context context, Terminal terminal, List<String> stepslist, String totaltime, Terminal prospectTerminal,LoaderDialog loaderDialog){
         this._activity=activity;
         this._context=context;
@@ -136,10 +138,28 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
 
     public String GenerateFinalStep(Terminal TM_DropOff, Terminal TM_PickUp) {
         ArrayList<Terminal> DropOffList = Helper.GetAllDestinationRegardlessOfTheirTableRouteIds(TM_DropOff);
+        String strSignBoard = "";
+        String signBoardSeparator = MenuActivity._GlobalResource.getString(R.string.sign_board_separator);
+        for(Terminal dropOff: DropOffList)
+        {
+            strSignBoard += dropOff.getRouteName() + signBoardSeparator;
+        }
+        strSignBoard = strSignBoard.substring(0,strSignBoard.length() - signBoardSeparator.length());
+
         for (Terminal entry: DropOffList) {
             if(entry.getTblRouteID()==TM_PickUp.getTblRouteID()){
-                int dist = entry.OrderOfArrival - TM_PickUp.OrderOfArrival;
-                return "Ride the e-loop and alight on <b>"
+                int dist = 0;
+                if (entry.OrderOfArrival < TM_PickUp.OrderOfArrival)
+                {
+                    dist =( _helper.getNoOfStationsByRouteID(entry.tblRouteID) - TM_PickUp.OrderOfArrival)
+                            + (entry.OrderOfArrival);
+                }
+                else if (entry.OrderOfArrival > TM_PickUp.OrderOfArrival)
+                {
+                    dist = entry.OrderOfArrival - TM_PickUp.OrderOfArrival;
+                }
+                return "Ride the e-loop. Signboard should be " + strSignBoard
+                        + " and alight on <b>"
                         +dist
                         +GeneratePrefix(dist)
                         +" stop</b>.<div style=\"\n" +

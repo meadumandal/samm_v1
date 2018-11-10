@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.ListFragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -19,6 +18,7 @@ import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -30,11 +30,10 @@ import android.widget.Toast;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Enums;
+import com.umandalmead.samm_v1.ErrorDialog;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
-import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
-import com.umandalmead.samm_v1.Modules.ManageRoutes.mySQLDeleteRoute;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.TouchInterceptor;
 
@@ -55,7 +54,12 @@ public class ManageStationsFragment extends ListFragment{
     Helper _helper;
     View _myView;
     ManageStationsFragment _manageStationsFragment;
+    Activity _activity;
 
+    public ManageStationsFragment()
+    {
+
+    }
 
     private ImageView BtnAddPoint;
 
@@ -223,7 +227,7 @@ public class ManageStationsFragment extends ListFragment{
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 Enums.ActionType action = item.getTitle().toString().equalsIgnoreCase("edit") ? Enums.ActionType.EDIT : Enums.ActionType.DELETE;
-                ProcessSelectedPointEvent(action, selectedTerminal);
+                ProcessSelectedPointEvent(action, selectedTerminal.ID);
                 return true;
             }
         });
@@ -251,9 +255,10 @@ public class ManageStationsFragment extends ListFragment{
         EditText editName;
         EditText editLat;
         EditText editLng;
+        CheckBox check_isMainTerminal;
 
 
-        Terminal _destinationThatWillBeEdited;
+        Integer _destinationIDthatWillBeEdited;
         public String TAG = "mead";
 
 
@@ -261,11 +266,11 @@ public class ManageStationsFragment extends ListFragment{
             super(activity);
             this._action = action.toLowerCase();
         }
-        public AddPointDialog(Activity activity, String action, Terminal destinationThatWillBeEdited) {
+        public AddPointDialog(Activity activity, String action, Integer destinationIDThatWillBeEdited) {
             super(activity);
             this._action = action.toLowerCase();
-            //this._destinationValueForEdit = destinationThatWillBeEdited;
-            _destinationThatWillBeEdited = destinationThatWillBeEdited;
+            //this._destinationValueForEdit = destinationIDThatWillBeEdited;
+            _destinationIDthatWillBeEdited = destinationIDThatWillBeEdited;
         }
 
 
@@ -284,6 +289,7 @@ public class ManageStationsFragment extends ListFragment{
                 editName = (EditText) findViewById(R.id.terminalName);
                 editLat = (EditText) findViewById(R.id.lat);
                 editLng = (EditText) findViewById(R.id.lng);
+                check_isMainTerminal = findViewById(R.id.chk_isMainTerminal);
                 TextView txtAction = (TextView) findViewById(R.id.txtActionLabel);
                 final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
                 Integer orderOfArrival = 0;
@@ -301,12 +307,13 @@ public class ManageStationsFragment extends ListFragment{
 
                     for(Terminal d: MenuActivity._terminalList)
                     {
-                        if (d.Value.equals(_destinationThatWillBeEdited.getValue()))
+                        if (d.ID.equals(_destinationIDthatWillBeEdited))
                         {
                             txtDestinationIDForEdit.setText(String.valueOf(d.ID));
                             editName.setText(d.Description);
                             editLat.setText(d.Lat.toString());
                             editLng.setText(d.Lng.toString());
+                            check_isMainTerminal.setChecked(d.getIsMainTerminal().equals("1")?true:false);
                             break;
                         }
                     }
@@ -336,13 +343,32 @@ public class ManageStationsFragment extends ListFragment{
                             String name = editName.getText().toString();
                             String lat = editLat.getText().toString();
                             String lng = editLng.getText().toString();
+                            String isMainTerminal = check_isMainTerminal.isChecked()?"1":"0";
+
+                            Integer intLat = Integer.parseInt(lat);
+                            Integer intLng = Integer.parseInt(lng);
+                            ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, "");
+
+
 
 
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0) {
-                                Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
-                            } else {
+                                errorDialog.setErrorMessage("Please supply all fields");
+                                errorDialog.show();
+                            }
+                            else if (intLat<=-90 || intLat>=90)
+                            {
+                                errorDialog.setErrorMessage("Invalid latitude");
+                                errorDialog.show();
+                            }
+                            else if (intLng<=-180 || intLng>=180)
+                            {
+                                errorDialog.setErrorMessage("Invalid longitude");
+                                errorDialog.show();
+                            }
+                            else {
 
-                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected);
+                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected, isMainTerminal);
                                 ManageStationsFragment.AddPointDialog.this.dismiss();
                             }
                         }
@@ -351,12 +377,13 @@ public class ManageStationsFragment extends ListFragment{
                             String name = editName.getText().toString();
                             String lat = editLat.getText().toString();
                             String lng = editLng.getText().toString();
+                            String isMainTerminal = check_isMainTerminal.isChecked()?"1":"0";
 
 
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0 ) {
                                 Toast.makeText(getContext(), "Please supply all fields", Toast.LENGTH_LONG).show();
                             } else {
-                                updatePoint(_destinationThatWillBeEdited.getID(), name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected);
+                                updatePoint(_destinationIDthatWillBeEdited, name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected, isMainTerminal);
                                 ManageStationsFragment.AddPointDialog.this.dismiss();
                             }
                         }
@@ -369,21 +396,21 @@ public class ManageStationsFragment extends ListFragment{
 
             }
 
-            _LoaderDialog.dismiss();
+            if(_LoaderDialog != null) _LoaderDialog.dismiss();
         }
 
-        private void savePoint(String name, Double lat, Double lng, Integer tblRouteID)
+        private void savePoint(String name, Double lat, Double lng, Integer tblRouteID, String isMainTerminal)
         {
             _LoaderDialog = new LoaderDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.dialog_adding_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_setup_please_wait));
             _LoaderDialog.show();
 
-            new mySQLAddStation(getContext(), _LoaderDialog, getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI, 0, _manageStationsFragment).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
+            new mySQLAddStation(getContext(), _LoaderDialog, getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI, 0, _manageStationsFragment).execute(name, lat.toString(), lng.toString(), tblRouteID.toString(), isMainTerminal);
         }
-        private void updatePoint(Integer ID, String name, Double lat, Double lng, Integer tblRouteID)
+        private void updatePoint(Integer ID, String name, Double lat, Double lng, Integer tblRouteID, String isMainTerminal)
         {
             _LoaderDialog = new LoaderDialog(getActivity(),MenuActivity._GlobalResource.getString(R.string.dialog_updating_points_title), MenuActivity._GlobalResource.getString(R.string.dialog_points_map_update_please_wait));
             _LoaderDialog.show();
-            new mySQLUpdateStation(getContext(), _LoaderDialog,getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI,  ID, _manageStationsFragment).execute(name, lat.toString(), lng.toString(), tblRouteID.toString());
+            new mySQLUpdateStation(getContext(), _LoaderDialog,getActivity(), MenuActivity._googleMap, MenuActivity._googleAPI,  ID, _manageStationsFragment).execute(name, lat.toString(), lng.toString(), tblRouteID.toString(), isMainTerminal);
         }
         private void deletePoint(Integer ID)
         {
@@ -439,9 +466,9 @@ public class ManageStationsFragment extends ListFragment{
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
-    public void ModifyStationPoint(String DialogTitle, Terminal DestinationToBeEdited){
+    public void ModifyStationPoint(String DialogTitle, Integer DestinationIDToBeEdited){
         try {
-            AddPointDialog dialog = new AddPointDialog(getActivity(), "Update", DestinationToBeEdited);
+            AddPointDialog dialog = new AddPointDialog(MenuActivity._activity, "Update", DestinationIDToBeEdited);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }catch (Exception ex){
@@ -449,8 +476,8 @@ public class ManageStationsFragment extends ListFragment{
         }
 
     }
-    public void ProcessSelectedPointEvent(Enums.ActionType Action, final Terminal SelectedTerminal){
-        Terminal t = SelectedTerminal;
+    public void ProcessSelectedPointEvent(Enums.ActionType Action, final Integer terminalID){
+
         if(Action == Enums.ActionType.DELETE){
             AlertDialog.Builder builder;
             builder = new AlertDialog.Builder(getActivity());
@@ -467,7 +494,7 @@ public class ManageStationsFragment extends ListFragment{
                                 DeleteLoader.setCancelable(false);
 
                                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                                new mySQLDeleteStation(getContext(), getActivity(),  DeleteLoader, alertDialogBuilder, _manageStationsFragment).execute(String.valueOf(SelectedTerminal.getID()));
+                                new mySQLDeleteStation(getContext(), getActivity(),  DeleteLoader, alertDialogBuilder, _manageStationsFragment).execute(String.valueOf(terminalID));
                             }
                             catch(Exception ex)
                             {
@@ -487,7 +514,7 @@ public class ManageStationsFragment extends ListFragment{
 
             //Toast.makeText(getApplicationContext(), "Delete action here", Toast.LENGTH_LONG).show();
         }else {
-            ModifyStationPoint("UPDATE",SelectedTerminal);
+            ModifyStationPoint("UPDATE",terminalID);
         }
 
     }
