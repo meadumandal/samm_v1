@@ -3,7 +3,7 @@
     xmlns:facebook="http://schemas.android.com/apk/res-auto">
 
 
-    <item android:title="BASICS">
+    <item xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/itemTools" android:title="BASICS">
         <menu>
             <item
                 android:id="@+id/menu_home"

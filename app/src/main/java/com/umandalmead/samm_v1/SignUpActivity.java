@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -54,6 +55,7 @@ public class SignUpActivity extends AppCompatActivity {
     private ImageButton FAB_SammIcon;
     private TextView ViewTitle;
     private ShimmerLayout _SL_NewAccount;
+    public static Boolean FromNavigatationDrawer=false;
 
 
     @Override
@@ -83,6 +85,13 @@ public class SignUpActivity extends AppCompatActivity {
 //                startActivity(i);
 //            }
 //        });
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String value = extras.getString("IsFromNavDrawer");
+            if (value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false")) {
+                FromNavigatationDrawer= Boolean.valueOf(value);
+            }
+        }
         InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_signup_activity));
 
         btn_signUp.setOnClickListener(new View.OnClickListener()
@@ -281,8 +290,8 @@ public class SignUpActivity extends AppCompatActivity {
         SignUpProgDiag.show();
     }
     public void LoginLinkClicked(View v){
-        startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-        finish();
+            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+            finish();
     }
     public void InitializeToolbar(String fragmentName){
         FAB_SammIcon = (ImageButton) findViewById(R.id.SAMMLogoFAB);
@@ -291,10 +300,15 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 _SL_NewAccount.stopShimmerAnimation();
-                Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                finish();
+                if(!FromNavigatationDrawer) {
+                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                    finish();
+                }else{
+                    startActivity(new Intent(SignUpActivity.this, MenuActivity.class));
+                    overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                    finish();
+                }
             }
         });
         ViewTitle = (TextView) findViewById(R.id.samm_toolbar_title);

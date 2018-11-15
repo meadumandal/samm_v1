@@ -1,11 +1,15 @@
 package com.umandalmead.samm_v1;
 
 import android.app.DatePickerDialog;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.INotificationSideChannel;
 import android.support.v4.widget.DrawerLayout;
@@ -23,6 +27,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -30,6 +35,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
+import com.google.android.gms.common.api.Releasable;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
 import java.text.SimpleDateFormat;
@@ -46,7 +53,6 @@ public class ReportsActivity extends Fragment {
     public TextView _reportName, _initialTextView;
     public static TableLayout _vehicleReportTable, _passengerReportTable_summary, _passengerReportTable_history;
     public static ScrollView _scrollVehicleReport;
-    public static BarChart _reportChart;
     public static SessionManager _sessionManager;
     public Constants _constants;
     public static LinearLayout _initialReportLayout,_layoutTerminalSelection;
@@ -56,8 +62,13 @@ public class ReportsActivity extends Fragment {
     private AppBarLayout _ReportsAppBar, _AppBar_ReportActions;
     private Button _btn_CreateReport;
     private LinearLayout _LL_create_button_holder;
+    public static LinearLayout _LL_ExportBtnHolder;
     private ShimmerLayout _SL_btn_create_report;
     private TextView _TV_ActivityTitle, _TV_ReportSubTitle;
+    public static PieChart _PC_EcoLoopMain, _PC_EcoLoopMaxSpeed;
+    public static Button _BTN_BACK_EcoLoop_Others;
+    public static TabLayout _TL_EcoloopTraveled;
+    public static RelativeLayout _RL_DistanceTraveled;
     View _view;
 
 
@@ -74,9 +85,6 @@ public class ReportsActivity extends Fragment {
             _initialReportLayout = (LinearLayout) _view.findViewById(R.id.initialReportLayout);
             _layoutTerminalSelection = (LinearLayout) _view.findViewById(R.id.layout_terminalSelection);
             _initialTextView = (TextView) _view.findViewById(R.id.textView_initialText);
-            _passengerReportTable_history = (TableLayout) _view.findViewById(R.id.passengerReportTable_history);
-            _passengerReportTable_summary = (TableLayout) _view.findViewById(R.id.passengerReportTable_summary);
-            _scrollVehicleReport = (ScrollView) _view.findViewById(R.id.scrollVehicleReport);
             _SAMMLogoFAB = (ImageView) _view.findViewById(R.id.SAMMLogoFAB);
             _ReportsAppBar = (AppBarLayout) _view.findViewById(R.id.reportsBarLayout);
             _AppBar_ReportActions = (AppBarLayout) _view.findViewById(R.id.AppBar_ReportActions);
@@ -86,6 +94,11 @@ public class ReportsActivity extends Fragment {
             _SL_btn_create_report = (ShimmerLayout) _view.findViewById(R.id.SL_btn_Create_Report);
             _TV_ActivityTitle = (TextView) _view.findViewById(R.id.TV_ReportTitle);
             _TV_ReportSubTitle = (TextView) _view.findViewById(R.id.textViewReportName);
+            _PC_EcoLoopMain = (PieChart) _view.findViewById(R.id.PC_EcoLoopMainPieChart);
+            _BTN_BACK_EcoLoop_Others = (Button) _view.findViewById(R.id.BTN_back);
+            _TL_EcoloopTraveled = (TabLayout) _view.findViewById(R.id.TL_EcoloopTraveled);
+            _RL_DistanceTraveled = (RelativeLayout) _view.findViewById(R.id.RL_DistanceTraveled);
+            _LL_ExportBtnHolder = (LinearLayout) _view.findViewById(R.id.LL_ExportBtnHolder);
             _SL_btn_create_report.startShimmerAnimation();
 
             _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
@@ -160,11 +173,6 @@ public class ReportsActivity extends Fragment {
 
             _spinner.setAdapter(adapter);
             _spinner.setPrompt("SELECT A TERMINAL");
-
-
-
-            _vehicleReportTable = (TableLayout) _view.findViewById(R.id.reportTable);
-            _reportChart = (BarChart) _view.findViewById(R.id.reportChart);
 
             if(_sessionManager.GetReportType().equals(_constants.VEHICLE_REPORT_TYPE))
             {
@@ -282,11 +290,11 @@ public class ReportsActivity extends Fragment {
                     {
                         if(_fromDateTextBox.getText().length() >0 && _toDateTextBox.getText().length()>0)
                         {
-                            _passengerReportTable_history.setVisibility(View.GONE);
-                            _passengerReportTable_summary.setVisibility(View.GONE);
-                            _scrollVehicleReport.setVisibility(View.VISIBLE);
-                            _vehicleReportTable.setVisibility(View.VISIBLE);
-                            _initialReportLayout.setVisibility(View.GONE);
+//                            _passengerReportTable_history.setVisibility(View.GONE);
+  //                          _passengerReportTable_summary.setVisibility(View.GONE);
+//                            _scrollVehicleReport.setVisibility(View.VISIBLE);
+   //                         _vehicleReportTable.setVisibility(View.VISIBLE);
+    //                        _initialReportLayout.setVisibility(View.GONE);
 
                             new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(), _toDateTextBox.getText().toString());
                         }
@@ -317,5 +325,23 @@ public class ReportsActivity extends Fragment {
             _toDateTextBox.setText(sdf.format(_calendar.getTime()));
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+
+                    // permission denied,Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(getActivity(), "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
 
 }

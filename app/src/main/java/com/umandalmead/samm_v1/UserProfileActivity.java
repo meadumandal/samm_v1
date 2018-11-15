@@ -1,6 +1,9 @@
 package com.umandalmead.samm_v1;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -31,6 +34,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -140,6 +144,12 @@ public class UserProfileActivity extends Fragment {
                 final String confirmPassword = tv_confirmPassword.getText().toString();
                 final String newFirstName = tv_firstName.getText().toString().trim();
                 final String newLastName = tv_lastName.getText().toString().trim();
+                if(newFirstName.equals("") || newLastName.equals("")) {
+                    _LoaderDialog.hide();
+                    ErrorDialog ED_FullNameError = new ErrorDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.USER_fullname_whitespace));
+                    ED_FullNameError.show();
+                    return;
+                }
                 if (password.trim().length()>0)
                 {
                     if(password.equals(confirmPassword))
@@ -171,7 +181,7 @@ public class UserProfileActivity extends Fragment {
                                                     public void onComplete(@NonNull Task<Void> task) {
                                                         if (task.isSuccessful()) {
                                                             _promptMessage += " Password updated\n";
-
+                                                            LogoutUser();
                                                         } else {
                                                             _promptMessage+= "Error updating password\n";
                                                         }
@@ -190,7 +200,8 @@ public class UserProfileActivity extends Fragment {
                     }
                     else
                     {
-                        Toast.makeText(getContext(),"Password mismatch", Toast.LENGTH_LONG).show();
+                        ErrorDialog ED_PasswordError = new ErrorDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.USER_password_mismatch));
+                        ED_PasswordError.show();
                         _LoaderDialog.hide();
                     }
                 }
@@ -278,5 +289,19 @@ public class UserProfileActivity extends Fragment {
         }catch (Exception ex){
             Helper.logger(ex);
         }
+    }
+    public void LogoutUser(){
+        InfoDialog ID_Logged_Out = new InfoDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.USER_logged_out_password_changed));
+        ID_Logged_Out.show();
+        ID_Logged_Out.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                _sessionManager.logoutUser();
+                Activity activity = getActivity();
+                activity.overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                activity.startActivity(new Intent(getActivity(), LoginActivity.class));
+                activity.finish();
+            }
+        });
     }
 }

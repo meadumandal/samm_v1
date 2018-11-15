@@ -178,13 +178,13 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
         try
         {
 
-            TableLayout passengerReportTable_history = (TableLayout)this._activity.findViewById(R.id.passengerReportTable_history);
-            TextView tv_busiestTimes = (TextView) this._activity.findViewById(R.id.tv_busiesttime);
-            TextView tv_passengersWaitedDuringThisTime = (TextView)this._activity.findViewById(R.id.tv_PassengersWaitedDuringThisTime);
-            TextView tv_reportCoverage = (TextView) this._activity.findViewById(R.id.tv_reportCoverage);
-            TextView tv_reportTerminal = (TextView) this._activity.findViewById(R.id.tv_reportTerminal);
-            tv_reportTerminal.setText(terminal);
-            tv_reportCoverage.setText(fromDate + " to " + toDate);
+//            TableLayout passengerReportTable_history = (TableLayout)this._activity.findViewById(R.id.passengerReportTable_history);
+//            TextView tv_busiestTimes = (TextView) this._activity.findViewById(R.id.tv_busiesttime);
+//            TextView tv_passengersWaitedDuringThisTime = (TextView)this._activity.findViewById(R.id.tv_PassengersWaitedDuringThisTime);
+//            TextView tv_reportCoverage = (TextView) this._activity.findViewById(R.id.tv_reportCoverage);
+//            TextView tv_reportTerminal = (TextView) this._activity.findViewById(R.id.tv_reportTerminal);
+//            tv_reportTerminal.setText(terminal);
+//            tv_reportCoverage.setText(fromDate + " to " + toDate);
 
             if(queueingHistory.isEmpty())
             {
@@ -192,9 +192,9 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 dialog.show();
                 _LoaderDialog.hide();
-                tv_reportTerminal.setText("");
-                tv_reportCoverage.setText("");
-                tv_passengersWaitedDuringThisTime.setText("");
+//                tv_reportTerminal.setText("");
+//                tv_reportCoverage.setText("");
+//                tv_passengersWaitedDuringThisTime.setText("");
                 return;
             }
             for(PassengerQueueingHistory history: queueingHistory)
@@ -238,8 +238,8 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
                 if (history.count>1)tv_noOfWaitingPssngr.setText(history.count + MenuActivity._GlobalResource.getString(R.string.info_passengers_waited_plural));
                 else tv_noOfWaitingPssngr.setText(history.count + MenuActivity._GlobalResource.getString(R.string.info_passenger_waited_singular));
                 tr.addView(tv_noOfWaitingPssngr);
-                cleanTable(passengerReportTable_history);
-                passengerReportTable_history.addView(tr);
+//                cleanTable(passengerReportTable_history);
+//                passengerReportTable_history.addView(tr);
             }
 
 
@@ -251,8 +251,8 @@ public class mySQLPassengerQueueingHistoryReport extends AsyncTask<String, Void,
             }
             strBusiestTimes = strBusiestTimes.substring(0, strBusiestTimes.length() - 1);
 
-            tv_busiestTimes.setText(strBusiestTimes);
-            tv_passengersWaitedDuringThisTime.setText("* " + passengersWaitedDuringThisTime + MenuActivity._GlobalResource.getString(R.string.info_suffix_passengers_waited));
+//            tv_busiestTimes.setText(strBusiestTimes);
+//            tv_passengersWaitedDuringThisTime.setText("* " + passengersWaitedDuringThisTime + MenuActivity._GlobalResource.getString(R.string.info_suffix_passengers_waited));
 
 
 

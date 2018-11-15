@@ -22,5 +22,36 @@
            android:background="@color/colorWhite"
            app:headerLayout="@layout/nav_header_menu"
            app:menu="@menu/activity_menu_drawer"
-           app:itemIconTint="@color/colorBlueInSammLogo"/>
+           app:itemIconTint="@color/colorBlueInSammLogo">
+           <LinearLayout
+               android:id="@+id/LL_adminTools"
+               android:layout_marginTop="@dimen/nav_header_height"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:orientation="vertical">
+
+           </LinearLayout>
+           <RelativeLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center|center_horizontal">
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:gravity="center|bottom"
+                    android:paddingRight="2dp"
+                   android:paddingLeft="2dp"
+                   android:paddingBottom="2dp"
+                   android:orientation="vertical">
+                   <Button
+                       android:id="@+id/btn_nav_signup"
+                       android:layout_width="match_parent"
+                       android:textStyle="bold"
+                       android:layout_height="wrap_content"
+                       android:textColor="@color/colorWhite"
+                       android:background="@color/colorBlack"
+                       android:text="Sign Up"/>
+               </LinearLayout>
+           </RelativeLayout>
+       </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>

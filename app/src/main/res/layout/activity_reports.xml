@@ -27,11 +27,21 @@
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:background="@color/colorWhiteEC">
-
+            <android.support.design.widget.TabLayout
+                android:id="@+id/TL_EcoloopTraveled"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:background="@color/colorDarkGrey"
+                app:tabBackground="@color/colorDarkGrey"
+                app:tabSelectedTextColor="@color/colorWhite"
+                app:tabTextColor="@color/colorWhite">
+            </android.support.design.widget.TabLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
+                android:visibility="visible"
                 android:id="@+id/LL_create_button_holder"
                 android:gravity="center_vertical|center_horizontal">
                 <io.supercharge.shimmerlayout.ShimmerLayout
@@ -52,12 +62,33 @@
                 </io.supercharge.shimmerlayout.ShimmerLayout>
 
             </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/RL_DistanceTraveled"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="visible"
+                        android:orientation="vertical"
+                        android:animateLayoutChanges="true"
+                        android:gravity="center">
+                        <Button
+                            android:id="@+id/BTN_back"
+                            android:layout_width="40dp"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginTop="20dp"
+                            android:layout_height="30dp"
+                            android:textStyle="bold"
+                            android:text="Back"
+                            android:textSize="10sp"
+                            android:visibility="invisible"
+                            android:textColor="@color/colorWhite"
+                            android:background="@drawable/rounded_button_blue"/>
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/PC_EcoLoopMainPieChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+                        </com.github.mikephil.charting.charts.PieChart>
 
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/reportChart"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"/>
+                    </RelativeLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -65,7 +96,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:id="@+id/initialReportLayout"
-                android:visibility="gone">
+                android:visibility="visible">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -74,432 +105,6 @@
                     />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TableLayout
-                    xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:id="@+id/passengerReportTable_summary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:shrinkColumns="*"
-                    android:stretchColumns="*"
-                    android:layout_margin="10dp"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:background="@color/colorBlack"
-
-                    >
-                    <TableRow
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:gravity="center_horizontal"
-                        android:background="@color/colorSherpaBlue">
-                        <TextView
-                            android:id="@+id/ptextView_TableName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textStyle="bold"
-                            android:typeface="serif"
-                            android:textSize="15dp"
-                            android:textColor="@color/colorWhiteEC"
-                            android:text="Passenger Queueing History Report"
-                            android:gravity="center"
-                            android:layout_span="6"></TextView>
-
-                    </TableRow>
-                    <TableRow
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:background="@color/colorSherpaBlue">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textStyle="italic|bold"
-                            android:typeface="serif"
-                            android:textSize="15dp"
-                            android:textColor="@color/colorWhiteEC"
-                            android:text="SUMMARY"
-                            android:paddingLeft="5dp"
-                            android:layout_span="6"></TextView>
-
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:gravity="center_horizontal"
-                        android:background="@color/colorBlack"
-                        android:visibility="visible"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"
-                        >
-
-                        <TextView
-                            android:background="@color/colorWhite"
-                            android:text="Report Coverage"
-                            android:textColor="@color/colorBlack"
-                            android:textStyle="bold"
-                            android:typeface="serif"
-                            android:textSize="12dp"
-                            android:layout_marginLeft="2dp"
-                            android:layout_marginRight="1dp"
-                            android:paddingRight="5dp"
-                            android:paddingLeft="8dp"
-                            android:paddingTop="5dp"
-                            android:paddingBottom="5dp"></TextView>
-                        <TextView
-                            android:text="Loading..."
-                            android:textColor="@color/colorBlack"
-                            android:typeface="serif"
-                            android:textSize="12dp"
-                            android:layout_marginLeft="1dp"
-                            android:layout_marginRight="2dp"
-                            android:background="@color/colorWhite"
-                            android:padding="5dp"
-                            android:id="@+id/tv_reportCoverage"
-                            ></TextView>
-                    </TableRow>
-                    <TableRow
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:gravity="center_horizontal"
-                        android:background="@color/colorBlack"
-                        android:visibility="visible"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"
-                        >
-
-                        <TextView
-
-
-                            android:background="@color/colorWhite"
-                            android:text="Terminal"
-                            android:textSize="12dp"
-                            android:textColor="@color/colorBlack"
-                            android:textStyle="bold"
-                            android:typeface="serif"
-                            android:layout_marginLeft="2dp"
-                            android:layout_marginRight="1dp"
-                            android:paddingRight="5dp"
-                            android:paddingLeft="8dp"
-                            android:paddingTop="5dp"
-                            android:paddingBottom="5dp"></TextView>
-                        <TextView
-                            android:text="Loading..."
-                            android:textColor="@color/colorBlack"
-                            android:typeface="serif"
-                            android:layout_marginLeft="1dp"
-                            android:layout_marginRight="2dp"
-                            android:textSize="12dp"
-                            android:background="@color/colorWhite"
-                            android:padding="5dp"
-                            android:id="@+id/tv_reportTerminal"
-                            ></TextView>
-                    </TableRow>
-                    <TableRow
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:gravity="center_horizontal"
-                        android:background="@color/colorBlack"
-                        android:visibility="visible"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"
-                        >
-
-                        <TextView
-                            android:layout_width="150dp"
-                            android:background="@color/colorWhite"
-                            android:text="Busiest Time/s"
-                            android:textSize="12dp"
-                            android:textColor="@color/colorRed"
-                            android:textStyle="bold"
-                            android:typeface="serif"
-                            android:layout_marginLeft="2dp"
-                            android:layout_marginRight="1dp"
-                            android:paddingRight="5dp"
-                            android:paddingLeft="8dp"
-                            android:paddingTop="5dp"
-                            android:paddingBottom="5dp"
-                            android:layout_height="match_parent"></TextView>
-                        <TextView
-                            android:text=""
-                            android:textColor="@color/colorRed"
-                            android:typeface="serif"
-                            android:textSize="12dp"
-                            android:layout_marginLeft="1dp"
-                            android:layout_marginRight="2dp"
-                            android:background="@color/colorWhite"
-                            android:padding="5dp"
-                            android:layout_width="210dp"
-                            android:id="@+id/tv_busiesttime"
-                            ></TextView>
-                    </TableRow>
-
-                    <TableRow
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:gravity="center_horizontal"
-                        android:background="@color/colorBlack"
-                        android:visibility="visible"
-                        android:layout_marginLeft="2dp"
-                        android:layout_marginRight="2dp"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginBottom="1dp"
-                        >
-
-                        <TextView
-                            android:id="@+id/tv_PassengersWaitedDuringThisTime"
-                            android:text="Loading..."
-                            android:textColor="@color/colorRed"
-                            android:typeface="serif"
-                            android:textSize="12dp"
-                            android:layout_height="wrap_content"
-                            android:background="@color/colorWhite"
-                            android:paddingRight="5dp"
-                            android:paddingLeft="10dp"
-                            android:paddingTop="5dp"
-                            android:paddingBottom="5dp"
-                            android:layout_span="2"
-                            ></TextView>
-                    </TableRow>
-                </TableLayout>
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="vertical|horizontal"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="10dp">
-
-                    <TableLayout
-                        android:id="@+id/passengerReportTable_history"
-                        xmlns:android="http://schemas.android.com/apk/res/android"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:shrinkColumns="*"
-                        android:stretchColumns="*"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginRight="10dp"
-                        android:visibility="gone"
-                        android:background="@color/colorBlack">
-                        <TableRow
-                            android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:background="@color/colorSherpaBlue">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textStyle="italic|bold"
-                                android:typeface="serif"
-                                android:textSize="15dp"
-                                android:textColor="@color/colorWhiteEC"
-                                android:text="HISTORY"
-                                android:paddingLeft="5dp"
-                                android:layout_span="6"
-                                ></TextView>
-
-
-
-                        </TableRow>
-                        <TableRow
-                            android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:background="@color/colorSherpaBlue">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textStyle="italic|bold"
-                                android:typeface="serif"
-                                android:textSize="12dp"
-                                android:textColor="@color/colorWhiteEC"
-                                android:text="(Ave.no. of waiting passenger/s per hour)"
-                                android:paddingLeft="5dp"
-                                android:layout_span="6"
-                                ></TextView>
-                        </TableRow>
-                        <TableRow
-                            android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:gravity="center_horizontal"
-                            android:background="@color/colorSprayBlue"
-                            android:visibility="visible"
-                            android:layout_marginRight="2dp"
-                            android:layout_marginLeft="2dp"
-                            >
-
-                            <TextView
-                                android:layout_width="170dp"
-                                android:layout_marginTop="1dp"
-                                android:layout_marginBottom="1dp"
-                                android:layout_marginRight="1dp"
-                                android:layout_marginLeft="5dp"
-                                android:text="DateTime"
-                                android:textSize="12dp"
-                                android:textColor="@color/colorBlack"
-                                android:textStyle="bold"
-                                android:typeface="serif"
-                                android:padding="5dp"></TextView>
-                            <TextView
-                                android:text="No. of Waiting Passenger/s"
-                                android:textColor="@color/colorBlack"
-                                android:typeface="serif"
-                                android:textStyle="bold"
-                                android:layout_margin="1dp"
-                                android:layout_width="180dp"
-                                android:textSize="12dp"
-                                android:padding="5dp"
-                                ></TextView>
-                        </TableRow>
-
-
-                    </TableLayout>
-                </ScrollView>
-                <ScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="vertical|horizontal"
-                    android:layout_weight="1"
-                    android:layout_marginBottom="10dp"
-                    android:id="@+id/scrollVehicleReport"
-                    android:visibility="gone">
-                    <LinearLayout
-                        android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" >
-
-                        <TableLayout
-                            xmlns:android="http://schemas.android.com/apk/res/android"
-                            android:id="@+id/reportTable"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:shrinkColumns="*"
-                            android:stretchColumns="*"
-                            android:layout_margin="10dp"
-                            android:layout_gravity="center"
-                            android:visibility="gone"
-                            android:background="@color/colorBlack">
-                            <!--<TableRow-->
-                            <!--android:id="@+id/tableRow_export"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:gravity="center_horizontal"-->
-                            <!--android:background="@color/colorSherpaBlue">-->
-                            <!--<Button-->
-                            <!--android:id="@+id/btnExportReport"-->
-                            <!--style="?android:textAppearanceSmall"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:layout_weight=".4"-->
-                            <!--android:text="Export to Excel"-->
-                            <!--android:textColor="@color/colorPrimaryDark"-->
-                            <!--android:textStyle="bold" />-->
-
-                            <!--</TableRow>-->
-                            <TableRow
-                                android:id="@+id/tableRow_header"
-                                android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:gravity="center_horizontal"
-                                android:background="@color/colorSherpaBlue">
-                                <TextView
-                                    android:id="@+id/textView_TableName"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"
-                                    android:textSize="18dp"
-                                    android:textColor="@color/colorWhiteEC"
-                                    android:text="Total KM traveled"
-                                    android:gravity="center"
-                                    android:layout_span="6"></TextView>
-                            </TableRow>
-                            <TableRow
-                                android:id="@+id/tableRow_columnHeader"
-                                android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:gravity="center_horizontal"
-                                android:background="@color/colorSprayBlue"
-                                >
-                                <TextView
-                                    android:id="@+id/textView_PlateNo"
-                                    android:text="Plate No."
-                                    android:textColor="@color/colorBlack"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"></TextView>
-                                <TextView
-                                    android:id="@+id/textView_Distance"
-                                    android:text="Distance"
-                                    android:textColor="@color/colorBlack"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"
-                                    android:gravity="right"
-                                    ></TextView>
-                                <TextView
-                                    android:id="@+id/textView_MaxSpeed"
-                                    android:text="Max Speed"
-                                    android:textColor="@color/colorBlack"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"
-                                    android:gravity="right"></TextView>
-
-                            </TableRow>
-                            <TableRow
-                                android:id="@+id/data"
-                                android:layout_height="wrap_content"
-                                android:layout_width="match_parent"
-                                android:gravity="center_horizontal"
-                                android:background="@color/colorBlack"
-                                android:visibility="gone"
-                                >
-
-                                <TextView
-                                    android:id="@+id/txt"
-                                    android:layout_width="120dp"
-                                    android:layout_margin="1dp"
-                                    android:background="@color/colorWhite"
-                                    android:text="ABD2936"
-                                    android:textColor="@color/colorBlack"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"
-                                    android:padding="5dp"></TextView>
-                                <TextView
-                                    android:id="@+id/ds"
-                                    android:text="0.27 km"
-                                    android:textColor="@color/colorBlack"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"
-                                    android:gravity="right"
-                                    android:layout_margin="1dp"
-                                    android:layout_width="110dp"
-                                    android:background="@color/colorWhite"
-                                    android:padding="5dp"
-                                    ></TextView>
-                                <TextView
-                                    android:id="@+id/textView_MaaxSpeed"
-                                    android:text="0.86kn"
-                                    android:textColor="@color/colorBlack"
-                                    android:textStyle="bold"
-                                    android:typeface="serif"
-                                    android:gravity="right"
-                                    android:layout_width="100dp"
-                                    android:layout_margin="1dp"
-                                    android:padding="5dp"
-                                    android:background="@color/colorWhite"></TextView>
-
-                            </TableRow>
-
-                        </TableLayout>
-                    </LinearLayout>
-                </ScrollView>
-            </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>

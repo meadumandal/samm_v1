@@ -20,11 +20,13 @@ public class ErrorDialog extends Dialog implements
     public Button btnOk;
     public TextView errorMessage;
     public String _errorMessage;
+    public Helper _helper;
     public ErrorDialog(Activity activity, String errorMessage) {
         super(activity);
         // TODO Auto-generated constructor stub
         this._activity = activity;
         this._errorMessage = errorMessage;
+        this._helper = new Helper(_activity, _activity.getApplicationContext());
 
     }
     public ErrorDialog(Activity activity) {
@@ -46,8 +48,9 @@ public class ErrorDialog extends Dialog implements
         this.errorMessage = (TextView) findViewById(R.id.txtErrorMessage);
         this.errorMessage.setText(this._errorMessage);
         this.errorMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
+        this.errorMessage.setTypeface(Helper.FONT_RUBIK_REGULAR);
         btnOk    = (Button) findViewById(R.id.btnOK);
+        btnOk.setTypeface(Helper.FONT_RUBIK_BOLD);
         btnOk.setOnClickListener(this);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 

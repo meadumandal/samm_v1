@@ -430,6 +430,21 @@ public class Helper {
                 .addListenerForSingleValueEvent(
                         new SaveCurrentDestination(this._activity, this._context, currentDestination));
     }
+    public String GenerateNavigationDrawerTooltip(){
+        String STR_result = "Guest";
+        if(_sessionManager!=null){
+            if(_sessionManager.isDriver())
+                STR_result = "Driver";
+            else if(_sessionManager.getIsAdmin())
+                STR_result ="Admin";
+            else if(_sessionManager.getIsSuperAdmin())
+                STR_result="Super Admin";
+            else if(_sessionManager.isLoggedIn()|| _sessionManager.isFacebook())
+                STR_result = "User";
+
+        }
+        return  STR_result;
+    }
     public static int dpToPx(float dp, Context context) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         float fpixels = metrics.density * dp;
@@ -463,6 +478,8 @@ public class Helper {
                 break;
             }
         }
+        if(_result.PlateNumber==null)
+            _result.PlateNumber="Filinvest E-loop";
         return _result;
     }
     public String getEmojiByUnicode(int unicode)

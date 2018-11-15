@@ -1,13 +1,19 @@
 package com.umandalmead.samm_v1;
 
+import android.*;
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.util.SortedList;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TableLayout;
@@ -15,7 +21,20 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.formatter.IValueFormatter;
+import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import com.github.mikephil.charting.utils.ViewPortHandler;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.SummaryReport;
 
@@ -30,7 +49,9 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -47,6 +68,12 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
     ArrayList<BarDataSet> dataSet;
     ArrayList<String> xAxis;
     Constants _constants;
+    final ArrayList<PieEntry> AL_TopEntries = new ArrayList<>();
+    final ArrayList<PieEntry> AL_OtherEntries = new ArrayList<>();
+    final ArrayList<PieEntry> AL_TopEntriesMaxSpeed = new ArrayList<>();
+    final ArrayList<PieEntry> AL_OtherEntriesMaxSpeed = new ArrayList<>();
+    private Boolean _BOOL_IsMaxSpeed = false;
+    public static String STR_fileName="";
 
 
     /**
@@ -59,7 +86,6 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         this._context = context;
         this._activity = activity;
         this._constants = new Constants();
-
         this.dataSet = new ArrayList<>();
         this.xAxis = new ArrayList<>();
 
@@ -98,6 +124,11 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 Date fromDate, toDate;
                 fromDate = parser.parse(params[0]);
                 toDate = parser.parse(params[1]);
+                try {
+                    STR_fileName += params[0] + "-" + params[1];
+                }catch (Exception ex){
+                    Helper.logger(ex);
+                }
 
 //                Calendar cal = Calendar.getInstance();
 //                cal.setTime(fromDate);
@@ -160,59 +191,138 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
     protected void onPostExecute(ArrayList<SummaryReport> listReport)
     {
         Helper helper = new Helper(_activity,_context);
-        clearTable();
         try
         {
-            ReportsActivity._reportChart.setVisibility(View.GONE);
-            ReportsActivity._vehicleReportTable.setVisibility(View.VISIBLE);
-            for(SummaryReport summary:listReport)
-            {
-                TableRow row = new TableRow(_context);
-                row.setGravity(Gravity.CENTER_HORIZONTAL);
-                TableLayout.LayoutParams tableRowParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.WRAP_CONTENT);
-                row.setLayoutParams(tableRowParams);
+            Collections.sort(listReport, SummaryReport.SummaryReportComparator.DISTANCE_TRAVELED);
+            InitializePieChart("KM Traveled",ReportsActivity._PC_EcoLoopMain);
+            ReportsActivity._PC_EcoLoopMain.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                @Override
+                public void onValueSelected(Entry e, Highlight h) {
+                    PieEntry PE = (PieEntry)e;
+                    if(PE!=null && PE.getLabel().toLowerCase().equals("others")){
+                        Toggle(ReportsActivity._BTN_BACK_EcoLoop_Others);
+                        STR_fileName+="others";
+                       if(_BOOL_IsMaxSpeed) {
+                           InitializePieChart("Others Max Speed", ReportsActivity._PC_EcoLoopMain);
+                           SetPieChartData(AL_OtherEntriesMaxSpeed,null, ReportsActivity._PC_EcoLoopMain, false);
+                           ReportsActivity._BTN_BACK_EcoLoop_Others.setOnClickListener(new View.OnClickListener() {
+                               @Override
+                               public void onClick(View view) {
+                                   InitializePieChart("KM Traveled", ReportsActivity._PC_EcoLoopMain);
+                                   SetPieChartData(AL_TopEntriesMaxSpeed, null, ReportsActivity._PC_EcoLoopMain, false);
+                                   Toggle(ReportsActivity._BTN_BACK_EcoLoop_Others);
+                                   STR_fileName.replace("others","");
+                               }
+                           });
+                       }
+                       else {
+                           InitializePieChart("Others KM Traveled", ReportsActivity._PC_EcoLoopMain);
+                           SetPieChartData(AL_OtherEntries,null, ReportsActivity._PC_EcoLoopMain, true);
+                           ReportsActivity._BTN_BACK_EcoLoop_Others.setOnClickListener(new View.OnClickListener() {
+                               @Override
+                               public void onClick(View view) {
+                                   InitializePieChart("KM Traveled", ReportsActivity._PC_EcoLoopMain);
+                                   SetPieChartData(AL_TopEntries, null, ReportsActivity._PC_EcoLoopMain, true);
+                                   Toggle(ReportsActivity._BTN_BACK_EcoLoop_Others);
+                                   STR_fileName.replace("others","");
+                               }
+                           });
+                       }
 
-                TextView plateNumber = new TextView(_context);
-                plateNumber.setText(summary.plateNumber);
-                plateNumber.setTextColor(Color.BLACK);
-                plateNumber.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
-                plateNumber.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
-                plateNumber.setTypeface(null, Typeface.BOLD);
-                TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(helper.dpToPx(120,_context), ActionBar.LayoutParams.WRAP_CONTENT);
-                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
+                    }
+                }
 
-                plateNumber.setLayoutParams(textViewParams);
+                @Override
+                public void onNothingSelected() {
 
+                }
+            });
+            double D_KM_accumulatedValues = 0.0, D_MaxSpeed_accumulatedValues=0.0 ;
 
-                TextView distance = new TextView(_context);
-                distance.setText(Double.toString(summary.distance) + " km");
-                distance.setGravity(Gravity.RIGHT);
-                distance.setTextColor(Color.BLACK);
-                distance.setBackgroundResource(R.color.colorWhite);
-                distance.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
-                textViewParams = new TableRow.LayoutParams(helper.dpToPx(110,_context), ActionBar.LayoutParams.WRAP_CONTENT);
-                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
-                distance.setLayoutParams(textViewParams);
-
-
-                TextView maxSpeed = new TextView(_context);
-                maxSpeed.setText(Double.toString(summary.maxSpeed) + " kn");
-                maxSpeed.setGravity(Gravity.RIGHT);
-                maxSpeed.setTextColor(Color.BLACK);
-                maxSpeed.setBackgroundResource(R.color.colorWhite);
-                maxSpeed.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
-                textViewParams = new TableRow.LayoutParams(helper.dpToPx(100,_context), ActionBar.LayoutParams.WRAP_CONTENT);
-                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
-                maxSpeed.setLayoutParams(textViewParams);
-
-
-                row.addView(plateNumber);
-                row.addView(distance);
-                row.addView(maxSpeed);
-
-                ReportsActivity._vehicleReportTable.addView(row);
-
+            for (int i = 0; i < listReport.size() ; i++) {
+                if(i<13) {
+                    AL_TopEntries.add(new PieEntry((float) listReport.get(i).distance, String.valueOf(listReport.get(i).plateNumber)));
+                    AL_TopEntriesMaxSpeed.add(new PieEntry((float) listReport.get(i).maxSpeed, String.valueOf(listReport.get(i).plateNumber)));
+                }
+                else{
+                    //accumulate values
+                    AL_OtherEntries.add(new PieEntry((float) listReport.get(i).distance, String.valueOf(listReport.get(i).plateNumber)));
+                    AL_OtherEntriesMaxSpeed.add(new PieEntry((float) listReport.get(i).maxSpeed, String.valueOf(listReport.get(i).plateNumber)));
+                    D_KM_accumulatedValues+=listReport.get(i).distance;
+                    D_MaxSpeed_accumulatedValues+=listReport.get(i).maxSpeed;
+                }
             }
+
+            if(AL_OtherEntries.size()!=0 && D_KM_accumulatedValues!=0.0) {
+                AL_TopEntries.add(new PieEntry((float) D_KM_accumulatedValues, "Others"));
+                AL_TopEntriesMaxSpeed.add(new PieEntry((float) D_MaxSpeed_accumulatedValues, "Others"));
+            }
+
+            SetPieChartData(AL_TopEntries, null, ReportsActivity._PC_EcoLoopMain, true);
+            InflateTabLayout();
+            if (ReportsActivity._TL_EcoloopTraveled.getVisibility()==View.INVISIBLE)
+                Toggle(ReportsActivity._TL_EcoloopTraveled);
+            ReportsActivity._LL_ExportBtnHolder.setVisibility(View.VISIBLE);
+            ReportsActivity._LL_ExportBtnHolder.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ActivityCompat.requestPermissions(_activity,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            1);
+                    ReportsActivity._PC_EcoLoopMain.saveToGallery(GenerateReportImageFileName(),100);//,"/DCIM/Camera");
+                    InfoDialog dialog = new InfoDialog(_activity, "Image has been exported.\n FileName: "+ GenerateReportImageFileName());
+                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    dialog.show();
+                }
+            });
+//            for(SummaryReport summary:listReport)
+//            {
+//                TableRow row = new TableRow(_context);
+//                row.setGravity(Gravity.CENTER_HORIZONTAL);
+//                TableLayout.LayoutParams tableRowParams = new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,TableLayout.LayoutParams.WRAP_CONTENT);
+//                row.setLayoutParams(tableRowParams);
+//
+//                TextView plateNumber = new TextView(_context);
+//                plateNumber.setText(summary.plateNumber);
+//                plateNumber.setTextColor(Color.BLACK);
+//                plateNumber.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));
+//                plateNumber.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
+//                plateNumber.setTypeface(null, Typeface.BOLD);
+//                TableRow.LayoutParams textViewParams = new TableRow.LayoutParams(helper.dpToPx(120,_context), ActionBar.LayoutParams.WRAP_CONTENT);
+//                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
+//
+//                plateNumber.setLayoutParams(textViewParams);
+//
+//
+//                TextView distance = new TextView(_context);
+//                distance.setText(Double.toString(summary.distance) + " km");
+//                distance.setGravity(Gravity.RIGHT);
+//                distance.setTextColor(Color.BLACK);
+//                distance.setBackgroundResource(R.color.colorWhite);
+//                distance.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
+//                textViewParams = new TableRow.LayoutParams(helper.dpToPx(110,_context), ActionBar.LayoutParams.WRAP_CONTENT);
+//                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
+//                distance.setLayoutParams(textViewParams);
+//
+//
+//                TextView maxSpeed = new TextView(_context);
+//                maxSpeed.setText(Double.toString(summary.maxSpeed) + " kn");
+//                maxSpeed.setGravity(Gravity.RIGHT);
+//                maxSpeed.setTextColor(Color.BLACK);
+//                maxSpeed.setBackgroundResource(R.color.colorWhite);
+//                maxSpeed.setPadding(helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context),helper.dpToPx(5,_context));
+//                textViewParams = new TableRow.LayoutParams(helper.dpToPx(100,_context), ActionBar.LayoutParams.WRAP_CONTENT);
+//                textViewParams.setMargins(helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context),helper.dpToPx(1,_context));
+//                maxSpeed.setLayoutParams(textViewParams);
+//
+//
+//                row.addView(plateNumber);
+//                row.addView(distance);
+//                row.addView(maxSpeed);
+//
+//                ReportsActivity._vehicleReportTable.addView(row);
+//
+//            }
             _LoaderDialog.dismiss();
         }
         catch(Exception ex)
@@ -223,18 +333,132 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         }
 
     }
+    private void InitializePieChart(String PieCenterText, PieChart PC){
+       // ReportsActivity._vehicleReportTable.setVisibility(View.VISIBLE);
+        PC.setEntryLabelColor(Color.BLACK);
+        PC.setEntryLabelTypeface(Helper.FONT_RUBIK_REGULAR);
+        PC.setEntryLabelTextSize(12f);
+        PC.animateY(1400, Easing.EaseInOutQuad);
+        PC.setCenterText(PieCenterText);
+        PC.setCenterTextTypeface(Helper.FONT_RUBIK_BOLD);
+        PC.setHoleRadius(50f);
+        PC.setCenterTextTypeface(Helper.FONT_RUBIK_REGULAR);
+        PC.setEntryLabelTypeface(Helper.FONT_RUBIK_BOLD);
+        InitializePieLegend(PC);
+    }
+    private void InitializePieLegend(PieChart PC){
+        Legend legend = PC.getLegend();
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        legend.setEnabled(true);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
+        legend.setOrientation(Legend.LegendOrientation.VERTICAL);
+        legend.setDrawInside(false);
+        legend.setXEntrySpace(7f);
+        legend.setYEntrySpace(0f);
+        legend.setYOffset(0f);
+    }
+    private void SetPieChartData(ArrayList<PieEntry> AL_PieEntries, String LegendTitle, PieChart PC, final Boolean IsDistance){
+        PieDataSet dataSet = new PieDataSet(AL_PieEntries, LegendTitle);
 
-    private void clearTable()
-    {
-        int childCount = ReportsActivity._vehicleReportTable.getChildCount();
-        if (childCount>0)
-        {
-            ReportsActivity._vehicleReportTable.removeViews(2, childCount - 2);
+        ArrayList<Integer> colors = new ArrayList<>();
+        for (int c : ColorTemplate.VORDIPLOM_COLORS)
+            colors.add(c);
+        for (int c : ColorTemplate.JOYFUL_COLORS)
+            colors.add(c);
+        for (int c : ColorTemplate.COLORFUL_COLORS)
+            colors.add(c);
+        for (int c : ColorTemplate.LIBERTY_COLORS)
+            colors.add(c);
+        for (int c : ColorTemplate.PASTEL_COLORS)
+            colors.add(c);
+        for (int c : ColorTemplate.MATERIAL_COLORS)
+            colors.add(c);
 
-        }
+        colors.add(ColorTemplate.getHoloBlue());
+        dataSet.setColors(colors);
+        //dataSet.ico(false);
+        dataSet.setSliceSpace(3f);
+        //dataSet.setIconsOffset(new MPPointF(0, 40));
+        dataSet.setValueFormatter(new IValueFormatter() {
+            @Override
+            public String getFormattedValue(float value, Entry entry, int dataSetIndex, ViewPortHandler viewPortHandler) {
+                return String.valueOf(value) + (IsDistance ? " km" : " kn");
+            }
+        });
+        dataSet.setSelectionShift(5f);
+        //dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        //dataSet.setValueLinePart1OffsetPercentage(100f); /** When valuePosition is OutsideSlice, indicates offset as percentage out of the slice size */
+        //dataSet.setValueLinePart1Length(0.6f); /** When valuePosition is OutsideSlice, indicates length of first half of the line */
+        //dataSet.setValueLinePart2Length(0.6f); /** When valuePosition is OutsideSlice, indicates length of second half of the line */
+        //PC.setExtraOffsets(0.f, 5.f, 0.f, 5.f);
+
+        PieData data = new PieData(dataSet);
+        data.setValueTextSize(11f);
+        data.setValueTextColor(Color.BLACK);
+
+
+        data.setValueTypeface(Helper.FONT_RUBIK_REGULAR);
+        PC.setData(data);
+        PC.highlightValues(null);
+        PC.invalidate();
     }
 
+    private void Toggle(View v){
+        v.setVisibility(v.getVisibility()==View.INVISIBLE? View.VISIBLE:View.INVISIBLE);
+    }
+    private void InflateTabLayout(){
+        ReportsActivity._TL_EcoloopTraveled.removeAllTabs();
+        ReportsActivity._TL_EcoloopTraveled.addTab(ReportsActivity._TL_EcoloopTraveled.newTab().setText("Distance Traveled"));
+        ReportsActivity._TL_EcoloopTraveled.addTab(ReportsActivity._TL_EcoloopTraveled.newTab().setText("Speed Traveled"));
+        ReportsActivity._TL_EcoloopTraveled.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if(tab.getPosition() == 1){
+                    InitializePieChart("Max Speed",ReportsActivity._PC_EcoLoopMain);
+                    SetPieChartData(AL_TopEntriesMaxSpeed, null, ReportsActivity._PC_EcoLoopMain, false);
+                    _BOOL_IsMaxSpeed =true;
+                   ReportsActivity._BTN_BACK_EcoLoop_Others.setVisibility(View.INVISIBLE);
+                    STR_fileName.replace("others","");
+                }
+                else if(tab.getPosition()==0){
+                    InitializePieChart("KM Traveled",ReportsActivity._PC_EcoLoopMain);
+                    SetPieChartData(AL_TopEntries, null, ReportsActivity._PC_EcoLoopMain, true);
+                    _BOOL_IsMaxSpeed =false;
+                    ReportsActivity._BTN_BACK_EcoLoop_Others.setVisibility(View.INVISIBLE);
+                    STR_fileName.replace("others","");
+                }
+            }
 
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        TabLayout.Tab tab = ReportsActivity._TL_EcoloopTraveled.getTabAt(0);
+        tab.select();
+
+    }
+
+    public static String GenerateReportImageFileName(){
+        String STR_Result = "";
+        try{
+            switch(ReportsActivity._TL_EcoloopTraveled.getSelectedTabPosition()){
+                case 0: STR_Result="Distance Traveled";break;
+                case 1: STR_Result="Max Speed"; break;
+                default: STR_Result="Unknown"; break;
+            }
+            STR_Result+=" ("+STR_fileName.replace("/","-")+")";
+        }
+        catch (Exception ex){
+            Helper.logger(ex);
+        }
+        return  STR_Result;
+    }
 
 
 

@@ -45,6 +45,7 @@ public class SessionManager {
 
     public static final String KEY_ISMAINTOOLTIPSHOWN = "IsMainToolTopShown";
     public static final String KEY_ISROUTETOOLTIPSHOWN = "IsRouteToolTipShown";
+    public static final String KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN = "IsNavigationDrawerToolTipShown";
     public static final String KEY_CURRENTMAPSTYLE = "CurrentMapStyle";
 
     public SessionManager(Context context)
@@ -81,10 +82,12 @@ public class SessionManager {
         }
     }
     public Boolean getRouteTutorialStatus() {return pref.getBoolean(KEY_ISROUTETOOLTIPSHOWN, false);}
+    public Boolean getNavigationDrawerTutotialStatus(){ return pref.getBoolean(KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN, false);}
     public void TutorialStatus(Enums.UIType type, Boolean isShown){
         switch(type){
             case MAIN:prefEditor.putBoolean(KEY_ISMAINTOOLTIPSHOWN, isShown); break;
             case SHOWING_ROUTES: prefEditor.putBoolean(KEY_ISROUTETOOLTIPSHOWN, isShown); break;
+            case SHOWING_NAVIGATION_DRAWER: prefEditor.putBoolean(KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN, isShown); break;
         }
         prefEditor.commit();
     }
@@ -240,6 +243,13 @@ public class SessionManager {
         prefEditor.clear();
         prefEditor.commit();
         firebaseAuth.signOut();
+    }
+    public void clearTutorialFlags()
+    {
+        prefEditor.putBoolean(KEY_ISMAINTOOLTIPSHOWN, false);
+        prefEditor.putBoolean(KEY_ISROUTETOOLTIPSHOWN, false);
+        prefEditor.putBoolean(KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN, false);
+        prefEditor.commit();
     }
 
 }

@@ -469,7 +469,9 @@ public class LoginActivity extends AppCompatActivity{
 
                         if(!task.isSuccessful())
                         {
-                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            ErrorDialog ED_LoginError = new ErrorDialog(LoginActivity.this, task.getException().getMessage());
+                            ED_LoginError.show();
+                            //Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             Helper.logger(task.getException(),true);
                             HideLogInProgressDialog();
                         }
@@ -533,6 +535,7 @@ public class LoginActivity extends AppCompatActivity{
         MenuActivity.buttonEffect(v);
         try {
             Intent SignUpForm = new Intent(LoginActivity.this, SignUpActivity.class);
+            SignUpForm.putExtra("IsFromNavDrawer","false");
             startActivity(SignUpForm);
             finish();
         }catch(Exception ex){

@@ -119,12 +119,11 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
     @Override
     protected void onPostExecute(String param)
     {
-
-
         _LoaderDialog.hide();
         _sessionManager.setFirstName(_newFirstName);
         _sessionManager.setLastName(_newLastName);
         _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
+        MenuActivity._HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
 
         if(_promptMessage.trim().length()>0)
         {

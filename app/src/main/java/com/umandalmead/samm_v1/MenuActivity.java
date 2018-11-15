@@ -53,6 +53,7 @@ import android.telephony.SmsManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -255,7 +256,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static LinearLayout _MapsHolderLinearLayout, _LL_MapActions;
         public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton;
         public static FloatingActionMenu _AdminToolsFloatingMenu;
-        public Button _ReconnectGPSButton;
+        public Button _ReconnectGPSButton,_BTN_SignUp_NavDrawer;
         public static ImageView FAB_SammIcon;
         public static FrameLayout FrameSearchBarHolder;
         public static ImageView Search_BackBtn;
@@ -538,7 +539,19 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
                 _buttonClick = MediaPlayer.create(this, R.raw.button_click);
                 _MainDrawerLayout = (DrawerLayout) findViewById(id.drawer_layout);
+                _BTN_SignUp_NavDrawer = (Button) findViewById(id.btn_nav_signup);
+                _BTN_SignUp_NavDrawer.setVisibility(_sessionManager.isGuest() ? View.VISIBLE:View.INVISIBLE); //setVisibility(_sessionManager.isGuest());
 
+                _BTN_SignUp_NavDrawer.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent SignUp = new Intent(MenuActivity.this, SignUpActivity.class);
+                        SignUp.putExtra("IsFromNavDrawer","true");
+                       startActivity(SignUp);
+                        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                       finish();
+                    }
+                });
                 if (_sessionManager.getIsAdmin())
                     _AdminToolsFloatingMenu.setVisibility(View.VISIBLE);
                 else
@@ -551,7 +564,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                    @Override
                    public void onDrawerOpened(View drawerView) {
-
+                        UpdateUI(Enums.UIType.SHOWING_NAVIGATION_DRAWER);
                    }
 
                    @Override
@@ -1483,6 +1496,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     try {
                         FacebookSdk.sdkInitialize(getApplicationContext());
                         LoginManager.getInstance().logOut();
+                        _sessionManager.clearTutorialFlags();
                     }
                     catch(Exception ex)
                     {
@@ -2561,15 +2575,16 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         Integer currentTime = Calendar.getInstance().getTime().getHours();
         return (currentTime >= 18 || currentTime <=5)? true: false;
     }
-    public void BuildToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay){
+    public void BuildToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay, int BGColor){
         new SimpleTooltip.Builder(activity)
                 .anchorView(view)
                 .text(text)
                 .gravity(gravity)
                 .animated(true)
                 .transparentOverlay(hasOverlay)
-                .backgroundColor(Color.WHITE)
-                .arrowColor(Color.WHITE)
+                .backgroundColor(getApplication().getResources().getColor(BGColor))
+                .textColor(getApplication().getResources().getColor(R.color.colorWhite))
+                .arrowColor(getApplication().getResources().getColor(BGColor))
                 .highlightShape(highlightShape)
                 .build()
                 .show();
@@ -2579,8 +2594,6 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         if(!IsVisible) {
             if(_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin()))
                 MenuActivity._SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            if(_sessionManager.getIsAdmin())
-                MenuActivity._AdminToolsFloatingMenu.setPadding(0,0,0,_helper.dpToPx(80,_context));
             final Handler HND_ShowPanel = new Handler();
             HND_ShowPanel.postDelayed(new Runnable() {
                 @Override
@@ -2610,15 +2623,16 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             switch (type) {
                 case MAIN:
                     if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue);
+                        if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue);
                         _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
                     }
                     break;
                 case SHOWING_ROUTES:
                     if (!_sessionManager.getRouteTutorialStatus()) {
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false);
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue);
                         _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
                         _HasExitedInfoLayout = false;
                     }
@@ -2666,6 +2680,23 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 case APPBAR_MIN_HEIGHT:
                     _AppBarLayout.height = 0;
                     _AppBar.setLayoutParams(_AppBarLayout);
+                    break;
+                case SHOWING_NAVIGATION_DRAWER:
+                    if(_sessionManager.getNavigationDrawerTutotialStatus()!=null && !_sessionManager.getNavigationDrawerTutotialStatus()){
+                        LinearLayout Basics = (LinearLayout) findViewById(id.LL_adminTools) ;
+                        int count = 0;
+                        ViewGroup.LayoutParams params = Basics.getLayoutParams();
+                        for(Integer i=0; _NavView.getMenu().findItem(id.itemTools).getSubMenu().size()!=i;i++){
+                            if(_NavView.getMenu().findItem(id.itemTools).getSubMenu().getItem(i).isVisible())
+                                count++;
+                        }
+                        if(count==1)
+                            count++;
+                        params.height = count*120;//Helper.dpToPx(count*110,_context); //55 each
+                        Basics.setLayoutParams(params);
+                        BuildToolTip(_helper.GenerateNavigationDrawerTooltip() + " tools section", this, Basics , Gravity.END,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue);
+                        _sessionManager.TutorialStatus(Enums.UIType.SHOWING_NAVIGATION_DRAWER, true);
+                    }
                     break;
                 default:
                     break;

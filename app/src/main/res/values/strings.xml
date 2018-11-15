@@ -132,11 +132,13 @@
     <string name="SMS_sending_of_sms_failed">Sending of SMS failed</string>
     <!--ACCOUNT RELATED-->
     <string name="USER_logged_out">You\'ve been logged out.</string>
+    <string name="USER_logged_out_password_changed">Password has been changed. Use your new password to log in again.</string>
     <string name="USER_logout_confirm">Are you sure you want to log out?</string>
     <string name="USER_logout_dialog_title">Log out</string>
     <string name="USER_login_not_available_in_beta">Login not available in Beta version</string>
     <string name="USER_Fb_was_used_to_login_info_message">You are using your Facebook account. \nEditing profile is not allowed.</string>
-
+    <string name="USER_fullname_whitespace">Invalid name! Your first name and last name must be provided.</string>
+    <string name="USER_password_mismatch">Password mismatch!</string>
     <!--MOBILE NETWORKS-->
     <string name="NETWORK_GLOBE">Globe</string>
     <string name="NETWORK_SMART">Smart</string>

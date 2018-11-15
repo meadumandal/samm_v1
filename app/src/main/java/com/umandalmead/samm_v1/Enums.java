@@ -14,7 +14,8 @@ public class Enums {
         HIDE_SEARCH_FRAGMENT_ON_SEARCH("HideSearchFragmentOnSearch", 5),
         ADMIN_HIDE_MAPS_LINEARLAYOUT("AdminHideMapsLinearLayout",6),
         ADMIN_SHOW_MAPS_LINEARLAYOUT("AdminShowMapsLinearLayout",7),
-        APPBAR_MIN_HEIGHT("AppBarMinHeight",8);
+        APPBAR_MIN_HEIGHT("AppBarMinHeight",8),
+        SHOWING_NAVIGATION_DRAWER("ShowingNavigationDrawer",9);
 
         private String stringValue;
         private int intValue;

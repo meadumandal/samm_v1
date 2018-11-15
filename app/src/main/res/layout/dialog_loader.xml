@@ -39,8 +39,8 @@
                     android:src="@drawable/samm_loader_circle_s" />
 
                 <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:layout_gravity="center"
                     android:src="@drawable/samm_loader_s" />
             </FrameLayout>
