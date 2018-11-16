@@ -55,8 +55,7 @@ public class ReportsActivity extends Fragment {
             _distanceSpeed_fromDataTextBox,
             _distanceSpeed_toDateTextBox;
     public TextView
-            _reportName,
-            _initialTextView;
+            _reportName;
     public static TableLayout
             _vehicleReportTable,
             _passengerReportTable_summary,
@@ -76,7 +75,6 @@ public class ReportsActivity extends Fragment {
             _appbar_distancespeed_reportfilters;
     private Button _btn_CreateReport;
     private LinearLayout _LL_create_button_holder;
-    public static LinearLayout _LL_ExportBtnHolder;
     private ShimmerLayout _SL_btn_create_report;
     private TextView _TV_ActivityTitle, _TV_ReportSubTitle;
     public static PieChart _PC_EcoLoopMain, _PC_EcoLoopMaxSpeed;
@@ -85,6 +83,7 @@ public class ReportsActivity extends Fragment {
     public static RelativeLayout _RL_DistanceTraveled;
     private View _view;
     private ImageButton _btnHideReportFilters, _btnHideDistanceReportFilters;
+    public static ImageView _IV_ExportReport;
     private Helper _helper;
 
 
@@ -97,11 +96,10 @@ public class ReportsActivity extends Fragment {
             _reportName = _view.findViewById(R.id.textViewReportName);
             _fromDateTextBox = _view.findViewById(R.id.fromDate);
             _toDateTextBox = _view.findViewById(R.id.toDate);
+            _distanceSpeed_fromDataTextBox = (EditText) _view.findViewById(R.id.distancespeed_fromDate);
+            _distanceSpeed_toDateTextBox = (EditText) _view.findViewById(R.id.distanceSpeed_toDate);
+            _IV_ExportReport = _view.findViewById(R.id.IV_ExportButton);
             _constants = new Constants();
-
-
-//            _passengerReportTable_history = (TableLayout) _view.findViewById(R.id.passengerReportTable_history);
-//            _passengerReportTable_summary = (TableLayout) _view.findViewById(R.id.passengerReportTable_summary);
 
             _SAMMLogoFAB = _view.findViewById(R.id.SAMMLogoFAB);
             _ReportsAppBar = _view.findViewById(R.id.reportsBarLayout);
@@ -116,7 +114,6 @@ public class ReportsActivity extends Fragment {
             _BTN_BACK_EcoLoop_Others = (Button) _view.findViewById(R.id.BTN_back);
             _TL_EcoloopTraveled = (TabLayout) _view.findViewById(R.id.TL_EcoloopTraveled);
             _RL_DistanceTraveled = (RelativeLayout) _view.findViewById(R.id.RL_DistanceTraveled);
-            _LL_ExportBtnHolder = (LinearLayout) _view.findViewById(R.id.LL_ExportBtnHolder);
             _SL_btn_create_report.startShimmerAnimation();
             _spinnerterminal = _view.findViewById(R.id.spinner_terminal);
             _spinnerLines = _view.findViewById(R.id.spinner_lines);
@@ -176,7 +173,13 @@ public class ReportsActivity extends Fragment {
                 public void onClick(View view) {
                     try
                     {
-                        _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                        if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT)) {
+                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                        }
+                        else if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT)){
+                            _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
+                        }
+
                         _LL_create_button_holder.setVisibility(View.GONE);
                         _SL_btn_create_report.stopShimmerAnimation();
                     }
@@ -260,13 +263,10 @@ public class ReportsActivity extends Fragment {
             if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_total_distance));
-                _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
+                //_appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
                 _btnHideDistanceReportFilters.setVisibility(View.VISIBLE);
-                _initialTextView.setText(MenuActivity._GlobalResource.getString(R.string.info_please_select_date_range));
             } else if (_sessionManager.GetReportType().equals(_constants.PASSENGER_ACTIVITY_REPORT)) {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
-
-                _initialTextView.setText(MenuActivity._GlobalResource.getString(R.string.info_please_select_date_range_with_terminal));
             } else if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
@@ -301,28 +301,24 @@ public class ReportsActivity extends Fragment {
 
             };
 
-//            _terminalAutoComplete = (AutoCompleteTextView) _view.findViewById(R.id._terminalAutoComplete);
-//            if (_sessionManager.GetReportType() == "ecoloop")
-//            {
-////                AutoCompleteTextView txtViewTerminal = (AutoCompleteTextView)_view.findViewById(R.id._terminalAutoComplete);
-////                txtViewTerminal.setVisibility(View.GONE);
-//            }
-//
-//
-//            List<String> array = new ArrayList<>();
-//
-//            ArrayAdapter<String> adapter;
-//
-//            for(Terminal _drawable:MenuActivity._terminalList)
-//            {
-//                array.add(_drawable.Value);
-//            }
-//            adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_list_item_1, array);
-//
-//            _terminalAutoComplete.setThreshold(1);
-//            _terminalAutoComplete.setAdapter(adapter);
-            _fromDateTextBox.setOnClickListener(new View.OnClickListener() {
+            _distanceSpeed_toDateTextBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new DatePickerDialog(getActivity(), toDate, _calendar
+                            .get(Calendar.YEAR), _calendar.get(Calendar.MONTH),
+                            _calendar.get(Calendar.DAY_OF_MONTH)).show();
+                }
 
+            });
+            _distanceSpeed_fromDataTextBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new DatePickerDialog(getActivity(), fromDate, _calendar
+                            .get(Calendar.YEAR), _calendar.get(Calendar.MONTH),
+                            _calendar.get(Calendar.DAY_OF_MONTH)).show();
+                }
+            });
+            _fromDateTextBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     // TODO Auto-generated method stub
@@ -348,11 +344,8 @@ public class ReportsActivity extends Fragment {
                 @Override
                 public void onClick(View view) {
                     if (_distanceSpeed_fromDataTextBox.getText().length() > 0 && _distanceSpeed_toDateTextBox.getText().length() > 0) {
-
-                        _initialReportLayout.setVisibility(View.GONE);
                         _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
                         _RL_DistanceTraveled.setVisibility(View.VISIBLE);
-
                         new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_distanceSpeed_fromDataTextBox.getText().toString(), _distanceSpeed_toDateTextBox.getText().toString());
                     } else {
                         ErrorDialog errorDialog = new ErrorDialog(_activity, "Please supply all filters");
@@ -452,10 +445,19 @@ public class ReportsActivity extends Fragment {
     private void updateLabel(String dateType) {
         String myFormat = "MM/dd/yy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ENGLISH);
-        if (dateType.equals("from"))
-            _fromDateTextBox.setText(sdf.format(_calendar.getTime()));
-        else
-            _toDateTextBox.setText(sdf.format(_calendar.getTime()));
+        if (dateType.equals("from")) {
+            if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
+                _fromDateTextBox.setText(sdf.format(_calendar.getTime()));
+            else
+                _distanceSpeed_fromDataTextBox.setText(sdf.format(_calendar.getTime()));
+        }
+        else {
+            if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
+                _toDateTextBox.setText(sdf.format(_calendar.getTime()));
+            else
+                _distanceSpeed_toDateTextBox.setText(sdf.format(_calendar.getTime()));
+
+        }
     }
 
     @Override

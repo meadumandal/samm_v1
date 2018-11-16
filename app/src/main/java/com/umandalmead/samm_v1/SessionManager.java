@@ -47,6 +47,7 @@ public class SessionManager {
     public static final String KEY_ISROUTETOOLTIPSHOWN = "IsRouteToolTipShown";
     public static final String KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN = "IsNavigationDrawerToolTipShown";
     public static final String KEY_CURRENTMAPSTYLE = "CurrentMapStyle";
+    public static final String KEY_ChangeMapStyleTutorial = "ChangeMapStyleTutorial";
 
     public SessionManager(Context context)
     {

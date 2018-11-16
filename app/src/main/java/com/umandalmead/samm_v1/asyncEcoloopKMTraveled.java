@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -262,17 +263,23 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
             InflateTabLayout();
             if (ReportsActivity._TL_EcoloopTraveled.getVisibility()==View.INVISIBLE)
                 Toggle(ReportsActivity._TL_EcoloopTraveled);
-            ReportsActivity._LL_ExportBtnHolder.setVisibility(View.VISIBLE);
-            ReportsActivity._LL_ExportBtnHolder.setOnClickListener(new View.OnClickListener() {
+            ReportsActivity._IV_ExportReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ActivityCompat.requestPermissions(_activity,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             1);
                     ReportsActivity._PC_EcoLoopMain.saveToGallery(GenerateReportImageFileName(),100);//,"/DCIM/Camera");
-                    InfoDialog dialog = new InfoDialog(_activity, "Image has been exported.\n FileName: "+ GenerateReportImageFileName());
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                    dialog.show();
+                    Handler HND_PostExportMessage = new Handler();
+                    HND_PostExportMessage.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            InfoDialog dialog = new InfoDialog(_activity, "Image has been exported.\n FileName: "+ GenerateReportImageFileName());
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                    }, 2000);
+
                 }
             });
 //            for(SummaryReport summary:listReport)
@@ -401,6 +408,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         PC.setData(data);
         PC.highlightValues(null);
         PC.invalidate();
+        ReportsActivity._IV_ExportReport.setVisibility(View.VISIBLE);
     }
 
     private void Toggle(View v){

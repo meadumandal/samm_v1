@@ -63,6 +63,21 @@ public class Enums {
             return stringValue;
         }
     }
+    public enum TutorialType{
+        NONE("None", 0),
+        MAP_LAYER_STYLE("MapLayerStyle",1);
+        private String stringValue;
+        private int intValue;
+        private TutorialType(String toString, int value){
+            stringValue = toString;
+            intValue = value;
+        }
+
+        @Override
+        public String toString() {
+            return stringValue;
+        }
+    }
     public enum GoogleMapType{
         MAP_TYPE_NORMAL("MAP_TYPE_NORMAL", 0),
         MAP_TYPE_SATELLITE("MAP_TYPE_SATELLITE", 1),

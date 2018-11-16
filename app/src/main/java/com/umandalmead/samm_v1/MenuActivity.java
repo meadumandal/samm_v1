@@ -513,7 +513,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
-                _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
+               // _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
 
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
@@ -1518,13 +1518,13 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
                 _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
-            else if (id == R.id.nav_passengerpeakandlean)
-            {
-                _sessionManager.PassReportType(_constants.PASSENGER_ACTIVITY_REPORT);
-                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
-                _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
-            }
+//            else if (id == R.id.nav_passengerpeakandlean)
+//            {
+//                _sessionManager.PassReportType(_constants.PASSENGER_ACTIVITY_REPORT);
+//                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
+//                UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
+//                _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+//            }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
                 _sessionManager.PassReportType(_constants.DISTANCE_SPEED_REPORT);
@@ -2584,7 +2584,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         Integer currentTime = Calendar.getInstance().getTime().getHours();
         return (currentTime >= 18 || currentTime <=5)? true: false;
     }
-    public void BuildToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay, int BGColor){
+    public void BuildToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay, int BGColor,final Enums.TutorialType tutorialType){
         new SimpleTooltip.Builder(activity)
                 .anchorView(view)
                 .text(text)
@@ -2594,6 +2594,18 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 .backgroundColor(getApplication().getResources().getColor(BGColor))
                 .textColor(getApplication().getResources().getColor(R.color.colorWhite))
                 .arrowColor(getApplication().getResources().getColor(BGColor))
+                .onDismissListener(new SimpleTooltip.OnDismissListener() {
+                    @Override
+                    public void onDismiss(SimpleTooltip tooltip) {
+                        switch(tutorialType){
+                            case NONE: break;
+                            case MAP_LAYER_STYLE:
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[] {"Change your map style","SammLogo"}, new Integer[] {R.drawable.tut_changemaps, R.drawable.sammlogo});
+                                MapTutorial.show(); break;
+                            default:break;
+                        }
+                    }
+                })
                 .highlightShape(highlightShape)
                 .build()
                 .show();
@@ -2632,16 +2644,16 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             switch (type) {
                 case MAIN:
                     if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.MAP_LAYER_STYLE);
                         if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
                         _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
                     }
                     break;
                 case SHOWING_ROUTES:
                     if (!_sessionManager.getRouteTutorialStatus()) {
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue);
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
+                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
                         _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
                         _HasExitedInfoLayout = false;
                     }
@@ -2703,7 +2715,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                             count++;
                         params.height = count*120;//Helper.dpToPx(count*110,_context); //55 each
                         Basics.setLayoutParams(params);
-                        BuildToolTip(_helper.GenerateNavigationDrawerTooltip() + " tools section", this, Basics , Gravity.END,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue);
+                        BuildToolTip(_helper.GenerateNavigationDrawerTooltip() + " tools section", this, Basics , Gravity.END,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
                         _sessionManager.TutorialStatus(Enums.UIType.SHOWING_NAVIGATION_DRAWER, true);
                     }
                     break;
