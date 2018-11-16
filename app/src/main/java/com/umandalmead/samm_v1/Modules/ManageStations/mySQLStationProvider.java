@@ -132,10 +132,11 @@ public class mySQLStationProvider extends AsyncTask<Integer,Void, List<Terminal>
                     String LineName = jsonobject.getString("LineName");
                     String isMainTerminal = jsonobject.getString("isMainTerminal");
                     String routeName = jsonobject.getString("routeName");
+                    Integer lineID = jsonobject.getInt("LineID");
 
 
 
-                    listTerminals.add(new Terminal(ID, tblRouteID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description), LineName,isMainTerminal,routeName));
+                    listTerminals.add(new Terminal(ID, tblRouteID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description), LineName,isMainTerminal,routeName, lineID));
                 }
                 return listTerminals;
             }

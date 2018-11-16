@@ -27,8 +27,8 @@
         <activity
             android:name=".MenuActivity"
             android:label="@string/title_activity_menu"
-            android:windowSoftInputMode="adjustNothing"
-            android:theme="@style/SplashTheme">
+            android:theme="@style/SplashTheme"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -68,9 +68,11 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
-        <provider android:authorities="com.facebook.app.FacebookContentProvider379104749167400"
+
+        <provider
             android:name="com.facebook.FacebookContentProvider"
-            android:exported="true"/>
+            android:authorities="com.facebook.app.FacebookContentProvider379104749167400"
+            android:exported="true" />
 
         <!-- <activity -->
         <!-- android:name="com.facebook." -->
@@ -104,7 +106,8 @@
             android:name=".Modules.ManageStations.ManageStationsFragment"
             android:label="Manage Points"
             android:theme="@style/AppTheme" />
-        <activity android:name=".Modules.ManageLines.ManageLinesFragment"></activity>
+        <activity android:name=".Modules.ManageLines.ManageLinesFragment" />
+        <activity android:name=".Modules.VehicleTripsReport.VehicleTripsActivity"></activity>
     </application>
 
 </manifest>

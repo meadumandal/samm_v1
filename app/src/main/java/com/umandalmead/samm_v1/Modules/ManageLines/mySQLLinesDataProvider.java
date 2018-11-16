@@ -1,6 +1,7 @@
 package com.umandalmead.samm_v1.Modules.ManageLines;
 
 import android.app.Activity;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -35,7 +36,7 @@ public class mySQLLinesDataProvider extends AsyncTask<String,Void, ArrayList<Lin
     FragmentManager _fragmentManager;
     SessionManager _sessionManager;
 
-    public mySQLLinesDataProvider( Activity activity, NonScrollListView ListViewToUpdate, ManageLinesFragment manageLinesFragment,
+    public mySQLLinesDataProvider(Activity activity, @Nullable NonScrollListView ListViewToUpdate, ManageLinesFragment manageLinesFragment,
                                   FragmentManager fragmentManager)
     {
         this._activity = activity;
@@ -50,9 +51,13 @@ public class mySQLLinesDataProvider extends AsyncTask<String,Void, ArrayList<Lin
         try
         {
             super.onPreExecute();
-            _loaderDialog = new LoaderDialog(_activity, "LINES","Loading Lines...");
-            _loaderDialog.setCancelable(false);
-            _loaderDialog.show();
+            if (_listViewToUpdate != null)
+            {
+                _loaderDialog = new LoaderDialog(_activity, "LINES","Loading Lines...");
+                _loaderDialog.setCancelable(false);
+                _loaderDialog.show();
+            }
+
         }
         catch(Exception ex)
         {
@@ -113,10 +118,17 @@ public class mySQLLinesDataProvider extends AsyncTask<String,Void, ArrayList<Lin
         ArrayList<Lines> lineListCopy = new ArrayList<Lines>(listLines);
 //        if(_sessionManager.getIsSuperAdmin())
 //            lineListCopy.add(new Lines(0, "Add Line", 0,""));
-        ManageLinesFragment._customAdapter =new LineViewCustomAdapter(lineListCopy, _activity,_listViewToUpdate,_fragmentManager, ManageLinesFragment._swipeRefreshLines, _manageLinesFragment);
-        _listViewToUpdate.setAdapter(ManageLinesFragment._customAdapter);
-        ManageLinesFragment._swipeRefreshLines.setRefreshing(false);
+        if(_listViewToUpdate != null)
+        {
+            ManageLinesFragment._customAdapter =new LineViewCustomAdapter(lineListCopy, _activity,_listViewToUpdate,_fragmentManager, ManageLinesFragment._swipeRefreshLines, _manageLinesFragment);
+            _listViewToUpdate.setAdapter(ManageLinesFragment._customAdapter);
+            ManageLinesFragment._swipeRefreshLines.setRefreshing(false);
+            _loaderDialog.dismiss();
+        }
+
         MenuActivity._lineList = listLines;
-        _loaderDialog.dismiss();
+
+
+
     }
 }

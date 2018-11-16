@@ -27,6 +27,7 @@ public class Constants {
     public static final String ROUTES_API_DELETE_FILE_WITH_PENDING_QUERYSTRING = "deleteRoute.php?";
     public static final String PASSENGERQUEUINGHISTORY_API_FILE_WITH_PENDING_QUERYSTRING = "getPassengerQueueingHistory.php?";
     public static final String TERMINALBUSIESTTIME_API_FILE_WITH_PENDING_QUERYSTRING ="getTerminalBusiestTimes.php?";
+    public static final String VEHICLE_GEOFENCE_HISTORY_REPORT_WITH_PENDING_QUERYSTRING = "getVehicleGeofenceReport.php?";
     public static final String ROUTE_UPDATE_API_FILE = "updateRoute.php";
     public static final String ADD_ROUTES_API_FILE = "addRoute.php";
     public static final String GET_ROUTES_API_FILE = "getRoutes.php";
@@ -54,8 +55,9 @@ public class Constants {
     public static final String SUPERADMIN_USERTYPE = "SuperAdministrator";
     public static final String GUEST_USERTYPE = "GUEST";
 
-    public static final String PASSENGER_REPORT_TYPE = "passenger";
-    public static final String VEHICLE_REPORT_TYPE = "ecoloop";
+    public static final String VEHICLE_ROUNDS_REPORT = "vehicle_rounds_report";
+    public static final String PASSENGER_ACTIVITY_REPORT = "passenger_activity_report";
+    public static final String DISTANCE_SPEED_REPORT = "distance_speed_report";
     public static final int APPBAR_MIN_HEIGHT = 0;
     public static final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/";
     public static final String DESTINATION_PREFIX = "Going to: ";

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/value_display_list_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginTop="10dp"
+    padding="10dp"
+    background="@color/colorBlack"
+
+    >
+    <TextView
+        android:id="@+id/textview_value"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        textSize="15dp"
+        android:gravity="center"
+        textColor="@color/colorAccent"
+        textAlignment="center"
+        padding="5dip"
+        android:text="Station ID"
+        android:visibility="gone"
+        />
+
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/textview_display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        fontFamily="@string/FONT_Rubik_Regular"
+        android:gravity="center"
+        padding="5dip"
+        android:text="Station Name"
+        textAlignment="center"
+        textColor="@color/colorWhiteEC"
+        textSize="15dp" />
+</LinearLayout>

@@ -16,7 +16,9 @@ import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -820,7 +822,28 @@ public class Helper {
         }
         return 0;
     }
-
+    public Integer DpToPx(Integer dp)
+    {
+        Resources r = _context.getResources();
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dp,
+                r.getDisplayMetrics());
+    }
+    public void slideUp(View view, int slideUpDistance){
+        TranslateAnimation animate = new TranslateAnimation(0,0,0,-slideUpDistance);
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+        view.setVisibility(View.GONE);
+    }
+    public void slideDown(View view, int slideDownDistance){
+        TranslateAnimation animate = new TranslateAnimation(0,0,0,slideDownDistance);
+        animate.setDuration(500);
+        animate.setFillAfter(true);
+        view.startAnimation(animate);
+        view.setVisibility(View.VISIBLE);
+    }
 
 
 }

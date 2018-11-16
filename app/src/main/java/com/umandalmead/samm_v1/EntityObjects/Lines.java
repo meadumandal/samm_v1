@@ -18,7 +18,7 @@ public class Lines {
         this.AdminUserName = AdminUserName;
     }
 
-    public int getID() {
+    public Integer getID() {
         return this.ID;
     }
     public String getName() {
@@ -43,6 +43,10 @@ public class Lines {
         this.Admin_User_ID = admin_user_id;
     }
     public void setAdminUserName(String adminUserName){this.AdminUserName = adminUserName;}
-
+    @Override
+    public String toString()
+    {
+        return this.Name;
+    }
 
 }

@@ -40,7 +40,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -75,7 +74,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -110,8 +108,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tagmanager.Container;
-import com.google.android.gms.vision.text.Line;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -137,10 +133,10 @@ import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDrivers;
 import com.umandalmead.samm_v1.Modules.ManageLines.ManageLinesFragment;
+import com.umandalmead.samm_v1.Modules.ManageLines.mySQLLinesDataProvider;
 import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
 import com.umandalmead.samm_v1.Modules.ManageRoutes.mySQLRoutesDataProvider;
 import com.umandalmead.samm_v1.Modules.ManageStations.ManageStationsFragment;
-import com.umandalmead.samm_v1.Modules.ManageStations.mySQLAddStation;
 import com.umandalmead.samm_v1.Modules.ManageStations.mySQLStationProvider;
 import com.umandalmead.samm_v1.Modules.SuperAdminUsers.SuperAdminUsersFragment;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
@@ -283,7 +279,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         //Put here other global variables
         public static GoogleApiClient _googleAPI;
         public Helper _helper;
-        public Context _context;
+
         public static LatLng _userCurrentLoc;
         public Marker _userCurrentLocMarker;
         public LocationRequest _locationRequest;
@@ -326,6 +322,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static DrawerLayout _MainDrawerLayout;
         public static View _MAINCONTENT;
         public static Activity _activity;
+        public static Context _context;
 
 
 
@@ -392,6 +389,13 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             _helper = new Helper(MenuActivity.this, this._context);
             _GlobalResource = getResources();
             _constants = new Constants();
+            _activity = MenuActivity.this;
+            if (_sessionManager == null)
+                _sessionManager = new SessionManager(_context);
+            if (!_sessionManager.isLoggedIn()) {
+                String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
+                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0,  "", "", false, Constants.GUEST_USERTYPE);
+            }
            // new asyncCheckInternetConnectivity(MenuActivity.this).execute();
             if(_helper.isOnline(MenuActivity.this, getApplicationContext())) {
                 _isAppFirstLoad = true;
@@ -401,8 +405,11 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 new mySQLGetEloopList(_context).execute();
                 //endregion
 
-                new mySQLRoutesDataProvider(MenuActivity.this, _context).execute();
-//                new mySQLLinesDataProvider(_context).execute();
+                new mySQLRoutesDataProvider(_activity, _context).execute();
+                if (_sessionManager.getIsSuperAdmin())
+                    new mySQLLinesDataProvider(_activity, null, _manageLinesFragment, null).execute("0");
+                else if (_sessionManager.getIsAdmin())
+                    new mySQLLinesDataProvider(_activity, null, _manageLinesFragment, null).execute(_sessionManager.getUserID().toString());
 
                 new mySQLGetDriverUsers(_context).execute();
                 new mySQLGetAdminUsers(_context).execute();
@@ -410,12 +417,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
 
 
-                if (_sessionManager == null)
-                    _sessionManager = new SessionManager(_context);
-                if (!_sessionManager.isLoggedIn()) {
-                    String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                    _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0,  "", "", false, Constants.GUEST_USERTYPE);
-                }
                 setContentView(R.layout.activity_menu);
 
                 Retrofit retrofit = new Retrofit.Builder()
@@ -513,7 +514,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
-                _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
 
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
@@ -790,7 +791,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             _manageRoutesFragment = new ManageRoutesFragment();
 
             _manageStationsFragment = new ManageStationsFragment();
-            _activity = MenuActivity.this;
+
+            _context = getApplicationContext();
 
 
 
@@ -1509,16 +1511,23 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 }
 
             }
+            else if (id == R.id.nav_numberofrounds)
+            {
+                _sessionManager.PassReportType(_constants.VEHICLE_ROUNDS_REPORT);
+                UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
+                UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
+                _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
+            }
             else if (id == R.id.nav_passengerpeakandlean)
             {
-                _sessionManager.PassReportType(_constants.PASSENGER_REPORT_TYPE);
+                _sessionManager.PassReportType(_constants.PASSENGER_ACTIVITY_REPORT);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
                 _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }
             else if (id == R.id.nav_ecolooppeakandlean)
             {
-                _sessionManager.PassReportType(_constants.VEHICLE_REPORT_TYPE);
+                _sessionManager.PassReportType(_constants.DISTANCE_SPEED_REPORT);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
                 _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
             }

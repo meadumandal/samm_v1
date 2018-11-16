@@ -29,6 +29,7 @@ public class Terminal implements Comparable<Terminal>{
     public String LineName;
     public String isMainTerminal;
     public String routeName;
+    public Integer LineID;
 
 
 
@@ -49,7 +50,8 @@ public class Terminal implements Comparable<Terminal>{
                     int DestinationPicture,
                     String LineName,
                     String isMainTerminal,
-                    String routeName)
+                    String routeName,
+                    Integer lineID)
     {
         this.ID =ID;
         this.tblRouteID = tblRouteID;
@@ -65,6 +67,7 @@ public class Terminal implements Comparable<Terminal>{
         this.LineName = LineName;
         this.isMainTerminal = isMainTerminal;
         this.routeName = routeName;
+        this.LineID =lineID;
 
     }
 
@@ -123,7 +126,7 @@ public class Terminal implements Comparable<Terminal>{
     }
     //endregion
     //region GETTERS
-    public int getID(){return this.ID;}
+    public Integer getID(){return this.ID;}
     public int getTblRouteID(){return this.tblRouteID;}
     public String getValue(){ return this.Value; }
     public String getDescription(){return this.Description;}
@@ -140,6 +143,8 @@ public class Terminal implements Comparable<Terminal>{
     public void setLineName(String LineName){this.LineName = LineName;}
     public String getRouteName(){return this.routeName;}
     public void setRouteName(String routeName){this.routeName = routeName;}
+    public Integer getLineID() {return this.LineID;}
+    public void setLineID(Integer lineID) {this.LineID = lineID;}
     //endregion
 
 
@@ -201,4 +206,6 @@ public class Terminal implements Comparable<Terminal>{
 //            }
 //        };
     }
+
+
 }

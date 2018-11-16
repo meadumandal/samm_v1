@@ -64,47 +64,59 @@
             </LinearLayout>
             <RelativeLayout
                 android:id="@+id/RL_DistanceTraveled"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:visibility="visible"
-                        android:orientation="vertical"
-                        android:animateLayoutChanges="true"
-                        android:gravity="center">
-                        <Button
-                            android:id="@+id/BTN_back"
-                            android:layout_width="40dp"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginTop="20dp"
-                            android:layout_height="30dp"
-                            android:textStyle="bold"
-                            android:text="Back"
-                            android:textSize="10sp"
-                            android:visibility="invisible"
-                            android:textColor="@color/colorWhite"
-                            android:background="@drawable/rounded_button_blue"/>
-                        <com.github.mikephil.charting.charts.PieChart
-                            android:id="@+id/PC_EcoLoopMainPieChart"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent">
-                        </com.github.mikephil.charting.charts.PieChart>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible"
+                android:orientation="vertical"
+                android:animateLayoutChanges="true"
+                android:gravity="center">
+                <Button
+                    android:id="@+id/BTN_back"
+                    android:layout_width="40dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_height="30dp"
+                    android:textStyle="bold"
+                    android:text="Back"
+                    android:textSize="10sp"
+                    android:visibility="invisible"
+                    android:textColor="@color/colorWhite"
+                    android:background="@drawable/rounded_button_blue"/>
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/PC_EcoLoopMainPieChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </com.github.mikephil.charting.charts.PieChart>
 
-                    </RelativeLayout>
+            </RelativeLayout>
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="vertical"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:gravity="center"-->
+                <!--android:id="@+id/initialReportLayout"-->
+                <!--android:visibility="visible">-->
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:id="@+id/textView_initialText"-->
+                    <!--android:text="Please select date range and click 'View' button"-->
+                    <!--/>-->
+            <!--</LinearLayout>-->
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:id="@+id/initialReportLayout"
-                android:visibility="visible">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/textView_initialText"
-                    android:text="Please select date range and click 'View' button"
-                    />
-            </LinearLayout>
+                android:orientation="vertical">
 
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/vehicleTripsPieChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            </LinearLayout>
 
         </LinearLayout>
     </LinearLayout>

@@ -3,28 +3,22 @@ package com.umandalmead.samm_v1;
 import android.app.DatePickerDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.INotificationSideChannel;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -34,32 +28,52 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.google.android.gms.common.api.Releasable;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import io.supercharge.shimmerlayout.ShimmerLayout;
 
+import static com.umandalmead.samm_v1.MenuActivity._activity;
+
 public class ReportsActivity extends Fragment {
+
     public Calendar _calendar = Calendar.getInstance();
-    public EditText _fromDateTextBox, _toDateTextBox;
-    public TextView _reportName, _initialTextView;
-    public static TableLayout _vehicleReportTable, _passengerReportTable_summary, _passengerReportTable_history;
+    public EditText
+            _fromDateTextBox,
+            _toDateTextBox,
+            _distanceSpeed_fromDataTextBox,
+            _distanceSpeed_toDateTextBox;
+    public TextView
+            _reportName,
+            _initialTextView;
+    public static TableLayout
+            _vehicleReportTable,
+            _passengerReportTable_summary,
+            _passengerReportTable_history;
     public static ScrollView _scrollVehicleReport;
     public static SessionManager _sessionManager;
     public Constants _constants;
-    public static LinearLayout _initialReportLayout,_layoutTerminalSelection;
-    private int _selectedIndex;
-    public Spinner _spinner;
+    public static LinearLayout _initialReportLayout,
+            _vehicleTripsReportFilters;
+    public Spinner
+            _spinnerLines,
+            _spinnerterminal;
     public static ImageView _SAMMLogoFAB;
-    private AppBarLayout _ReportsAppBar, _AppBar_ReportActions;
+    private AppBarLayout
+            _ReportsAppBar,
+            _appbar_vehiclerounds_reportfilters,
+            _appbar_distancespeed_reportfilters;
     private Button _btn_CreateReport;
     private LinearLayout _LL_create_button_holder;
     public static LinearLayout _LL_ExportBtnHolder;
@@ -69,7 +83,9 @@ public class ReportsActivity extends Fragment {
     public static Button _BTN_BACK_EcoLoop_Others;
     public static TabLayout _TL_EcoloopTraveled;
     public static RelativeLayout _RL_DistanceTraveled;
-    View _view;
+    private View _view;
+    private ImageButton _btnHideReportFilters, _btnHideDistanceReportFilters;
+    private Helper _helper;
 
 
     @Nullable
@@ -78,19 +94,21 @@ public class ReportsActivity extends Fragment {
         try {
             super.onCreate(savedInstanceState);
             _view = inflater.inflate(R.layout.activity_reports, container, false);
-            _reportName = (TextView) _view.findViewById(R.id.textViewReportName);
-            _fromDateTextBox = (EditText) _view.findViewById(R.id.fromDate);
-            _toDateTextBox = (EditText) _view.findViewById(R.id.toDate);
+            _reportName = _view.findViewById(R.id.textViewReportName);
+            _fromDateTextBox = _view.findViewById(R.id.fromDate);
+            _toDateTextBox = _view.findViewById(R.id.toDate);
             _constants = new Constants();
-            _initialReportLayout = (LinearLayout) _view.findViewById(R.id.initialReportLayout);
-            _layoutTerminalSelection = (LinearLayout) _view.findViewById(R.id.layout_terminalSelection);
-            _initialTextView = (TextView) _view.findViewById(R.id.textView_initialText);
-            _SAMMLogoFAB = (ImageView) _view.findViewById(R.id.SAMMLogoFAB);
-            _ReportsAppBar = (AppBarLayout) _view.findViewById(R.id.reportsBarLayout);
-            _AppBar_ReportActions = (AppBarLayout) _view.findViewById(R.id.AppBar_ReportActions);
+
+
+//            _passengerReportTable_history = (TableLayout) _view.findViewById(R.id.passengerReportTable_history);
+//            _passengerReportTable_summary = (TableLayout) _view.findViewById(R.id.passengerReportTable_summary);
+
+            _SAMMLogoFAB = _view.findViewById(R.id.SAMMLogoFAB);
+            _ReportsAppBar = _view.findViewById(R.id.reportsBarLayout);
+            _appbar_vehiclerounds_reportfilters = (AppBarLayout) _view.findViewById(R.id.appbar_vehiclerounds_reportsfilter);
+            _appbar_distancespeed_reportfilters = _view.findViewById(R.id.appbar_reportsfilter_distancespeed);
             _btn_CreateReport = (Button) _view.findViewById(R.id.btnCreateReport);
             _LL_create_button_holder = (LinearLayout) _view.findViewById(R.id.LL_create_button_holder);
-            _spinner = (Spinner) _view.findViewById(R.id.spinner_terminal);
             _SL_btn_create_report = (ShimmerLayout) _view.findViewById(R.id.SL_btn_Create_Report);
             _TV_ActivityTitle = (TextView) _view.findViewById(R.id.TV_ReportTitle);
             _TV_ReportSubTitle = (TextView) _view.findViewById(R.id.textViewReportName);
@@ -100,6 +118,52 @@ public class ReportsActivity extends Fragment {
             _RL_DistanceTraveled = (RelativeLayout) _view.findViewById(R.id.RL_DistanceTraveled);
             _LL_ExportBtnHolder = (LinearLayout) _view.findViewById(R.id.LL_ExportBtnHolder);
             _SL_btn_create_report.startShimmerAnimation();
+            _spinnerterminal = _view.findViewById(R.id.spinner_terminal);
+            _spinnerLines = _view.findViewById(R.id.spinner_lines);
+
+            _fromDateTextBox.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            _toDateTextBox.setTypeface(Helper.FONT_RUBIK_REGULAR);
+
+
+            _TV_ActivityTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
+            _TV_ReportSubTitle.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+            this._sessionManager = new SessionManager(getContext());
+            this._helper = new Helper(_activity, getContext());
+            _btnHideReportFilters = _view.findViewById(R.id.btn_hidevehicleroundsreportfilters);
+            _btnHideDistanceReportFilters = _view.findViewById(R.id.btn_hidedistancereportfilters);
+            _btnHideDistanceReportFilters.setOnClickListener(new View.OnClickListener()
+            {
+
+                @Override
+                public void onClick(View view) {
+                    if (_appbar_distancespeed_reportfilters.getVisibility()==View.VISIBLE)
+                    {
+                        _appbar_distancespeed_reportfilters.setVisibility(View.GONE);
+                        _btnHideDistanceReportFilters.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
+                    }
+                    else {
+                        _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
+                        _btnHideDistanceReportFilters.setImageResource(R.drawable.ic_arrow_drop_up_white_24dp);
+                    }
+                }
+            });
+            _btnHideReportFilters.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (_appbar_vehiclerounds_reportfilters.getVisibility()==View.VISIBLE)
+                    {
+                        _appbar_vehiclerounds_reportfilters.setVisibility(View.GONE);
+                        _btnHideReportFilters.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
+                    }
+                    else {
+                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                        _btnHideReportFilters.setImageResource(R.drawable.ic_arrow_drop_up_white_24dp);
+                    }
+                }
+            });
+
+
+
 
             _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -110,59 +174,79 @@ public class ReportsActivity extends Fragment {
             _btn_CreateReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    _AppBar_ReportActions.setVisibility(View.VISIBLE);
-                    _LL_create_button_holder.setVisibility(View.GONE);
-                    _SL_btn_create_report.stopShimmerAnimation();
-                }
-            });
-            this._sessionManager = new SessionManager(getContext());
-            _TV_ActivityTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
-            _TV_ReportSubTitle.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
-            List<String> terminals = new ArrayList<>();
-            terminals.add("--ALL--");
-            for (Terminal t : MenuActivity._terminalList)
-            {
-                terminals.add(t.Description);
-            }
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item, terminals)
-            {
-                public View getView(int position, View convertView, ViewGroup parent) {
-                    // Cast the spinner collapsed item (non-popup item) as a text view
-                    TextView tv = (TextView) super.getView(position, convertView, parent);
-
-                    // Set the text color of spinner item
-                    tv.setTextColor(Color.WHITE);
-
-                    // Return the view
-                    return tv;
-                }
-
-                @Override
-                public View getDropDownView(int position, View convertView, ViewGroup parent){
-                    // Cast the drop down items (popup items) as text view
-                    TextView tv = (TextView) super.getDropDownView(position,convertView,parent);
-
-                    // Set the text color of drop down items
-                    tv.setTextColor(Color.BLACK);
-                    tv.setTypeface(Typeface.DEFAULT);
-
-                    // If this item is selected item
-                    if(position == _selectedIndex){
-                        // Set spinner selected popup item's text color
-                        // tv.setTextColor(Color.BLUE);
-                        tv.setTypeface(Typeface.DEFAULT_BOLD);
+                    try
+                    {
+                        _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                        _LL_create_button_holder.setVisibility(View.GONE);
+                        _SL_btn_create_report.stopShimmerAnimation();
+                    }
+                    catch(Exception ex)
+                    {
+                        Helper.logger(ex);
                     }
 
-                    // Return the modified view
-                    return tv;
                 }
-            };
+            });
+            List<Lines> spinnerLinesValue =new ArrayList<>();
+            spinnerLinesValue.add(new Lines(0, "Select a line", 0,""));
+            spinnerLinesValue.addAll(MenuActivity._lineList);
+
+            CustomAdapterForValueDisplayPair lineIDValuePairCustomAdapter = new CustomAdapterForValueDisplayPair(
+                    getContext(),
+                    R.layout.value_display_list_item,
+                    spinnerLinesValue
+            );
+            _spinnerLines.setAdapter(lineIDValuePairCustomAdapter);
+
             // Set an item selection listener for spinner widget
-            _spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            _spinnerLines.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                     // Set the value for selected index variable
-                    _selectedIndex = i;
+                    if (i!=0)
+                    {
+                        TextView textview_lineID = view.findViewById(R.id.textview_value);
+                        Integer selectedLineID = Integer.parseInt(textview_lineID.getText().toString());
+                        List<Terminal> filteredTerminals = new ArrayList<>();
+                        filteredTerminals.add(new Terminal(0, 0, "selectstation", "Select a station", 0, "", 0.0, 0.0, "", null, 0, "", "", "", 0));
+                        for(Terminal terminal: MenuActivity._terminalList)
+                        {
+                            if (terminal.getLineID() == selectedLineID) {
+                                Boolean isExists = false;
+                                for (Terminal filteredTerminal : filteredTerminals) {
+                                    if (filteredTerminal.getValue().equalsIgnoreCase(terminal.getValue())) {
+                                        isExists = true;
+                                        break;
+                                    }
+                                }
+                                if (!isExists)
+                                    filteredTerminals.add(terminal);
+                            }
+                        }
+                        CustomAdapterForValueDisplayPair stationIDValuePairCustomAdapter = new CustomAdapterForValueDisplayPair(
+                                getContext(),
+                                R.layout.value_display_list_item,
+                                filteredTerminals);
+                        _spinnerterminal.setEnabled(true);
+                        _spinnerterminal.setAdapter(stationIDValuePairCustomAdapter);
+                        _spinnerterminal.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                                // Set the value for selected index variable
+                                if (i!=0)
+                                {
+
+                                }
+
+                            }
+
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapterView) {
+
+                            }
+                        });
+                    }
+
                 }
 
                 @Override
@@ -171,20 +255,24 @@ public class ReportsActivity extends Fragment {
                 }
             });
 
-            _spinner.setAdapter(adapter);
-            _spinner.setPrompt("SELECT A TERMINAL");
 
-            if(_sessionManager.GetReportType().equals(_constants.VEHICLE_REPORT_TYPE))
+
+            if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_total_distance));
-                _layoutTerminalSelection.setVisibility(View.GONE);
+                _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
+                _btnHideDistanceReportFilters.setVisibility(View.VISIBLE);
                 _initialTextView.setText(MenuActivity._GlobalResource.getString(R.string.info_please_select_date_range));
-            }
-            else if(_sessionManager.GetReportType().equals(_constants.PASSENGER_REPORT_TYPE))
-            {
-                _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_passenger_queueing_history));
-                _layoutTerminalSelection.setVisibility(View.VISIBLE);
+            } else if (_sessionManager.GetReportType().equals(_constants.PASSENGER_ACTIVITY_REPORT)) {
+                _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
+
                 _initialTextView.setText(MenuActivity._GlobalResource.getString(R.string.info_please_select_date_range_with_terminal));
+            } else if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
+            {
+                _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
+                _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                _btnHideReportFilters.setVisibility(View.VISIBLE);
+
             }
             final DatePickerDialog.OnDateSetListener fromDate = new DatePickerDialog.OnDateSetListener() {
 
@@ -254,68 +342,113 @@ public class ReportsActivity extends Fragment {
                 }
             });
             Button btnViewReport = (Button) _view.findViewById(R.id.btnViewReport);
+            Button btnViewDistancespeedReport = _view.findViewById(R.id.btnViewDistanceSpeedReport);
+            btnViewDistancespeedReport.setOnClickListener(new View.OnClickListener(){
+
+                @Override
+                public void onClick(View view) {
+                    if (_distanceSpeed_fromDataTextBox.getText().length() > 0 && _distanceSpeed_toDateTextBox.getText().length() > 0) {
+
+                        _initialReportLayout.setVisibility(View.GONE);
+                        _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
+                        _RL_DistanceTraveled.setVisibility(View.VISIBLE);
+
+                        new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_distanceSpeed_fromDataTextBox.getText().toString(), _distanceSpeed_toDateTextBox.getText().toString());
+                    } else {
+                        ErrorDialog errorDialog = new ErrorDialog(_activity, "Please supply all filters");
+                        errorDialog.show();
+                    }
+                }
+            });
+
             btnViewReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(_sessionManager.GetReportType().equals(_constants.PASSENGER_REPORT_TYPE))
-                    {
-                        if(_fromDateTextBox.getText().length() >0 && _toDateTextBox.getText().length()>0 && _spinner.getSelectedItemPosition() >0)
+                    try {
+                        _TL_EcoloopTraveled.setVisibility(View.GONE);
+                        _RL_DistanceTraveled.setVisibility(View.GONE);
+                        Lines selectedLineInSpinner = ((Lines) _spinnerLines.getSelectedItem());
+                        Terminal selectedTerminalInSpinner = (Terminal) _spinnerterminal.getSelectedItem();
+                        Integer lineID = selectedLineInSpinner.getID();
+                        String stationValue = selectedTerminalInSpinner==null ? "" : selectedTerminalInSpinner.getValue();
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                        Date from, to;
+                        String strFrom, strTo;
+                        strFrom = _fromDateTextBox.getText().toString().trim();
+                        strTo = _toDateTextBox.getText().toString().trim();
+
+
+                        if (lineID == 0
+                                && stationValue.isEmpty()
+                                && _fromDateTextBox.getText().toString().isEmpty()
+                                && _toDateTextBox.getText().toString().isEmpty()) {
+                            ErrorDialog errorDialog = new ErrorDialog(_activity, "Please supply all filters");
+                            errorDialog.show();
+                        }
+                        else if (strFrom.isEmpty() || strTo.isEmpty())
                         {
-                            _passengerReportTable_history.setVisibility(View.VISIBLE);
-                            _passengerReportTable_summary.setVisibility(View.VISIBLE);
-                            _initialReportLayout.setVisibility(View.GONE);
-                            _vehicleReportTable.setVisibility(View.GONE);
-                            _scrollVehicleReport.setVisibility(View.GONE);
-                            String terminal = "";
-                            for(Terminal t: MenuActivity._terminalList)
-                            {
-                                if (t.Description.equals(_spinner.getSelectedItem().toString()))
-                                {
-                                    terminal = t.Value;
-                                    break;
+                            ErrorDialog errorDialog = new ErrorDialog(_activity, "Invalid date range");
+                            errorDialog.show();
+                        }
+                        else if  (dateFormat.parse(_fromDateTextBox.getText().toString()).after(dateFormat.parse(_toDateTextBox.getText().toString()))) {
+                            ErrorDialog errorDialog = new ErrorDialog(_activity, "Invalid date range");
+                            errorDialog.show();
+                        }
+                        else
+                        {
+                            _appbar_vehiclerounds_reportfilters.setVisibility(View.GONE);
+                            _btnHideReportFilters.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
+                            PieChart pieChart = _view.findViewById(R.id.vehicleTripsPieChart);
+                            pieChart.setEntryLabelColor(Color.BLACK);
+                            pieChart.setEntryLabelTypeface(Helper.FONT_RUBIK_BOLD);
+                            pieChart.setEntryLabelTextSize(12f);
+                            pieChart.setNoDataText("No data available");
+                            pieChart.setNoDataTextTypeface(Helper.FONT_RUBIK_REGULAR);
+                            pieChart.animate();
+                            pieChart.setCenterTextTypeface(Helper.FONT_RUBIK_BOLD);
+                            pieChart.setCenterText("No. of trips from " + selectedTerminalInSpinner.getDescription()
+                                    + " and back\n"
+                                    + _fromDateTextBox.getText().toString()
+                                    + " - "
+                                    + _toDateTextBox.getText().toString());
+
+                            pieChart.setHoleRadius(50f);
+                            pieChart.setTransparentCircleRadius(50f);
+                            pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                                @Override
+                                public void onValueSelected(Entry e, Highlight h) {
+
                                 }
-                            }
 
-                            new mySQLPassengerQueueingHistoryReport(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(),_toDateTextBox.getText().toString(), terminal);
+                                @Override
+                                public void onNothingSelected() {
+
+                                }
+                            });
+                            new mySQLVehicleGeofenceHistoryReport(getContext(), getActivity(), pieChart).
+                                    execute(lineID.toString(),
+                                            stationValue.toLowerCase(),
+                                            _fromDateTextBox.getText().toString(),
+                                            _toDateTextBox.getText().toString());
+
+
                         }
-                        else
-                        {
-                            Toast.makeText(getContext(), MenuActivity._GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
-                        }
-
-
+                    } catch (Exception ex) {
+                        Helper.logger(ex);
                     }
 
-                    else if(_sessionManager.GetReportType().equals(_constants.VEHICLE_REPORT_TYPE))
-                    {
-                        if(_fromDateTextBox.getText().length() >0 && _toDateTextBox.getText().length()>0)
-                        {
-//                            _passengerReportTable_history.setVisibility(View.GONE);
-  //                          _passengerReportTable_summary.setVisibility(View.GONE);
-//                            _scrollVehicleReport.setVisibility(View.VISIBLE);
-   //                         _vehicleReportTable.setVisibility(View.VISIBLE);
-    //                        _initialReportLayout.setVisibility(View.GONE);
-
-                            new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_fromDateTextBox.getText().toString(), _toDateTextBox.getText().toString());
-                        }
-                        else
-                        {
-                            Toast.makeText(getContext(), MenuActivity._GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
-                        }
-
-                    }
 
                 }
             });
 
-        }
-        catch(Exception ex)
-        {
-            Helper.logger(ex,true);
+        } catch (Exception ex) {
+            Helper.logger(ex, true);
         }
 
         return _view;
     }
+
+
     private void updateLabel(String dateType) {
         String myFormat = "MM/dd/yy"; //In which you need put here
         SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.ENGLISH);

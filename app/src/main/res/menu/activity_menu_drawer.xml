@@ -81,6 +81,7 @@
     <item android:id="@+id/reportsitems"
         android:title="REPORTS" >
         <menu>
+
             <item android:id="@+id/nav_passengerpeakandlean"
                 android:icon="@drawable/ic_reports_black_24dp"
                 android:background="?attr/selectableItemBackground"
@@ -89,6 +90,10 @@
                 android:icon="@drawable/ic_reports_black_24dp"
                 android:background="?attr/selectableItemBackground"
                 android:title="Ecoloop Flow"/>
+            <item android:id="@+id/nav_numberofrounds"
+                android:icon="@drawable/ic_reports_black_24dp"
+                android:background="?attr/selectableItemBackground"
+                android:title="Vehicle Rounds Report"/>
         </menu>
     </item>
 

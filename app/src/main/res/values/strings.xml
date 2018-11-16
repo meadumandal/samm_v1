@@ -56,6 +56,7 @@
     <!--ACTIVITY AND FRAGMENT TITLES-->
     <string name="title_total_distance">Total distance traveled</string>
     <string name="title_passenger_queueing_history">Passenger Queueing History"</string>
+    <string name="title_vehicle_rounds_report">Vehicle Rounds Report</string>
     <string name="title_user_activity">User Profile</string>
     <string name="title_about_activity">About</string>
     <string name="title_manage_lines_activity">Manage Lines</string>
@@ -85,7 +86,7 @@
     <!--PLACE AUTOCOMPLETE FRAGMENT-->
     <string name="PlaceAutoCompleteFragment_Hint">Where are you going?</string>
     <string name="PlaceAutoCompleteFragment_FontColor" translatable="false">#000000</string>
-    
+
     <!--GPS RELATED-->
     <string name="Adding_Vehicle_GPS">Adding Vehicle GPS</string>
     <string name="GPS_Initialize">Initializing...</string>

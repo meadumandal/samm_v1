@@ -345,30 +345,27 @@ public class ManageStationsFragment extends ListFragment{
                             String lng = editLng.getText().toString();
                             String isMainTerminal = check_isMainTerminal.isChecked()?"1":"0";
 
-                            Integer intLat = Integer.parseInt(lat);
-                            Integer intLng = Integer.parseInt(lng);
+                            Double doubleLat = Double.parseDouble(lat);
+                            Double doubleLng = Double.parseDouble(lng);
                             ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, "");
-
-
-
 
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0) {
                                 errorDialog.setErrorMessage("Please supply all fields");
                                 errorDialog.show();
                             }
-                            else if (intLat<=-90 || intLat>=90)
+                            else if (doubleLat<=-90 || doubleLat>=90)
                             {
                                 errorDialog.setErrorMessage("Invalid latitude");
                                 errorDialog.show();
                             }
-                            else if (intLng<=-180 || intLng>=180)
+                            else if (doubleLng<=-180 || doubleLng>=180)
                             {
                                 errorDialog.setErrorMessage("Invalid longitude");
                                 errorDialog.show();
                             }
                             else {
 
-                                savePoint(name, Double.parseDouble(lat), Double.parseDouble(lng), MenuActivity._currentRouteIDSelected, isMainTerminal);
+                                savePoint(name,doubleLat, doubleLng, MenuActivity._currentRouteIDSelected, isMainTerminal);
                                 ManageStationsFragment.AddPointDialog.this.dismiss();
                             }
                         }

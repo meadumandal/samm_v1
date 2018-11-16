@@ -63,6 +63,7 @@ dependencies {
     compile 'ch.acra:acra:4.9.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'io.supercharge:shimmerlayout:2.1.0'
+    compile 'com.weiwangcn.betterspinner:library-material:1.1.0'
 
 }
 apply plugin: 'com.google.gms.google-services'

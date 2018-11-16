@@ -13,6 +13,7 @@
     <string name="prompt_terminals">Pumili ng terminal</string>
     <string name="title_total_distance">Kabuuang distansyang nilakbay</string>
     <string name="title_passenger_queueing_history">Kasaysayan ng pagpila ng mga pasahero</string>
+    <string name="title_vehicle_rounds_report">Bilang ng byahe ng sasakyan</string>
     <string name="title_user_activity">Profile ng User</string>
     <string name="title_about_activity">Tungkol sa app</string>
     <string name="title_manage_lines_activity">Pamahalaan ang mga linya</string>
