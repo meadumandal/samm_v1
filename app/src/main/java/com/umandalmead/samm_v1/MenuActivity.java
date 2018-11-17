@@ -618,7 +618,13 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 //                    }
 //                });
 
-
+                _ProfilePictureImg.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        UserProfileEvent();
+                        _MainDrawerLayout.closeDrawer(Gravity.START, false);
+                    }
+                });
 
                 _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
 
@@ -1542,13 +1548,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 SetMapType(_googleMap, mapType);
             }
             else if(id==R.id.menu_username) {
-                if (!_sessionManager.isGuest()) {
-                    UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                    _fragmentManager.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
-                } else {
-                    InfoDialog GuestInfo = new InfoDialog(MenuActivity.this, getResources().getString(R.string.guest_nav_drawer_message));
-                    GuestInfo.show();
-                }
+                UserProfileEvent();
 
             }
             else if (id==R.id.nav_superadminusers)
@@ -2600,7 +2600,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         switch(tutorialType){
                             case NONE: break;
                             case MAP_LAYER_STYLE:
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[] {"Change your map style","SammLogo"}, new Integer[] {R.drawable.tut_changemaps, R.drawable.sammlogo});
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{"Welcome!","Search","Select","Map Style","My Location"}, new String[] {"Welcome to SAMM!\nKnow about the key features of this app.","Start by searching your desired target destination.","Pick your destination from the list.","You can change your map style any way you want!", "Just tap once to show your current location."}, new Integer[] {R.drawable.tut_welcome,R.drawable.tut_searchbar, R.drawable.tut_destinationsuggest, R.drawable.tut_changemaps, R.drawable.tut_mylocation});
                                 MapTutorial.show(); break;
                             default:break;
                         }
@@ -3198,6 +3198,15 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 });
                 LL_RoutesListDisplay.addView(BTN_routeButton);
             }
+        }
+    }
+    private void UserProfileEvent(){
+        if (!_sessionManager.isGuest()) {
+            UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
+            _fragmentManager.beginTransaction().replace(R.id.content_frame, new UserProfileActivity()).commit();
+        } else {
+            InfoDialog GuestInfo = new InfoDialog(MenuActivity.this, getResources().getString(R.string.guest_nav_drawer_message));
+            GuestInfo.show();
         }
     }
 }

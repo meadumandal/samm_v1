@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.text.method.PasswordTransformationMethod;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -124,8 +127,24 @@ public class UserProfileActivity extends Fragment {
             LL_UserCredentialsHolder.setVisibility(View.VISIBLE);
             IB_profile_loader_circle.setVisibility(View.GONE);
             SL_FB_InfoMessageShimmer.setVisibility(View.GONE);
-            //userImage.setBackgroundResource(Helper.GetUserMarkerDetails(_sessionManager.getUsername(),getContext()).UserInfoLayoutIcon);
-            userImage.setVisibility(View.GONE);
+             userImage.setVisibility(View.GONE);
+            CheckBox checkbox_showpassword = (CheckBox) _view.findViewById(R.id.checkBox_showPassword);
+
+            checkbox_showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    if (isChecked) {
+                        tv_confirmPassword.setTransformationMethod(null);
+                        tv_currentPassword.setTransformationMethod(null);
+                        tv_password.setTransformationMethod(null);
+                    }
+                    else {
+                        tv_confirmPassword.setTransformationMethod(new PasswordTransformationMethod());
+                        tv_currentPassword.setTransformationMethod(new PasswordTransformationMethod());
+                        tv_password.setTransformationMethod(new PasswordTransformationMethod());
+                    }
+                }
+            });
         }
         if(_sessionManager.isLoggedIn()){
             tv_NameDisplay.setText(_sessionManager.getFullName().toUpperCase());

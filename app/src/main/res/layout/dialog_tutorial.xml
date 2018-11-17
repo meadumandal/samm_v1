@@ -12,6 +12,14 @@
         android:padding="20dp"
         android:orientation="vertical">
         <TextView
+            android:layout_gravity="right"
+            android:id="@+id/TV_tutorial_skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorWhite"
+            android:text="SKIP"
+            android:textSize="10sp"/>
+        <TextView
             android:id="@+id/TV_Tutorial_Title"
             android:layout_marginTop="10dp"
             android:layout_width="wrap_content"
@@ -41,6 +49,7 @@
             android:id="@+id/BTN_tutorial_next"
             android:layout_width="80dp"
             android:layout_height="30dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/rounded_button_blue"
             android:visibility="gone"
             android:text="Next"

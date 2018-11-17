@@ -161,8 +161,15 @@
                             android:textSize="10dp"
                             android:textStyle="italic"
                             android:textColor="@color/colorWhiteEC"
-                            android:text="Leave blank if you don't wanna change your password" />
+                            android:text="Leave blank if you don't want to change your password" />
 
+                        <CheckBox
+                            android:id="@+id/checkBox_showPassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Show Passwords"
+                            android:textColor="@color/colorWhiteEC"
+                            android:buttonTint="@color/colorWhiteEC"/>
                         <EditText
                             android:id="@+id/edit_lastName"
                             android:layout_width="match_parent"

@@ -159,7 +159,13 @@ public class ReportsActivity extends Fragment {
                 }
             });
 
-
+            if(!_sessionManager.getEcoLoopReportTutorialStatus()){
+                TutorialDialog ReportTutorial = new TutorialDialog(_activity, new String[]{"Create","Generate"},
+                        new String[]{"Start creating report by clicking 'Create' button.","To generate reports:\n1. Populate fields by tapping on each date.\n2.Click 'Generate' button.\n3. Report was generated."}
+                        ,new Integer[]{R.drawable.tut_createreport,R.drawable.tut_ecoloopfilter});
+                ReportTutorial.show();
+                _sessionManager.TutorialStatus(Enums.UIType.REPORT_ECOLOOP, true);
+            }
 
 
             _SAMMLogoFAB.setOnClickListener(new View.OnClickListener() {
