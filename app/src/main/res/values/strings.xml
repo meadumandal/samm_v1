@@ -200,7 +200,38 @@
     <string name="error_encountered_with_colon">Error encountered : </string>
     <string name="error_please_enter_emailaddress">Please enter an email address.</string>
 
-
+    <!--TUTORIAL-->
+    <string name="TUT_welcome_title">Welcome!</string>
+    <string name="TUT_explore_more_title">Explore More</string>
+    <string name="TUT_search_title">Search</string>
+    <string name="TUT_select_title">Select</string>
+    <string name="TUT_map_style_title">Map Style</string>
+    <string name="TUT_my_location_title">My Location</string>
+    <string name="TUT_super_admin_title">Super Admin</string>
+    <string name="TUT_admin_title">Admin Users</string>
+    <string name="TUT_lines_title">Lines</string>
+    <string name="TUT_tracked_puvs_title">Tracked PUVs</string>
+    <string name="TUT_shortcuts_title">Shortcuts</string>
+    <string name="TUT_drivers_title">Drivers</string>
+    <string name="TUT_sign_up_title">One-tap Sign Up</string>
+    <string name="TUT_sign_up_inst">Sign-up any time you want!</string>
+    <string name="TUT_samm_drawer_inst">Tap on SAMM icon to explore actions.</string>
+    <string name="TUT_my_location_inst">Just tap once to show your current location.</string>
+    <string name="TUT_change_map_style_inst">You can change your map style any way you want!</string>
+    <string name="TUT_pick_your_destination_inst">Pick your destination from the list.</string>
+    <string name="TUT_search_target_destination_inst">Start by searching your desired target destination.</string>
+    <string name="TUT_welcome_to_samm_inst">"Welcome to SAMM!\nKnow more about the features of this app!"</string>
+    <string name="TUT_welcome_to_samm_admin_inst">"Welcome to SAMM!\nKnow more what you can do as "</string>
+    <string name="TUT_welcome_superadmin">a Super Administrator!</string>
+    <string name="TUT_welcome_admin">an Administrator!</string>
+    <string name="TUT_lines_inst">Tap on \'Lines\' menu to add, modify and delete lines.</string>
+    <string name="TUT_explore_super_administartor_inst">Explore Super Administrator tools!</string>
+    <string name="TUT_explore_administartor_inst">Explore Administrator tools!</string>
+    <string name="TUT_superadmin_users_inst">Tap on \'SuperAdmin Users\' menu to add, modify and delete Super administrator users.</string>
+    <string name="TUT_admin_users_inst">Tap on \'Admin Users\' menu to add, modify and delete administrator users.</string>
+    <string name="TUT_drivers_inst">Tap on \'Drivers\' menu to add, modify and delete Drivers.</string>
+    <string name="TUT_tracked_puvs_inst">Tap on \'Tracked PUVs\' menu to show status of GPS devices. Using this page, you can re-connect or edit a GPS device if it goes offline or invisible from the map.</string>
+    <string name="TUT_floating_action_button_inst">Alternatively, you can also tap the floating action button from the lower right corner of the map to show different actions as well.</string>
     <!--VEHICLE SEARCHING MESSAGES-->
     <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
     <!--FONTS-->

@@ -298,7 +298,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                             if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
                                 for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                     String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
-                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0 && !v.child("IsParked").equals("True")) {
                                         loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
                                         String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if (loopAwaiting && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
@@ -319,7 +319,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                                 for (Terminal dl2 : L_TM_DestList_Sorted) {
                                     for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                         String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value + "_" + TM_Entry.getTblRouteID();
-                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0 && !v.child("IsParked").equals("True")) {
                                             String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                             if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
                                                 List<String> temploopids = Arrays.asList(loopId.split(","));
@@ -352,7 +352,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                             } else if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
                                 for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                     String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
-                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0 && !v.child("IsParked").equals("True")) {
                                         String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
                                             List<String> temploopids = Arrays.asList(loopId.split(","));
@@ -417,7 +417,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(_AssignedELoop).PlateNumber,Distance, TimeofArrival.toString(),_context);
+                                    Helper.InitializeSearchingRouteUI(true,false, "Filinvest E-loop",Distance, TimeofArrival.toString(),_context);
                                 }
                             } catch (Exception ex) {
                                     Helper.InitializeSearchingRouteUI(true,true,"Data Error!",null,null,_context);

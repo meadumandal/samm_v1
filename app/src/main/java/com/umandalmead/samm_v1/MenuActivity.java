@@ -2644,9 +2644,23 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             switch (type) {
                 case MAIN:
                     if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.MAP_LAYER_STYLE);
-                        if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
+                        {
+                            if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())
+                            {
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),MenuActivity._GlobalResource.getString(R.string.TUT_search_title), MenuActivity._GlobalResource.getString(R.string.TUT_select_title), MenuActivity._GlobalResource.getString(R.string.TUT_map_style_title), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_title), MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
+                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_inst),MenuActivity._GlobalResource.getString(R.string.TUT_search_target_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_pick_your_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_change_map_style_inst), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_inst), MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
+                                        new Integer[]{R.drawable.tut_welcome, R.drawable.tut_searchbar, R.drawable.tut_destinationsuggest, R.drawable.tut_changemaps, R.drawable.tut_mylocation, R.drawable.tut_sammdrawericon});
+                                MapTutorial.show();
+                            }
+                            else if(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()){
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
+                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_admin_inst)+(_sessionManager.getIsSuperAdmin()?MenuActivity._GlobalResource.getString(R.string.TUT_welcome_superadmin):MenuActivity._GlobalResource.getString(R.string.TUT_welcome_admin)),MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
+                                        new Integer[] {R.drawable.tut_welcome,R.drawable.tut_sammdrawericon});
+                                MapTutorial.show();
+                            }
+                        }
+                        //BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.MAP_LAYER_STYLE);
+                        //BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
                         _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
                     }
                     break;
@@ -2704,19 +2718,40 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     break;
                 case SHOWING_NAVIGATION_DRAWER:
                     if(_sessionManager.getNavigationDrawerTutotialStatus()!=null && !_sessionManager.getNavigationDrawerTutotialStatus()){
-                        LinearLayout Basics = (LinearLayout) findViewById(id.LL_adminTools) ;
-                        int count = 0;
-                        ViewGroup.LayoutParams params = Basics.getLayoutParams();
-                        for(Integer i=0; _NavView.getMenu().findItem(id.itemTools).getSubMenu().size()!=i;i++){
-                            if(_NavView.getMenu().findItem(id.itemTools).getSubMenu().getItem(i).isVisible())
-                                count++;
+                        if(_sessionManager.getIsSuperAdmin()){
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title),MenuActivity._GlobalResource.getString(R.string.TUT_super_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_super_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_superadmin_users_inst),MenuActivity._GlobalResource.getString(R.string.TUT_admin_users_inst)
+                                            ,MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst)},
+                                    new Integer[] {R.drawable.tut_navsuperadmintools,R.drawable.tut_navitemsuperadminusers, R.drawable.tut_navitemadminusers, R.drawable.tut_navitemlines});
+                            MapTutorial.show();
                         }
-                        if(count==1)
-                            count++;
-                        params.height = count*120;//Helper.dpToPx(count*110,_context); //55 each
-                        Basics.setLayoutParams(params);
-                        BuildToolTip(_helper.GenerateNavigationDrawerTooltip() + " tools section", this, Basics , Gravity.END,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
-                        _sessionManager.TutorialStatus(Enums.UIType.SHOWING_NAVIGATION_DRAWER, true);
+                        else if(_sessionManager.getIsAdmin()){
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title), MenuActivity._GlobalResource.getString(R.string.TUT_drivers_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title),MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_drivers_inst),MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst),
+                                            MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_inst)
+                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst),MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst)},
+                                    new Integer[] {R.drawable.tut_navadmintools,R.drawable.tut_navitemdrivers, R.drawable.tut_navitemlines, R.drawable.tut_navitemtrackedpuvs, R.drawable.tut_fabcollapsed, R.drawable.tut_fabexpanded });
+                            MapTutorial.show();
+                        }
+                        else if(_sessionManager.isGuest()){
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_inst)},
+                                    new Integer[] {R.drawable.tut_onetapsignup});
+                            MapTutorial.show();
+                        }
+//                        LinearLayout Basics = (LinearLayout) findViewById(id.LL_adminTools) ;
+//                        int count = 0;
+//                        ViewGroup.LayoutParams params = Basics.getLayoutParams();
+//                        for(Integer i=0; _NavView.getMenu().findItem(id.itemTools).getSubMenu().size()!=i;i++){
+//                            if(_NavView.getMenu().findItem(id.itemTools).getSubMenu().getItem(i).isVisible())
+//                                count++;
+//                        }
+//                        if(count==1)
+//                            count++;
+//                        params.height = count*120;//Helper.dpToPx(count*110,_context); //55 each
+//                        Basics.setLayoutParams(params);
+//                        BuildToolTip(_helper.GenerateNavigationDrawerTooltip() + " tools section", this, Basics , Gravity.END,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
+                       _sessionManager.TutorialStatus(Enums.UIType.SHOWING_NAVIGATION_DRAWER, true);
                     }
                     break;
                 default:

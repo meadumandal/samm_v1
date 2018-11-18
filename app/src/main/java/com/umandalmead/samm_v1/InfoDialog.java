@@ -22,11 +22,13 @@ public class InfoDialog extends Dialog implements
     public Button btnOk;
     public TextView infoMessage;
     public String _infoMessage;
+    private Helper _helper;
     public InfoDialog(Activity activity, String infoMessage) {
         super(activity);
         // TODO Auto-generated constructor stub
         this._activity = activity;
         this._infoMessage = infoMessage;
+        this._helper = new Helper(_activity,_activity.getApplicationContext());
 
     }
 
@@ -38,9 +40,10 @@ public class InfoDialog extends Dialog implements
         this.infoMessage = (TextView) findViewById(R.id.txtInfoMessage);
         this.infoMessage.setText(this._infoMessage);
         this.infoMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        this.infoMessage.setTypeface(Helper.FONT_RUBIK_REGULAR);
         btnOk    = (Button) findViewById(R.id.btnOK);
         btnOk.setOnClickListener(this);
-        btnOk.setTypeface(MenuActivity.FONT_RUBIK_BLACK);
+        btnOk.setTypeface(Helper.FONT_RUBIK_BLACK);
         MenuActivity.buttonEffect(btnOk);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
