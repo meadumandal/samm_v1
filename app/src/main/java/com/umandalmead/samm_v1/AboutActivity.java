@@ -49,7 +49,7 @@ public class AboutActivity extends Fragment {
         SammTV.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
         TV_SammVersion.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
         TV_SammLatestVersion.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
-        new asyncGetApplicationSettings(this.getActivity(), getContext()).execute();
+        new asyncGetApplicationSettings(this.getActivity(), getContext(), false).execute();
         TV_SammVersion.setText("SAMM "+BuildConfig.VERSION_NAME);
         return myView;
     }

@@ -291,7 +291,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public Terminal _chosenDropOffPoint;
         public static ValueAnimator _markerAnimator;
         public Marker _vehicleMarker;
-        public Boolean _isUserLoggingOut = false, _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
+        public static Boolean _isUserLoggingOut = false, _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
         public String _facebookImg;
         public static Boolean _isVehicleMarkerRotating = false, _IsPolyLineDrawn=false;
         public String _smsMessageForGPS;
@@ -2622,6 +2622,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
                     UpdateUI(Enums.UIType.MAIN);
                     _SL_AppBar_Top_TextView.stopShimmerAnimation();
+                    new asyncGetApplicationSettings(_activity, _context, true).execute();
                 }
             }, 2000);
         }
@@ -2636,8 +2637,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         _DestinationTextView.setVisibility(View.VISIBLE);
         _DestinationTextView.setText(STR_message!=null? STR_message.toUpperCase(): null);
         _DestinationTextView.setBackgroundResource(IsVisible ? R.color.colorElectronBlue : R.color.colorWebFlatGreen);
-
     }
+
     public void UpdateUI(Enums.UIType type){
         _LL_MapStyleHolder.setVisibility(View.INVISIBLE);
         if(_sessionManager != null && _sessionManager.getMainTutorialStatus() != null) {
@@ -2708,8 +2709,16 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     if(!_BOOL_IsGPSAcquired)
                         ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
                     if(_BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
-                        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                        _RoutesPane.setVisibility(View.VISIBLE);
+                        new asyncGetApplicationSettings(_activity, _context, true).execute();
+                        Handler HND_ShowSearchBar = new Handler();
+                        HND_ShowSearchBar.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+
+                                _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                _RoutesPane.setVisibility(View.VISIBLE);
+                            }
+                        },500);
                     }
                     break;
                 case APPBAR_MIN_HEIGHT:
@@ -2809,6 +2818,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }, 1000);
         //_SlideUpPanelContainer.setPanelHeight(_helper.dpToPx(60,_context));
         _SlideUpPanelContainer.setTouchEnabled(false);
+        new asyncGetApplicationSettings(_activity, _context, true).execute();
 
     }
     public void SetMapType(GoogleMap gmap, Enums.GoogleMapType mapType){
