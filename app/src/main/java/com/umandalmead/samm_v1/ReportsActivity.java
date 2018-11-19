@@ -104,6 +104,7 @@ public class ReportsActivity extends Fragment {
             _SAMMLogoFAB = _view.findViewById(R.id.SAMMLogoFAB);
             _ReportsAppBar = _view.findViewById(R.id.reportsBarLayout);
             _appbar_vehiclerounds_reportfilters = (AppBarLayout) _view.findViewById(R.id.appbar_vehiclerounds_reportsfilter);
+            _appbar_vehiclerounds_reportfilters = (AppBarLayout) _view.findViewById(R.id.appbar_vehiclerounds_reportsfilter);
             _appbar_distancespeed_reportfilters = _view.findViewById(R.id.appbar_reportsfilter_distancespeed);
             _btn_CreateReport = (Button) _view.findViewById(R.id.btnCreateReport);
             _LL_create_button_holder = (LinearLayout) _view.findViewById(R.id.LL_create_button_holder);
@@ -179,15 +180,18 @@ public class ReportsActivity extends Fragment {
                 public void onClick(View view) {
                     try
                     {
-                        if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT)) {
-                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
-                        }
-                        else if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT)){
+                        if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT))
+                        {
                             _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
+                            _LL_create_button_holder.setVisibility(View.GONE);
+                            _SL_btn_create_report.stopShimmerAnimation();
+                        }
+                        else if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT)) {
+                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                            _LL_create_button_holder.setVisibility(View.GONE);
+                            _SL_btn_create_report.stopShimmerAnimation();
                         }
 
-                        _LL_create_button_holder.setVisibility(View.GONE);
-                        _SL_btn_create_report.stopShimmerAnimation();
                     }
                     catch(Exception ex)
                     {
@@ -269,14 +273,14 @@ public class ReportsActivity extends Fragment {
             if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_total_distance));
-                //_appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
+//                _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
                 _btnHideDistanceReportFilters.setVisibility(View.VISIBLE);
             } else if (_sessionManager.GetReportType().equals(_constants.PASSENGER_ACTIVITY_REPORT)) {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
             } else if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
-                _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+//                _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
                 _btnHideReportFilters.setVisibility(View.VISIBLE);
 
             }
@@ -289,7 +293,8 @@ public class ReportsActivity extends Fragment {
                     _calendar.set(Calendar.YEAR, year);
                     _calendar.set(Calendar.MONTH, monthOfYear);
                     _calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    updateLabel("from");
+                    if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
+                        updateLabel("from");
                 }
 
             };
@@ -302,7 +307,10 @@ public class ReportsActivity extends Fragment {
                     _calendar.set(Calendar.YEAR, year);
                     _calendar.set(Calendar.MONTH, monthOfYear);
                     _calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    updateLabel("to");
+                    if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
+                        updateLabel("to");
+                    else
+                        updateLabel("todistance");
                 }
 
             };
@@ -352,6 +360,7 @@ public class ReportsActivity extends Fragment {
                     if (_distanceSpeed_fromDataTextBox.getText().length() > 0 && _distanceSpeed_toDateTextBox.getText().length() > 0) {
                         _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
                         _RL_DistanceTraveled.setVisibility(View.VISIBLE);
+
                         new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_distanceSpeed_fromDataTextBox.getText().toString(), _distanceSpeed_toDateTextBox.getText().toString());
                     } else {
                         ErrorDialog errorDialog = new ErrorDialog(_activity, "Please supply all filters");

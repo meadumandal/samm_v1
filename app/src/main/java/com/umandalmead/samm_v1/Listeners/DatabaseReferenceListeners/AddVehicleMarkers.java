@@ -3,20 +3,14 @@ package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.Menu;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -24,24 +18,16 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.maps.android.ui.IconGenerator;
-import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
-
 /**
  * Created by MeadRoseAnn on 3/25/2018.
  */
 
-public class AddVehicleMarkers implements ChildEventListener {
+    public class AddVehicleMarkers implements ChildEventListener {
 
     Activity _activity;
     Context _context;
@@ -121,7 +107,7 @@ public class AddVehicleMarkers implements ChildEventListener {
             final float bearing = (float) _helper.bearingBetweenLocations(prevLocation, currLocation);//prevLocation.bearingTo(currLocation);
 
             if (MenuActivity._googleMap != null) {
-                if(MenuActivity._selectedPickUpPoint ==null) {
+                //if(MenuActivity._selectedPickUpPoint ==null) {
                     MenuActivity._markerAnimator = ValueAnimator.ofFloat(0, 1);
                     MenuActivity._markerAnimator.setDuration(2000);
                     MenuActivity._markerAnimator.setInterpolator(new LinearInterpolator());
@@ -190,7 +176,7 @@ public class AddVehicleMarkers implements ChildEventListener {
                 else
                 {
                 }
-            }
+           // }
         } catch (Exception ex) {
             Helper.logger(ex,true);
         }

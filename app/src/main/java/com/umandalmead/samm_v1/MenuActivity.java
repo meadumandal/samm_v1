@@ -52,7 +52,6 @@ import android.telephony.SmsManager;
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -513,8 +512,11 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
+//                _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(false);
+                _NavView.getMenu().findItem(R.id.nav_vehiclesummary).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin());
+                _NavView.getMenu().findItem(id.nav_numberofrounds).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin());
                // _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
-                _NavView.getMenu().findItem(R.id.nav_ecolooppeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
+                _NavView.getMenu().findItem(R.id.nav_vehiclesummary).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin());
 
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);
@@ -1531,7 +1533,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 //                UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
 //                _fragmentManager.beginTransaction().replace(R.id.content_frame, new ReportsActivity()).commit();
 //            }
-            else if (id == R.id.nav_ecolooppeakandlean)
+            else if (id == R.id.nav_vehiclesummary)
             {
                 _sessionManager.PassReportType(_constants.DISTANCE_SPEED_REPORT);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);

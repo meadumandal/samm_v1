@@ -86,7 +86,7 @@
                 <!--android:icon="@drawable/ic_pie_chart_black_24dp"-->
                 <!--android:background="?attr/selectableItemBackground"-->
                 <!--android:title="Passenger Flow"/>-->
-            <item android:id="@+id/nav_ecolooppeakandlean"
+            <item android:id="@+id/nav_vehiclesummary"
                 android:icon="@drawable/ic_pie_chart_black_24dp"
                 android:background="?attr/selectableItemBackground"
                 android:title="Ecoloop Flow"/>
