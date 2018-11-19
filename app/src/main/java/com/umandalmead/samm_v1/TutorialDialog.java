@@ -90,6 +90,7 @@ public class TutorialDialog extends Dialog implements
                     Toggle(_BTN_NEXT);
                 else{
                     Toggle(_BTN_OK);
+                    _TV_skip.setVisibility(View.GONE);
                 }
                 _IV_tutorial_image.setImageResource(_AL_INT_ResourceIds.get(tutorialCtr));
                 _TV_Instructions.setText(_AL_STR_Tutorials.get(tutorialCtr));
@@ -120,6 +121,7 @@ public class TutorialDialog extends Dialog implements
                 if(_AL_STR_TutorialTitles.size()-1 == tutorialCtr && _AL_INT_ResourceIds.size()-1 == tutorialCtr && _AL_STR_Tutorials.size()-1 == tutorialCtr){
                     Toggle(_BTN_OK);
                     Toggle(_BTN_NEXT);
+                    _TV_skip.setVisibility(View.GONE);
                 }
             }
         }

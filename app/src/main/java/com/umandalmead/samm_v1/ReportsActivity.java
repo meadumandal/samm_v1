@@ -1,5 +1,7 @@
 package com.umandalmead.samm_v1;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.DatePickerDialog;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -7,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
@@ -85,6 +88,7 @@ public class ReportsActivity extends Fragment {
     private ImageButton _btnHideReportFilters, _btnHideDistanceReportFilters;
     public static ImageView _IV_ExportReport;
     private Helper _helper;
+    public static  LinearLayout.LayoutParams _RoundsReportAppBarLayout;
 
 
     @Nullable
@@ -104,7 +108,6 @@ public class ReportsActivity extends Fragment {
             _SAMMLogoFAB = _view.findViewById(R.id.SAMMLogoFAB);
             _ReportsAppBar = _view.findViewById(R.id.reportsBarLayout);
             _appbar_vehiclerounds_reportfilters = (AppBarLayout) _view.findViewById(R.id.appbar_vehiclerounds_reportsfilter);
-            _appbar_vehiclerounds_reportfilters = (AppBarLayout) _view.findViewById(R.id.appbar_vehiclerounds_reportsfilter);
             _appbar_distancespeed_reportfilters = _view.findViewById(R.id.appbar_reportsfilter_distancespeed);
             _btn_CreateReport = (Button) _view.findViewById(R.id.btnCreateReport);
             _LL_create_button_holder = (LinearLayout) _view.findViewById(R.id.LL_create_button_holder);
@@ -123,6 +126,8 @@ public class ReportsActivity extends Fragment {
             _toDateTextBox.setTypeface(Helper.FONT_RUBIK_REGULAR);
 
 
+            _RoundsReportAppBarLayout = (LinearLayout.LayoutParams) _appbar_vehiclerounds_reportfilters.getLayoutParams();
+
             _TV_ActivityTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
             _TV_ReportSubTitle.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
             this._sessionManager = new SessionManager(getContext());
@@ -136,7 +141,15 @@ public class ReportsActivity extends Fragment {
                 public void onClick(View view) {
                     if (_appbar_distancespeed_reportfilters.getVisibility()==View.VISIBLE)
                     {
-                        _appbar_distancespeed_reportfilters.setVisibility(View.GONE);
+                        _appbar_distancespeed_reportfilters.animate()
+                                .alpha(0.0f)
+                                .setDuration(350)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        _appbar_distancespeed_reportfilters.setVisibility(View.GONE);
+                                    }
+                                });
                         _btnHideDistanceReportFilters.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
                     }
                     else {
@@ -150,11 +163,21 @@ public class ReportsActivity extends Fragment {
                 public void onClick(View view) {
                     if (_appbar_vehiclerounds_reportfilters.getVisibility()==View.VISIBLE)
                     {
-                        _appbar_vehiclerounds_reportfilters.setVisibility(View.GONE);
+                        _appbar_vehiclerounds_reportfilters.animate()
+                                .alpha(0.0f)
+                                .setDuration(350)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        _appbar_vehiclerounds_reportfilters.setVisibility(View.GONE);
+                                    }
+                                });
                         _btnHideReportFilters.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
                     }
                     else {
-                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                        _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                       // _RoundsReportAppBarLayout.height= LinearLayout.LayoutParams.WRAP_CONTENT;
+                        //_appbar_vehiclerounds_reportfilters.setLayoutParams(_RoundsReportAppBarLayout);
                         _btnHideReportFilters.setImageResource(R.drawable.ic_arrow_drop_up_white_24dp);
                     }
                 }
@@ -187,9 +210,9 @@ public class ReportsActivity extends Fragment {
                             _SL_btn_create_report.stopShimmerAnimation();
                         }
                         else if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT)) {
-                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
                             _LL_create_button_holder.setVisibility(View.GONE);
                             _SL_btn_create_report.stopShimmerAnimation();
+                            _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
                         }
 
                     }

@@ -14,6 +14,7 @@
         <TextView
             android:layout_gravity="right"
             android:id="@+id/TV_tutorial_skip"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorWhite"
