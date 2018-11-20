@@ -25,6 +25,7 @@ public class Terminal implements Comparable<Terminal>{
 
     public String GeofenceId;
     public Directions directionsFromCurrentLocation;
+    public double distanceFromCurrentLocation;
     public int DestinationPicture = -1;
     public String LineName;
     public String isMainTerminal;
@@ -47,7 +48,7 @@ public class Terminal implements Comparable<Terminal>{
                     Double Lng,
                     String GeofenceId,
                     Directions DirectionsFromCurrentLocation,
-                    int DestinationPicture,
+                    double DistanceFromCurrentLocation,
                     String LineName,
                     String isMainTerminal,
                     String routeName,
@@ -63,7 +64,8 @@ public class Terminal implements Comparable<Terminal>{
         this.Lng = Lng;
         this.GeofenceId = GeofenceId;
         this.directionsFromCurrentLocation = DirectionsFromCurrentLocation;
-        this.DestinationPicture = DestinationPicture;
+        this.distanceFromCurrentLocation = DistanceFromCurrentLocation;
+
         this.LineName = LineName;
         this.isMainTerminal = isMainTerminal;
         this.routeName = routeName;
@@ -145,6 +147,8 @@ public class Terminal implements Comparable<Terminal>{
     public void setRouteName(String routeName){this.routeName = routeName;}
     public Integer getLineID() {return this.LineID;}
     public void setLineID(Integer lineID) {this.LineID = lineID;}
+    public double getDistanceFromCurrentLocation(){return this.distanceFromCurrentLocation;}
+    public void setDistanceFromCurrentLocation(double distanceFromCurrentLocation){this.distanceFromCurrentLocation = distanceFromCurrentLocation;}
     //endregion
 
 
@@ -173,10 +177,10 @@ public class Terminal implements Comparable<Terminal>{
     public int compareTo(@NonNull Terminal terminal) {
        // return DestinationComparators.DEFAULT.compare(this, terminal);
         //directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue()
-        if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() > terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue()) {
+        if (distanceFromCurrentLocation > terminal.distanceFromCurrentLocation) {
             return 1;
         }
-        else if (directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDistance().getValue() < terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0  ).getDistance().getValue()) {
+        else if (distanceFromCurrentLocation < terminal.distanceFromCurrentLocation) {
             return -1;
         }
         else {

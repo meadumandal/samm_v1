@@ -190,7 +190,7 @@ public class ManageLinesFragment extends Fragment {
             spinnerAdminUser = (Spinner) findViewById(R.id.spinnerAdminUsers);
             tvActionTitle = (TextView) findViewById(R.id.textviewActionTitle);
             tvActionTitle.setText(isNew ? "NEW LINE NAME" : "EDIT LINE NAME");
-            submitButton.setText(isNew ? "Save" : "Update");
+            submitButton.setText(MenuActivity._GlobalResource.getString(R.string.save_button));
             txtLineName.setText(this._lineName);
 
 

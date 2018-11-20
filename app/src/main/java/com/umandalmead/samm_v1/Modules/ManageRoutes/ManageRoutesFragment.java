@@ -214,7 +214,7 @@ public class ManageRoutesFragment extends Fragment {
             txtRouteName = (EditText) findViewById(R.id.textRouteName);
             tvActionTitle = (TextView) findViewById(R.id.textviewActionTitle);
             tvActionTitle.setText(isNew ? "NEW ROUTE NAME" : "EDIT ROUTE NAME");
-            submitButton.setText(isNew ? "Save" : "Update");
+            submitButton.setText(MenuActivity._GlobalResource.getString(R.string.save_button));
             txtRouteName.setText(this._routeName);
 
             _LoaderDialog = new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_add_route_title), MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));

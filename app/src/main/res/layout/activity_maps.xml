@@ -90,6 +90,7 @@
         android:layout_marginRight="10dp"
         android:layout_gravity="bottom|right"
         android:layout_marginLeft="10dp"
+        android:visibility="gone"
         fab:menu_fab_size="normal"
         fab:menu_showShadow="true"
         fab:menu_shadowColor="#66000000"

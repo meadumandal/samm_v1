@@ -70,6 +70,7 @@ import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Description;
 import static com.umandalmead.samm_v1.MenuActivity._TV_Vehicle_Identifier;
 import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
 import static  com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
+import static com.umandalmead.samm_v1.MenuActivity._currentLineIDSelected;
 import static com.umandalmead.samm_v1.MenuActivity._googleMap;
 import static com.umandalmead.samm_v1.MenuActivity._userCurrentLoc;
 
@@ -160,6 +161,9 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
                 try {
                     Directions directions = call.execute().body();
                     d.directionsFromCurrentLocation = directions;
+                    d.distanceFromCurrentLocation = helper.getDistanceFromLatLonInKm(
+                            new LatLng(_currentLocation.latitude, _currentLocation.longitude),
+                            new LatLng(d.getLat(), d.getLng()));
 //                        destinationId_distance.put(dialog.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
                     Log.i(LOG_TAG, "Success retrofit");
                 } catch (MalformedURLException ex) {

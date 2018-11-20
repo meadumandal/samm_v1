@@ -177,7 +177,6 @@ import retrofit.GsonConverterFactory;
 import retrofit.Response;
 import retrofit.Retrofit;
 
-
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
@@ -406,13 +405,16 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                 new mySQLRoutesDataProvider(_activity, _context).execute();
                 if (_sessionManager.getIsSuperAdmin())
+                {
+                    new mySQLGetAdminUsers(_context).execute();
                     new mySQLLinesDataProvider(_activity, null, _manageLinesFragment, null).execute("0");
+                }
                 else if (_sessionManager.getIsAdmin())
+                {
                     new mySQLLinesDataProvider(_activity, null, _manageLinesFragment, null).execute(_sessionManager.getUserID().toString());
+                    new mySQLGetDriverUsers(_context).execute();
+                }
 
-                new mySQLGetDriverUsers(_context).execute();
-                new mySQLGetAdminUsers(_context).execute();
-                new mySQLGetDrivers(MenuActivity.this, getApplicationContext()).execute();
 
 
 
@@ -555,10 +557,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                        finish();
                     }
                 });
-                if (_sessionManager.getIsAdmin())
-                    _AdminToolsFloatingMenu.setVisibility(View.VISIBLE);
-                else
-                    _AdminToolsFloatingMenu.setVisibility(View.GONE);
+//                if (_sessionManager.getIsAdmin())
+//                    _AdminToolsFloatingMenu.setVisibility(View.VISIBLE);
+//                else
+//                    _AdminToolsFloatingMenu.setVisibility(View.GONE);
                _MainDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
                    @Override
                    public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -580,15 +582,15 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                    }
                });
-                _AddGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        _dialog = new AddGPSDialog(MenuActivity.this);
-                        _dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                        _dialog.show();
-                        PlayButtonClickSound();
-                    }
-                });
+//                _AddGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        _dialog = new AddGPSDialog(MenuActivity.this);
+//                        _dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                        _dialog.show();
+//                        PlayButtonClickSound();
+//                    }
+//                });
                 FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         _MainDrawerLayout.openDrawer(Gravity.LEFT);
@@ -628,23 +630,23 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                 });
 
-                _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        PlayButtonClickSound();
-                        try {
-                            UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
-                            FragmentManager fragment = getSupportFragmentManager();
-                            fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
-                        }
-                        catch(Exception ex)
-                        {
-                            Helper.logger(ex,true);
-                        }
-
-                    }
-                });
+//                _ViewGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(View view) {
+//                        PlayButtonClickSound();
+//                        try {
+//                            UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
+//                            FragmentManager fragment = getSupportFragmentManager();
+//                            fragment.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
+//                        }
+//                        catch(Exception ex)
+//                        {
+//                            Helper.logger(ex,true);
+//                        }
+//
+//                    }
+//                });
 
                 _IB_MyLocation.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -719,19 +721,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _LoaderDialog = new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS), _GlobalResource.getString(R.string.GPS_Initialize));
                 _LoaderDialog.setCancelable(false);
 
-                if (_sessionManager.isGuest() || _sessionManager.isDriver() || _sessionManager.getIsAdmin()) {
 
-
-                    //LinearLayout searchContainer = (LinearLayout) findViewById(R.id.searchlayoutcontainer);
-                    //EditText tvcurrentlocation = (EditText) findViewById(R.id.tvcurrentlocation);
-
-                    //searchContainer.setVisibility(View.GONE);
-                    //tvcurrentlocation.setVisibility(View.GONE);
-                    AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appBarLayout);
-
-                    //CoordinatorLayout.LayoutParams appBarLayoutParam = (CoordinatorLayout.LayoutParams) appbar.getLayoutParams();
-                    //appBarLayoutParam.height = _constants.APPBAR_MIN_HEIGHT;
-                }
                 if (_sessionManager.isDriver()) {
                     _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
                     ShowRouteTabsAndSlidingPanel();
@@ -1025,97 +1015,108 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
-                final String markerTitle = marker.getTitle();
-                Integer markerID = 0;
-                final String markerValue;
-                if(markerTitle!=null) {
-                    if (markerTitle.contains("-"))
-                    {
-                        String[] str = markerTitle.split("-");
-                        markerID = Integer.parseInt(str[0]);
-                        markerValue = str[1];
-                    }
-                    else
-                    {
-                        markerValue = markerTitle;
-                    }
+                try
+                {
+                    final String markerTitle = marker.getTitle();
+                    Integer markerID = 0;
+                    final String markerValue;
+                    if(markerTitle!=null) {
+                        if (markerTitle.contains("-") && !markerTitle.contains("guestuser"))
+                        {
+                            String[] str = markerTitle.split("-");
+                            markerID = Integer.parseInt(str[0]);
+                            markerValue = str[1];
+                        }
+                        else
+                        {
+                            markerValue = markerTitle;
+                        }
 
-                    if (_terminalMarkerHashmap.containsKey(markerValue)) {
-                        if (_sessionManager.getIsDeveloper() || _sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()) {
-                            //if admin only:
-                            _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
-                        } else {
-                            for (Terminal terminal : _terminalList) {
-                                if (terminal.ID.equals(markerID)) {
-                                    TM_ClickedTerminal = terminal;
+                        if (_terminalMarkerHashmap.containsKey(markerValue)) {
+                            if (_sessionManager.getIsDeveloper() || _sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()) {
+                                //if admin only:
+                                _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
+                            } else {
+                                for (Terminal terminal : _terminalList) {
+                                    if (terminal.ID.equals(markerID)) {
+                                        TM_ClickedTerminal = terminal;
+                                    }
+
                                 }
+                                _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
+                                final Handler HND_Loc_DataFetchDelay = new Handler();
+                                final Handler HND_Loc_DataFetchTooLong = new Handler();
+                                final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
+                                HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
+                                HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
+                                HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        GetAndDisplayEloopETA(F_TM_ClickedTerminal);
+                                    }
+                                }, 3000);
+
+                                ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
+                                        _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
+                                        _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
+                                _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                    @Override
+                                    public Transaction.Result doTransaction(MutableData currentData) {
+
+                                        return Transaction.success(currentData);
+                                    }
+
+                                    @Override
+                                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                        long passengercount = 0;
+                                        passengercount = DS_Terminals.getChildrenCount();
+                                        _passengerCountInTerminal = (int) passengercount;
+                                        UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                                _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
+                                    }
+                                });
 
                             }
-                            _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
-                            final Handler HND_Loc_DataFetchDelay = new Handler();
-                            final Handler HND_Loc_DataFetchTooLong = new Handler();
-                            final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
-                            HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
-                            HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
-                            HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    GetAndDisplayEloopETA(F_TM_ClickedTerminal);
-                                }
-                            }, 3000);
-
-                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
-                                            _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                    _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
-                            _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
-                                @Override
-                                public Transaction.Result doTransaction(MutableData currentData) {
-
-                                    return Transaction.success(currentData);
-                                }
-
-                                @Override
-                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
-                                    long passengercount = 0;
-                                    passengercount = DS_Terminals.getChildrenCount();
-                                    _passengerCountInTerminal = (int) passengercount;
-                                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
-                                }
-                            });
-
                         }
-                    }
-                    //vehicle has been clicked instead
-                    else if (_driverMarkerHashmap.containsKey(markerValue)) {
-                        _SelectedTerminalMarkerTitle = null;
-                        Users driverDetails = Helper.GetEloopDriver(Helper.GetEloopEntry(markerValue));
-                        ShowInfoLayout(Helper.GetEloopEntry(markerValue).PlateNumber, (driverDetails != null ? driverDetails.firstName : "") + " "
-                                + (driverDetails != null ? driverDetails.lastName : ""), null, R.drawable.eco_loop_for_info_transparent, Enums.InfoLayoutType.INFO_VEHICLE);
-                    } else if (markerValue.equals("YOU")) {
-                        _SelectedTerminalMarkerTitle = null;
-                    }
-                    //samm user marker has been clicked
-                    else {
-                        _SelectedTerminalMarkerTitle = null;
-                        String STR_IconGetterFlag = markerValue;
-                        if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerValue))
-                            STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
-
-                        final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
-                        Handler HD_FetchFBName = new Handler();
-
-                        if (UM_result.UserType == Enums.UserType.SAMM_FACEBOOK) {
-                            HD_FetchFBName.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    GetFacebookUsername(markerValue, UM_result);
-                                }
-                            }, 1500);
+                        //vehicle has been clicked instead
+                        else if (_driverMarkerHashmap.containsKey(markerValue)) {
+                            _SelectedTerminalMarkerTitle = null;
+                            Eloop eloopDetails =Helper.GetEloopEntry(markerValue);
+                            ShowInfoLayout(eloopDetails.PlateNumber,
+                                    eloopDetails.DriverName,
+                                    null,
+                                    R.drawable.eco_loop_for_info_transparent,
+                                    Enums.InfoLayoutType.INFO_VEHICLE);
+                        } else if (markerValue.equals("YOU")) {
+                            _SelectedTerminalMarkerTitle = null;
                         }
-                        ShowInfoLayout(UM_result.UserTitle, UM_result.UserType.toString(), null, UM_result.UserInfoLayoutIcon, Enums.InfoLayoutType.INFO_PERSON);
+                        //samm user marker has been clicked
+                        else {
+                            _SelectedTerminalMarkerTitle = null;
+                            String STR_IconGetterFlag = markerValue;
+                            if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerValue))
+                                STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
+
+                            final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
+                            Handler HD_FetchFBName = new Handler();
+
+                            if (UM_result.UserType == Enums.UserType.SAMM_FACEBOOK) {
+                                HD_FetchFBName.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        GetFacebookUsername(markerValue, UM_result);
+                                    }
+                                }, 1500);
+                            }
+                            ShowInfoLayout(UM_result.UserTitle, UM_result.UserType.toString(), null, UM_result.UserInfoLayoutIcon, Enums.InfoLayoutType.INFO_PERSON);
+                        }
                     }
                 }
+                catch(Exception ex)
+                {
+                    _helper.logger(ex);
+                }
+
                 return true;
             }
         });

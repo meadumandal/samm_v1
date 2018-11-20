@@ -158,11 +158,14 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
                 {
                     dist = entry.OrderOfArrival - TM_PickUp.OrderOfArrival;
                 }
-                return "Ride the e-loop. Signboard should be " + strSignBoard
-                        + " and alight on <b>"
-                        +dist
-                        +GeneratePrefix(dist)
-                        +" stop</b>.<div style=\"\n" +
+                return "Ride the e-loop and alight on "
+                        + "<b>"
+//                        +dist
+                        +TM_DropOff.Description
+//                        +GeneratePrefix(dist)
+//                        +" stop"
+                        +"</b> station"
+                        +".<div style=\"\n" +
                         "    border-bottom: 1px solid #00000026;\n" +
                         "    margin-top: 0.5%;\n" +
                         "    margin-left: 8%;\n" +

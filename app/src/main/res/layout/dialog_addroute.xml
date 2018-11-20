@@ -92,7 +92,7 @@
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
             android:backgroundTint="@color/colorAccent"
-            android:text="Save"
+            android:text="@string/save_button"
             android:textColor="@color/colorWhite"
             android:textStyle="bold" />
     </LinearLayout>

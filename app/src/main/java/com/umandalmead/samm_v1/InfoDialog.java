@@ -22,13 +22,13 @@ public class InfoDialog extends Dialog implements
     public Button btnOk;
     public TextView infoMessage;
     public String _infoMessage;
-    private Helper _helper;
+
     public InfoDialog(Activity activity, String infoMessage) {
         super(activity);
         // TODO Auto-generated constructor stub
         this._activity = activity;
         this._infoMessage = infoMessage;
-        this._helper = new Helper(_activity,_activity.getApplicationContext());
+
 
     }
 

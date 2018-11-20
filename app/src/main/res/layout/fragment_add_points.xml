@@ -146,7 +146,7 @@
             android:layout_marginTop="16dp"
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
-            android:text="Add Pick-up/Drop-off Point"
+            android:text="@string/save_button"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
     </LinearLayout>

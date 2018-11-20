@@ -20,13 +20,12 @@ public class ErrorDialog extends Dialog implements
     public Button btnOk;
     public TextView errorMessage;
     public String _errorMessage;
-    public Helper _helper;
+
     public ErrorDialog(Activity activity, String errorMessage) {
         super(activity);
         // TODO Auto-generated constructor stub
         this._activity = activity;
         this._errorMessage = errorMessage;
-        this._helper = new Helper(_activity, _activity.getApplicationContext());
 
     }
     public ErrorDialog(Activity activity) {

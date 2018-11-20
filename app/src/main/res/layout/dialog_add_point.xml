@@ -160,7 +160,7 @@
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
             android:backgroundTint="@color/colorAccent"
-            android:text="Add Pick-up/Drop-off Station"
+            android:text="@string/save_button"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
         <!--<Button-->

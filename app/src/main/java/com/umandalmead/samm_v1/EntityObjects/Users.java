@@ -49,17 +49,17 @@ public class Users {
 
     public static void validateRegistrationDetails(Users user) {
 
-        if (user.username != null && (user.username.isEmpty() || Helper.CheckForSpecialCharacters(user.username))) {
+        if (user.username != null && (user.username.trim().isEmpty() || Helper.CheckForSpecialCharacters(user.username))) {
 
                 throw new IllegalArgumentException("Username must not be empty and must not contain special characters");
 
         }
-        if (user.emailAddress!=null && TextUtils.isEmpty(user.emailAddress)) {
+        if (user.emailAddress!=null && TextUtils.isEmpty(user.emailAddress.trim())) {
 
                 throw new IllegalArgumentException("Email address should not be empty");
 
         }
-        if(user.password!=null && TextUtils.isEmpty(user.password))
+        if(user.password!=null && TextUtils.isEmpty(user.password.trim()))
         {
 
                 throw new IllegalArgumentException("Password should not be empty");
@@ -80,13 +80,13 @@ public class Users {
                     throw new IllegalArgumentException("Passwords do not match!");
 
             }
-        if(user.firstName!=null && TextUtils.isEmpty(user.firstName))
+        if(user.firstName!=null && TextUtils.isEmpty(user.firstName.trim()))
         {
                 throw new IllegalArgumentException("First name is required");
 
         }
 
-        if(user.lastName !=null && TextUtils.isEmpty(user.lastName))
+        if(user.lastName !=null && TextUtils.isEmpty(user.lastName.trim()))
         {
 
                 throw new IllegalArgumentException("Last name is required");

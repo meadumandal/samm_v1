@@ -93,7 +93,7 @@
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
             android:onClick="SignIn"
-            android:text="Sign In"
+            android:text="@string/signin_button"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
 
@@ -112,7 +112,7 @@
             android:layout_weight=".4"
             android:background="@drawable/oval_background"
             android:onClick="SignUp"
-            android:text="Not a member?"
+            android:text="@string/signup_button"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
     </LinearLayout>
@@ -133,7 +133,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="20dp"
         android:height="10dp"
-        android:text="SIGN UP WITH FACEBOOK "
+        android:text="@string/signinwithfacebook_button"
         android:textStyle="bold"
         android:layout_weight=".4"
         android:fontFamily="@string/FONT_Rubik_Regular"

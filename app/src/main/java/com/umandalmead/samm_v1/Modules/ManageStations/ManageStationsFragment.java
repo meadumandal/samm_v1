@@ -294,16 +294,16 @@ public class ManageStationsFragment extends ListFragment{
                 final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
                 Integer orderOfArrival = 0;
                 MenuActivity.buttonEffect(btnAddPoints);
-
+                btnAddPoints.setText(MenuActivity._GlobalResource.getString(R.string.save_button));
                 if(_action.equals("add"))
                 {
-                    btnAddPoints.setText("ADD");
+                    ;
                     txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
 
                 }
                 else {
 
-                    btnAddPoints.setText("UPDATE");
+
 
                     for(Terminal d: MenuActivity._terminalList)
                     {

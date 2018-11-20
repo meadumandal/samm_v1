@@ -65,7 +65,8 @@ public class mySQLRoutesDataProvider extends AsyncTask<String,Void, ArrayList<Ro
                 _loaderDialog = new LoaderDialog(_activity, "ROUTES","Loading Routes...");
                 _loaderDialog.setCancelable(false);
                 _loaderDialog.show();
-                _manageRoutesFragment._swipeRefreshRoute.setRefreshing(true);
+                if (_manageRoutesFragment!=null)
+                    _manageRoutesFragment._swipeRefreshRoute.setRefreshing(true);
             }
 
         }

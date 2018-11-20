@@ -32,7 +32,8 @@
                 android:scrollHorizontally="false"
                 android:text="@string/dialog_please_wait_with_ellipsis"
                 android:textAlignment="center"
-                android:textColor="@color/colorWhite" />
+                android:textColor="@color/colorWhite"
+                android:visibility="visible"/>
             <com.facebook.share.widget.LikeView
                 android:id="@+id/fb_like_view"
                 android:layout_marginTop="50dp"

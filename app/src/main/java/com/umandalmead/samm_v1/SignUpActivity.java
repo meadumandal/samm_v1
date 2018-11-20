@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
+import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -99,88 +100,53 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                AlertDialog.Builder builder;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    builder = new AlertDialog.Builder(SignUpActivity.this, android.R.style.Theme_Material_Dialog_Alert);
-                } else {
-                    builder = new AlertDialog.Builder(SignUpActivity.this);
-                }
-                builder.setTitle("Create account")
-                        .setMessage("Submit details?")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                EditText edit_firstName = (EditText) findViewById(R.id.edit_firstName);
-                                EditText edit_lastName = (EditText) findViewById(R.id.edit_lastName);
-                                EditText edit_emailAddress = (EditText) findViewById(R.id.edit_address);
-                                EditText edit_username = (EditText) findViewById(R.id.textRoute);
-                                final EditText edit_password = (EditText) findViewById(R.id.edit_password);
-                                EditText edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
+                try
+                {
 
-                                final String firstName, lastName, emailAddress, username, confirmPassword;
-                                final String password;
-                                firstName = edit_firstName.getText().toString();
-                                lastName = edit_lastName.getText().toString();
-                                emailAddress = edit_emailAddress.getText().toString().trim();
-                                username = edit_username.getText().toString();
-                                password = edit_password.getText().toString();
-                                confirmPassword = edit_confirmPassword.getText().toString();
+                    EditText edit_firstName = (EditText) findViewById(R.id.edit_firstName);
+                    EditText edit_lastName = (EditText) findViewById(R.id.edit_lastName);
+                    EditText edit_emailAddress = (EditText) findViewById(R.id.edit_address);
+                    EditText edit_username = (EditText) findViewById(R.id.textRoute);
+                    final EditText edit_password = (EditText) findViewById(R.id.edit_password);
+                    EditText edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
 
-                                //VALIDATIONS
-                                if(TextUtils.isEmpty(username)){
-                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Username"), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if(Helper.CheckForSpecialCharacters(username)){
-                                    Toast.makeText(getApplicationContext(), "Username must not contain special characters", Toast.LENGTH_LONG).show();
-                                    return;
+                    final String firstName, lastName, emailAddress, username, confirmPassword;
+                    final String password;
+                    firstName = edit_firstName.getText().toString();
+                    lastName = edit_lastName.getText().toString();
+                    emailAddress = edit_emailAddress.getText().toString().trim();
+                    username = edit_username.getText().toString();
+                    password = edit_password.getText().toString();
+                    confirmPassword = edit_confirmPassword.getText().toString();
+                    Users.validateRegistrationDetails(new Users(username, emailAddress, firstName, lastName, password, confirmPassword));
 
-                                }
-                                if (TextUtils.isEmpty(emailAddress))
-                                {
-                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "E-mail Address"), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if(TextUtils.isEmpty(password))
-                                {
-                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Password"), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if(password.length() < 6)
-                                {
-                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_shortpassword), "6"), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if(TextUtils.isEmpty(firstName))
-                                {
-                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "First name"), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if(TextUtils.isEmpty(lastName))
-                                {
-                                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.error_field_required), "Last name"), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                if(!password.equals(confirmPassword))
-                                {
-                                    Toast.makeText(getApplicationContext(), getString(R.string.error_passwordnotmatch), Toast.LENGTH_LONG).show();
-                                    return;
-                                }
 
-                                Retrofit retrofit = new Retrofit.Builder()
-                                        .baseUrl(_constants.WEB_API_URL)
-                                        .addConverterFactory(GsonConverterFactory.create())
-                                        .build();
-                                RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
-                                Call<UserPOJO> call = service.getUserDetails(username, emailAddress);
-                                call.enqueue(new Callback<UserPOJO>() {
-                                    @Override
-                                    public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
-                                        try {
+                    AlertDialog.Builder builder;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        builder = new AlertDialog.Builder(SignUpActivity.this, android.R.style.Theme_Material_Dialog_Alert);
+                    } else {
+                        builder = new AlertDialog.Builder(SignUpActivity.this);
+                    }
+                    builder.setTitle("Create account")
+                            .setMessage("Submit details?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                    Retrofit retrofit = new Retrofit.Builder()
+                                            .baseUrl(_constants.WEB_API_URL)
+                                            .addConverterFactory(GsonConverterFactory.create())
+                                            .build();
+                                    RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
+                                    Call<UserPOJO> call = service.getUserDetails(username, emailAddress);
+                                    call.enqueue(new Callback<UserPOJO>() {
+                                        @Override
+                                        public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
+
                                             if (response.body() == null)
                                             {
                                                 ShowSignUpProgressDialog();
 
-                                                    auth.createUserWithEmailAndPassword(emailAddress, password)
+                                                auth.createUserWithEmailAndPassword(emailAddress, password)
                                                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                                                             @Override
                                                             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -197,7 +163,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                         public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                                                                             FirebaseUser user = firebaseAuth.getCurrentUser();
                                                                             if (user != null) {
-                                                                               //User account creation succesded, send verification email, and redirect to log in page.
+                                                                                //User account creation succesded, send verification email, and redirect to log in page.
                                                                                 _SL_NewAccount.stopShimmerAnimation();
                                                                                 sendVerificationEmail();
                                                                                 saveUserDetails(firstName, lastName, username, emailAddress);
@@ -218,29 +184,31 @@ public class SignUpActivity extends AppCompatActivity {
                                             else {
                                                 Toast.makeText(getApplicationContext(), getString(R.string.error_username_alreadyexists), Toast.LENGTH_LONG).show();
                                             }
-                                        }
-                                        //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
-                                        catch (Exception ex) {
-                                            Helper.logger(ex,true);
 
                                         }
-                                    }
 
-                                    @Override
-                                    public void onFailure(Throwable t) {
-                                        Log.d(TAG, t.toString());
-                                    }
-                                });
+                                        @Override
+                                        public void onFailure(Throwable t) {
+                                            Log.d(TAG, t.toString());
+                                        }
+                                    });
 
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // do nothing
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // do nothing
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+
+                }
+                catch (Exception ex)
+                {
+                    ErrorDialog errorDialog = new ErrorDialog(SignUpActivity.this, ex.getMessage());
+                    errorDialog.show();
+                }
 
             }
         });

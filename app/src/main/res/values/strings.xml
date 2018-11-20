@@ -260,5 +260,12 @@
     <string name="InfoLayout_description_not_available" translatable="false">\nDescription not yet available</string>
     <string name="crash_error">Sorry, an error is encountered</string>
 
+    <!--BUTTON LABELS-->
+    <string name="save_button">Save</string>
+    <string name="delete_button">Delete</string>
+    <string name="signin_button">Sign-in</string>
+    <string name="signup_button">Sign-up</string>
+    <string name="signinwithfacebook_button">Sign-in via Facebook</string>
+
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
