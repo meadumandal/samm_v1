@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -44,7 +45,6 @@ import retrofit.Retrofit;
 public class SignUpActivity extends AppCompatActivity {
 
     private FirebaseAuth auth;
-    private ProgressBar progressBar;
     private Button btn_signUp;
     FirebaseDatabase userDatabase;
     DatabaseReference userDatabaseReference;
@@ -57,6 +57,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextView ViewTitle;
     private ShimmerLayout _SL_NewAccount;
     public static Boolean FromNavigatationDrawer=false;
+    private Resources _resources;
 
 
     @Override
@@ -65,10 +66,10 @@ public class SignUpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_sign_up);
         auth = FirebaseAuth.getInstance();
         btn_signUp = (Button)findViewById(R.id.btn_save);
-        progressBar= (ProgressBar) findViewById(R.id.progressBar);
         sessionManager = new SessionManager(getApplicationContext());
         _SL_NewAccount = (ShimmerLayout) findViewById(R.id.SL_NewAccount);
         _SL_NewAccount.startShimmerAnimation();
+        _resources = getResources();
        // link_driver = (TextView) findViewById(R.id.linkDriver);
 
 
@@ -218,8 +219,6 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onResume()
     {
         super.onResume();
-       // SignUpProgDiag.dismiss();
-        progressBar.setVisibility(View.GONE);
     }
     private void sendVerificationEmail()
     {
@@ -230,9 +229,15 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             FirebaseAuth.getInstance().signOut();
-                            startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                            Toast.makeText(getApplicationContext(), getString(R.string.success_please_verify_email), Toast.LENGTH_LONG).show();
-                            finish();
+                            InfoDialog ID_VerificationEmail = new InfoDialog(SignUpActivity.this, getString(R.string.success_please_verify_email));
+                            ID_VerificationEmail.show();
+                            ID_VerificationEmail.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialogInterface) {
+                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                    finish();
+                                }
+                            });
                         }
                         else
                         {
@@ -248,14 +253,8 @@ public class SignUpActivity extends AppCompatActivity {
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress, Constants.EMAIL_AUTH_TYPE);
     }
     private void ShowSignUpProgressDialog(){
-        SignUpProgDiag = new ProgressDialog(SignUpActivity.this);
-        SignUpProgDiag.setMax(100);
-        SignUpProgDiag.setMessage("Please wait as we create your account...");
-        SignUpProgDiag.setTitle("Sign Up");
-        SignUpProgDiag.setIndeterminate(false);
-        SignUpProgDiag.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        SignUpProgDiag.setCancelable(false);
-        SignUpProgDiag.show();
+        LoaderDialog SignUpDialog = new LoaderDialog(SignUpActivity.this, _resources.getString(R.string.title_signup_activity), _resources.getString(R.string.dialog_signup_inprogress));
+        SignUpDialog.show();
     }
     public void LoginLinkClicked(View v){
             startActivity(new Intent(SignUpActivity.this, LoginActivity.class));

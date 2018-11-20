@@ -208,11 +208,13 @@ public class ReportsActivity extends Fragment {
                             _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
                             _LL_create_button_holder.setVisibility(View.GONE);
                             _SL_btn_create_report.stopShimmerAnimation();
+                            _btnHideDistanceReportFilters.setVisibility(View.VISIBLE);
                         }
                         else if(_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT)) {
                             _LL_create_button_holder.setVisibility(View.GONE);
                             _SL_btn_create_report.stopShimmerAnimation();
                             _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
+                            _btnHideReportFilters.setVisibility(View.VISIBLE);
                         }
 
                     }
@@ -296,15 +298,11 @@ public class ReportsActivity extends Fragment {
             if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_total_distance));
-//                _appbar_distancespeed_reportfilters.setVisibility(View.VISIBLE);
-                _btnHideDistanceReportFilters.setVisibility(View.VISIBLE);
             } else if (_sessionManager.GetReportType().equals(_constants.PASSENGER_ACTIVITY_REPORT)) {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
             } else if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
             {
                 _reportName.setText(MenuActivity._GlobalResource.getString(R.string.title_vehicle_rounds_report));
-//                _appbar_vehiclerounds_reportfilters.setVisibility(View.VISIBLE);
-                _btnHideReportFilters.setVisibility(View.VISIBLE);
 
             }
             final DatePickerDialog.OnDateSetListener fromDate = new DatePickerDialog.OnDateSetListener() {
@@ -316,8 +314,8 @@ public class ReportsActivity extends Fragment {
                     _calendar.set(Calendar.YEAR, year);
                     _calendar.set(Calendar.MONTH, monthOfYear);
                     _calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                    if (_sessionManager.GetReportType().equals(_constants.VEHICLE_ROUNDS_REPORT))
-                        updateLabel("from");
+                    updateLabel("from");
+
                 }
 
             };

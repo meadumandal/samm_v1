@@ -15,6 +15,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center|center_vertical">
         <LinearLayout
+            android:paddingTop="40dp"
             android:layout_width="match_parent"
             android:layout_gravity="center|center_vertical"
             android:gravity="center"
@@ -211,30 +212,10 @@
                     android:layout_below="@+id/TIL_edit_confirmpassword"
                     android:layout_marginTop="12dp"
                     android:background="@drawable/signup_oval_background"
+                    android:textColor="@color/colorBlack"
                     android:text="@string/signup_button"
-                    android:textColor="#FFFFFF"
                     android:textSize="15sp"
                     android:textStyle="bold" />
-
-
-
-
-                <!--<TextView-->
-                <!--android:id="@+id/linkDriver"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_below="@+id/textAlreadyAMember"-->
-                <!--android:layout_centerHorizontal="true"-->
-                <!--android:text="I'm a driver"-->
-                <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-                <!--android:textColor="@color/colorWhite" />-->
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center|bottom"
-                    android:layout_marginBottom="20dp"
-                    android:visibility="gone" />
 
             </LinearLayout>
             <LinearLayout
@@ -250,33 +231,12 @@
                     android:layout_height="wrap_content"
                     android:textAlignment="center"
                     android:text="Already a member?"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:textColor="@color/colorWhite" />
-
-                <TextView
-                    android:id="@+id/linkSignIn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="40dp"
-                    android:text="Log In"
-                    android:textStyle="bold"
                     android:onClick="LoginLinkClicked"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
-
-    <!--<LinearLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:orientation="vertical"-->
-        <!--android:layout_marginLeft="100dp"-->
-        <!--android:layout_marginTop="30dp"-->
-        <!--android:gravity="center_horizontal"-->
-        <!--&gt;-->
-
-    <!--</LinearLayout>-->
 
 
 

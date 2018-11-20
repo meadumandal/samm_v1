@@ -100,6 +100,8 @@ public class TutorialDialog extends Dialog implements
             _BTN_OK.setOnClickListener(this);
             _BTN_NEXT.setOnClickListener(this);
             _TV_skip.setOnClickListener(this);
+            MenuActivity.buttonEffect(_BTN_OK);
+            MenuActivity.buttonEffect(_BTN_NEXT);
         }catch (Exception ex){
             Helper.logger(ex);
         }

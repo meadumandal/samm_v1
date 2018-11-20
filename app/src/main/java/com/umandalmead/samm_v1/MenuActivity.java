@@ -2717,7 +2717,6 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                         HND_ShowSearchBar.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-
                                 _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                                 _RoutesPane.setVisibility(View.VISIBLE);
                             }

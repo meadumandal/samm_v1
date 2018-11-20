@@ -191,6 +191,7 @@
     <string name="dialog_updating_points_title">Updating Pickup/Dropoff Point</string>
     <string name="dialog_deleting_points_title">Deleting Pickup/Dropoff Point</string>
     <string name="dialog_delete_point_title">Deleting point</string>
+    <string name="dialog_signup_inprogress">Please wait as we create your account...</string>
 
     <!--ERROR DIALOGS-->
     <string name="error_generic">An error is encountered. Please contact system administrator</string>
