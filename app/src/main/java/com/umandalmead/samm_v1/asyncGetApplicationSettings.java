@@ -111,7 +111,7 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
         for (Setting S_entry : MenuActivity._AL_applicationSettings) {
             if (S_entry.getID() == 3) { //3 - ApplicationSubName
                 if (!_BOOL_isAdhoc)
-                    AboutActivity.SammTV.setText(Html.fromHtml(S_entry.getName() + "<br/><br/>" + S_entry.getDescription()));
+                    AboutActivity.SammTV.setText(Html.fromHtml(S_entry.getValue()));
             }
             if (S_entry.getID() == 5) { //5-Version
                 Boolean IsUpdated = BuildConfig.VERSION_NAME.equals(S_entry.getValue());

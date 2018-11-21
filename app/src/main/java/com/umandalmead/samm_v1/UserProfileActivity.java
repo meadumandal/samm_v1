@@ -226,7 +226,7 @@ public class UserProfileActivity extends Fragment {
                 }
                 else
                 {
-                    InfoDialog infoDialog = new InfoDialog(_activity, "Nothing has changaed");
+                    InfoDialog infoDialog = new InfoDialog(_activity, "Nothing has changed");
                     infoDialog.show();
                 }
             }

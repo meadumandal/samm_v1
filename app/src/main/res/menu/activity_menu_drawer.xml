@@ -89,7 +89,7 @@
             <item android:id="@+id/nav_vehiclesummary"
                 android:icon="@drawable/ic_pie_chart_black_24dp"
                 android:background="?attr/selectableItemBackground"
-                android:title="Ecoloop Flow"/>
+                android:title="Vehicle Summary Report"/>
             <item android:id="@+id/nav_numberofrounds"
                 android:icon="@drawable/ic_reports_black_24dp"
                 android:background="?attr/selectableItemBackground"

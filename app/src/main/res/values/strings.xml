@@ -148,7 +148,7 @@
     <string name="NETWORK_SUN_CELLULAR">Smart</string>
     <!--GOOGLE API-->
     <string name="G_API_Building">Building Google API Client...</string>
-    <string name="G_Play_Services_Not_Installed">lease install google play service</string>
+    <string name="G_Play_Services_Not_Installed">Please install google play service</string>
     <!---GOOGLE MAP RELATED-->
     <string name="GM_Ready">Google Map is Ready...</string>
     <string name="GM_Style_Parse_Failed">Style parsing failed</string>

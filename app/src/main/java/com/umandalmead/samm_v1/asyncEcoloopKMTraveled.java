@@ -417,7 +417,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
     private void InflateTabLayout(){
         ReportsActivity._TL_EcoloopTraveled.removeAllTabs();
         ReportsActivity._TL_EcoloopTraveled.addTab(ReportsActivity._TL_EcoloopTraveled.newTab().setText("Distance Traveled"));
-        ReportsActivity._TL_EcoloopTraveled.addTab(ReportsActivity._TL_EcoloopTraveled.newTab().setText("Speed Traveled"));
+        ReportsActivity._TL_EcoloopTraveled.addTab(ReportsActivity._TL_EcoloopTraveled.newTab().setText("Max Speed"));
         ReportsActivity._TL_EcoloopTraveled.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
