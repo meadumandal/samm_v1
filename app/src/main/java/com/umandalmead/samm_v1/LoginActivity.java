@@ -181,7 +181,7 @@ public class LoginActivity extends AppCompatActivity{
                                                 else
                                                 {
                                                     HideLogInProgressDialog();
-                                                    ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "E-mail address liked to this Facebook account is already taken by another user.");
+                                                    ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "E-mail address linked to this Facebook account is already taken by another user.");
                                                     errorDialog.show();
                                                     try {
                                                         FacebookSdk.sdkInitialize(LoginActivity.this);
@@ -268,7 +268,7 @@ public class LoginActivity extends AppCompatActivity{
 
                                         if (response.body() == null) {
                                             FP_Loader.dismiss();
-                                            errorDialog.setErrorMessage("Username/E-mail Address does not exist");
+                                            errorDialog.setErrorMessage("Username/Email Address does not exist");
                                             errorDialog.show();
                                         } else {
                                             if (response.body().getAuthType().equalsIgnoreCase(Constants.FB_AUTH_TYPE)) {
