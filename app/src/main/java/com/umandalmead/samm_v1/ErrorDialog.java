@@ -51,6 +51,7 @@ public class ErrorDialog extends Dialog implements
         btnOk    = (Button) findViewById(R.id.btnOK);
         btnOk.setTypeface(Helper.FONT_RUBIK_BOLD);
         btnOk.setOnClickListener(this);
+        MenuActivity.buttonEffect(btnOk);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
 

@@ -10,11 +10,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -58,6 +62,7 @@ public class SignUpActivity extends AppCompatActivity {
     private ShimmerLayout _SL_NewAccount;
     public static Boolean FromNavigatationDrawer=false;
     private Resources _resources;
+    private EditText edit_firstName,edit_lastName,edit_emailAddress,edit_username,edit_password,edit_confirmPassword;
 
 
     @Override
@@ -70,7 +75,27 @@ public class SignUpActivity extends AppCompatActivity {
         _SL_NewAccount = (ShimmerLayout) findViewById(R.id.SL_NewAccount);
         _SL_NewAccount.startShimmerAnimation();
         _resources = getResources();
-       // link_driver = (TextView) findViewById(R.id.linkDriver);
+        edit_firstName = (EditText) findViewById(R.id.edit_firstName);
+        edit_lastName = (EditText) findViewById(R.id.edit_lastName);
+        edit_emailAddress = (EditText) findViewById(R.id.edit_address);
+        edit_username = (EditText) findViewById(R.id.textRoute);
+        edit_password = (EditText) findViewById(R.id.edit_password);
+        edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
+        CheckBox checkbox_showpassword = (CheckBox) findViewById(R.id.checkBox_showPassword);
+
+        checkbox_showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    edit_password.setTransformationMethod(null);
+                    edit_confirmPassword.setTransformationMethod(null);
+                }
+                else {
+                    edit_password.setTransformationMethod(new PasswordTransformationMethod());
+                    edit_confirmPassword.setTransformationMethod(new PasswordTransformationMethod());
+                }
+            }
+        });
 
 
 
@@ -104,12 +129,12 @@ public class SignUpActivity extends AppCompatActivity {
 
                 try
                 {
-                    EditText edit_firstName = (EditText) findViewById(R.id.edit_firstName);
-                    EditText edit_lastName = (EditText) findViewById(R.id.edit_lastName);
-                    EditText edit_emailAddress = (EditText) findViewById(R.id.edit_address);
-                    EditText edit_username = (EditText) findViewById(R.id.textRoute);
-                    final EditText edit_password = (EditText) findViewById(R.id.edit_password);
-                    EditText edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
+                    edit_firstName = (EditText) findViewById(R.id.edit_firstName);
+                    edit_lastName = (EditText) findViewById(R.id.edit_lastName);
+                    edit_emailAddress = (EditText) findViewById(R.id.edit_address);
+                    edit_username = (EditText) findViewById(R.id.textRoute);
+                    edit_password = (EditText) findViewById(R.id.edit_password);
+                    edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
 
 
                     String firstName="",

@@ -12,13 +12,10 @@
     <include layout="@layout/samm_toolbar" android:layout_height="wrap_content" android:layout_width="wrap_content"></include>
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center|center_vertical">
+        android:layout_height="match_parent">
         <LinearLayout
-            android:paddingTop="40dp"
+            android:paddingTop="5dp"
             android:layout_width="match_parent"
-            android:layout_gravity="center|center_vertical"
-            android:gravity="center"
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <LinearLayout
@@ -67,7 +64,6 @@
 
                     <EditText
                         android:id="@+id/edit_firstName"
-
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
@@ -76,8 +72,10 @@
                         android:hint="First Name"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
+                        android:imeOptions="actionNext"
+                        android:singleLine="true"
+                        android:maxLines="1"
                         android:textColorHint="#ffffff"
-                        android:ellipsize="start"
                         android:gravity="center_horizontal"/>
                 </android.support.design.widget.TextInputLayout>
 
@@ -99,8 +97,10 @@
                         android:hint="Last Name"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
+                        android:imeOptions="actionNext"
+                        android:singleLine="true"
+                        android:maxLines="1"
                         android:textColorHint="#ffffff"
-                        android:ellipsize="start"
                         android:gravity="center_horizontal"/>
                 </android.support.design.widget.TextInputLayout>
                 <android.support.design.widget.TextInputLayout
@@ -119,14 +119,16 @@
                         android:layout_alignEnd="@+id/edit_lastName"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentStart="true"
+                        android:imeOptions="actionNext"
+                        android:maxLines="1"
                         android:backgroundTint="@android:color/white"
                         android:ems="10"
-                        android:hint="Email Address"
+                        android:hint="E-mail Address"
                         android:inputType="textEmailAddress"
+                        android:singleLine="true"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
                         android:textColorHint="#ffffff"
-                        android:ellipsize="start"
                         android:gravity="center_horizontal"/>
                 </android.support.design.widget.TextInputLayout>
                 <android.support.design.widget.TextInputLayout
@@ -144,15 +146,26 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentStart="true"
+                        android:imeOptions="actionNext"
                         android:backgroundTint="@android:color/white"
                         android:hint="Username"
+                        android:singleLine="true"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
                         android:textColorHint="#ffffff"
-                        android:ellipsize="start"
+                        android:maxLines="1"
                         android:gravity="center_horizontal"/>
                 </android.support.design.widget.TextInputLayout>
 
+                <CheckBox
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/checkBox_showPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="left"
+                    android:text="Show Passwords"
+                    android:textColor="@color/colorWhiteEC"
+                    android:buttonTint="@color/colorWhiteEC"/>
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -167,15 +180,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignEnd="@+id/textRoute"
+                        android:imeOptions="actionNext"
                         android:layout_alignParentStart="true"
                         android:backgroundTint="@android:color/white"
                         android:ems="10"
                         android:hint="Password"
                         android:inputType="textPassword"
                         android:textAlignment="center"
+                        android:singleLine="true"
                         android:textColor="#ffffff"
                         android:textColorHint="#ffffff"
-                        android:ellipsize="start"
+                        android:maxLines="1"
                         android:gravity="center_horizontal"/>
                 </android.support.design.widget.TextInputLayout>
                 <android.support.design.widget.TextInputLayout
@@ -189,15 +204,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignEnd="@+id/edit_password"
+                        android:imeOptions="actionDone"
                         android:layout_alignParentStart="true"
                         android:backgroundTint="@android:color/white"
                         android:ems="10"
                         android:hint="Confirm Password"
+                        android:singleLine="true"
                         android:inputType="textPassword"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
                         android:textColorHint="#ffffff"
-                        android:ellipsize="start"
+                        android:maxLines="1"
                         android:gravity="center_horizontal"/>
                 </android.support.design.widget.TextInputLayout>
 

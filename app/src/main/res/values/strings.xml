@@ -26,9 +26,10 @@
     <string name="error_invalid_route_name">Please enter a valid route name</string>
     <string name="error_not_connected">You are not connected to the internet. Please check your connection and try again.</string>
     <string name="error_contacting_server">Problem contacting the server. Please try again later.</string>
+    <string name="error_user_profile_nothing_has_changed">Nothing has changed</string>
 
     <!--NOTIFICATION MESSAGES-->
-    <string name="success_please_verify_email">A verification E-mail has been sent!</string>
+    <string name="success_please_verify_email">A verification e-mail has been sent!</string>
     <string name="guest_nav_drawer_message">You are currently not registered. Sign-up now to discover more features</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -85,6 +86,12 @@
     <string name="info_confirm_save_changes">Save changes?</string>
     <string name="info_delete_point_confirm">Are you sure you want to delete this point?</string>
     <string name="info_checking_latest_version">Checking latest version...</string>
+    <string name="info_using_beta_version">You\'re using a beta version.</string>
+    <string name="info_outdated_version">This version is outdated. Tap to update.</string>
+    <string name="info_up_to_date">Up to date</string>
+    <string name="info_latest_version_available">Latest version available: </string>
+    <string name="info_station_order_save_success">Stations succesfully updated</string>
+    <string name="info_patch_is_available">Patch is available. Please update your app to proceed.</string>
     <!--PLACE AUTOCOMPLETE FRAGMENT-->
     <string name="PlaceAutoCompleteFragment_Hint">Where are you going?</string>
     <string name="PlaceAutoCompleteFragment_FontColor" translatable="false">#000000</string>
@@ -201,7 +208,7 @@
     <string name="error_please_turn_on_wifi_or_mobile_data">Please turn on Wi-fi or Mobile data</string>
     <string name="error_encountered_upon_adding_gps">Error encountered upon adding GPS. Please re-try</string>
     <string name="error_encountered_with_colon">Error encountered : </string>
-    <string name="error_please_enter_emailaddress">Please enter an email address.</string>
+    <string name="error_please_enter_emailaddress">Please enter an e-mail address.</string>
 
     <!--TUTORIAL-->
     <string name="TUT_welcome_title">Welcome!</string>
@@ -215,8 +222,12 @@
     <string name="TUT_lines_title">Lines</string>
     <string name="TUT_tracked_puvs_title">Tracked PUVs</string>
     <string name="TUT_shortcuts_title">Shortcuts</string>
+    <string name="TUT_reports_title">Reports</string>
     <string name="TUT_drivers_title">Drivers</string>
     <string name="TUT_sign_up_title">One-tap Sign Up</string>
+    <string name="TUT_driver_slide_up_panel_title">Select route</string>
+    <string name="TUT_create_title">Create</string>
+    <string name="TUT_generate_title">Generate</string>
     <string name="TUT_sign_up_inst">Sign-up any time you want!</string>
     <string name="TUT_samm_drawer_inst">Tap on SAMM icon to explore actions.</string>
     <string name="TUT_my_location_inst">Just tap once to show your current location.</string>
@@ -225,6 +236,7 @@
     <string name="TUT_search_target_destination_inst">Start by searching your desired target destination.</string>
     <string name="TUT_welcome_to_samm_inst">"Welcome to SAMM!\nKnow more about the features of this app!"</string>
     <string name="TUT_welcome_to_samm_admin_inst">"Welcome to SAMM!\nKnow more what you can do as "</string>
+    <string name="TUT_welcome_to_samm_driver_inst">"Welcome to SAMM!\nKnow more what you can do a registered driver!"</string>
     <string name="TUT_welcome_superadmin">a Super Administrator!</string>
     <string name="TUT_welcome_admin">an Administrator!</string>
     <string name="TUT_lines_inst">Tap on \'Lines\' menu to add, modify and delete lines.</string>
@@ -235,6 +247,14 @@
     <string name="TUT_drivers_inst">Tap on \'Drivers\' menu to add, modify and delete Drivers.</string>
     <string name="TUT_tracked_puvs_inst">Tap on \'Tracked PUVs\' menu to show status of GPS devices. Using this page, you can re-connect or edit a GPS device if it goes offline or invisible from the map.</string>
     <string name="TUT_floating_action_button_inst">Alternatively, you can also tap the floating action button from the lower right corner of the map to show different actions as well.</string>
+    <string name="TUT_reports_inst">Take a look on different data by generating reports.</string>
+    <string name="TUT_driver_slideup_panel_inst">Slide up the panel to show and select your current route.</string>
+    <string name="TUT_driver_slideup_panel_expanded_inst">Search for your route from the route list. You can find more routes by sliding across the boxes.</string>
+    <string name="TUT_driver_select_routes_inst">Select your current route by tapping on the box that contains the route name.</string>
+    <string name="TUT_create_report_inst">Start creating report by clicking \'Create\' button.</string>
+    <string name="TUT_report_distance_filter_inst">To generate reports:\n1. Populate date fields by tapping on start date and end date fields.\n2.Click \'Generate\' button.\n3. Report was generated.</string>
+    <string name="TUT_report_rounds_filter_inst">To generate reports:\n1. Select a line from the list.\n2. Select a station from the list.\n3. Populate date fields by tapping on each date.\n4.Click \'Generate\' button.\n5. Report was generated.</string>
+
     <!--VEHICLE SEARCHING MESSAGES-->
     <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
     <!--FONTS-->

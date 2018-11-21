@@ -127,8 +127,10 @@ public class mySQLUpdateStationOrder extends AsyncTask<String, Void, Void> {
                     _isSuccessful = false;
 
                 _promptMessage = json.getString("message");
-                if (_isSuccessful)
+                if (_isSuccessful) {
+                    _promptMessage = MenuActivity._GlobalResource.getString(R.string.info_station_order_save_success);
                     _updatedStationsDataInJSONFormat = json.getString("stationList");
+                }
 
             }
             else

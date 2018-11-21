@@ -482,6 +482,8 @@ public class Helper {
         }
         if(_result.PlateNumber==null)
             _result.PlateNumber="Filinvest E-loop";
+        if(_result.DriverName==null || (_result.DriverName!=null && _result.DriverName.trim().equals("")))
+            _result.DriverName="No description available";
         return _result;
     }
     public String getEmojiByUnicode(int unicode)

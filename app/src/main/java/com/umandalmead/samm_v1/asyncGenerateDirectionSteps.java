@@ -111,10 +111,10 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
             else if(STR_temp.contains("head") || STR_temp.contains("continue")){
                 STR_Result+="head.png";
             }
-            else if(STR_temp.contains("turn right")){
+            else if(STR_temp.contains("turn right") || STR_Result.contains("sharp right")){
                 STR_Result+="turn_right.png";
             }
-            else if(STR_temp.contains("turn left")){
+            else if(STR_temp.contains("turn left") || STR_Result.contains("sharp left")){
                 STR_Result+="turn_left.png";
             }
             else if(STR_temp.contains("final")){

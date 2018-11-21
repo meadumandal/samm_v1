@@ -1,5 +1,8 @@
 package com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +10,7 @@ import android.location.Location;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
@@ -115,7 +119,7 @@ import com.umandalmead.samm_v1.SessionManager;
                         @Override
                         public void onAnimationUpdate(ValueAnimator valueAnimator) {
                             try {
-                                MarkerOptions markerOptions = new MarkerOptions();
+                                final MarkerOptions markerOptions = new MarkerOptions();
                                 if (deviceId.toString().equals(_sessionManager.getKeyDeviceid()))
                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
                                 else{
@@ -149,9 +153,19 @@ import com.umandalmead.samm_v1.SessionManager;
                                 }
                                 else
                                 {
-                                    _vehicleAnimatedMarker.remove();
+
+
                                     //if(_vehicleAnimatedMarker==null){
-                                    _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
+//                                    Handler HND_RemoveMarker = new Handler();
+//                                    HND_RemoveMarker.postDelayed(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            _vehicleAnimatedMarker.setAlpha(0f);
+                                            _vehicleAnimatedMarker.remove();
+                                            _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
+//                                        }
+//                                    }, 100);
+
                                     //}
                                     //else{
 //                                        _vehicleAnimatedMarker.setPosition(newPos);

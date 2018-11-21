@@ -57,6 +57,7 @@ public class AddUserMarkers implements
             {
                 Marker marker;
                 marker = (Marker) ((MenuActivity)this._activity)._userMarkerHashmap.get(username);
+                Boolean IsUserOnline = Boolean.valueOf(dataSnapshot.child("connections").getValue().toString());
 
                 Object Latitude = dataSnapshot.child("Latitude").getValue();
                 Object Longitude = dataSnapshot.child("Longitude").getValue();
@@ -77,31 +78,35 @@ public class AddUserMarkers implements
 
                     if(marker !=null)
                     {
-                        //marker.remove();
-                        marker.setPosition(latLng);
-                        //((MenuActivity)this._activity)._userMarkerHashmap.remove(username);
+                        if(IsUserOnline)
+                             marker.setPosition(latLng);
+                        else {
+                            marker.remove();
+                            ((MenuActivity)this._activity)._userMarkerHashmap.remove(username);
+                        }
+
                     }else{
                         String STR_IconGetterFlag = null,
                                 STR_Snippet=dataSnapshot.child("emailAddress").getValue()!=null?dataSnapshot.child("emailAddress").getValue().toString(): null;
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.position(latLng);
-                        markerOptions.snippet(STR_Snippet);
-                        markerOptions.title(username);
-                        if(Helper.IsPossibleAdminBasedOnFirebaseUserKey(username)){
-                            STR_IconGetterFlag = STR_Snippet == null? username: STR_Snippet;
-                        }else {
-                            STR_IconGetterFlag = username;
+                        if(IsUserOnline) {
+                            MarkerOptions markerOptions = new MarkerOptions();
+                            markerOptions.position(latLng);
+                            markerOptions.snippet(STR_Snippet);
+                            markerOptions.title(username);
+                            if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(username)) {
+                                STR_IconGetterFlag = STR_Snippet == null ? username : STR_Snippet;
+                            } else {
+                                STR_IconGetterFlag = username;
+                            }
+                            markerOptions.title(username);
+                            UserMarker UM_user = Helper.GetUserMarkerDetails(STR_IconGetterFlag, _activity.getApplicationContext());
+                            // markerOptions.snippet(markerOptions.getSnippet() + ","+UM_user.UserType.toString());
+                            markerOptions.icon(BitmapDescriptorFactory.fromResource(UM_user.UserIcon));
+                            //marker.setPosition(latLng);
+                            marker = ((MenuActivity) this._activity)._googleMap.addMarker(markerOptions);
+                            ((MenuActivity) this._activity)._userMarkerHashmap.put(username, marker);
                         }
-                        markerOptions.title(username);
-                        UserMarker UM_user = Helper.GetUserMarkerDetails(STR_IconGetterFlag, _activity.getApplicationContext());
-                        // markerOptions.snippet(markerOptions.getSnippet() + ","+UM_user.UserType.toString());
-                        markerOptions.icon(BitmapDescriptorFactory.fromResource(UM_user.UserIcon));
-                        //marker.setPosition(latLng);
-                        marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
-                        ((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
                     }
-                    //marker = ((MenuActivity)this._activity)._googleMap.addMarker(markerOptions);
-                    //((MenuActivity)this._activity)._userMarkerHashmap.put(username, marker);
                 }
             }
         }
@@ -116,6 +121,22 @@ public class AddUserMarkers implements
 
     @Override
     public void onChildRemoved(DataSnapshot dataSnapshot) {
+        try {
+            String username = dataSnapshot.getKey();
+            if (!username.equals(((MenuActivity) this._activity)._sessionManager.getUsername())) {
+                Marker marker;
+                marker = (Marker) ((MenuActivity) this._activity)._userMarkerHashmap.get(username);
+                if (((MenuActivity)this._activity)._googleMap !=null) {
+                    if (marker != null) {
+                        marker.remove();
+                        ((MenuActivity)this._activity)._userMarkerHashmap.remove(username);
+                    }
+                }
+
+            }
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
 
     }
 

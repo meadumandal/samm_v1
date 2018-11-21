@@ -48,6 +48,7 @@ public class SessionManager {
     public static final String KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN = "IsNavigationDrawerToolTipShown";
     public static final String KEY_CURRENTMAPSTYLE = "CurrentMapStyle";
     public static final String KEY_ECOLOOPREPORTTUTORIAL = "Tutorial_EcoloopReport";
+    public static final String KEY_ROUNDSREPORTTUTORIAL = "Tutorial_RoundsReport";
 
     public SessionManager(Context context)
     {
@@ -83,6 +84,7 @@ public class SessionManager {
         }
     }
     public Boolean getEcoLoopReportTutorialStatus(){return  pref.getBoolean(KEY_ECOLOOPREPORTTUTORIAL, false);}
+    public Boolean getRoundsReportTutorialStatus(){return  pref.getBoolean(KEY_ROUNDSREPORTTUTORIAL, false);}
     public Boolean getRouteTutorialStatus() {return pref.getBoolean(KEY_ISROUTETOOLTIPSHOWN, false);}
     public Boolean getNavigationDrawerTutotialStatus(){ return pref.getBoolean(KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN, false);}
     public void TutorialStatus(Enums.UIType type, Boolean isShown){
@@ -91,6 +93,7 @@ public class SessionManager {
             case SHOWING_ROUTES: prefEditor.putBoolean(KEY_ISROUTETOOLTIPSHOWN, isShown); break;
             case SHOWING_NAVIGATION_DRAWER: prefEditor.putBoolean(KEY_NAVIGATIONDRAWER_TOOLTIPSHOWN, isShown); break;
             case REPORT_ECOLOOP: prefEditor.putBoolean(KEY_ECOLOOPREPORTTUTORIAL, isShown); break;
+            case REPORT_ROUNDS: prefEditor.putBoolean(KEY_ROUNDSREPORTTUTORIAL, isShown); break;
         }
         prefEditor.commit();
     }

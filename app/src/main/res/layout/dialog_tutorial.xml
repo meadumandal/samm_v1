@@ -3,6 +3,7 @@
     android:background="@drawable/loader_background"
     android:layout_gravity="center"
     android:animateLayoutChanges="true"
+    android:paddingBottom="30dp"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <LinearLayout
         android:layout_width="300dp"
@@ -51,19 +52,19 @@
         <Button
             android:id="@+id/BTN_tutorial_next"
             android:layout_width="80dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="15dp"
             android:background="@drawable/rounded_button_blue"
             android:visibility="gone"
             android:text="Next"
             android:textSize="12sp"
             />
         <Button
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="15dp"
             android:id="@+id/BTN_tutorial_done"
             android:layout_width="80dp"
             android:visibility="gone"
-            android:layout_height="30dp"
+            android:layout_height="40dp"
             android:background="@drawable/oval_background_for_dialogs"
             android:text="Done"
             android:textSize="12sp"

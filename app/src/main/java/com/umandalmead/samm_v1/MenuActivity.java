@@ -30,6 +30,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -607,6 +608,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     public void onClick(View v) {
                         ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
                         PlayButtonClickSound();
+                        _SlideUpPanelContainer.setTouchEnabled(false);
+                        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                         final Handler HND_ZoomGoogleMapToUserLocation = new Handler();
                         HND_ZoomGoogleMapToUserLocation.postDelayed(new Runnable() {
                             @Override
@@ -659,6 +662,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     public void onClick(View view) {
                         if(_userCurrentLoc!=null) {
                             PlayButtonClickSound();
+                            MenuActivity.buttonEffect(view);
                             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_userCurrentLoc, 16);
                             _googleMap.animateCamera(cameraUpdate);
                         }
@@ -668,6 +672,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     @Override
                     public void onClick(View view) {
                         PlayButtonClickSound();
+                        MenuActivity.buttonEffect(view);
                        _LL_MapStyleHolder.setVisibility(_LL_MapStyleHolder.getVisibility() == View.INVISIBLE ? View.VISIBLE :View.INVISIBLE);
                     }
                 });
@@ -677,6 +682,15 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 placeAutoCompleteFragmentInstance.setTextSize(18);
                 placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
                 placeAutoCompleteFragmentInstance.setText(null);
+
+//                placeAutoCompleteFragmentInstance.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        LoaderDialog LD_SearchInitialize =  new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_initialize_with_ellipsis),
+//                                MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
+//                        LD_SearchInitialize.show();
+//                    }
+//                });
 
 
                 AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
@@ -701,6 +715,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
                             _DestinationTextView.setBackgroundResource(R.color.colorGrassGreen);
                             _DestinationTextView.setTextSize(Helper.dpToPx(8,_context));
+                            _DestinationTextView.setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
                             new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, place).execute();
 
                         } catch (Exception ex) {
@@ -1181,7 +1196,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
                                 for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                     String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
-                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0  && !v.child("IsParked").equals("True")) {
                                         loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
                                         String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if (loopAwaiting && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
@@ -1200,7 +1215,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                 for (Terminal dl2 : L_TM_DestList_Sorted) {
                                     for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                         String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value + "_" + TM_Entry.getTblRouteID();
-                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0  && !v.child("IsParked").equals("True")) {
                                             String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                             if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
                                                 List<String> temploopids = Arrays.asList(loopId.split(","));
@@ -1232,7 +1247,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             } else if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
                                 for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
                                     String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
-                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0) {
+                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0  && !v.child("IsParked").equals("True")) {
                                         String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
                                         if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
                                             List<String> temploopids = Arrays.asList(loopId.split(","));
@@ -2655,7 +2670,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 case MAIN:
                     if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
                         {
-                            if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())
+                            if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin() && !_sessionManager.isDriver())
                             {
                                 TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),MenuActivity._GlobalResource.getString(R.string.TUT_search_title), MenuActivity._GlobalResource.getString(R.string.TUT_select_title), MenuActivity._GlobalResource.getString(R.string.TUT_map_style_title), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_title), MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
                                         new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_inst),MenuActivity._GlobalResource.getString(R.string.TUT_search_target_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_pick_your_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_change_map_style_inst), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_inst), MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
@@ -2663,9 +2678,25 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 MapTutorial.show();
                             }
                             else if(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()){
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),
+                                                MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
                                         new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_admin_inst)+(_sessionManager.getIsSuperAdmin()?MenuActivity._GlobalResource.getString(R.string.TUT_welcome_superadmin):MenuActivity._GlobalResource.getString(R.string.TUT_welcome_admin)),MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
                                         new Integer[] {R.drawable.tut_welcome,R.drawable.tut_sammdrawericon});
+                                MapTutorial.show();
+                            }
+                            else if(_sessionManager.isDriver()){
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title)
+                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)
+                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)
+                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)},
+                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_driver_inst)
+                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slideup_panel_inst)
+                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slideup_panel_expanded_inst)
+                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_select_routes_inst)},
+                                        new Integer[] {R.drawable.tut_welcome,
+                                                R.drawable.tut_driverslideuppanel,R.drawable.tut_driverselectroute,R.drawable.tut_driverrouteselected});
                                 MapTutorial.show();
                             }
                         }
@@ -2717,16 +2748,18 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
                     if(!_BOOL_IsGPSAcquired)
                         ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
-                    if(_BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
+                    if(_BOOL_IsGPSAcquired) {
                         new asyncGetApplicationSettings(_activity, _context, true).execute();
-                        Handler HND_ShowSearchBar = new Handler();
-                        HND_ShowSearchBar.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                                _RoutesPane.setVisibility(View.VISIBLE);
-                            }
-                        },500);
+                        if (_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
+                            Handler HND_ShowSearchBar = new Handler();
+                            HND_ShowSearchBar.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                    _RoutesPane.setVisibility(View.VISIBLE);
+                                }
+                            }, 500);
+                        }
                     }
                     break;
                 case APPBAR_MIN_HEIGHT:
@@ -2736,18 +2769,31 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 case SHOWING_NAVIGATION_DRAWER:
                     if(_sessionManager.getNavigationDrawerTutotialStatus()!=null && !_sessionManager.getNavigationDrawerTutotialStatus()){
                         if(_sessionManager.getIsSuperAdmin()){
-                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title),MenuActivity._GlobalResource.getString(R.string.TUT_super_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title)},
-                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_super_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_superadmin_users_inst),MenuActivity._GlobalResource.getString(R.string.TUT_admin_users_inst)
-                                            ,MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst)},
-                                    new Integer[] {R.drawable.tut_navsuperadmintools,R.drawable.tut_navitemsuperadminusers, R.drawable.tut_navitemadminusers, R.drawable.tut_navitemlines});
+                            // admin tools enabled
+//                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title),MenuActivity._GlobalResource.getString(R.string.TUT_super_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title)},
+//                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_super_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_superadmin_users_inst),MenuActivity._GlobalResource.getString(R.string.TUT_admin_users_inst)
+//                                            ,MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst)},
+//                                    new Integer[] {R.drawable.tut_navsuperadmintools,R.drawable.tut_navitemsuperadminusers, R.drawable.tut_navitemadminusers, R.drawable.tut_navitemlines});
+//                            MapTutorial.show();
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                    new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
+                                    new Integer[] {R.drawable.tut_navsectionreports});
                             MapTutorial.show();
+
                         }
                         else if(_sessionManager.getIsAdmin()){
-                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title), MenuActivity._GlobalResource.getString(R.string.TUT_drivers_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title),MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title)},
-                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_drivers_inst),MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst),
-                                            MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_inst)
-                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst),MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst)},
-                                    new Integer[] {R.drawable.tut_navadmintools,R.drawable.tut_navitemdrivers, R.drawable.tut_navitemlines, R.drawable.tut_navitemtrackedpuvs, R.drawable.tut_fabcollapsed, R.drawable.tut_fabexpanded });
+                            // admin tools enabled
+//                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title), MenuActivity._GlobalResource.getString(R.string.TUT_drivers_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title),MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title)},
+//                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_drivers_inst),MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst),
+//                                            MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_inst)
+//                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst),MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst)},
+//                                    new Integer[] {R.drawable.tut_navadmintools,R.drawable.tut_navitemdrivers, R.drawable.tut_navitemlines, R.drawable.tut_navitemtrackedpuvs, R.drawable.tut_fabcollapsed, R.drawable.tut_fabexpanded });
+//                            MapTutorial.show();
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                    new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
+                                    new Integer[] {R.drawable.tut_navsectionreports});
                             MapTutorial.show();
                         }
                         else if(_sessionManager.isGuest()){

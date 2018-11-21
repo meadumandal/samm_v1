@@ -67,7 +67,7 @@ public class UserProfileActivity extends Fragment {
     private TextView SammTV;
     private View myView;
     private ImageButton FAB_SammIcon, IB_profile_loader_circle;
-    private TextView ViewTitle,tv_isFacebook,tv_NameDisplay, tv_userTypeDisplay;
+    public static TextView ViewTitle,tv_isFacebook,tv_NameDisplay, tv_userTypeDisplay;
     private ShimmerLayout SL_FB_InfoMessageShimmer;
     private LinearLayout LL_UserCredentialsHolder;
     @Nullable
@@ -226,7 +226,7 @@ public class UserProfileActivity extends Fragment {
                 }
                 else
                 {
-                    InfoDialog infoDialog = new InfoDialog(_activity, "Nothing has changed");
+                    InfoDialog infoDialog = new InfoDialog(_activity, MenuActivity._GlobalResource.getString(R.string.error_user_profile_nothing_has_changed));
                     infoDialog.show();
                 }
             }

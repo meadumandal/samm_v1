@@ -141,6 +141,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, Void>{
             _sessionManager.setLastName(_newLastName);
             _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
             MenuActivity._HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
+            UserProfileActivity.tv_NameDisplay.setText(_sessionManager.getFullName().toUpperCase());
             if (_updatePassword)
             {
                 ChangePassword(_currentPassword, _newPassword, _confirmPassword);

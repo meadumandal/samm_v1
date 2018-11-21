@@ -63,8 +63,8 @@
         <Button
             android:id="@+id/btnTryAgain"
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="100dp"
-            android:layout_height="51dp"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
             android:text="@string/error_try_again_all_caps"
             tools:layout_editor_absoluteX="58dp"
             tools:layout_editor_absoluteY="327dp"

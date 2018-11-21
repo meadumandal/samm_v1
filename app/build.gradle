@@ -16,7 +16,7 @@ android {
         applicationId "com.umandalmead.samm_v1"
         minSdkVersion 21
         targetSdkVersion 28
-        versionName '1.0.2'
+        versionName '1.0.3'
         multiDexEnabled true
         signingConfig signingConfigs.release
         versionCode 2
@@ -64,6 +64,5 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'io.supercharge:shimmerlayout:2.1.0'
     compile 'com.weiwangcn.betterspinner:library-material:1.1.0'
-
 }
 apply plugin: 'com.google.gms.google-services'

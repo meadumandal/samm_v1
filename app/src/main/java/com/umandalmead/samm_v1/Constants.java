@@ -11,6 +11,8 @@ public class Constants {
     public static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     public static final String LOG_TAG ="Custom_Log";
     public static final String WEB_API_URL = "http://samm.website/sammAPI/";
+    public static final String PLAY_STORE_URI_WITH_QUERYSTRING="https://play.google.com/store/apps/details?id=";
+    public static final String PLAY_STORE_MARKET_URI = "market://details?id=";
     public static final String DESTINATIONS_API_FOLDER = "destinations/";
     public static final String DESTINATIONS_API_FILE = "getDestinations.php?";
     public static final String DESTINATIONS_API_GET_POSSIBLE_STATIONS = "getPossibleStations.php?";
@@ -19,6 +21,7 @@ public class Constants {
     public static final String DEVICES_API_FOLDER = "devices/";
     public static final String ELOOPS_API_FOLDER = "eloops/";
     public static final String ELOOPS_API_FILE = "getEloops.php";
+    public static final String SETTINGS_API_FILE="getSettings.php";
     public static final String POINTS_API_FOLDER = "points/";
     public static final String REPORTGENERATORS_API_FOLDER = "reportgenerators/";
     public static final String REPORTS_API_FOLDER = "reports/";

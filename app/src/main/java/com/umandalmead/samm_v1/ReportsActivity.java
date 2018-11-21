@@ -31,6 +31,7 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.internal.http.multipart.MultipartEntity;
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -183,12 +184,31 @@ public class ReportsActivity extends Fragment {
                 }
             });
 
-            if(!_sessionManager.getEcoLoopReportTutorialStatus()){
-                TutorialDialog ReportTutorial = new TutorialDialog(_activity, new String[]{"Create","Generate"},
-                        new String[]{"Start creating report by clicking 'Create' button.","To generate reports:\n1. Populate fields by tapping on each date.\n2.Click 'Generate' button.\n3. Report was generated."}
-                        ,new Integer[]{R.drawable.tut_createreport,R.drawable.tut_ecoloopfilter});
-                ReportTutorial.show();
-                _sessionManager.TutorialStatus(Enums.UIType.REPORT_ECOLOOP, true);
+            //Tutorials
+            if(_sessionManager.GetReportType().equals(_constants.DISTANCE_SPEED_REPORT)) {
+                if (!_sessionManager.getEcoLoopReportTutorialStatus()) {
+                    TutorialDialog ReportTutorial = new TutorialDialog(_activity,
+                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_create_title)
+                                ,MenuActivity._GlobalResource.getString(R.string.TUT_generate_title)},
+                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_create_report_inst)
+                                ,MenuActivity._GlobalResource.getString(R.string.TUT_report_distance_filter_inst)},
+                            new Integer[]{R.drawable.tut_createreport
+                                    ,R.drawable.tut_ecoloopfilter});
+                    ReportTutorial.show();
+                    _sessionManager.TutorialStatus(Enums.UIType.REPORT_ECOLOOP, true);
+                }
+            }else{
+                if(!_sessionManager.getRoundsReportTutorialStatus()) {
+                    TutorialDialog ReportTutorial = new TutorialDialog(_activity,
+                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_create_title)
+                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_generate_title)},
+                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_create_report_inst)
+                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_report_rounds_filter_inst)},
+                            new Integer[]{R.drawable.tut_createreport
+                                    ,R.drawable.tut_roundsreportfilters});
+                    ReportTutorial.show();
+                    _sessionManager.TutorialStatus(Enums.UIType.REPORT_ROUNDS, true);
+                }
             }
 
 

@@ -168,7 +168,7 @@ public class LoginActivity extends AppCompatActivity{
                                         call.enqueue(new Callback<UserPOJO>() {
                                             @Override
                                             public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
-                                                if (response.body() == null) {
+                                                if (response.body() == null || response.body().getAuthType().equals("FacebookAuth")) {
                                                     try {
                                                         handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
                                                     }
@@ -268,7 +268,7 @@ public class LoginActivity extends AppCompatActivity{
 
                                         if (response.body() == null) {
                                             FP_Loader.dismiss();
-                                            errorDialog.setErrorMessage("Username/Email Address does not exist");
+                                            errorDialog.setErrorMessage("Username/E-mail Address does not exist");
                                             errorDialog.show();
                                         } else {
                                             if (response.body().getAuthType().equalsIgnoreCase(Constants.FB_AUTH_TYPE)) {

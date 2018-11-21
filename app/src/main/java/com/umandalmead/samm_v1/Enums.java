@@ -16,7 +16,8 @@ public class Enums {
         ADMIN_SHOW_MAPS_LINEARLAYOUT("AdminShowMapsLinearLayout",7),
         APPBAR_MIN_HEIGHT("AppBarMinHeight",8),
         SHOWING_NAVIGATION_DRAWER("ShowingNavigationDrawer",9),
-        REPORT_ECOLOOP("ReportEcoLoop",10);
+        REPORT_ECOLOOP("ReportEcoLoop",10),
+        REPORT_ROUNDS("ReportRounds",11);
 
         private String stringValue;
         private int intValue;

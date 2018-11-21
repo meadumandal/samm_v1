@@ -79,8 +79,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_below="@+id/txtUserFullname"
                 android:layout_centerHorizontal="true"
-
-                android:text="SAMM Commuter"
+                android:text="SAMM Commuer"
                 android:textColor="@color/colorGrey"
                 android:textSize="10dp"
                 android:textStyle="italic" />

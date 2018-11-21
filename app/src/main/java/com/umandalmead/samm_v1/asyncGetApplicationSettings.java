@@ -2,6 +2,7 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -9,6 +10,7 @@ import android.text.Html;
 import android.view.Menu;
 import android.view.View;
 
+import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Setting;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Settings;
@@ -21,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by eleazerarcilla on 03/11/2018.
@@ -47,7 +50,7 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context) && MenuActivity._AL_applicationSettings==null) {
-                String link = _constants.WEB_API_URL + _constants.SETTINGS_API_FOLDER + "getSettings.php";
+                String link = _constants.WEB_API_URL + _constants.SETTINGS_API_FOLDER + _constants.SETTINGS_API_FILE;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -114,37 +117,92 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
                     AboutActivity.SammTV.setText(Html.fromHtml(S_entry.getValue()));
             }
             if (S_entry.getID() == 5) { //5-Version
-                Boolean IsUpdated = BuildConfig.VERSION_NAME.equals(S_entry.getValue());
+                //String ThisAppBuildVersion = "1.0.3", LatestAppVersionFromServer = "1.0.3";
+                String ThisAppBuildVersion = BuildConfig.VERSION_NAME, LatestAppVersionFromServer = S_entry.getValue();
+                Boolean IsUpdated = ThisAppBuildVersion.equals(LatestAppVersionFromServer);
                 if (!_BOOL_isAdhoc) {
-                    AboutActivity.TV_SammLatestVersion.setText("(" + (IsUpdated ? "Up to date"
-                            : "Latest version available: " + S_entry.getValue()) + ")");
+                    AboutActivity.TV_SammLatestVersion.setText("(" + (IsUpdated ? MenuActivity._GlobalResource.getString(R.string.info_up_to_date)
+                            : (MenuActivity._GlobalResource.getString(R.string.info_latest_version_available) + S_entry.getValue())) + ")");
                     AboutActivity._SL_TV_LatestVersion.startShimmerAnimation();
                 } else {
                     if (!IsUpdated)
-                        ShowOutdatedAppInfo();
+                        ShowAppVersionInfo(ThisAppBuildVersion, LatestAppVersionFromServer);
                 }
             }
         }
     }
-    public void ShowOutdatedAppInfo(){
-        if(MenuActivity._BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
-            MenuActivity._AppBarLayout.height = _helper.dpToPx(20, _context);
-            MenuActivity._AppBar.setLayoutParams(MenuActivity._AppBarLayout);
-            MenuActivity._AppBar.setVisibility(View.VISIBLE);
-            MenuActivity._DestinationTextView.setVisibility(View.VISIBLE);
-            MenuActivity._DestinationTextView.setBackgroundResource(R.color.colorNasturcianFlower);
-            MenuActivity._DestinationTextView.setText("This version is outdated. Tap to update.");
-            MenuActivity._DestinationTextView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final String appPackageName = _activity.getPackageName(); // getPackageName() from Context or Activity object
-                    try {
-                        _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-                    } catch (android.content.ActivityNotFoundException anfe) {
-                        _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+    public void ShowAppVersionInfo(String ThisAppBuildVersion, String LatestAppVersionFromServer){
+        try {
+            Boolean IsThisBuildGreaterThanServerBuild = CheckThisBuildAgainstServerBuild(ThisAppBuildVersion,LatestAppVersionFromServer);
+            if(!IsThisBuildGreaterThanServerBuild){
+               final InfoDialog ID_UpdateRequired = new InfoDialog(_activity,MenuActivity._GlobalResource.getString(R.string.info_patch_is_available));
+                ID_UpdateRequired.show();
+                ID_UpdateRequired.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        final String appPackageName = _activity.getPackageName();
+                        try {
+                            _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(_constants.PLAY_STORE_MARKET_URI + appPackageName)));
+                        } catch (android.content.ActivityNotFoundException anfe) {
+                            _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(_constants.PLAY_STORE_URI_WITH_QUERYSTRING + appPackageName)));
+                        }
+                        ID_UpdateRequired.show();
                     }
-                }
-            });
+                });
+            }
+            if (MenuActivity._BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
+                MenuActivity._AppBarLayout.height = _helper.dpToPx(20, _context);
+                MenuActivity._AppBar.setLayoutParams(MenuActivity._AppBarLayout);
+                MenuActivity._AppBar.setVisibility(View.VISIBLE);
+                MenuActivity._DestinationTextView.setVisibility(View.VISIBLE);
+                MenuActivity._DestinationTextView.setBackgroundResource(IsThisBuildGreaterThanServerBuild ? R.color.colorBrightYellow :R.color.colorNasturcianFlower);
+                MenuActivity._DestinationTextView.setTextColor(IsThisBuildGreaterThanServerBuild ? _activity.getApplication().getResources().getColor(R.color.colorBlack)
+                        : _activity.getApplication().getResources().getColor(R.color.colorWhite));
+                MenuActivity._DestinationTextView.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+                MenuActivity._DestinationTextView.setText(IsThisBuildGreaterThanServerBuild ?
+                        MenuActivity._GlobalResource.getString(R.string.info_using_beta_version) : MenuActivity._GlobalResource.getString(R.string.info_outdated_version));
+                MenuActivity._DestinationTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        final String appPackageName = _activity.getPackageName();
+                        try {
+                            _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(_constants.PLAY_STORE_MARKET_URI + appPackageName)));
+                        } catch (android.content.ActivityNotFoundException anfe) {
+                            _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(_constants.PLAY_STORE_URI_WITH_QUERYSTRING + appPackageName)));
+                        }
+                    }
+                });
+            }
+        }catch (Exception ex){
+            _helper.logger(ex);
         }
+    }
+    private Boolean CheckThisBuildAgainstServerBuild(String ThisAppBuildVersion, String LatestAppVersionFromServer){
+        try{
+            List<Integer> AL_ThisAppBuildVersion = new ArrayList<Integer>();
+            List<Integer> AL_LatestAppVersionFromServer = new ArrayList<Integer>();
+            for (String STR_entry : ThisAppBuildVersion.split("\\.")) {
+                AL_ThisAppBuildVersion.add(Integer.parseInt(STR_entry));
+            }
+            for (String STR_entry : LatestAppVersionFromServer.split("\\.")) {
+                AL_LatestAppVersionFromServer.add(Integer.parseInt(STR_entry));
+            }
+            if(!ThisAppBuildVersion.equals(LatestAppVersionFromServer)) {
+                for (Integer i = 0; i != AL_ThisAppBuildVersion.size(); i++) {
+                    if(AL_ThisAppBuildVersion.get(i)==AL_LatestAppVersionFromServer.get(i))
+                        continue;
+                    if(AL_ThisAppBuildVersion.get(i)>AL_LatestAppVersionFromServer.get(i))
+                        return true;
+                    else
+                        return false;
+
+                }
+            }
+
+        }catch (Exception ex)
+        {
+            _helper.logger(ex);
+        }
+        return false;
     }
 }
