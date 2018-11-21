@@ -1,13 +1,20 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -19,12 +26,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.MenuActivity._UserNameMenuItem;
 
 
@@ -33,7 +37,7 @@ import static com.umandalmead.samm_v1.MenuActivity._UserNameMenuItem;
  */
 
 
-public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
+public class mySQLUpdateUserDetails extends AsyncTask<String, Void, Void>{
     /**
      *
      * This updates the movement of passengers in mySQL Database
@@ -45,15 +49,23 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
     Context _context;
     Activity _activity;
     LoaderDialog _LoaderDialog;
-    String _promptMessage, _newFirstName, _newLastName;
+    String _returnMessageOfUpdatingTheUserDetails,
+            _returnMessageOfUpdatingThePassword,
+            _newFirstName,
+            _newLastName,
+            _currentPassword,
+            _newPassword,
+            _confirmPassword;
     SessionManager _sessionManager;
+    Boolean _updatePassword, _isUpdatingOfUserDetailsSuccessful = false, _isUpdatingOfPasswordSuccesful = false;
     private Constants _constants = new Constants();
-    public mySQLUpdateUserDetails(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage)
+
+    public mySQLUpdateUserDetails(Context context, Activity activity, LoaderDialog loaderDialog, Boolean updatePassword)
     {
         this._context = context;
         this._activity = activity;
         this._LoaderDialog = loaderDialog;
-        this._promptMessage = promptMessage;
+        this._updatePassword = updatePassword;
         _sessionManager = new SessionManager(_context);
     }
 
@@ -63,6 +75,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
+            _LoaderDialog.show();
         }
         catch(Exception ex)
         {
@@ -72,19 +85,22 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
 
     }
     @Override
-    protected String doInBackground(String... params)
+    protected Void doInBackground(String... params)
     {
         String username = params[0];
         _newFirstName = params[1];
         _newLastName = params[2];
+        if (_updatePassword)
+        {
+            _currentPassword = params[3];
+            _newPassword = params[4];
+            _confirmPassword = params[5];
+        }
+
 
         Helper helper = new Helper();
         if (helper.isConnectedToInternet(this._context))
         {
-            if(_newFirstName.equals(_sessionManager.getFirstName()) && _newLastName.equals(_sessionManager.getLastName()))
-            {
-                return "";
-            }
             try{
                 String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + _constants.USERS_UPDATE_API_FILE_WITH_PENDING_QUERYSTRING;
                 HttpClient httpClient = new DefaultHttpClient();
@@ -98,39 +114,128 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, String>{
                 String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(strResponse);
 
-                _promptMessage += json.getString("Message") +  "\n";
+                _returnMessageOfUpdatingTheUserDetails = json.getString("Message") +  "\n";
+                _isUpdatingOfUserDetailsSuccessful = true;
             }
             catch(Exception ex)
             {
-                helper.logger(ex,true);
-                _promptMessage += ex.getMessage() + "\n";
-
+                _returnMessageOfUpdatingTheUserDetails = ex.getMessage();
+                _isUpdatingOfUserDetailsSuccessful = false;
             }
         }
         else
         {
-            Toast.makeText(this._context, MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline), Toast.LENGTH_LONG).show();
-            _LoaderDialog.hide();
-
+            _returnMessageOfUpdatingTheUserDetails = MenuActivity._GlobalResource.getString(R.string.Error_looks_like_your_offline);
+            _isUpdatingOfUserDetailsSuccessful = false;
         }
-        return _promptMessage;
+        return null;
     }
 
     @Override
-    protected void onPostExecute(String param)
+    protected void onPostExecute(Void voids)
     {
-        _LoaderDialog.hide();
-        _sessionManager.setFirstName(_newFirstName);
-        _sessionManager.setLastName(_newLastName);
-        _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
-        MenuActivity._HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
-
-        if(_promptMessage.trim().length()>0)
+        if (_isUpdatingOfUserDetailsSuccessful)
         {
-            InfoDialog dialog=new InfoDialog(this._activity, MenuActivity._GlobalResource.getString(R.string.dialog_user_update_success_with_message) + _promptMessage);
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            dialog.show();
+            //User Details are successfully updated, proceed with updating of password
+            _sessionManager.setFirstName(_newFirstName);
+            _sessionManager.setLastName(_newLastName);
+            _UserNameMenuItem.setTitle(_sessionManager.getFullName().toUpperCase());
+            MenuActivity._HeaderUserFullName.setText(_sessionManager.getFullName().toUpperCase());
+            if (_updatePassword)
+            {
+                ChangePassword(_currentPassword, _newPassword, _confirmPassword);
+
+            }
+            else
+            {
+                InfoDialog infoDialog = new InfoDialog(_activity, "Account details are successfully updated");
+                infoDialog.show();
+                _LoaderDialog.hide();
+            }
+
+        }
+        else
+        {
+            //User details are not successfully updated, do not proceed to change password
+            ErrorDialog errorDialog = new ErrorDialog(_activity, _returnMessageOfUpdatingTheUserDetails);
+            errorDialog.show();
+            _LoaderDialog.hide();
         }
 
+
+
+
+    }
+    private void ChangePassword(String currentPassword, final String newPassword, String confirmPassword)
+    {
+
+        if(newPassword.equals(confirmPassword))
+        {
+            if(newPassword.length() < 6)
+            {
+                _returnMessageOfUpdatingThePassword = MenuActivity._GlobalResource.getString(R.string.error_shortpassword);
+                _isUpdatingOfPasswordSuccesful = false;
+                ErrorDialog errorDialog = new ErrorDialog(_activity, _returnMessageOfUpdatingThePassword);
+                errorDialog.show();
+                _LoaderDialog.hide();
+            }
+            else {
+
+                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                AuthCredential credential = EmailAuthProvider
+                        .getCredential(_sessionManager.getEmail(), currentPassword);
+
+                // Prompt the user to re-provide their sign-in credentials
+                user.reauthenticate(credential)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+
+                            if (task.isSuccessful()) {
+                                user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            _returnMessageOfUpdatingThePassword = " Password updated\n";
+                                            _isUpdatingOfPasswordSuccesful = true;
+                                            LogoutUser();
+                                        } else {
+                                            _returnMessageOfUpdatingThePassword = "Error updating password\n";
+                                            _isUpdatingOfPasswordSuccesful = false;
+                                            ErrorDialog errorDialog = new ErrorDialog(_activity, _returnMessageOfUpdatingThePassword);
+                                            errorDialog.show();
+
+                                            _LoaderDialog.hide();
+                                        }
+                                    }
+                                });
+                            } else {
+                                _returnMessageOfUpdatingThePassword = task.getException().getMessage().toString();
+                                _isUpdatingOfPasswordSuccesful = false;
+                                ErrorDialog errorDialog = new ErrorDialog(_activity, _returnMessageOfUpdatingThePassword);
+                                errorDialog.show();
+
+                                _LoaderDialog.hide();
+                            }
+                        }
+                    });
+            }
+
+        }
+    }
+    public void LogoutUser(){
+        InfoDialog ID_Logged_Out = new InfoDialog(_activity, MenuActivity._GlobalResource.getString(R.string.USER_logged_out_password_changed));
+        ID_Logged_Out.show();
+        ID_Logged_Out.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                _sessionManager.logoutUser();
+                Activity activity = _activity;
+                activity.overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                activity.startActivity(new Intent(_activity, LoginActivity.class));
+                activity.finish();
+            }
+        });
     }
 }

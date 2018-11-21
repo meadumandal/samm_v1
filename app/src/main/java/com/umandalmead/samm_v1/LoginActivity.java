@@ -2,37 +2,28 @@ package com.umandalmead.samm_v1;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.util.Patterns;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
-import com.umandalmead.samm_v1.POJO.UserPOJO;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -40,9 +31,12 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -54,6 +48,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
+import com.umandalmead.samm_v1.POJO.UserPOJO;
 
 import org.json.JSONObject;
 
@@ -160,16 +156,52 @@ public class LoginActivity extends AppCompatActivity{
                                         // handle error
                                     } else {
 
-                                        String user_lastname = me.optString("last_name");
-                                        String user_firstname = me.optString("first_name");
-                                        String user_email = response.getJSONObject().optString("email");
-                                        try {
-                                            handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
-                                        }
-                                        catch (Exception ex){
-                                            HideLogInProgressDialog();
-                                            Helper.logger(ex);
-                                        }
+                                        final String user_lastname = me.optString("last_name");
+                                        final String user_firstname = me.optString("first_name");
+                                        final String user_email = response.getJSONObject().optString("email");
+                                        Retrofit retrofit = new Retrofit.Builder()
+                                                .baseUrl(_constants.WEB_API_URL)
+                                                .addConverterFactory(GsonConverterFactory.create())
+                                                .build();
+                                        RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
+                                        Call<UserPOJO> call = service.getUserDetails(user_email, user_email);
+                                        call.enqueue(new Callback<UserPOJO>() {
+                                            @Override
+                                            public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
+                                                if (response.body() == null) {
+                                                    try {
+                                                        handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
+                                                    }
+                                                    catch (Exception ex){
+                                                        HideLogInProgressDialog();
+                                                        ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, ex.getMessage());
+                                                        errorDialog.show();
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    HideLogInProgressDialog();
+                                                    ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "E-mail address liked to this Facebook account is already taken by another user.");
+                                                    errorDialog.show();
+                                                    try {
+                                                        FacebookSdk.sdkInitialize(LoginActivity.this);
+                                                        LoginManager.getInstance().logOut();
+                                                    }
+                                                    catch(Exception ex)
+                                                    {
+                                                        _helper.logger(ex,true);
+
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Throwable t) {
+
+                                            }
+                                        });
+
+
 
                                     }
                                 }
@@ -222,7 +254,7 @@ public class LoginActivity extends AppCompatActivity{
                             errorDialog.show();
                         } else {
                             final String username = usernameField.getText().toString();
-                            String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
+                            String url = _constants.WEB_API_URL;
                             Retrofit retrofit = new Retrofit.Builder()
                                     .baseUrl(url)
                                     .addConverterFactory(GsonConverterFactory.create())
@@ -333,7 +365,7 @@ public class LoginActivity extends AppCompatActivity{
                         errorDialog.show();
                         LogInLoader.dismiss();
                     } else {
-                        String url = _constants.WEB_API_URL + _constants.USERS_API_FOLDER;
+                        String url = _constants.WEB_API_URL;
                         Retrofit retrofit = new Retrofit.Builder()
                                 .baseUrl(url)
                                 .addConverterFactory(GsonConverterFactory.create())

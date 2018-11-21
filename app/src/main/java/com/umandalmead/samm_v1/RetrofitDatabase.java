@@ -12,9 +12,9 @@ import retrofit.http.Query;
  */
 
 public interface RetrofitDatabase {
-    @GET("getUserDetails.php")
+    @GET("users/getUserDetails.php")
     Call<UserPOJO> getUserDetails(@Query("username") String username, @Query("emailAddress") String emailAddress);
 
-    @GET("getSettings.php")
+    @GET("settings/getSettings.php")
     Call<Settings> getSettings();
 }

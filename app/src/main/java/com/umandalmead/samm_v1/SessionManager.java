@@ -172,7 +172,7 @@ public class SessionManager {
     }
     public String getUsername()
     {
-        return pref.getString(KEY_USERNAME,null);
+        return pref.getString(KEY_USERNAME,"");
     }
     public String getFullName(){ return pref.getString(KEY_FNAME,null) + " " + pref.getString(KEY_LNAME,null); }
     public String getFirstName() { return pref.getString(KEY_FNAME,null); }

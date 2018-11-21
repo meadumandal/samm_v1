@@ -51,7 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
     SessionManager sessionManager;
    // private TextView link_driver;
     private static String TAG = "mead";
-    private ProgressDialog SignUpProgDiag;
+
     private Constants _constants = new Constants();
     private ImageButton FAB_SammIcon;
     private TextView ViewTitle;
@@ -101,9 +101,9 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
+
                 try
                 {
-
                     EditText edit_firstName = (EditText) findViewById(R.id.edit_firstName);
                     EditText edit_lastName = (EditText) findViewById(R.id.edit_lastName);
                     EditText edit_emailAddress = (EditText) findViewById(R.id.edit_address);
@@ -111,15 +111,23 @@ public class SignUpActivity extends AppCompatActivity {
                     final EditText edit_password = (EditText) findViewById(R.id.edit_password);
                     EditText edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
 
-                    final String firstName, lastName, emailAddress, username, confirmPassword;
-                    final String password;
+
+                    String firstName="",
+                            lastName="",
+                            emailAddress="",
+                            username="",
+                            password="",
+                            confirmPassword="";
+
                     firstName = edit_firstName.getText().toString();
                     lastName = edit_lastName.getText().toString();
                     emailAddress = edit_emailAddress.getText().toString().trim();
                     username = edit_username.getText().toString();
                     password = edit_password.getText().toString();
                     confirmPassword = edit_confirmPassword.getText().toString();
-                    Users.validateRegistrationDetails(new Users(username, emailAddress, firstName, lastName, password, confirmPassword));
+                    final Users user =new Users(username, emailAddress, firstName, lastName, password, confirmPassword);
+
+                    Users.validateRegistrationDetails(user);
 
 
                     AlertDialog.Builder builder;
@@ -132,67 +140,85 @@ public class SignUpActivity extends AppCompatActivity {
                             .setMessage("Submit details?")
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
+                                    try
+                                    {
+                                        Retrofit retrofit = new Retrofit.Builder()
+                                                .baseUrl(_constants.WEB_API_URL)
+                                                .addConverterFactory(GsonConverterFactory.create())
+                                                .build();
+                                        RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
+                                        Call<UserPOJO> call = service.getUserDetails(user.username, user.emailAddress);
+                                        call.enqueue(new Callback<UserPOJO>() {
+                                            @Override
+                                            public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
 
-                                    Retrofit retrofit = new Retrofit.Builder()
-                                            .baseUrl(_constants.WEB_API_URL)
-                                            .addConverterFactory(GsonConverterFactory.create())
-                                            .build();
-                                    RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
-                                    Call<UserPOJO> call = service.getUserDetails(username, emailAddress);
-                                    call.enqueue(new Callback<UserPOJO>() {
-                                        @Override
-                                        public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
+                                                if (response.body() == null)
+                                                {
+                                                    final LoaderDialog SignUpDialog = new LoaderDialog(SignUpActivity.this, _resources.getString(R.string.title_signup_activity), _resources.getString(R.string.dialog_signup_inprogress));
+                                                    SignUpDialog.show();
 
-                                            if (response.body() == null)
-                                            {
-                                                ShowSignUpProgressDialog();
+                                                    auth.createUserWithEmailAndPassword(user.emailAddress, user.password)
+                                                            .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
+                                                                @Override
+                                                                public void onComplete(@NonNull Task<AuthResult> task) {
 
-                                                auth.createUserWithEmailAndPassword(emailAddress, password)
-                                                        .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                                                SignUpProgDiag.dismiss();
-                                                                if(!task.isSuccessful())
-                                                                {
-                                                                    Toast.makeText(SignUpActivity.this, task.getException().getMessage().toString(), Toast.LENGTH_LONG).show();
-                                                                }
-                                                                else
-                                                                {
+                                                                    if(!task.isSuccessful())
+                                                                    {
+                                                                        SignUpDialog.dismiss();
+                                                                        ErrorDialog errorDialog = new ErrorDialog(SignUpActivity.this);
+                                                                        errorDialog.setErrorMessage(task.getException().getMessage());
+                                                                        errorDialog.show();
+                                                                    }
+                                                                    else
+                                                                    {
 //                                                                    sessionManager.CreateLoginSession(firstName, lastName, username, emailAddress,  "", false, Constants.PASSENGER_USERTYPE);
-                                                                    final FirebaseAuth.AuthStateListener _authListener = new FirebaseAuth.AuthStateListener() {
-                                                                        @Override
-                                                                        public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                                                                            FirebaseUser user = firebaseAuth.getCurrentUser();
-                                                                            if (user != null) {
-                                                                                //User account creation succesded, send verification email, and redirect to log in page.
-                                                                                _SL_NewAccount.stopShimmerAnimation();
-                                                                                sendVerificationEmail();
-                                                                                saveUserDetails(firstName, lastName, username, emailAddress);
-                                                                            } else {
-                                                                                //User signed out.
-                                                                                _SL_NewAccount.stopShimmerAnimation();
-                                                                                FirebaseAuth.getInstance().removeAuthStateListener(this);
-                                                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                        final FirebaseAuth.AuthStateListener _authListener = new FirebaseAuth.AuthStateListener() {
+                                                                            @Override
+                                                                            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                                                                                FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                                                                                if (firebaseUser != null) {
+                                                                                    //User account creation succesded, send verification email, and redirect to log in page.
+                                                                                    _SL_NewAccount.stopShimmerAnimation();
+                                                                                    sendVerificationEmail();
+                                                                                    saveUserDetails(user.firstName, user.lastName, user.username, user.emailAddress);
+                                                                                    FirebaseAuth.getInstance().removeAuthStateListener(this);
+                                                                                } else {
+                                                                                    //User signed out.
+                                                                                    _SL_NewAccount.stopShimmerAnimation();
+                                                                                    FirebaseAuth.getInstance().removeAuthStateListener(this);
+                                                                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                                }
                                                                             }
-                                                                        }
-                                                                    };
-                                                                    FirebaseAuth.getInstance().addAuthStateListener(_authListener);
+                                                                        };
+                                                                        FirebaseAuth.getInstance().addAuthStateListener(_authListener);
+                                                                        SignUpDialog.dismiss();
+                                                                    }
+
                                                                 }
+                                                            });
+                                                }
+                                                else {
+                                                    ErrorDialog errorDialog = new ErrorDialog(SignUpActivity.this);
+                                                    errorDialog.setErrorMessage(getString(R.string.error_username_alreadyexists));
+                                                    errorDialog.show();
+                                                }
 
-                                                            }
-                                                        });
                                             }
-                                            else {
-                                                Toast.makeText(getApplicationContext(), getString(R.string.error_username_alreadyexists), Toast.LENGTH_LONG).show();
+
+                                            @Override
+                                            public void onFailure(Throwable t) {
+                                                Log.d(TAG, t.toString());
                                             }
+                                        });
+                                    }
+                                    catch(Exception ex)
+                                    {
+                                        ErrorDialog errorDialog = new ErrorDialog(SignUpActivity.this);
+                                        errorDialog.setErrorMessage("Error occured");
+                                        errorDialog.show();
+                                    }
 
-                                        }
 
-                                        @Override
-                                        public void onFailure(Throwable t) {
-                                            Log.d(TAG, t.toString());
-                                        }
-                                    });
 
                                 }
                             })
@@ -207,7 +233,8 @@ public class SignUpActivity extends AppCompatActivity {
                 }
                 catch (Exception ex)
                 {
-                    ErrorDialog errorDialog = new ErrorDialog(SignUpActivity.this, ex.getMessage());
+                    ErrorDialog errorDialog = new ErrorDialog(SignUpActivity.this);
+                    errorDialog.setErrorMessage(ex.getMessage());
                     errorDialog.show();
                 }
 
@@ -241,6 +268,7 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                         else
                         {
+
                             Toast.makeText(getApplicationContext(), getString(R.string.error_verification_email_not_sent), Toast.LENGTH_LONG).show();
                         }
                     }
@@ -252,10 +280,7 @@ public class SignUpActivity extends AppCompatActivity {
         userDatabaseReference.child(username).setValue(user);
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress, Constants.EMAIL_AUTH_TYPE);
     }
-    private void ShowSignUpProgressDialog(){
-        LoaderDialog SignUpDialog = new LoaderDialog(SignUpActivity.this, _resources.getString(R.string.title_signup_activity), _resources.getString(R.string.dialog_signup_inprogress));
-        SignUpDialog.show();
-    }
+
     public void LoginLinkClicked(View v){
             startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
             finish();

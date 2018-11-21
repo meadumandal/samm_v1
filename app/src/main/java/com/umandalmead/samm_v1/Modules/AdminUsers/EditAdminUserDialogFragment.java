@@ -119,7 +119,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                     {
                         if (_isAdd) //If new entry
                         {
-                            Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
+                            Users.validateRegistrationDetails(new Users(new_username, new_emailAddress, new_firstname, new_lastname, password, confirmedPassword));
                             new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_emailAddress, new_firstname, new_lastname, password);
 
                         }
@@ -128,12 +128,12 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                             if (password.trim().length()>0) //Check if password is changed
                             {
 
-                                Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
+                                Users.validateRegistrationDetails(new Users(new_username, new_emailAddress, new_firstname, new_lastname, password, confirmedPassword));
                                 new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_firstname, new_lastname, password);
                             }
                             else
                             {
-                                Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, null, null));
+                                Users.validateRegistrationDetails(new Users(new_username, new_emailAddress, new_firstname, new_lastname, null, null));
                                 new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_emailAddress, new_firstname, new_lastname, null);
                             }
 

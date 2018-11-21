@@ -488,15 +488,10 @@ public class Helper {
     {
         return new String(Character.toChars(unicode));
     }
-    public static Boolean CheckForSpecialCharacters(String text){
-        Boolean result = false;
-        Pattern p = Pattern.compile("^[^<>%$]*$");
-        Matcher m = p.matcher(text);
-        if (!m.matches())
-        {
-            result = true;
-        }
-        return  result;
+    public static Boolean HasSpecialCharacters(String text){
+
+        return !Pattern.matches("[a-zA-Z ]+", text);
+
     }
     // Method for getting the minimum value
     public static int getMin(Integer[] inputArray){

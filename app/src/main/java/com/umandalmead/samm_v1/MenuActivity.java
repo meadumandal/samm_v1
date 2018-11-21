@@ -508,10 +508,16 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 //Hide or view nav menus based on user type
                 _NavView.getMenu().findItem(id.nav_superadminusers).setVisible(_sessionManager.getIsSuperAdmin());
                 _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsSuperAdmin());
-                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
-                _NavView.getMenu().findItem(id.nav_lines).setVisible(_sessionManager.getIsSuperAdmin() || _sessionManager.getIsAdmin());
-                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
-                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
+
+                //START: Hide temporarily for Release 1.0.3 Nov 21, 2018 because modules are still for polishing
+//                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
+//                _NavView.getMenu().findItem(id.nav_lines).setVisible(_sessionManager.getIsSuperAdmin() || _sessionManager.getIsAdmin());
+//                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(id.nav_drivers).setVisible(false);
+                _NavView.getMenu().findItem(id.nav_lines).setVisible(false);
+                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(false);
+                //END
+
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
 //                _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(false);
@@ -1033,50 +1039,50 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                         }
 
                         if (_terminalMarkerHashmap.containsKey(markerValue)) {
-                            if (_sessionManager.getIsDeveloper() || _sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()) {
-                                //if admin only:
-                                _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
-                            } else {
-                                for (Terminal terminal : _terminalList) {
-                                    if (terminal.ID.equals(markerID)) {
-                                        TM_ClickedTerminal = terminal;
-                                    }
-
+//                            if (_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()) {
+//                                //if admin only:
+//                                _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
+//                            } else {
+                            for (Terminal terminal : _terminalList) {
+                                if (terminal.ID.equals(markerID)) {
+                                    TM_ClickedTerminal = terminal;
                                 }
-                                _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
-                                final Handler HND_Loc_DataFetchDelay = new Handler();
-                                final Handler HND_Loc_DataFetchTooLong = new Handler();
-                                final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
-                                HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
-                                HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
-                                HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        GetAndDisplayEloopETA(F_TM_ClickedTerminal);
-                                    }
-                                }, 3000);
-
-                                ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
-                                        _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                        _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
-                                _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
-                                    @Override
-                                    public Transaction.Result doTransaction(MutableData currentData) {
-
-                                        return Transaction.success(currentData);
-                                    }
-
-                                    @Override
-                                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
-                                        long passengercount = 0;
-                                        passengercount = DS_Terminals.getChildrenCount();
-                                        _passengerCountInTerminal = (int) passengercount;
-                                        UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                                _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
-                                    }
-                                });
 
                             }
+                            _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
+                            final Handler HND_Loc_DataFetchDelay = new Handler();
+                            final Handler HND_Loc_DataFetchTooLong = new Handler();
+                            final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
+                            HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
+                            HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
+                            HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    GetAndDisplayEloopETA(F_TM_ClickedTerminal);
+                                }
+                            }, 3000);
+
+                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
+                                    _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
+                                    _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
+                            _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                @Override
+                                public Transaction.Result doTransaction(MutableData currentData) {
+
+                                    return Transaction.success(currentData);
+                                }
+
+                                @Override
+                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                    long passengercount = 0;
+                                    passengercount = DS_Terminals.getChildrenCount();
+                                    _passengerCountInTerminal = (int) passengercount;
+                                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
+                                }
+                            });
+
+//                            }
                         }
                         //vehicle has been clicked instead
                         else if (_driverMarkerHashmap.containsKey(markerValue)) {
@@ -1676,7 +1682,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         final HashMap<String, Object> hashmapCount = new HashMap<>();
         final String uid = _sessionManager.getUsername();
 
-        _terminalsDBRef.child(destinationValue).addValueEventListener(new ValueEventListener() {
+        _terminalsDBRef.child(destinationValue).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 //                if(dataSnapshot == null || dataSnapshot.getValue() == null)

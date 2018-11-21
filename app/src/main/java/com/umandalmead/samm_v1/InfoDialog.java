@@ -53,7 +53,7 @@ public class InfoDialog extends Dialog implements
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnOK:
-            dismiss();
+                dismiss();
                 break;
             default:
                 break;

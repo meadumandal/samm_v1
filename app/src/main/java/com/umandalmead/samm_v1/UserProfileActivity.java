@@ -1,7 +1,6 @@
 package com.umandalmead.samm_v1;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,13 +19,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,7 +34,6 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.User;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -55,7 +51,7 @@ import java.net.URL;
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.supercharge.shimmerlayout.ShimmerLayout;
 
-import static com.umandalmead.samm_v1.MenuActivity._TimeOfArrivalTextView;
+import static com.umandalmead.samm_v1.MenuActivity._activity;
 
 public class UserProfileActivity extends Fragment {
 
@@ -157,76 +153,81 @@ public class UserProfileActivity extends Fragment {
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                _LoaderDialog.show();
                 String currentPassword = tv_currentPassword.getText().toString();
                 final String password = tv_password.getText().toString();
                 final String confirmPassword = tv_confirmPassword.getText().toString();
                 final String newFirstName = tv_firstName.getText().toString().trim();
                 final String newLastName = tv_lastName.getText().toString().trim();
-                if(newFirstName.equals("") || newLastName.equals("")) {
-                    _LoaderDialog.hide();
-                    ErrorDialog ED_FullNameError = new ErrorDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.USER_fullname_whitespace));
+                if(newFirstName.equals("") || newLastName.equals("") || Helper.HasSpecialCharacters(newFirstName) || Helper.HasSpecialCharacters(newLastName)) {
+                    ErrorDialog ED_FullNameError = new ErrorDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.error_name_invalid));
                     ED_FullNameError.show();
                     return;
                 }
-                if (password.trim().length()>0)
+
+                if ((!newFirstName.equalsIgnoreCase(_sessionManager.getFirstName())
+                        || !newLastName.equalsIgnoreCase(_sessionManager.getLastName())) &&
+                        password.trim().length()>0)
                 {
-                    if(password.equals(confirmPassword))
+                    //User details and password are modified
+                    ErrorDialog errorDialog = new ErrorDialog(_activity);
+                    if (!password.equals(confirmPassword))
                     {
-                        if(password.length() < 6)
-                        {
-                            Toast.makeText(getContext(), String.format(getString(R.string.error_shortpassword), "6"), Toast.LENGTH_LONG).show();
-                            _LoaderDialog.hide();
-                            return;
-                        }
-                        else {
-
-                            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                            // Get auth credentials from the user for re-authentication. The example below shows
-                            // email and password credentials but there are multiple possible providers,
-                            // such as GoogleAuthProvider or FacebookAuthProvider.
-                            AuthCredential credential = EmailAuthProvider
-                                    .getCredential(_sessionManager.getEmail(), currentPassword);
-
-                            // Prompt the user to re-provide their sign-in credentials
-                            user.reauthenticate(credential)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                user.updatePassword(password).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            _promptMessage += " Password updated\n";
-                                                            LogoutUser();
-                                                        } else {
-                                                            _promptMessage+= "Error updating password\n";
-                                                        }
-                                                        updateUserDetails(_sessionManager.getUsername(), newFirstName, newLastName);
-                                                    }
-                                                });
-                                            } else {
-                                                _promptMessage+= task.getException().getMessage().toString() + "\n";
-                                                updateUserDetails(_sessionManager.getUsername(), newFirstName, newLastName);
-                                            }
-                                        }
-                                    });
-
-                        }
-
+                        errorDialog.setErrorMessage(MenuActivity._GlobalResource.getString(R.string.error_passwordnotmatch));
+                        errorDialog.show();
+                    }
+                    else if (currentPassword.trim().isEmpty())
+                    {
+                        errorDialog.setErrorMessage(MenuActivity._GlobalResource.getString(R.string.error_shortpassword));
+                        errorDialog.show();
                     }
                     else
                     {
-                        ErrorDialog ED_PasswordError = new ErrorDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.USER_password_mismatch));
-                        ED_PasswordError.show();
-                        _LoaderDialog.hide();
+                        updateUserProfile(_sessionManager.getUsername(),
+                                newFirstName,
+                                newLastName,
+                                currentPassword,
+                                password,
+                                confirmPassword);
                     }
+                }
+                else if ((!newFirstName.equalsIgnoreCase(_sessionManager.getFirstName())
+                        || !newLastName.equalsIgnoreCase(_sessionManager.getLastName()))
+                        && password.trim().length()==0)
+                {
+                    //Only user details are modified
+                    updateUserProfile(_sessionManager.getUsername(),
+                            newFirstName,
+                            newLastName);
+                }
+                else  if ((newFirstName.equalsIgnoreCase(_sessionManager.getFirstName())
+                        && newLastName.equalsIgnoreCase(_sessionManager.getLastName()))
+                        && password.trim().length()>0)
+                {
+                    //Only password is changed
+                    ErrorDialog errorDialog = new ErrorDialog(_activity);
+                    if (!password.equals(confirmPassword))
+                    {
+                        errorDialog.setErrorMessage(MenuActivity._GlobalResource.getString(R.string.error_passwordnotmatch));
+                        errorDialog.show();
+                    }
+                    else if (currentPassword.trim().isEmpty())
+                    {
+                        errorDialog.setErrorMessage(MenuActivity._GlobalResource.getString(R.string.error_confirmpassword));
+                        errorDialog.show();
+                    }
+                    else
+                        updateUserProfile(_sessionManager.getUsername(),
+                                newFirstName,
+                                newLastName,
+                                currentPassword,
+                                password,
+                                confirmPassword);
+
                 }
                 else
                 {
-                    updateUserDetails(_sessionManager.getUsername(), newFirstName, newLastName);
+                    InfoDialog infoDialog = new InfoDialog(_activity, "Nothing has changaed");
+                    infoDialog.show();
                 }
             }
         });
@@ -234,9 +235,34 @@ public class UserProfileActivity extends Fragment {
         return _view;
     }
 
-    private void updateUserDetails(String username, String newFirstName, String newLastName)
+    private void updateUserProfile(String username, String newFirstName, String newLastName)
     {
-        new mySQLUpdateUserDetails(getContext(),getActivity(),_LoaderDialog,_promptMessage).execute(username, newFirstName, newLastName);
+         new mySQLUpdateUserDetails(getContext(),getActivity(),
+                _LoaderDialog,
+                false).
+            execute(
+                username,
+                newFirstName,
+                newLastName);
+        tv_password.setText("");
+        tv_currentPassword.setText("");
+        tv_confirmPassword.setText("");
+        _promptMessage = "";
+
+    }
+    private void updateUserProfile(String username, String newFirstName, String newLastName, String currentPassword, String newPassword, String confirmPassword)
+    {
+        new mySQLUpdateUserDetails(getContext(),
+                getActivity(),
+                _LoaderDialog,
+                true).
+        execute(username,
+                newFirstName,
+                newLastName,
+                currentPassword,
+                newPassword,
+                confirmPassword);
+
         tv_password.setText("");
         tv_currentPassword.setText("");
         tv_confirmPassword.setText("");
@@ -309,18 +335,5 @@ public class UserProfileActivity extends Fragment {
             Helper.logger(ex);
         }
     }
-    public void LogoutUser(){
-        InfoDialog ID_Logged_Out = new InfoDialog(getActivity(), MenuActivity._GlobalResource.getString(R.string.USER_logged_out_password_changed));
-        ID_Logged_Out.show();
-        ID_Logged_Out.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                _sessionManager.logoutUser();
-                Activity activity = getActivity();
-                activity.overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                activity.startActivity(new Intent(getActivity(), LoginActivity.class));
-                activity.finish();
-            }
-        });
-    }
+
 }
