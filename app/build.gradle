@@ -19,7 +19,7 @@ android {
         versionName '1.0.3'
         multiDexEnabled true
         signingConfig signingConfigs.release
-        versionCode 2
+        versionCode 4
     }
     buildTypes {
         release {

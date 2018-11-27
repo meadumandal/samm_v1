@@ -398,14 +398,23 @@ public class ReportsActivity extends Fragment {
 
                 @Override
                 public void onClick(View view) {
-                    if (_distanceSpeed_fromDataTextBox.getText().length() > 0 && _distanceSpeed_toDateTextBox.getText().length() > 0) {
-                        _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
-                        _RL_DistanceTraveled.setVisibility(View.VISIBLE);
-
-                        new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_distanceSpeed_fromDataTextBox.getText().toString(), _distanceSpeed_toDateTextBox.getText().toString());
-                    } else {
-                        ErrorDialog errorDialog = new ErrorDialog(_activity, "Please supply all filters");
-                        errorDialog.show();
+                    try {
+                        if (_distanceSpeed_fromDataTextBox.getText().length() > 0 && _distanceSpeed_toDateTextBox.getText().length() > 0) {
+                            _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
+                            _RL_DistanceTraveled.setVisibility(View.VISIBLE);
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                            if (dateFormat.parse(_distanceSpeed_fromDataTextBox.getText().toString()).after(dateFormat.parse(_distanceSpeed_toDateTextBox.getText().toString()))) {
+                                ErrorDialog errorDialog = new ErrorDialog(_activity, "Invalid date range");
+                                errorDialog.show();
+                            }else {
+                                new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_distanceSpeed_fromDataTextBox.getText().toString(), _distanceSpeed_toDateTextBox.getText().toString());
+                            }
+                        } else {
+                            ErrorDialog errorDialog = new ErrorDialog(_activity, "Please supply all filters");
+                            errorDialog.show();
+                        }
+                    }catch (Exception ex){
+                        Helper.logger(ex);
                     }
                 }
             });
