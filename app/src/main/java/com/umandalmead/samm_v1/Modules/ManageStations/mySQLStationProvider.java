@@ -129,6 +129,7 @@ public class mySQLStationProvider extends AsyncTask<Integer,Void, List<Terminal>
                     String Direction = jsonobject.getString("Direction");
                     double Lat  = jsonobject.getDouble("Lat");
                     double Lng = jsonobject.getDouble("Lng");
+                    double distanceFromPreviousStation = jsonobject.getDouble("distanceFromPreviousStation");
                     String LineName = jsonobject.getString("LineName");
                     String isMainTerminal = jsonobject.getString("isMainTerminal");
                     String routeName = jsonobject.getString("routeName");
@@ -136,7 +137,8 @@ public class mySQLStationProvider extends AsyncTask<Integer,Void, List<Terminal>
 
 
 
-                    listTerminals.add(new Terminal(ID, tblRouteID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description), LineName,isMainTerminal,routeName, lineID));
+
+                    listTerminals.add(new Terminal(ID, tblRouteID, Value, Description, OrderOfArrival, Direction,Lat,Lng, "", null, GetDrawableID(Description), LineName,isMainTerminal,routeName, lineID, distanceFromPreviousStation));
                 }
                 return listTerminals;
             }

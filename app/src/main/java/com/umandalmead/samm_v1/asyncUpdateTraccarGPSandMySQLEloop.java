@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -13,7 +12,8 @@ import android.util.Log;
 
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
-import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
+import com.umandalmead.samm_v1.Modules.TrackedPUVs.EditGPSDialogFragment;
+import com.umandalmead.samm_v1.Modules.TrackedPUVs.asyncGetGPSFromTraccar;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -173,7 +173,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                     public void onRefresh() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout, ViewGPSFragment._viewGPSFragment).execute();
 
                     }
                 });
@@ -182,7 +182,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                     public void run() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout, ViewGPSFragment._viewGPSFragment).execute();
                     }
                 });
 //              new mySQLSignUp(_activity, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");

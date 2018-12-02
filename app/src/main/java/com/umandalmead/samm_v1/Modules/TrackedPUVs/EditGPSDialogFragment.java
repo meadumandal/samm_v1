@@ -1,10 +1,9 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.TrackedPUVs;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -20,15 +19,21 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Users;
-import com.umandalmead.samm_v1.Modules.DriverUsers.EditDriverUserDialogFragment;
-import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLUpdateDriverUserDetails;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.NonScrollListView;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
+import com.umandalmead.samm_v1.ViewGPSFragment;
+import com.umandalmead.samm_v1.asyncUpdateTraccarGPSandMySQLEloop;
 
 import java.util.ArrayList;
 
@@ -39,7 +44,7 @@ import java.util.ArrayList;
 public class EditGPSDialogFragment extends DialogFragment
 {
     //private View pic;
-    String TAG="mead";
+
     String _jsonDataModelSelectedGPS, _jsonDataModelSelectedEloop;
     GPS _dataModelSelectedGPS;
     Eloop _dataModelSelectedEloop;
@@ -68,6 +73,7 @@ public class EditGPSDialogFragment extends DialogFragment
             final Spinner GPSNetwork = (Spinner) view.findViewById(R.id.spinnerNetworks);
             final Spinner GPSDriver = (Spinner) view.findViewById(R.id.spinnerDrivers);
             final Spinner GPSRoute = (Spinner) view.findViewById(R.id.spinnerRoutes);
+            final Spinner spinnerLines  = view.findViewById(R.id.spinnerLines);
 
             Button btnUpdate = (Button) view.findViewById(R.id.btnUpdateGPS);
             Button btnDelete = (Button) view.findViewById(R.id.btnDeleteGPS);
@@ -75,6 +81,7 @@ public class EditGPSDialogFragment extends DialogFragment
             ArrayList<String> networkProviders = new ArrayList<>();
             ArrayList<Users> driverAdapterList = new ArrayList<>();
             ArrayList<Routes> routesAdapterList = new ArrayList<>();
+            ArrayList<Lines> linesAdapterList = new ArrayList<>();
 
             driverAdapterList.add(new Users(0, "Select a driver for this PUV", "", "","","Driver", "", 1));
             routesAdapterList.add(new Routes(0, 0, "Select a route for this PUV", 0));
@@ -84,6 +91,8 @@ public class EditGPSDialogFragment extends DialogFragment
             networkProviders.add("Select the network of the GPS of this PUV");
             networkProviders.add("Globe");
             networkProviders.add("Smart");
+            linesAdapterList.add(new Lines(0, MenuActivity._GlobalResource.getString(R.string.GPS_select_line), 0, ""));
+            linesAdapterList.addAll(MenuActivity._lineList);
 
             ArrayAdapter<Users> driverListAdapter = new ArrayAdapter<Users>(getContext(), R.layout.spinner_item, driverAdapterList)
             {
@@ -111,6 +120,20 @@ public class EditGPSDialogFragment extends DialogFragment
                     }
                     return view;
                 }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent)
+                {
+                    TextView tv = (TextView) super.getView(position, convertView, parent);
+
+                    if(position == 0)
+                        tv.setTextColor(Color.GRAY);
+                    else
+                        tv.setTextColor(Color.BLACK);
+
+                    // Return the view
+                    return tv;
+                }
             };
             ArrayAdapter<Routes> routesListAdapter = new ArrayAdapter<Routes>(getContext(), R.layout.spinner_item, routesAdapterList)
             {
@@ -136,6 +159,19 @@ public class EditGPSDialogFragment extends DialogFragment
                     }
                     return view;
                 }
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent)
+                {
+                    TextView tv = (TextView) super.getView(position, convertView, parent);
+
+                    if(position == 0)
+                        tv.setTextColor(Color.GRAY);
+                    else
+                        tv.setTextColor(Color.BLACK);
+
+                    // Return the view
+                    return tv;
+                }
             };
             ArrayAdapter<String> networkProvidersAdapter = new ArrayAdapter<String>(getActivity(), R.layout.spinner_item, networkProviders){
                 @Override
@@ -151,6 +187,7 @@ public class EditGPSDialogFragment extends DialogFragment
                 {
                     View view = super.getDropDownView(position, convertView, parent);
                     TextView tv = (TextView) view;
+
                     if(position==0) {
                         // Set the disable item text color
                         tv.setTextColor(Color.GRAY);
@@ -161,7 +198,67 @@ public class EditGPSDialogFragment extends DialogFragment
                     return view;
                 }
 
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent)
+                {
+                    TextView tv = (TextView) super.getView(position, convertView, parent);
+
+                    if(position == 0)
+                        tv.setTextColor(Color.RED);
+                    else
+                        tv.setTextColor(Color.BLACK);
+
+                    // Return the view
+                    return tv;
+                }
+
+
             };
+
+
+            ArrayAdapter<Lines> linesListAdapter = new ArrayAdapter<Lines>(getContext(), R.layout.spinner_item, linesAdapterList)
+            {
+
+                @Override
+                public boolean isEnabled(int position)
+                {
+                    if (position == 0)
+                        return false;
+                    else
+                        return true;
+                }
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent)
+                {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+
+                    if(position==0) {
+                        // Set the disable item text color
+                        tv.setTextColor(Color.GRAY);
+                    }
+                    else {
+                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+                    }
+                    return view;
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent)
+                {
+                    TextView tv = (TextView) super.getView(position, convertView, parent);
+
+                    if(position == 0)
+                        tv.setTextColor(Color.RED);
+                    else
+                        tv.setTextColor(Color.BLACK);
+
+                    // Return the view
+                    return tv;
+                }
+            };
+
+            spinnerLines.setAdapter(linesListAdapter);
             GPSNetwork.setAdapter(networkProvidersAdapter);
             GPSDriver.setAdapter(driverListAdapter);
             GPSRoute.setAdapter(routesListAdapter);
@@ -179,7 +276,7 @@ public class EditGPSDialogFragment extends DialogFragment
                 _jsonDataModelSelectedEloop = getArguments().getString("selectedEloop");
                 _dataModelSelectedGPS =  gson.fromJson(_jsonDataModelSelectedGPS, GPS.class);
                 _dataModelSelectedEloop = gson.fromJson(_jsonDataModelSelectedEloop, Eloop.class);
-                int userPositionInSpinner = 0, routePositionInSpinner = 0;
+                int userPositionInSpinner = 0, routePositionInSpinner = 0, linePositionInSpinner = 0;
                 for(Users user:driverAdapterList)
                 {
                     if (_dataModelSelectedEloop.tblUsersID == user.ID)
@@ -196,6 +293,13 @@ public class EditGPSDialogFragment extends DialogFragment
                     else
                         routePositionInSpinner+=1;
                 }
+                for (Lines lines:linesAdapterList)
+                {
+                    if(_dataModelSelectedEloop.tblLinesID == lines.getID())
+                        break;
+                    else
+                        linePositionInSpinner+=1;
+                }
                 if(userPositionInSpinner >= driverAdapterList.size())
                 {
                     userPositionInSpinner = 0;
@@ -204,12 +308,17 @@ public class EditGPSDialogFragment extends DialogFragment
                 {
                     routePositionInSpinner = 0;
                 }
+                if (linePositionInSpinner>=linesAdapterList.size())
+                {
+                    linePositionInSpinner = 0;
+                }
 
                 GPSPhone.setText(_dataModelSelectedGPS.getGPSPhone());
                 GPSIMEI.setText(_dataModelSelectedGPS.getGPSIMEI());
                 GPSPlateNumber.setText(_dataModelSelectedEloop.PlateNumber);
                 GPSDriver.setSelection(userPositionInSpinner);
                 GPSRoute.setSelection(routePositionInSpinner);
+                spinnerLines.setSelection(linePositionInSpinner);
 
 
                 if (_dataModelSelectedGPS.getGPSNetworkProvider().toLowerCase().equals("globe"))
@@ -273,7 +382,14 @@ public class EditGPSDialogFragment extends DialogFragment
                                         progDialog.setCancelable(false);
                                         progDialog.show();
 
-                                        new asyncDeleteTraccarGPS(getActivity(), progDialog, getActivity(), EditGPSDialogFragment.this, _dataModelSelectedGPS, _swipeRefresh, _gpsListView).execute();
+                                        new asyncDeleteTraccarGPS(getActivity(),
+                                                progDialog,
+                                                getActivity(),
+                                                EditGPSDialogFragment.this,
+                                                _dataModelSelectedGPS,
+                                                _swipeRefresh,
+                                                _gpsListView,
+                                                ViewGPSFragment._viewGPSFragment).execute();
                                     }
                                     catch(Exception ex)
                                     {

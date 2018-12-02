@@ -16,7 +16,7 @@
 
     <LinearLayout
         android:id="@+id/frmEditGPS"
-        android:layout_width="fill_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:orientation="vertical">
@@ -32,60 +32,56 @@
             android:textStyle="bold" />
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/GPSIMEI"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="GPS IMEI"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="GPS IMEI *"
                 android:inputType="text|number"
-
+                android:maxLines="1"
                 android:singleLine="true"
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorGrey"
-                android:textSize="16sp" />
+                android:textSize="16sp"  />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/GPSMobileNum"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="GPS Mobile Number"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="GPS Mobile Number *"
                 android:inputType="text|phone"
-
+                android:maxLines="1"
                 android:singleLine="true"
-
-                android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorGrey"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorGrey">
 
             <EditText
                 android:id="@+id/plateNumber"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorGrey"
-
-                android:gravity="center_horizontal"
                 android:hint="Plate Number"
                 android:inputType="text"
-
+                android:maxLines="1"
                 android:singleLine="true"
+
                 android:textColor="@color/colorBlack"
                 android:textColorHint="@color/colorGrey"
                 android:textSize="16sp" />
@@ -93,27 +89,43 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorGrey">
 
             <Spinner
                 android:id="@+id/spinnerNetworks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorGrey"
-                android:foregroundTint="@color/colorGrey" />
+                android:foregroundTint="@color/colorGrey"
+                android:gravity="left"  />
         </android.support.design.widget.TextInputLayout>
 
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorGrey">
 
             <Spinner
                 android:id="@+id/spinnerDrivers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorGrey"
-                android:foregroundTint="@color/colorGrey" />
+                android:foregroundTint="@color/colorGrey"
+                android:gravity="left" />
+        </android.support.design.widget.TextInputLayout>
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Spinner
+                android:id="@+id/spinnerLines"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/colorGrey"
+                android:foregroundTint="@color/colorGrey"
+                android:gravity="left"
+                />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -124,7 +136,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorGrey"
-                android:foregroundTint="@color/colorGrey" />
+                android:foregroundTint="@color/colorGrey"
+                android:gravity="left"/>
         </android.support.design.widget.TextInputLayout>
 
 

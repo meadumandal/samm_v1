@@ -1,10 +1,12 @@
 package com.umandalmead.samm_v1;
 
 import android.content.Context;
+import android.media.tv.TvInputService;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -58,7 +60,8 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
                     int tblRoutesID = jsonobject.getInt("tblRoutesID");
                     int IsActive = jsonobject.getInt("IsActive");
                     String driverName = jsonobject.getString("DriverName");
-                    listEloops.add(new Eloop(id,deviceId, deviceName, plateNumber, tblUsersID, tblRoutesID, IsActive, driverName));
+                    int tblLinesID = jsonobject.getInt("tblLinesID");
+                    listEloops.add(new Eloop(id,deviceId, deviceName, plateNumber, tblUsersID, tblRoutesID, IsActive, driverName, tblLinesID));
                 }
                 return listEloops;
             }
@@ -78,5 +81,26 @@ public class mySQLGetEloopList extends AsyncTask<Void,Void, List<Eloop>> {
     protected void onPostExecute(List<Eloop> listEloops)
     {
         MenuActivity._eloopList = listEloops;
+
+        SessionManager sessionManager = new SessionManager(_context);
+        if (sessionManager.getIsAdmin())
+        {
+            ArrayList<Integer> lineIDs = new ArrayList<>();
+
+            for(Lines line:MenuActivity._lineList)
+            {
+                lineIDs.add(line.getID());
+            }
+            MenuActivity._eloopListFilteredBySignedInAdmin = new ArrayList<>();
+            for(Eloop eloop: MenuActivity._eloopList)
+            {
+                if (lineIDs.contains(eloop.tblLinesID))
+                    MenuActivity._eloopListFilteredBySignedInAdmin.add(eloop);
+            }
+
+
+        }
+
+
     }
 }

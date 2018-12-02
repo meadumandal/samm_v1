@@ -78,6 +78,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                     edit_firstname.setText(_datamodel.firstName);
                     edit_lastname.setText(_datamodel.lastName);
                     edit_username.setText(_datamodel.username);
+                    edit_emailAddress.setText(_datamodel.emailAddress);
                 }
                 else
                 {

@@ -22,7 +22,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.location.Location;
@@ -30,7 +29,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -131,7 +129,6 @@ import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersFragment;
 import com.umandalmead.samm_v1.Modules.AdminUsers.mySQLGetAdminUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
 import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDriverUsers;
-import com.umandalmead.samm_v1.Modules.DriverUsers.mySQLGetDrivers;
 import com.umandalmead.samm_v1.Modules.ManageLines.ManageLinesFragment;
 import com.umandalmead.samm_v1.Modules.ManageLines.mySQLLinesDataProvider;
 import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
@@ -214,6 +211,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public HashMap _userMarkerHashmap = new HashMap();
         public HashMap<String, Long> _passengerCount = new HashMap<>();
         public static List<Eloop> _eloopList;
+        public static List<Eloop> _eloopListFilteredBySignedInAdmin;
         public static ArrayList<Routes> _routeList;
         public static ArrayList<Lines> _lineList;
 
@@ -223,8 +221,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
         //Put here all global variables related to sending SMS
         private UserMovementBroadcastReceiver _userMovementBroadcastReceiver;
-        private SentSMSBroadcastReceiver _smsSentBroadcastReceiver;
-        private SMSDeliveredBroadcastReceiver _smsDeliveredBroadcastReceiver;
+//        private SentSMSBroadcastReceiver _smsSentBroadcastReceiver;
+//        private SMSDeliveredBroadcastReceiver _smsDeliveredBroadcastReceiver;
         private PendingIntent _sentSMSPendingIntent;
         private PendingIntent _deliveredSMSPendingIntent;
 
@@ -233,7 +231,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static SlidingUpPanelLayout _SlideUpPanelContainer;
         public static TabLayout _RouteTabLayout;
         public static WebView _RouteStepsText;
-        public ProgressDialog _ProgressDialog;
+
         public static ImageView _Slide_Expand;
         public static ScrollView _StepsScroller;
         public static TextView _TimeOfArrivalTextView;
@@ -298,6 +296,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         private String _gpsPlateNumber;
         private Integer _gpsTblUsersID;
         private Integer _gpsTblRoutesID;
+        private Integer _gpsTblLineID;
         private String _gpsNetwork;
         public String _smsAPN;
         public Boolean _isGPSReconnect = false;
@@ -312,8 +311,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static Boolean _HasExitedInfoLayout = false;
         public static CustomFrameLayout _mapRoot;
         public static Integer _DestinationTblRouteID, _RouteTabSelectedIndex=0;
-        public AddGPSDialog _dialog;
-        public LoaderDialog _LoaderDialog;
+//        public static AddGPSDialogFragment _addGPSDialogFragment;
+//        public LoaderDialog _LoaderDialog;
         public static TabLayout RouteTabs;
         public static ViewPager viewPager;
         public static Resources _GlobalResource;
@@ -389,6 +388,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             _GlobalResource = getResources();
             _constants = new Constants();
             _activity = MenuActivity.this;
+//            _addGPSDialogFragment = new AddGPSDialogFragment(MenuActivity.this);
             if (_sessionManager == null)
                 _sessionManager = new SessionManager(_context);
             if (!_sessionManager.isLoggedIn()) {
@@ -400,9 +400,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _isAppFirstLoad = true;
 
                 displayLocationSettingsRequest(_context);
-                //region EloopList
-                new mySQLGetEloopList(_context).execute();
-                //endregion
+
 
                 new mySQLRoutesDataProvider(_activity, _context).execute();
                 if (_sessionManager.getIsSuperAdmin())
@@ -415,7 +413,9 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     new mySQLLinesDataProvider(_activity, null, _manageLinesFragment, null).execute(_sessionManager.getUserID().toString());
                     new mySQLGetDriverUsers(_context).execute();
                 }
-
+                //region EloopList
+                new mySQLGetEloopList(_context).execute();
+                //endregion
 
 
 
@@ -510,14 +510,11 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _NavView.getMenu().findItem(id.nav_superadminusers).setVisible(_sessionManager.getIsSuperAdmin());
                 _NavView.getMenu().findItem(id.nav_adminusers).setVisible(_sessionManager.getIsSuperAdmin());
 
-                //START: Hide temporarily for Release 1.0.3 Nov 21, 2018 because modules are still for polishing
-//                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
-//                _NavView.getMenu().findItem(id.nav_lines).setVisible(_sessionManager.getIsSuperAdmin() || _sessionManager.getIsAdmin());
-//                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
-                _NavView.getMenu().findItem(id.nav_drivers).setVisible(false);
-                _NavView.getMenu().findItem(id.nav_lines).setVisible(false);
-                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(false);
-                //END
+                _NavView.getMenu().findItem(id.nav_drivers).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(id.nav_lines).setVisible(_sessionManager.getIsSuperAdmin() || _sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(R.id.nav_vehicles).setVisible(_sessionManager.getIsAdmin());
+
+
 
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
@@ -592,9 +589,9 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 //                _AddGPSFloatingButton.setOnClickListener(new View.OnClickListener() {
 //                    @Override
 //                    public void onClick(View v) {
-//                        _dialog = new AddGPSDialog(MenuActivity.this);
-//                        _dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//                        _dialog.show();
+//                        _addGPSDialogFragment = new AddGPSDialogFragment(MenuActivity.this);
+//                        _addGPSDialogFragment.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//                        _addGPSDialogFragment.show();
 //                        PlayButtonClickSound();
 //                    }
 //                });
@@ -739,8 +736,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             }
                         });
 
-                _LoaderDialog = new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS), _GlobalResource.getString(R.string.GPS_Initialize));
-                _LoaderDialog.setCancelable(false);
+//                _LoaderDialog = new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS), _GlobalResource.getString(R.string.GPS_Initialize));
+//                _LoaderDialog.setCancelable(false);
 
 
                 if (_sessionManager.isDriver()) {
@@ -775,21 +772,21 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _terminalsDBRef.addChildEventListener(new AddPassengerCountLabel(getApplicationContext(), this));
 
                 _userMovementBroadcastReceiver = new UserMovementBroadcastReceiver();
-                _smsSentBroadcastReceiver = new SentSMSBroadcastReceiver();
-                _smsDeliveredBroadcastReceiver = new SMSDeliveredBroadcastReceiver();
-
-                String SMS_SENT = _GlobalResource.getString(R.string.SMS_SENT);
-                String SMS_DELIVERED = _GlobalResource.getString(R.string.SMS_DELIVERED);
-
-                _sentSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
-                _deliveredSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
-
-                //register BroadcastReceiver
+//                _smsSentBroadcastReceiver = new SentSMSBroadcastReceiver();
+//                _smsDeliveredBroadcastReceiver = new SMSDeliveredBroadcastReceiver();
+//
+//                String SMS_SENT = _GlobalResource.getString(R.string.SMS_SENT);
+//                String SMS_DELIVERED = _GlobalResource.getString(R.string.SMS_DELIVERED);
+//
+//                _sentSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
+//                _deliveredSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
+//
+//                //register BroadcastReceiver
                 IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
-                intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+//                intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
                 registerReceiver(_userMovementBroadcastReceiver, intentFilter);
-                registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
-                registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
+//                registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
+//                registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
                 initializeOnlinePresence();
                 _mapRoot = (CustomFrameLayout) findViewById(R.id.mapCFL);
 
@@ -1541,7 +1538,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                 }
 
             }
-            else if (id == R.id.nav_numberofrounds)
+                else if (id == R.id.nav_numberofrounds)
             {
                 _sessionManager.PassReportType(_constants.VEHICLE_ROUNDS_REPORT);
                 UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
@@ -1618,6 +1615,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             {
                 try {
                     UpdateUI(Enums.UIType.ADMIN_HIDE_MAPS_LINEARLAYOUT);
+
                     _fragmentManager.beginTransaction().replace(R.id.content_frame, new ViewGPSFragment()).commit();
                 }
                 catch(Exception ex)
@@ -1931,134 +1929,143 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
         }
 
     }
-    public class SentSMSBroadcastReceiver extends BroadcastReceiver
-    {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try
-            {
-                switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        if (_smsMessageForGPS.equals(_constants.SMS_BEGIN)) {
-                            _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_activating_gprs));
-                            sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
-                        }
-                        else if (_smsMessageForGPS.equals(_constants.SMS_GPRS)) {
-                            if(_isGPSReconnect) {
-                                _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
-                                _ReconnectGPSButton.setEnabled(true);
-                            }
-                            else {
-                                _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_setting_apn));
-                                sendSMSMessage(_smsAPN, _GPSMobileNumber);
-                            }
-                        }
-                        else if (_smsMessageForGPS.equals(_smsAPN)) {
-                            if(_isGPSReconnect) {
-                                sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
-                            }
-                            else {
-                                _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_configuring_ip_and_port));
-                                sendSMSMessage(_constants.SMS_ADMINIP, _GPSMobileNumber);
-                            }
-
-                        }
-                        else if (_smsMessageForGPS.equals(_constants.SMS_ADMINIP)) {
-                            _ProgressDialog.setMessage(_GlobalResource.getString(R.string.SMS_setting_automatic_location_updates));
-                            sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
-                        }
-                        else if (_smsMessageForGPS.equals(_constants.SMS_TIMEINTERVAL)) {
-                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MenuActivity.this);
-                            alertDialogBuilder.setPositiveButton(_GlobalResource.getText(R.string.SMS_button_ok), new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                }
-                            });
-                            alertDialogBuilder.setTitle(_GlobalResource.getString(R.string.dialog_status_success));
-                            alertDialogBuilder.setMessage(_GlobalResource.getString(R.string.SMS_successfully_added_GPS));
-                            alertDialogBuilder.show();
-
-                            _ProgressDialog.dismiss();
-
-                            //new asyncAddTraccarGPS(getApplicationContext(), _ProgressDialog, MenuActivity.this, _dialog).execute("SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()), _gpsIMEI, _GPSMobileNumber, _gpsNetwork, _gpsPlateNumber, _gpsTblRoutesID.toString(), _gpsTblUsersID.toString());
-                        }
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        if(_isGPSReconnect)
-                        {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
-                        }
-                        else
-                        {
-                            _ProgressDialog.dismiss();
-                        }
-                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
-
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        if(_isGPSReconnect)
-                        {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
-                        }
-                        else
-                        {
-                            _ProgressDialog.dismiss();
-                        }
-                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        if(_isGPSReconnect)
-                        {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
-                        }
-                        else
-                        {
-                            _ProgressDialog.dismiss();
-                        }
-                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
-                        break;
-
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        if(_isGPSReconnect)
-                        {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
-                        }
-                        else
-                        {
-                            _ProgressDialog.dismiss();
-                        }
-                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
-                        break;
-                }
-
-
-            }
-            catch(Exception ex)
-            {
-                _helper.logger(ex,true);
-
-            }
-
-        }
-    }
-    public class SMSDeliveredBroadcastReceiver extends BroadcastReceiver
-    {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (getResultCode()) {
-                case Activity.RESULT_OK:
-                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.SMS_status_delivered), Toast.LENGTH_SHORT).show();
-                    break;
-                case Activity.RESULT_CANCELED:
-                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.SMS_status_not_delivered), Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    }
+//    public class SentSMSBroadcastReceiver extends BroadcastReceiver
+//    {
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            try
+//            {
+//                switch (getResultCode()) {
+//                    case Activity.RESULT_OK:
+//                        if (_smsMessageForGPS.equals(_constants.SMS_BEGIN)) {
+//                            _LoaderDialog = new LoaderDialog(_activity,
+//                                    _GlobalResource.getString(R.string.SMS_configuring_gps_via_sms),
+//                                    _GlobalResource.getString(R.string.SMS_activating_gprs));
+//                            sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
+//                        }
+//                        else if (_smsMessageForGPS.equals(_constants.SMS_GPRS)) {
+//                            if(_isGPSReconnect) {
+//                                _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
+//                                _ReconnectGPSButton.setEnabled(true);
+//                            }
+//                            else {
+//                                _LoaderDialog = new LoaderDialog(_activity,
+//                                        _GlobalResource.getString(R.string.SMS_configuring_gps_via_sms),
+//                                        _GlobalResource.getString(R.string.SMS_setting_apn));
+//
+//                                sendSMSMessage(_smsAPN, _GPSMobileNumber);
+//                            }
+//                        }
+//                        else if (_smsMessageForGPS.equals(_smsAPN)) {
+//                            if(_isGPSReconnect) {
+//                                sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
+//                            }
+//                            else {
+//                                _LoaderDialog = new LoaderDialog(_activity,
+//                                        _GlobalResource.getString(R.string.SMS_configuring_gps_via_sms),
+//                                        _GlobalResource.getString(R.string.SMS_configuring_ip_and_port));
+//                                sendSMSMessage(_constants.SMS_ADMINIP, _GPSMobileNumber);
+//                            }
+//
+//                        }
+//                        else if (_smsMessageForGPS.equals(_constants.SMS_ADMINIP)) {
+//                            _LoaderDialog = new LoaderDialog(_activity,
+//                                    _GlobalResource.getString(R.string.SMS_configuring_gps_via_sms),
+//                                    _GlobalResource.getString(R.string.SMS_setting_automatic_location_updates));
+//                            sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
+//                        }
+//                        else if (_smsMessageForGPS.equals(_constants.SMS_TIMEINTERVAL)) {
+//                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MenuActivity.this);
+//                            alertDialogBuilder.setPositiveButton(_GlobalResource.getText(R.string.SMS_button_ok), new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int id) {
+//                                }
+//                            });
+//                            alertDialogBuilder.setTitle(_GlobalResource.getString(R.string.dialog_status_success));
+//                            alertDialogBuilder.setMessage(_GlobalResource.getString(R.string.SMS_successfully_added_GPS));
+//                            alertDialogBuilder.show();
+//
+//                            _LoaderDialog.dismiss();
+//
+//                            //new asyncAddTraccarGPS(getApplicationContext(), _loaderDialog, MenuActivity.this, _addGPSDialogFragment).execute("SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()), _gpsIMEI, _GPSMobileNumber, _gpsNetwork, _gpsPlateNumber, _gpsTblRoutesID.toString(), _gpsTblUsersID.toString());
+//                        }
+//                        break;
+//                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+//                        if(_isGPSReconnect)
+//                        {
+//                            _ReconnectGPSButton.setEnabled(true);
+//                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
+//                        }
+//                        else
+//                        {
+//                            _LoaderDialog.dismiss();
+//                        }
+//                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+//
+//                        break;
+//                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+//                        if(_isGPSReconnect)
+//                        {
+//                            _ReconnectGPSButton.setEnabled(true);
+//                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
+//                        }
+//                        else
+//                        {
+//                            _LoaderDialog.dismiss();
+//                        }
+//                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+//                        break;
+//                    case SmsManager.RESULT_ERROR_NULL_PDU:
+//                        if(_isGPSReconnect)
+//                        {
+//                            _ReconnectGPSButton.setEnabled(true);
+//                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
+//                        }
+//                        else
+//                        {
+//                            _LoaderDialog.dismiss();
+//                        }
+//                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+//                        break;
+//
+//                    case SmsManager.RESULT_ERROR_RADIO_OFF:
+//                        if(_isGPSReconnect)
+//                        {
+//                            _ReconnectGPSButton.setEnabled(true);
+//                            _ReconnectGPSButton.setText(_GlobalResource.getString(R.string.SMS_button_reconnect));
+//                        }
+//                        else
+//                        {
+//                            _LoaderDialog.dismiss();
+//                        }
+//                        Toast.makeText(context, _GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+//                        break;
+//                }
+//
+//
+//            }
+//            catch(Exception ex)
+//            {
+//                _helper.logger(ex,true);
+//
+//            }
+//
+//        }
+//    }
+//    public class SMSDeliveredBroadcastReceiver extends BroadcastReceiver
+//    {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            switch (getResultCode()) {
+//                case Activity.RESULT_OK:
+//                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.SMS_status_delivered), Toast.LENGTH_SHORT).show();
+//                    break;
+//                case Activity.RESULT_CANCELED:
+//                    Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.SMS_status_not_delivered), Toast.LENGTH_SHORT).show();
+//                    break;
+//            }
+//        }
+//    }
     private void initializeOnlinePresence() {
         // any time that connectionsRef's value is null, device is offline
         Log.i(LOG_TAG, "Initializing online presence...");
@@ -2120,69 +2127,6 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
 
 
-    public void sendSMSMessage(String message, String phone) {
-        try
-        {
-
-            Log.i(LOG_TAG, _GlobalResource.getString(R.string.SMS_sending_to_add_new_gps));
-            this._smsMessageForGPS = message;
-            if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-
-                    Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space) + this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{android.Manifest.permission.SEND_SMS},
-                            MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-            else
-            {
-                Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space)  + this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(phone, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
-                Log.i(_constants.LOG_TAG, message + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
-            }
-        }
-        catch(Exception ex)
-        {
-            _helper.logger(ex,true);
-
-            _ProgressDialog.dismiss();
-            Toast.makeText(getApplicationContext(),_GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    public void sendSMSMessage(String message, String phone, Button btnReconnectGPS) {
-        try
-        {
-            Log.i(LOG_TAG, _GlobalResource.getString(R.string.SMS_sending_to_reconnect_gps));
-            this._smsMessageForGPS = message;
-            this._GPSMobileNumber = phone;
-
-            if (ContextCompat.checkSelfPermission(this,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                    Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space)+ this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
-//                    Toast.makeText(getApplicationContext(), "sending " + this._smsMessageForGPS, Toast.LENGTH_LONG).show();
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{android.Manifest.permission.SEND_SMS},
-                            MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-            else
-            {
-                Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space) + this._smsMessageForGPS + _GlobalResource.getString(R.string.ellipsis));
-//                Toast.makeText(getApplicationContext(), "sending " + this._smsMessageForGPS, Toast.LENGTH_LONG).show();
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(phone, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
-                this._ReconnectGPSButton = btnReconnectGPS;
-
-                Log.i(_constants.LOG_TAG, message + _GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
-//                Toast.makeText(getApplicationContext(),this._smsMessageForGPS + " sent", Toast.LENGTH_LONG).show();
-            }
-        }
-        catch(Exception ex)
-        {
-            _helper.logger(ex,true);
-            _ProgressDialog.dismiss();
-            Toast.makeText(getApplicationContext(),_GlobalResource.getString(R.string.error_exception_with_concat) + ex.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
 
 
     private class FetchFBDPTask extends AsyncTask<String, Void, Bitmap> {
@@ -2424,185 +2368,281 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
 //        }
 //    }
 
-    public class AddGPSDialog extends Dialog implements
-            android.view.View.OnClickListener {
-
-        Button btnAddGPS;
-        EditText txtphoneNo, txtIMEI, txtPlateNumber;
-        Spinner spinnerNetworks, spinnerRoutes, spinnerDrivers;
-
-
-        public String TAG ="mead";
-
-        PendingIntent sentPendingIntent;
-        PendingIntent deliveredPendingIntent;
-        public HashMap<String, Boolean> smsCommandsStatus = new HashMap<>();
-        public final Activity _activity;
-        public AddGPSDialog(Activity activity) {
-            super(activity);
-            // TODO Auto-generated constructor stub
-            this._activity = activity;
-        }
-
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            requestWindowFeature(Window.FEATURE_NO_TITLE);
-            setContentView(R.layout.dialog_add_gps);
-            ArrayList<String> networkList = new ArrayList<>();
-            ArrayList<Users> driverAdapterList = new ArrayList<>();
-            ArrayList<Routes> routesAdapterList = new ArrayList<>();
-
-            driverAdapterList.add(new Users(0, _GlobalResource.getString(R.string.GPS_select_driver), "", "","","Driver", "", 1));
-            routesAdapterList.add(new Routes(0, 0,_GlobalResource.getString(R.string.GPS_select_route), 0));
-
-            driverAdapterList.addAll(MenuActivity._driverList);
-            routesAdapterList.addAll(MenuActivity._routeList);
-
-
-            ArrayAdapter<Users> driverListAdapter = new ArrayAdapter<Users>(getContext(), R.layout.spinner_item, driverAdapterList)
-            {
-
-                @Override
-                public boolean isEnabled(int position)
-                {
-                    if (position == 0)
-                        return false;
-                    else
-                        return true;
-                }
-                @Override
-                public View getDropDownView(int position, View convertView, ViewGroup parent)
-                {
-                    View view = super.getDropDownView(position, convertView, parent);
-                    TextView tv = (TextView) view;
-
-                    if(position==0) {
-                        // Set the disable item text color
-                        tv.setTextColor(Color.GRAY);
-                    }
-                    else {
-                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
-                    }
-                    return view;
-                }
-            };
-            ArrayAdapter<Routes> routesListAdapter = new ArrayAdapter<Routes>(getContext(), R.layout.spinner_item, routesAdapterList)
-            {
-                @Override
-                public boolean isEnabled(int position)
-                {
-                    if (position == 0)
-                        return false;
-                    else
-                        return true;
-                }
-                @Override
-                public View getDropDownView(int position, View convertView, ViewGroup parent)
-                {
-                    View view = super.getDropDownView(position, convertView, parent);
-                    TextView tv = (TextView) view;
-                    if(position==0) {
-                        // Set the disable item text color
-                        tv.setTextColor(Color.GRAY);
-                    }
-                    else {
-                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
-                    }
-                    return view;
-                }
-            };
-
-            spinnerNetworks = (Spinner)findViewById(R.id.spinnerNetworks);
-            spinnerRoutes = (Spinner) findViewById(id.spinnerRoutes);
-            spinnerDrivers = (Spinner) findViewById(id.spinnerDrivers);
-
-
-            networkList.add(_GlobalResource.getString(R.string.SMS_select_GPS_network));
-            networkList.add(_GlobalResource.getString(R.string.NETWORK_GLOBE));
-            networkList.add(_GlobalResource.getString(R.string.NETWORK_SMART));
-
-
-            ArrayAdapter<String> networkProvidersAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, networkList){
-                @Override
-                public boolean isEnabled(int position)
-                {
-                    if (position == 0)
-                        return false;
-                    else
-                        return true;
-                }
-                @Override
-                public View getDropDownView(int position, View convertView, ViewGroup parent)
-                {
-                    View view = super.getDropDownView(position, convertView, parent);
-                    TextView tv = (TextView) view;
-
-                    if(position==0) {
-                        // Set the disable item text color
-                        tv.setTextColor(Color.GRAY);
-                    }
-                    else {
-                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
-                    }
-                    return view;
-                }
-
-            };
-            spinnerNetworks.setAdapter(networkProvidersAdapter);
-            spinnerDrivers.setAdapter(driverListAdapter);
-            spinnerRoutes.setAdapter(routesListAdapter);
-
-            btnAddGPS = (Button) findViewById(R.id.btnAddGPS);
-            txtphoneNo = (EditText) findViewById(R.id.GPSMobileNum);
-            txtIMEI  = (EditText) findViewById(R.id.GPSIMEI);
-            txtPlateNumber = (EditText) findViewById(id.plateNumber);
-            btnAddGPS.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    try
-                    {
-                        PlayButtonClickSound();
-                        _GPSMobileNumber = txtphoneNo.getText().toString().trim();
-                        _gpsIMEI = txtIMEI.getText().toString().trim();
-                        _gpsPlateNumber = txtPlateNumber.getText().toString().trim();
-                        _gpsNetwork = spinnerNetworks.getSelectedItem().toString();
-                        _gpsTblRoutesID = ((Routes)spinnerRoutes.getSelectedItem()).getID();
-                        _gpsTblUsersID = ((Users)spinnerDrivers.getSelectedItem()).ID;
-                        if(_GPSMobileNumber.trim().length() == 0 || _gpsIMEI.trim().length() == 0 || spinnerNetworks.getSelectedItem().toString().equals(_GlobalResource.getString(R.string.SMS_please_select_network_provider)))
-                        {
-                            Toast.makeText(getContext(), _GlobalResource.getString(R.string.error_please_supply_all_fields), Toast.LENGTH_LONG).show();
-                        }
-                        else {
-                            if (spinnerNetworks.getSelectedItem().toString().equals("Globe"))
-                                _smsAPN = _constants.SMS_APN_GLOBE;
-                            else
-                                _smsAPN = _constants.SMS_APN_SMART;
-                            _ProgressDialog.show();
-
-                            //TO DO: Call AsynTask class
-                            //Add to MySQL SAMM Database
-                            //Add to Traccar Server
-                            //Send SMS to activate the GPS
-                            new asyncAddTraccarGPS(getApplicationContext(), _LoaderDialog, MenuActivity.this, AddGPSDialog.this).execute("SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()), _gpsIMEI, _GPSMobileNumber, _gpsNetwork, _gpsPlateNumber, _gpsTblRoutesID.toString(), _gpsTblUsersID.toString());
-                        }
-                    }catch(Exception ex)
-                    {
-                        _helper.logger(ex,true);
-                        Toast.makeText(getContext(), _GlobalResource.getString(R.string.error_an_error_occurred), Toast.LENGTH_LONG).show();
-                    }
-                }
-            });
-
-
-        }
-
-
-        @Override
-        public void onClick(View view) {
-
-        }
-    }
+//    public class AddGPSDialogFragment extends Dialog implements
+//            android.view.View.OnClickListener {
+//
+//        Button btnAddGPS;
+//        EditText txtphoneNo, txtIMEI, txtPlateNumber;
+//        Spinner spinnerNetworks, spinnerRoutes, spinnerDrivers, spinnerLines;
+//
+//
+//        public String TAG ="mead";
+//
+//        PendingIntent sentPendingIntent;
+//        PendingIntent deliveredPendingIntent;
+//        public HashMap<String, Boolean> smsCommandsStatus = new HashMap<>();
+//        public final Activity _activity;
+//        public AddGPSDialogFragment(Activity activity) {
+//            super(activity);
+//            // TODO Auto-generated constructor stub
+//            this._activity = activity;
+//        }
+//
+//        @Override
+//        protected void onCreate(Bundle savedInstanceState) {
+//            super.onCreate(savedInstanceState);
+//            requestWindowFeature(Window.FEATURE_NO_TITLE);
+//            setContentView(R.layout.dialog_add_gps);
+//
+//            ArrayList<String> networkList = new ArrayList<>();
+//            ArrayList<Users> driverAdapterList = new ArrayList<>();
+//            ArrayList<Routes> routesAdapterList = new ArrayList<>();
+//            ArrayList<Lines> linesAdapterList = new ArrayList<>();
+//
+//            networkList.add(_GlobalResource.getString(R.string.GPS_select_network));
+//            driverAdapterList.add(new Users(0, _GlobalResource.getString(R.string.GPS_select_driver), "", "","","Driver", "", 1));
+//            routesAdapterList.add(new Routes(0, 0,_GlobalResource.getString(R.string.GPS_select_route), 0));
+//            linesAdapterList.add(new Lines(0, _GlobalResource.getString(R.string.GPS_select_line), 0, ""));
+//
+//            networkList.add(_GlobalResource.getString(R.string.NETWORK_GLOBE)); networkList.add(_GlobalResource.getString(R.string.NETWORK_SMART));
+//            driverAdapterList.addAll(MenuActivity._driverList);
+//            routesAdapterList.addAll(MenuActivity._routeList);
+//            linesAdapterList.addAll(MenuActivity._lineList);
+//
+//            ArrayAdapter<Users> driverListAdapter = new ArrayAdapter<Users>(getContext(), R.layout.spinner_item, driverAdapterList)
+//            {
+//
+//                @Override
+//                public boolean isEnabled(int position)
+//                {
+//                    if (position == 0)
+//                        return false;
+//                    else
+//                        return true;
+//                }
+//                @Override
+//                public View getDropDownView(int position, View convertView, ViewGroup parent)
+//                {
+//                    View view = super.getDropDownView(position, convertView, parent);
+//                    TextView tv = (TextView) view;
+//
+//                    if(position==0) {
+//                        // Set the disable item text color
+//                        tv.setTextColor(Color.GRAY);
+//                    }
+//                    else {
+//                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+//                    }
+//                    return view;
+//                }
+//
+//                @Override
+//                public View getView(int position, View convertView, ViewGroup parent)
+//                {
+//                    TextView tv = (TextView) super.getView(position, convertView, parent);
+//
+//                    if(position == 0)
+//                        tv.setTextColor(Color.GRAY);
+//                    else
+//                        tv.setTextColor(Color.BLACK);
+//
+//                    // Return the view
+//                    return tv;
+//                }
+//
+//
+//            };
+//            ArrayAdapter<Routes> routesListAdapter = new ArrayAdapter<Routes>(getContext(), R.layout.spinner_item, routesAdapterList)
+//            {
+//                @Override
+//                public boolean isEnabled(int position)
+//                {
+//                    if (position == 0)
+//                        return false;
+//                    else
+//                        return true;
+//                }
+//                @Override
+//                public View getDropDownView(int position, View convertView, ViewGroup parent)
+//                {
+//                    View view = super.getDropDownView(position, convertView, parent);
+//                    TextView tv = (TextView) view;
+//                    if(position==0) {
+//                        // Set the disable item text color
+//                        tv.setTextColor(Color.GRAY);
+//                    }
+//                    else {
+//                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+//                    }
+//                    return view;
+//                }
+//            };
+//
+//
+//            ArrayAdapter<Lines> linesListAdapter = new ArrayAdapter<Lines>(getContext(), R.layout.spinner_item, linesAdapterList)
+//            {
+//
+//                @Override
+//                public boolean isEnabled(int position)
+//                {
+//                    if (position == 0)
+//                        return false;
+//                    else
+//                        return true;
+//                }
+//                @Override
+//                public View getDropDownView(int position, View convertView, ViewGroup parent)
+//                {
+//                    View view = super.getDropDownView(position, convertView, parent);
+//                    TextView tv = (TextView) view;
+//
+//                    if(position==0) {
+//                        // Set the disable item text color
+//                        tv.setTextColor(Color.GRAY);
+//                    }
+//                    else {
+//                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+//                    }
+//                    return view;
+//                }
+//
+//                @Override
+//                public View getView(int position, View convertView, ViewGroup parent)
+//                {
+//                    TextView tv = (TextView) super.getView(position, convertView, parent);
+//
+//                    if(position == 0)
+//                        tv.setTextColor(Color.RED);
+//                    else
+//                        tv.setTextColor(Color.BLACK);
+//
+//                    // Return the view
+//                    return tv;
+//                }
+//            };
+//            ArrayAdapter<String> networkProvidersAdapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, networkList){
+//                @Override
+//                public boolean isEnabled(int position)
+//                {
+//                    if (position == 0)
+//                        return false;
+//                    else
+//                        return true;
+//                }
+//                @Override
+//                public View getDropDownView(int position, View convertView, ViewGroup parent)
+//                {
+//                    View view = super.getDropDownView(position, convertView, parent);
+//                    TextView tv = (TextView) view;
+//
+//                    if(position==0) {
+//                        // Set the disable item text color
+//                        tv.setTextColor(Color.GRAY);
+//                    }
+//                    else {
+//                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+//                    }
+//                    return view;
+//                }
+//
+//                @Override
+//                public View getView(int position, View convertView, ViewGroup parent)
+//                {
+//                    TextView tv = (TextView) super.getView(position, convertView, parent);
+//
+//                    if(position == 0)
+//                        tv.setTextColor(Color.RED);
+//                    else
+//                        tv.setTextColor(Color.BLACK);
+//
+//                    // Return the view
+//                    return tv;
+//                }
+//
+//
+//            };
+//
+//
+//            spinnerNetworks = (Spinner)findViewById(R.id.spinnerNetworks);
+//            spinnerRoutes = (Spinner) findViewById(id.spinnerRoutes);
+//            spinnerDrivers = (Spinner) findViewById(id.spinnerDrivers);
+//            spinnerLines = findViewById(id.spinnerLines);
+//
+//
+//            spinnerNetworks.setAdapter(networkProvidersAdapter);
+//            spinnerDrivers.setAdapter(driverListAdapter);
+//            spinnerRoutes.setAdapter(routesListAdapter);
+//            spinnerLines.setAdapter(linesListAdapter);
+//
+//            btnAddGPS = (Button) findViewById(R.id.btnAddGPS);
+//            txtphoneNo = (EditText) findViewById(R.id.GPSMobileNum);
+//            txtIMEI  = (EditText) findViewById(R.id.GPSIMEI);
+//            txtPlateNumber = (EditText) findViewById(id.plateNumber);
+//            btnAddGPS.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    try
+//                    {
+//                        PlayButtonClickSound();
+//                        _GPSMobileNumber = txtphoneNo.getText().toString().trim();
+//                        _gpsIMEI = txtIMEI.getText().toString().trim();
+//                        _gpsPlateNumber = txtPlateNumber.getText().toString().trim();
+//                        _gpsNetwork = spinnerNetworks.getSelectedItem().toString();
+//                        _gpsTblRoutesID = ((Routes)spinnerRoutes.getSelectedItem()).getID();
+//                        _gpsTblUsersID = ((Users)spinnerDrivers.getSelectedItem()).ID;
+//                        _gpsTblLineID = ((Lines)spinnerLines.getSelectedItem()).getID();
+//                        if(_GPSMobileNumber.trim().length() == 0
+//                                || _gpsIMEI.trim().length() == 0
+//                                || spinnerNetworks.getSelectedItem().toString().equals(_GlobalResource.getString(R.string.GPS_select_network))
+//                                || _gpsTblLineID == 0
+//                            )
+//                        {
+//                            ErrorDialog errorDialog = new ErrorDialog(_activity, _GlobalResource.getString(R.string.error_please_supply_required_fields));
+//                            errorDialog.show();
+//                        }
+//                        else {
+//                            if (spinnerNetworks.getSelectedItem().toString().equals("Globe"))
+//                                _smsAPN = _constants.SMS_APN_GLOBE;
+//                            else
+//                                _smsAPN = _constants.SMS_APN_SMART;
+//
+//
+//                            _LoaderDialog.show();
+//
+//                            //TO DO: Call AsynTask class
+//                            //Add to MySQL SAMM Database
+//                            //Add to Traccar Server
+//                            //Send SMS to activate the GPS
+//                            new asyncAddTraccarGPS(getApplicationContext(),
+//                                    _LoaderDialog,
+//                                    MenuActivity.this,
+//                                    AddGPSDialogFragment.this).execute(
+//                                            "SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()),
+//                                            _gpsIMEI,
+//                                            _GPSMobileNumber,
+//                                            _gpsNetwork,
+//                                            _gpsPlateNumber,
+//                                            _gpsTblRoutesID.toString(),
+//                                            _gpsTblUsersID.toString(),
+//                                            _gpsTblLineID.toString());
+//                        }
+//                    }catch(Exception ex)
+//                    {
+//                        _helper.logger(ex,true);
+//                        Toast.makeText(getContext(), _GlobalResource.getString(R.string.error_an_error_occurred), Toast.LENGTH_LONG).show();
+//                    }
+//                }
+//            });
+//
+//
+//        }
+//
+//
+//        @Override
+//        public void onClick(View view) {
+//
+//        }
+//    }
 
     public static Boolean IsNight(){
         Integer currentTime = Calendar.getInstance().getTime().getHours();

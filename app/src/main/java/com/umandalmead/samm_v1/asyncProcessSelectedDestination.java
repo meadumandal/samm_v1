@@ -103,9 +103,10 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<
                 String Direction = jsonObject.getString("Direction");
                 Double Lat = jsonObject.getDouble("Lat");
                 Double Lng = jsonObject.getDouble("Lng");
+                Double distanceFromPreviousStation = jsonObject.getDouble("distanceFromPreviousStation");
                 Integer isMainTerminal = jsonObject.getInt("isMainTerminal");
                 Integer IsActive = jsonObject.getInt("IsActive");
-                possiblePickUpPoints.add(new Terminal(ID, tblRouteID,Value, Description, OrderOfArrival,Direction,  Lat, Lng,"",null,0, "", isMainTerminal.toString(),"",0));
+                possiblePickUpPoints.add(new Terminal(ID, tblRouteID,Value, Description, OrderOfArrival,Direction,  Lat, Lng,"",null,0, "", isMainTerminal.toString(),"",0, distanceFromPreviousStation));
             }
 
 //            for(Routes route: _activity._routeList)

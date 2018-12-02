@@ -6,24 +6,40 @@ import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Users;
+import com.umandalmead.samm_v1.ErrorDialog;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by MeadRoseAnn on 08/20/2018.
@@ -61,8 +77,44 @@ public class EditDriverUserDialogFragment extends DialogFragment {
             final EditText edit_password = (EditText) view.findViewById(R.id.password);
             final TextView textLabel = (TextView) view.findViewById(R.id.txtActionLabel);
             final EditText edit_confirmPassword = (EditText) view.findViewById(R.id.confirmPassword);
+            final Spinner spinnerLines  = view.findViewById(R.id.spinnerLines);
+            final CheckBox checkShowPasswords = view.findViewById(R.id.showPassword);
             Button btnUpdate = (Button) view.findViewById(R.id.btnUpdateDriverUser);
             Button btnDelete = (Button) view.findViewById(R.id.btnDeleteDriverUser);
+
+            ArrayList<Lines> tempLineList = new ArrayList<>();
+            tempLineList.add(new Lines(0, "Select a line",0 ,""));
+            tempLineList.addAll(MenuActivity._lineList);
+
+            ArrayAdapter<Lines> linesListAdapter = new ArrayAdapter<Lines>(getContext(), R.layout.spinner_item, tempLineList)
+            {
+
+                @Override
+                public boolean isEnabled(int position)
+                {
+                    if (position == 0)
+                        return false;
+                    else
+                        return true;
+                }
+                @Override
+                public View getDropDownView(int position, View convertView, ViewGroup parent)
+                {
+                    View view = super.getDropDownView(position, convertView, parent);
+                    TextView tv = (TextView) view;
+
+                    if(position==0) {
+                        // Set the disable item text color
+                        tv.setTextColor(Color.GRAY);
+                    }
+                    else {
+                        tv.setTextColor(ContextCompat.getColor(getContext(),R.color.colorBlack));
+                    }
+                    return view;
+                }
+            };
+
+            spinnerLines.setAdapter(linesListAdapter);
 
             Bundle argumentsBundle = getArguments();
             if(argumentsBundle !=null)
@@ -77,11 +129,22 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                     edit_firstname.setText(_datamodel.firstName);
                     edit_lastname.setText(_datamodel.lastName);
                     edit_username.setText(_datamodel.username);
+                    Integer index = 0;
+                    for(Lines l:tempLineList)
+                    {
+                        if (l.getID() == _datamodel.tblLineID)
+                        {
+                            spinnerLines.setSelection(index);
+                            break;
+                        }
+                        index++;
+
+                    }
+
                 }
                 else
                 {
                     textLabel.setText("Add New Driver User");
-
                     btnDelete.setVisibility(View.GONE);
                 }
                 _username = _datamodel.username;
@@ -99,6 +162,21 @@ public class EditDriverUserDialogFragment extends DialogFragment {
             builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
             builder.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
             builder.setContentView(view);
+            checkShowPasswords.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    if (b)
+                    {
+                        edit_password.setTransformationMethod(null);
+                        edit_confirmPassword.setTransformationMethod(null);
+                    }
+                    else
+                    {
+                        edit_password.setTransformationMethod(new PasswordTransformationMethod());
+                        edit_confirmPassword.setTransformationMethod(new PasswordTransformationMethod());
+                    }
+                }
+            });
 
             btnUpdate.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -111,28 +189,35 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                     String new_lastname = edit_lastname.getText().toString();
                     String password = edit_password.getText().toString();
                     String confirmedPassword = edit_confirmPassword.getText().toString();
+                    Integer tblLineID = ((Lines)spinnerLines.getSelectedItem()).getID();
 
                     UpdateDriverLoader.show();
                     try
                     {
                         if (_isAdd) //If new entry
                         {
-                            Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
-                            new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_firstname, new_lastname, password);
-
+                            Users.validateRegistrationDetails(new Users(new_username, Constants.DRIVER_EMAILADDRESS, new_firstname, new_lastname, password, confirmedPassword));
+                            if (tblLineID==0)
+                            {
+                                ErrorDialog errorDialog = new ErrorDialog(getActivity(), "Please select the line of this driver");
+                                errorDialog.show();
+                                UpdateDriverLoader.dismiss();
+                            }
+                            else
+                                new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_firstname, new_lastname, password, tblLineID.toString());
                         }
                         else //EDIT
                         {
                             if (password.trim().length()>0) //Check if password is changed
                             {
 
-                                Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
-                                new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_firstname, new_lastname, password);
+                                Users.validateRegistrationDetails(new Users(new_username, Constants.DRIVER_EMAILADDRESS, new_firstname, new_lastname, password, confirmedPassword));
+                                new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_firstname, new_lastname, password, tblLineID.toString());
                             }
                             else
                             {
-                                Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, null, null));
-                                new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username, new_firstname, new_lastname, null);
+                                Users.validateRegistrationDetails(new Users(new_username, Constants.DRIVER_EMAILADDRESS, new_firstname, new_lastname, null, null));
+                                new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username, new_firstname, new_lastname, null, tblLineID.toString());
                             }
 
                         }
@@ -166,7 +251,7 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                                         RemoveUserLoader.setCancelable(false);
                                         RemoveUserLoader.show();
 
-                                        new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),RemoveUserLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Delete").execute(_userID.toString(), "","","","");
+                                        new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),RemoveUserLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Delete").execute(_userID.toString(), "","","","","");
 
                                     }
                                     catch(Exception ex)

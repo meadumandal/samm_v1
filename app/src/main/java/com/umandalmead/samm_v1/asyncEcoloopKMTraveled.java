@@ -269,6 +269,8 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                     ActivityCompat.requestPermissions(_activity,
                             new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                             1);
+
+
                     ReportsActivity._PC_EcoLoopMain.saveToGallery(GenerateReportImageFileName(),100);//,"/DCIM/Camera");
                     Handler HND_PostExportMessage = new Handler();
                     HND_PostExportMessage.postDelayed(new Runnable() {

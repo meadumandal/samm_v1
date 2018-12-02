@@ -1,30 +1,28 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.TrackedPUVs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.NonScrollListView;
+import com.umandalmead.samm_v1.ViewGPSFragment;
 
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.net.URLConnection;
-
-import static com.squareup.okhttp.internal.Internal.logger;
-import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 
 
 /**
@@ -45,9 +43,17 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
     private Constants _constants = new Constants();
     SwipeRefreshLayout _swipeRefreshLayout;
     NonScrollListView _gpsListView;
+    ViewGPSFragment _viewGPSFragment;
 
 
-    public asyncDeleteTraccarGPS(Context context, LoaderDialog loaderDialog, Activity activity, EditGPSDialogFragment dialog, GPS dataModel, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView gpsListView)
+    public asyncDeleteTraccarGPS(Context context,
+                                 LoaderDialog loaderDialog,
+                                 Activity activity,
+                                 EditGPSDialogFragment dialog,
+                                 GPS dataModel,
+                                 SwipeRefreshLayout swipeRefreshLayout,
+                                 NonScrollListView gpsListView,
+                                 ViewGPSFragment fragment)
     {
         Log.i(TAG, "asyncDeleteTraccarGPS");
         this._context = context;
@@ -57,6 +63,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
         this._swipeRefreshLayout = swipeRefreshLayout;
         this._gpsListView = gpsListView;
         this._dialogFragment = dialog;
+        this._viewGPSFragment = fragment;
 
     }
     @Override
@@ -121,6 +128,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
 
                     Helper.logger(ex,true);
                     returnString= "Error encountered upon deleting GPS. Please re-try";
+                    this._LoaderDialog.dismiss();
                 }
 
 
@@ -165,7 +173,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
                     public void onRefresh() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout, _viewGPSFragment).execute();
 
                     }
                 });
@@ -174,7 +182,7 @@ public class asyncDeleteTraccarGPS extends AsyncTask<Void, Void, String>{
                     public void run() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout).execute();
+                        new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout, _viewGPSFragment).execute();
                     }
                 });
 //              new mySQLSignUp(_activity, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");

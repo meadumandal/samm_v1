@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.TrackedPUVs;
 
 import android.app.Activity;
 import android.app.FragmentManager;
@@ -12,9 +12,16 @@ import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.GPSListViewCustomAdapter;
+import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
+import com.umandalmead.samm_v1.NonScrollListView;
+import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
+import com.umandalmead.samm_v1.ViewGPSFragment;
+import com.umandalmead.samm_v1.mySQLGetEloopList;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -40,6 +47,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
     public FragmentManager _fragmentManager;
     public SwipeRefreshLayout _swipeRefreshGPS;
     public GPSListViewCustomAdapter customAdapter;
+    public ViewGPSFragment _viewGPSFragment;
 
     private Constants _constants = new Constants();
 
@@ -48,7 +56,8 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                                   LoaderDialog loaderDialog,
                                   NonScrollListView listView,
                                   FragmentManager fm,
-                                  SwipeRefreshLayout swipeRefreshGPS)
+                                  SwipeRefreshLayout swipeRefreshGPS,
+                                  ViewGPSFragment viewGPSFragment)
     {
             Log.i(_constants.LOG_TAG, "asyncGetGPSFromTraccar");
         this._context = context;
@@ -56,6 +65,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
         this._listView = listView;
         this._fragmentManager = fm;
         this._swipeRefreshGPS = swipeRefreshGPS;
+        this._viewGPSFragment = viewGPSFragment;
         new mySQLGetEloopList(_context).execute();
     }
 
@@ -124,10 +134,28 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                 Integer ID = Integer.parseInt(json.get("id").toString());
                 String Status = json.get("status").toString();
 
-                _dataModels.add(new GPS(ID, GPSName, GPSIMEI, GPSPhone, GPSNetwork, Status));
+                Boolean isViewableToUser = false;
+                Eloop temp = new Eloop();
+                for (Eloop eloop:MenuActivity._eloopListFilteredBySignedInAdmin)
+                {
+                    if (eloop.DeviceId == ID)
+                    {
+                        temp = eloop;
+                        isViewableToUser = true;
+                        break;
+                    }
+                }
+                if (isViewableToUser)
+                    _dataModels.add(new GPS(ID,
+                            GPSName,
+                            GPSIMEI,
+                            GPSPhone,
+                            GPSNetwork,
+                            Status,
+                            temp.PlateNumber.isEmpty()?"No plate number":temp.PlateNumber));
 
             }
-            customAdapter =new GPSListViewCustomAdapter(_dataModels, _context);
+            customAdapter =new GPSListViewCustomAdapter(_dataModels, _context, _viewGPSFragment);
             _listView.setAdapter(customAdapter);
 
             _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -137,7 +165,7 @@ public class asyncGetGPSFromTraccar extends AsyncTask<Void, Void, JSONArray>{
                         Gson gson = new Gson();
                         GPS selectedGPS = _dataModels.get(position);
                         Eloop selectedEloop = new Eloop();
-                        for(Eloop e:MenuActivity._eloopList)
+                        for(Eloop e: MenuActivity._eloopList)
                         {
                             if (e.DeviceId == selectedGPS.getID())
                             {

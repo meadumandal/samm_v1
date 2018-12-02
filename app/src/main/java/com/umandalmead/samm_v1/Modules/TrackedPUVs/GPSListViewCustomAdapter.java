@@ -16,8 +16,8 @@ import android.widget.TextView;
 
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 import com.umandalmead.samm_v1.Helper;
-import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.ViewGPSFragment;
 
 import java.util.ArrayList;
 
@@ -30,20 +30,23 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
     Context mContext;
     String TAG = "mead";
     Helper _helper;
+    ViewGPSFragment _viewGPSFragment;
 
     // View lookup cache
     private static class ViewHolder {
+        TextView txtPlateNumber;
         TextView txtGPSName;
         TextView txtGPSStatus;
         LinearLayout layoutGPSItem;
         Button btnReconnectGPS;
+
     }
 
-    public GPSListViewCustomAdapter(ArrayList<GPS> data, Context context) {
+    public GPSListViewCustomAdapter(ArrayList<GPS> data, Context context, ViewGPSFragment fragment) {
         super(context, R.layout.listview_viewgps, data);
         this.dataSet = data;
         this.mContext=context;
-
+        this._viewGPSFragment = fragment;
     }
 
     @Override
@@ -78,13 +81,16 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
             viewHolder = new ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.listview_viewgps, parent, false);
+            viewHolder.txtPlateNumber = convertView.findViewById(R.id.platenumber);
             viewHolder.txtGPSName = (TextView) convertView.findViewById(R.id.gpsname);
             viewHolder.txtGPSStatus = (TextView) convertView.findViewById(R.id.gpsstatus);
             viewHolder.layoutGPSItem = (LinearLayout) convertView.findViewById(R.id.gpsitemLinearLayout);
             viewHolder.btnReconnectGPS = (Button) convertView.findViewById(R.id.btnReconnectGPS);
-            viewHolder.txtGPSName.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
-            viewHolder.txtGPSStatus.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
-            viewHolder.btnReconnectGPS.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
+
+            viewHolder.txtPlateNumber.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            viewHolder.txtGPSName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            viewHolder.txtGPSStatus.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            viewHolder.btnReconnectGPS.setTypeface(Helper.FONT_RUBIK_REGULAR);
 
             result=convertView;
 
@@ -109,9 +115,9 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
                     apn = "http.globe.com.ph";
                 else
                     apn = "internet";
-                ((MenuActivity)mContext)._smsAPN = apn;
-                ((MenuActivity)mContext)._isGPSReconnect = true;
-                ((MenuActivity)mContext).sendSMSMessage("apn123456 "+apn, gps.getGPSPhone(), viewHolder.btnReconnectGPS);
+                _viewGPSFragment._smsAPN = apn;
+                _viewGPSFragment._isGPSReconnect = true;
+                _viewGPSFragment.sendSMSMessage("apn123456 "+apn, gps.getGPSPhone(), viewHolder.btnReconnectGPS);
 
 
             }
@@ -120,14 +126,14 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
         Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
         result.startAnimation(animation);
         lastPosition = position;
-
+        viewHolder.txtPlateNumber.setText(dataModel.getGPSPlateNo());
         viewHolder.txtGPSName.setText(dataModel.getGPSName());
         viewHolder.txtGPSStatus.setText(dataModel.getStatus() != null? dataModel.getStatus().toUpperCase():"N/A");
         if(dataModel.getStatus().toLowerCase().equals("online"))
 
             viewHolder.layoutGPSItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorGreen));
         else
-            viewHolder.layoutGPSItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorRed));
+            viewHolder.layoutGPSItem.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorOrange));
 
         // Return the completed view to render on screen
         return convertView;

@@ -48,7 +48,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
     LoaderDialog _LoaderDialog;
     String _promptMessage;
     Boolean _status;
-    String newusername,newfirstname, newlastname, newpassword;
+    String newusername,newfirstname, newlastname, newpassword, newTblLineID;
     Integer userID;
     SessionManager _sessionManager;
     EditDriverUserDialogFragment _editDialog;
@@ -57,7 +57,14 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
     String _action;
     private Constants _constants = new Constants();
     Helper _helper = new Helper();
-    public mySQLUpdateDriverUserDetails(Context context, Activity activity, LoaderDialog loaderDialog, String promptMessage, EditDriverUserDialogFragment editDialog, SwipeRefreshLayout swipeRefreshLayout, NonScrollListView adminUserListView, String action)
+    public mySQLUpdateDriverUserDetails(Context context,
+                                        Activity activity,
+                                        LoaderDialog loaderDialog,
+                                        String promptMessage,
+                                        EditDriverUserDialogFragment editDialog,
+                                        SwipeRefreshLayout swipeRefreshLayout,
+                                        NonScrollListView adminUserListView,
+                                        String action)
     {
         this._context = context;
         this._activity = activity;
@@ -92,6 +99,8 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
         newfirstname = params[2];
         newlastname = params[3];
         newpassword = params[4];
+        newTblLineID = params[5];
+
 
         JSONObject json = new JSONObject();
 
@@ -102,7 +111,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                 if (this._action.equals("Add"))
                 {
 
-                    String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "add.php?";
+                    String link = _constants.WEB_API_URL + _constants.DRIVER_API_FOLDER + "add.php?";
                     HttpClient httpClient = new DefaultHttpClient();
                     HttpPost httpPost = new HttpPost(link);
                     List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -112,6 +121,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                     postParameters.add(new BasicNameValuePair("emailaddress", Constants.DRIVER_EMAILADDRESS));
                     postParameters.add(new BasicNameValuePair("password", newpassword));
                     postParameters.add(new BasicNameValuePair("usertype", "Driver"));
+                    postParameters.add(new BasicNameValuePair("tblLineID", newTblLineID));
                     httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
                     HttpResponse response = httpClient.execute(httpPost);
                     String strResponse = EntityUtils.toString(response.getEntity());
@@ -119,7 +129,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                 }
                 else if (this._action.equals("Delete"))
                 {
-                    String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "delete.php?";
+                    String link = _constants.WEB_API_URL + _constants.DRIVER_API_FOLDER + "delete.php?";
                     HttpClient httpClient = new DefaultHttpClient();
                     HttpPost httpPost = new HttpPost(link);
                     List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -131,7 +141,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                 }
                 else if(this._action.equals("Edit"))
                 {
-                    String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "edit.php?";
+                    String link = _constants.WEB_API_URL + _constants.DRIVER_API_FOLDER + "edit.php?";
                     HttpClient httpClient = new DefaultHttpClient();
                     HttpPost httpPost = new HttpPost(link);
                     List<NameValuePair> postParameters = new ArrayList<NameValuePair>(4);
@@ -139,6 +149,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                     postParameters.add(new BasicNameValuePair("newusername", newusername));
                     postParameters.add(new BasicNameValuePair("newfirstname", newfirstname));
                     postParameters.add(new BasicNameValuePair("newlastname", newlastname));
+                    postParameters.add(new BasicNameValuePair("newlineid", newTblLineID));
                     if (newpassword != null)
                         postParameters.add(new BasicNameValuePair("newpassword", newpassword));
                     httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
@@ -220,4 +231,5 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
 
     }
 }
+
 

@@ -22,6 +22,7 @@ public class Terminal implements Comparable<Terminal>{
     public String Direction;
     public Double Lat;
     public Double Lng;
+    public Double distanceFromPreviousStation;
 
     public String GeofenceId;
     public Directions directionsFromCurrentLocation;
@@ -52,7 +53,8 @@ public class Terminal implements Comparable<Terminal>{
                     String LineName,
                     String isMainTerminal,
                     String routeName,
-                    Integer lineID)
+                    Integer lineID,
+                    Double distanceFromPreviousStation)
     {
         this.ID =ID;
         this.tblRouteID = tblRouteID;
@@ -65,6 +67,7 @@ public class Terminal implements Comparable<Terminal>{
         this.GeofenceId = GeofenceId;
         this.directionsFromCurrentLocation = DirectionsFromCurrentLocation;
         this.distanceFromCurrentLocation = DistanceFromCurrentLocation;
+        this.distanceFromPreviousStation = distanceFromPreviousStation;
 
         this.LineName = LineName;
         this.isMainTerminal = isMainTerminal;
@@ -149,6 +152,8 @@ public class Terminal implements Comparable<Terminal>{
     public void setLineID(Integer lineID) {this.LineID = lineID;}
     public double getDistanceFromCurrentLocation(){return this.distanceFromCurrentLocation;}
     public void setDistanceFromCurrentLocation(double distanceFromCurrentLocation){this.distanceFromCurrentLocation = distanceFromCurrentLocation;}
+    public void setDistanceFromPreviousStation(double distanceFromPreviousStation){this.distanceFromPreviousStation = distanceFromPreviousStation;}
+    public double getDistanceFromPreviousStation(){return this.distanceFromPreviousStation;}
     //endregion
 
 

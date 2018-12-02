@@ -3,14 +3,11 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -58,6 +55,12 @@ public class LoaderDialog extends Dialog {
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
 
+    }
+
+    public void setMessage(String message)
+    {
+        this.TV_LoaderMessage = (TextView) findViewById(R.id.loader_message);
+        this.TV_LoaderMessage.setText(message);
     }
 
 

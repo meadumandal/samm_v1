@@ -13,12 +13,21 @@ public class Eloop {
     public int tblRoutesID;
     public int IsActive;
     public String DriverName;
+    public int tblLinesID;
 
     public Eloop()
     {
 
     }
-    public Eloop(int ID, int DeviceId,String DeviceName, String PlateNumber, int tblUsersID, int tblRoutesID, int IsActive, String driverName)
+    public Eloop(int ID,
+                 int DeviceId,
+                 String DeviceName,
+                 String PlateNumber,
+                 int tblUsersID,
+                 int tblRoutesID,
+                 int IsActive,
+                 String driverName,
+                 int tblLinesID)
     {
         this.ID = ID;
         this.DeviceId = DeviceId;
@@ -28,5 +37,6 @@ public class Eloop {
         this.tblRoutesID = tblRoutesID;
         this.IsActive = IsActive;
         this.DriverName = driverName;
+        this.tblLinesID = tblLinesID;
     }
 }

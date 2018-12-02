@@ -81,7 +81,7 @@ public class ReportsActivity extends Fragment {
     private LinearLayout _LL_create_button_holder;
     private ShimmerLayout _SL_btn_create_report;
     private TextView _TV_ActivityTitle, _TV_ReportSubTitle;
-    public static PieChart _PC_EcoLoopMain, _PC_EcoLoopMaxSpeed;
+    public static PieChart _PC_EcoLoopMain, _PC_EcoLoopMaxSpeed, _PC_NumberOfRounds;
     public static Button _BTN_BACK_EcoLoop_Others;
     public static TabLayout _TL_EcoloopTraveled;
     public static RelativeLayout _RL_DistanceTraveled;
@@ -116,6 +116,7 @@ public class ReportsActivity extends Fragment {
             _TV_ActivityTitle = (TextView) _view.findViewById(R.id.TV_ReportTitle);
             _TV_ReportSubTitle = (TextView) _view.findViewById(R.id.textViewReportName);
             _PC_EcoLoopMain = (PieChart) _view.findViewById(R.id.PC_EcoLoopMainPieChart);
+            _PC_NumberOfRounds = _view.findViewById(R.id.vehicleTripsPieChart);
             _BTN_BACK_EcoLoop_Others = (Button) _view.findViewById(R.id.BTN_back);
             _TL_EcoloopTraveled = (TabLayout) _view.findViewById(R.id.TL_EcoloopTraveled);
             _RL_DistanceTraveled = (RelativeLayout) _view.findViewById(R.id.RL_DistanceTraveled);
@@ -266,7 +267,7 @@ public class ReportsActivity extends Fragment {
                         TextView textview_lineID = view.findViewById(R.id.textview_value);
                         Integer selectedLineID = Integer.parseInt(textview_lineID.getText().toString());
                         List<Terminal> filteredTerminals = new ArrayList<>();
-                        filteredTerminals.add(new Terminal(0, 0, "selectstation", "Select a station", 0, "", 0.0, 0.0, "", null, 0, "", "", "", 0));
+                        filteredTerminals.add(new Terminal(0, 0, "selectstation", "Select a station", 0, "", 0.0, 0.0, "", null, 0, "", "", "", 0,0.0));
                         for(Terminal terminal: MenuActivity._terminalList)
                         {
                             if (terminal.getLineID() == selectedLineID) {
@@ -456,23 +457,23 @@ public class ReportsActivity extends Fragment {
                         {
                             _appbar_vehiclerounds_reportfilters.setVisibility(View.GONE);
                             _btnHideReportFilters.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
-                            PieChart pieChart = _view.findViewById(R.id.vehicleTripsPieChart);
-                            pieChart.setEntryLabelColor(Color.BLACK);
-                            pieChart.setEntryLabelTypeface(Helper.FONT_RUBIK_BOLD);
-                            pieChart.setEntryLabelTextSize(12f);
-                            pieChart.setNoDataText("No data available");
-                            pieChart.setNoDataTextTypeface(Helper.FONT_RUBIK_REGULAR);
-                            pieChart.animate();
-                            pieChart.setCenterTextTypeface(Helper.FONT_RUBIK_BOLD);
-                            pieChart.setCenterText("No. of trips from " + selectedTerminalInSpinner.getDescription()
+
+                            _PC_NumberOfRounds.setEntryLabelColor(Color.BLACK);
+                            _PC_NumberOfRounds.setEntryLabelTypeface(Helper.FONT_RUBIK_BOLD);
+                            _PC_NumberOfRounds.setEntryLabelTextSize(12f);
+                            _PC_NumberOfRounds.setNoDataText("No data available");
+                            _PC_NumberOfRounds.setNoDataTextTypeface(Helper.FONT_RUBIK_REGULAR);
+                            _PC_NumberOfRounds.animate();
+                            _PC_NumberOfRounds.setCenterTextTypeface(Helper.FONT_RUBIK_BOLD);
+                            _PC_NumberOfRounds.setCenterText("No. of trips from " + selectedTerminalInSpinner.getDescription()
                                     + " and back\n"
                                     + _fromDateTextBox.getText().toString()
                                     + " - "
                                     + _toDateTextBox.getText().toString());
 
-                            pieChart.setHoleRadius(50f);
-                            pieChart.setTransparentCircleRadius(50f);
-                            pieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                            _PC_NumberOfRounds.setHoleRadius(50f);
+                            _PC_NumberOfRounds.setTransparentCircleRadius(50f);
+                            _PC_NumberOfRounds.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
                                 @Override
                                 public void onValueSelected(Entry e, Highlight h) {
 
@@ -483,7 +484,7 @@ public class ReportsActivity extends Fragment {
 
                                 }
                             });
-                            new mySQLVehicleGeofenceHistoryReport(getContext(), getActivity(), pieChart).
+                            new mySQLVehicleGeofenceHistoryReport(getContext(), getActivity()).
                                     execute(lineID.toString(),
                                             stationValue.toLowerCase(),
                                             _fromDateTextBox.getText().toString(),

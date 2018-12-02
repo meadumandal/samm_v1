@@ -22,7 +22,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="error_try_again_all_caps">TRY AGAIN</string>
     <string name="error_exception_with_concat">Exception : </string>
-    <string name="error_please_supply_all_fields">Please supply all fields</string>
+    <string name="error_please_supply_required_fields">Please supply all required fields</string>
     <string name="error_invalid_route_name">Please enter a valid route name</string>
     <string name="error_not_connected">You are not connected to the internet. Please check your connection and try again.</string>
     <string name="error_contacting_server">Problem contacting the server. Please try again later.</string>
@@ -99,8 +99,10 @@
     <!--GPS RELATED-->
     <string name="Adding_Vehicle_GPS">Adding Vehicle GPS</string>
     <string name="GPS_Initialize">Initializing...</string>
+    <string name="GPS_select_network">Select GSM SIM Network *</string>
     <string name="GPS_select_driver">Select a driver for this PUV</string>
     <string name="GPS_select_route">Select a route for this PUV</string>
+    <string name="GPS_select_line">Select a line for this PUV *</string>
     <string name="GPS_adding">Adding Pickup/Dropoff Point</string>
     <string name="GPS_updating">Updating Pickup/Dropoff Point</string>
     <string name="GPS_deleting">Deleting Pickup/Dropoff Point</string>
@@ -122,8 +124,7 @@
     <string name="SMS_SENT" translatable="false">SMS_SENT</string>
     <string name="SMS_DELIVERED" translatable="false">SMS_DELIVERED</string>
     <string name="SMS_Not_Online">Device is not online</string>
-    <string name="SMS_please_select_network_provider">Select GSM SIM Network Provider</string>
-    <string name="SMS_select_GPS_network">Select the network of the GPS of this PUV</string>
+    <string name="SMS_configuring_gps_via_sms">Configuring GPS via SMS</string>
     <string name="SMS_error_encountered_in_adding_GPS">Error encountered in adding GPS: Please check your signal</string>
     <string name="SMS_successfully_added_GPS">Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.</string>
     <string name="SMS_setting_automatic_location_updates">Setting automatic location updates</string>

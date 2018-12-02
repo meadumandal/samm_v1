@@ -141,9 +141,10 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                 String lastName = json.getString("lastName");
                 String userType = json.getString("userType");
                 String password = json.getString("password");
+                Integer tblLineID = json.getInt("tblLineID");
                 int IsActive = json.getInt("IsActive");
 
-                _dataModels.add(new Users(ID, username, emailAddress, firstName, lastName, userType, password, IsActive));
+                _dataModels.add(new Users(ID, username, emailAddress, firstName, lastName, userType, password, IsActive, tblLineID));
             }
 
             MenuActivity._driverList = new ArrayList<>(_dataModels);
@@ -159,7 +160,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         try {
                             Boolean isAdd;
-                            if (_dataModels.get(position).username.substring(0, 7).equals("Add new"))
+                            if (_dataModels.get(position).username.length() >6 && _dataModels.get(position).username.substring(0, 7).equals("Add new"))
                                 isAdd = true;
                             else
                                 isAdd = false;

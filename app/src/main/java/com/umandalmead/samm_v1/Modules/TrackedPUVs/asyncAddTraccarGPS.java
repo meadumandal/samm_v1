@@ -1,12 +1,19 @@
-package com.umandalmead.samm_v1;
+package com.umandalmead.samm_v1.Modules.TrackedPUVs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.Helper;
+import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.Modules.TrackedPUVs.AddGPSDialogFragment;
+import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.ViewGPSFragment;
 
 import org.json.JSONObject;
 
@@ -26,18 +33,22 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     Activity _activity;
     LoaderDialog _LoaderDialog;
     String progressMessage, _GPSMobileNumber;
+    ViewGPSFragment _viewGPSFragment;
+    AddGPSDialogFragment _dialog;
 
     private Constants _constants = new Constants();
-    MenuActivity.AddGPSDialog _dialog;
 
 
-    public asyncAddTraccarGPS(Context context, LoaderDialog loaderDialog, Activity activity, MenuActivity.AddGPSDialog dialog)
+
+    public asyncAddTraccarGPS(Context context, LoaderDialog loaderDialog, Activity activity, AddGPSDialogFragment dialog, ViewGPSFragment viewGPSFragment)
     {
         Log.i(_constants.LOG_TAG, "asyncAddTraccarGPS");
         this._context = context;
         this._LoaderDialog = loaderDialog;
         this._activity = activity;
         this._dialog = dialog;
+        this._viewGPSFragment = viewGPSFragment;
+
     }
     @Override
     protected void onPreExecute()
@@ -45,7 +56,6 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
         try
         {
             super.onPreExecute();
-            _LoaderDialog.show();
 
         }
         catch(Exception ex)
@@ -71,6 +81,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             String plateNumber = params[4];
             String tblRoutesID = params[5];
             String tblUsersID = params[6];
+            String tblLineID = params[7];
             String returnString  ="";
             Integer deviceId = 0;
             _GPSMobileNumber = phoneNo;
@@ -80,8 +91,15 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             {
 
 
-                String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER + "createDevices.php?name="+name+"&uniqueId="+uniqueId
-                        +"&phoneNo="+phoneNo + "&model=" + network+ "&plateNumber=" + plateNumber + "&tblRoutesID=" + tblRoutesID + "&tblUsersID=" + tblUsersID;
+                String link = _constants.WEB_API_URL + _constants.DEVICES_API_FOLDER
+                        + "createDevices.php?name="+name
+                        +"&uniqueId="+uniqueId
+                        +"&phoneNo="+phoneNo
+                        + "&model=" + network
+                        + "&plateNumber=" + plateNumber
+                        + "&tblRoutesID=" + tblRoutesID
+                        + "&tblUsersID=" + tblUsersID
+                        + "&tblLineID="+tblLineID;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -135,8 +153,10 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             if(returnMessage.equals("Success"))
             {
                 _dialog.dismiss();
-                _LoaderDialog = new LoaderDialog(_activity,"","Starting to configure GPS");
-                ((MenuActivity)_activity).sendSMSMessage(_constants.SMS_BEGIN, _GPSMobileNumber);
+                _LoaderDialog.setMessage("Starting to configure GPS");
+//                ((MenuActivity)_activity).sendSMSMessage(_constants.SMS_BEGIN, _GPSMobileNumber);
+                _viewGPSFragment.sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
+                _viewGPSFragment.refreshGPSListView();
 
             }
             else

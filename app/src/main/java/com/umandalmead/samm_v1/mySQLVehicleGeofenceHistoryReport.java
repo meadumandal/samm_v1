@@ -3,27 +3,18 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
-import android.support.v4.content.ContextCompat;
-import android.view.Gravity;
+import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-import com.umandalmead.samm_v1.EntityObjects.PassengerQueueingHistory;
 import com.umandalmead.samm_v1.EntityObjects.VehicleGeofenceHistory;
 
 import org.json.JSONArray;
@@ -44,21 +35,22 @@ import java.util.ArrayList;
 public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, ArrayList<VehicleGeofenceHistory>>{
     Context _context;
     Activity _activity;
-    PieChart _pieChart;
+
     Helper _helper;
     Constants _constants;
+    public static String STR_dateRange="";
     /**
      *This is the generic format in accessing data from mySQL
      * @param context
      * @param activity
      */
-    public mySQLVehicleGeofenceHistoryReport(Context context, Activity activity, PieChart pieChart)
+    public mySQLVehicleGeofenceHistoryReport(Context context, Activity activity)
     {
         this._context = context;
         this._activity = activity;
         this._helper = new Helper(_activity,_context);
         this._constants = new Constants();
-        this._pieChart = pieChart;
+
     }
     @Override
     protected void onPreExecute()
@@ -99,7 +91,7 @@ public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, A
                         + "&destinationValue=" + destinationValue
                         + "&fromDate=" + from
                         + "&toDate=" + to;
-
+                STR_dateRange= from + " to " + to;
                 URL url = new URL(link);
 
                 URLConnection conn = url.openConnection();
@@ -143,7 +135,7 @@ public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, A
         {
 
             ArrayList<PieEntry> yValues = new ArrayList<PieEntry>();
-            Legend l = this._pieChart.getLegend();
+            Legend l = ReportsActivity._PC_NumberOfRounds.getLegend();
             l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
             l.setEnabled(true);
             l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
@@ -182,9 +174,31 @@ public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, A
             data.setValueTextSize(11f);
             data.setValueTextColor(Color.BLACK);
             data.setValueTypeface(Helper.FONT_RUBIK_REGULAR);
-            this._pieChart.setData(data);
-            this._pieChart.highlightValues(null);
-            this._pieChart.invalidate();
+            ReportsActivity._PC_NumberOfRounds.setData(data);
+            ReportsActivity._PC_NumberOfRounds.highlightValues(null);
+            ReportsActivity._PC_NumberOfRounds.invalidate();
+            ReportsActivity._IV_ExportReport.setVisibility(View.VISIBLE);
+            ReportsActivity._IV_ExportReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ActivityCompat.requestPermissions(_activity,
+                            new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            1);
+
+
+                    ReportsActivity._PC_NumberOfRounds.saveToGallery("VehicleRoundsReport " + STR_dateRange,100);//,"/DCIM/Camera");
+                    Handler HND_PostExportMessage = new Handler();
+                    HND_PostExportMessage.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            InfoDialog dialog = new InfoDialog(_activity, "Image has been exported.\n FileName: "+ "VehicleRoundsReport " + STR_dateRange);
+                            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            dialog.show();
+                        }
+                    }, 2000);
+
+                }
+            });
 
         }
         catch(Exception ex)
@@ -195,6 +209,7 @@ public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, A
 
 
     }
+
 
 
 

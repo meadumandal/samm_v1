@@ -15,7 +15,7 @@ public class GPS {
     Integer ID;
     String Status;
 
-    public GPS(Integer ID,String gpsName, String gpsIMEI, String gpsPhone, String gpsNetworkProvider, String status)
+    public GPS(Integer ID,String gpsName, String gpsIMEI, String gpsPhone, String gpsNetworkProvider, String status, String plateNo)
     {
         this.ID = ID;
         this.GPSName = gpsName;
@@ -23,6 +23,7 @@ public class GPS {
         this.GPSPhone = gpsPhone;
         this.GPSNetworkProvider = gpsNetworkProvider;
         this.Status = status;
+        this.GPSPlateNo = plateNo;
     }
 
     public void setStatus (String status)
@@ -64,6 +65,7 @@ public class GPS {
     {
         return this.GPSNetworkProvider;
     }
+    public String getGPSPlateNo(){return this.GPSPlateNo;}
     public Integer getID()
     {
         return this.ID;
