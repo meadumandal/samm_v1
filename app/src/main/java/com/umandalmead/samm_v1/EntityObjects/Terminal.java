@@ -194,10 +194,22 @@ public class Terminal implements Comparable<Terminal>{
 
     }
     public static class DestinationComparators{
-        public static Comparator<Terminal> ORDER_OF_ARRIVAL = new Comparator<Terminal>() {
+        public static Comparator<Terminal> ORDER_OF_ARRIVAL_DESC = new Comparator<Terminal>() {
             @Override
             public int compare(Terminal dest1, Terminal dest2) {
                 return dest2.OrderOfArrival - dest1.OrderOfArrival;
+            }
+        };
+        public static Comparator<Terminal> ORDER_OF_ARRIVAL_ASC = new Comparator<Terminal>() {
+            @Override
+            public int compare(Terminal dest1, Terminal dest2) {
+                return dest1.OrderOfArrival - dest2.OrderOfArrival;
+            }
+        };
+        public static Comparator<Terminal> ORDER_BY_ROUTEID_ASC = new Comparator<Terminal>() {
+            @Override
+            public int compare(Terminal dest1, Terminal dest2) {
+                return dest1.tblRouteID - dest2.tblRouteID;
             }
         };
 //        public static Comparator<Terminal> DEFAULT = new Comparator<Terminal>() {

@@ -127,7 +127,7 @@ import com.umandalmead.samm_v1.SessionManager;
                                     markerOptions.title(deviceId);
                                 }
 
-
+                                markerOptions.flat(true);
                                 float v = valueAnimator.getAnimatedFraction();
                                 double lng = v * currLocation.getLongitude() + (1 - v)
                                         * prevLocation.getLongitude();

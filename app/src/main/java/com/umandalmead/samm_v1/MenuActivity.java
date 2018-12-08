@@ -214,6 +214,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static List<Eloop> _eloopListFilteredBySignedInAdmin;
         public static ArrayList<Routes> _routeList;
         public static ArrayList<Lines> _lineList;
+        public static HashMap<Integer, ArrayList<Terminal>> _HM_GroupedTerminals;
 
         public static ArrayList<Users> _driverList;
         public static ArrayList<Setting> _AL_applicationSettings;
@@ -276,6 +277,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         //Put here other global variables
         public static GoogleApiClient _googleAPI;
         public Helper _helper;
+        public ArrivalHelper _arrivalHelper;
 
         public static LatLng _userCurrentLoc;
         public Marker _userCurrentLocMarker;
@@ -385,6 +387,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             super.onCreate(savedInstanceState);
             _context = getApplicationContext();
             _helper = new Helper(MenuActivity.this, this._context);
+            _arrivalHelper = new ArrivalHelper(MenuActivity.this, getApplicationContext());
             _GlobalResource = getResources();
             _constants = new Constants();
             _activity = MenuActivity.this;
@@ -707,12 +710,25 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                     @Override
                     //GO-2R
-                    public void onPlaceSelected(Place place) {
+                    public void onPlaceSelected(final Place place) {
                         try {
                             _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
                             _DestinationTextView.setBackgroundResource(R.color.colorGrassGreen);
                             _DestinationTextView.setTextSize(Helper.dpToPx(8,_context));
                             _DestinationTextView.setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
+                            _DestinationTextView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16);
+                                    _googleMap.animateCamera(cameraUpdate);
+                                    Marker marker;
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                                    markerOptions.position(place.getLatLng());
+                                    marker = _googleMap.addMarker(markerOptions);
+                                    _helper.dropMarker(marker, _googleMap);
+                                }
+                            });
                             new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, place).execute();
 
                         } catch (Exception ex) {
@@ -822,71 +838,78 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.i(_constants.LOG_TAG,_GlobalResource.getString(R.string.GM_Ready));
-        _googleMap = googleMap;
-        _googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                _LL_MapStyleHolder.setVisibility(View.INVISIBLE);
-            }
-        });
-        Enums.GoogleMapType mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
-        try{
-           mapType = Enums.GoogleMapType.valueOf(_sessionManager.getMapStylePreference());
-        }catch (Exception ex){
-            Helper.logger(ex);
-        }
-        SetMapType(_googleMap, mapType);
-        //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        try {
+            _googleMap = googleMap;
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
+                    _googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(LatLng latLng) {
+                            _LL_MapStyleHolder.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    Enums.GoogleMapType mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
+                    try {
+                        mapType = Enums.GoogleMapType.valueOf(_sessionManager.getMapStylePreference());
+                    } catch (Exception ex) {
+                        Helper.logger(ex);
+                    }
+                    SetMapType(_googleMap, mapType);
+                    //Initialize Google Play Services
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(this,
+                                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED) {
 
-                buildGoogleApiClient();
-            }
-        }
-        else {
-            buildGoogleApiClient();
-        }
-        if(mapType == Enums.GoogleMapType.MAP_TYPE_NORMAL){
-            Integer mapsStyle = IsNight() ? R.raw.night_maps_style_darker: R.raw.maps_style;
-            boolean success = _googleMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, mapsStyle));
+                            buildGoogleApiClient();
+                        }
+                    } else {
+                        buildGoogleApiClient();
+                    }
+                    if (mapType == Enums.GoogleMapType.MAP_TYPE_NORMAL) {
+                        Integer mapsStyle = IsNight() ? R.raw.night_maps_style_darker : R.raw.maps_style;
+                        boolean success = _googleMap.setMapStyle(
+                                MapStyleOptions.loadRawResourceStyle(
+                                        this, mapsStyle));
 
-            if (!success) {
-                _helper.logger(_GlobalResource.getString(R.string.GM_Style_Parse_Failed));
-            }
-        }
-        _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
-        _googleMap.setMyLocationEnabled(true);
-        _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
-        _googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
-            @Override
-            public void onCameraIdle() {
-                if(!_IsOnSearchMode && _infoLayout.getVisibility() != View.VISIBLE) {
-                    //FrameSearchBarHolder.setVisibility(View.VISIBLE);
-                    //Log.i(_constants.LOG_TAG,"==camera idle=="+ _googleMap.getCameraPosition().target);
-                }
+                        if (!success) {
+                            _helper.logger(_GlobalResource.getString(R.string.GM_Style_Parse_Failed));
+                        }
+                    }
+                    _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
+                    _googleMap.setMyLocationEnabled(true);
+                    _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    _googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
+                        @Override
+                        public void onCameraIdle() {
+                            if (!_IsOnSearchMode && _infoLayout.getVisibility() != View.VISIBLE) {
+                                //FrameSearchBarHolder.setVisibility(View.VISIBLE);
+                                //Log.i(_constants.LOG_TAG,"==camera idle=="+ _googleMap.getCameraPosition().target);
+                            }
 
-            }
-        });
-        _googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
-            @Override
-            public void onCameraMoveStarted(int reason) {
-                if (reason ==REASON_GESTURE) {
-                   // FrameSearchBarHolder.setVisibility(View.INVISIBLE);
-                   // isMaptouched=true;
-                } else if (reason ==REASON_API_ANIMATION) {
+                        }
+                    });
+                    _googleMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+                        @Override
+                        public void onCameraMoveStarted(int reason) {
+                            if (reason == REASON_GESTURE) {
+                                // FrameSearchBarHolder.setVisibility(View.INVISIBLE);
+                                // isMaptouched=true;
+                            } else if (reason == REASON_API_ANIMATION) {
 //                    Toast.makeText(MenuActivity.this, "The user tapped something on the map.",
 //                            Toast.LENGTH_SHORT).show();
-                } else if (reason ==REASON_DEVELOPER_ANIMATION) {
+                            } else if (reason == REASON_DEVELOPER_ANIMATION) {
 //                    Toast.makeText(MenuActivity.this, "The app moved the camera.",
 //                            Toast.LENGTH_SHORT).show();
-                }
-            }
+                            }
+                        }
 
-        });
+                    });
+                }
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -1015,129 +1038,131 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     }
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(_constants.LOG_TAG, "Google API Client is connected...");
-        new mySQLStationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
-        _locationRequest = new LocationRequest();
-        _locationRequest.setInterval(0);
-        _locationRequest.setFastestInterval(0);
-        _locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.FusedLocationApi.requestLocationUpdates(_googleAPI, _locationRequest, this);
-            locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,0, this);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,0, this);
+        try {
+            Log.i(_constants.LOG_TAG, "Google API Client is connected...");
+            _locationRequest = new LocationRequest();
+            _locationRequest.setInterval(0);
+            _locationRequest.setFastestInterval(0);
+            _locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+            if (ContextCompat.checkSelfPermission(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                if (_googleAPI.isConnected()) {
+                    new mySQLStationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
+                    LocationServices.FusedLocationApi.requestLocationUpdates(_googleAPI, _locationRequest, this);
+                    locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                    _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            try {
+                                final String markerTitle = marker.getTitle();
+                                Integer markerID = 0;
+                                final String markerValue;
+                                if (markerTitle != null) {
+                                    if (markerTitle.contains("-") && !markerTitle.contains("guestuser")) {
+                                        String[] str = markerTitle.split("-");
+                                        markerID = Integer.parseInt(str[0]);
+                                        markerValue = str[1];
+                                    } else {
+                                        markerValue = markerTitle;
+                                    }
 
-        }
-        _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                try
-                {
-                    final String markerTitle = marker.getTitle();
-                    Integer markerID = 0;
-                    final String markerValue;
-                    if(markerTitle!=null) {
-                        if (markerTitle.contains("-") && !markerTitle.contains("guestuser"))
-                        {
-                            String[] str = markerTitle.split("-");
-                            markerID = Integer.parseInt(str[0]);
-                            markerValue = str[1];
-                        }
-                        else
-                        {
-                            markerValue = markerTitle;
-                        }
-
-                        if (_terminalMarkerHashmap.containsKey(markerValue)) {
+                                    if (_terminalMarkerHashmap.containsKey(markerValue)) {
 //                            if (_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()) {
 //                                //if admin only:
 //                                _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
 //                            } else {
-                            for (Terminal terminal : _terminalList) {
-                                if (terminal.ID.equals(markerID)) {
-                                    TM_ClickedTerminal = terminal;
-                                }
+                                        for (Terminal terminal : _terminalList) {
+                                            if (terminal.ID.equals(markerID)) {
+                                                TM_ClickedTerminal = terminal;
+                                            }
 
-                            }
-                            _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
-                            final Handler HND_Loc_DataFetchDelay = new Handler();
-                            final Handler HND_Loc_DataFetchTooLong = new Handler();
-                            final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
-                            HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
-                            HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
-                            HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    GetAndDisplayEloopETA(F_TM_ClickedTerminal);
-                                }
-                            }, 3000);
+                                        }
+                                        _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
+                                        final Handler HND_Loc_DataFetchDelay = new Handler();
+                                        final Handler HND_Loc_DataFetchTooLong = new Handler();
+                                        final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
+                                        HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
+                                        HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
+                                        HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                GetAndDisplayEloopETA(F_TM_ClickedTerminal);
+                                            }
+                                        }, 3000);
 
-                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" +  TM_ClickedTerminal.Description,
-                                    _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                    _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
-                            _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
-                                @Override
-                                public Transaction.Result doTransaction(MutableData currentData) {
+                                        ShowInfoLayout(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                                _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
+                                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
+                                        _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                            @Override
+                                            public Transaction.Result doTransaction(MutableData currentData) {
 
-                                    return Transaction.success(currentData);
-                                }
+                                                return Transaction.success(currentData);
+                                            }
 
-                                @Override
-                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
-                                    long passengercount = 0;
-                                    passengercount = DS_Terminals.getChildrenCount();
-                                    _passengerCountInTerminal = (int) passengercount;
-                                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
-                                }
-                            });
+                                            @Override
+                                            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                                long passengercount = 0;
+                                                passengercount = DS_Terminals.getChildrenCount();
+                                                _passengerCountInTerminal = (int) passengercount;
+                                                UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                                        _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
+                                            }
+                                        });
 
 //                            }
-                        }
-                        //vehicle has been clicked instead
-                        else if (_driverMarkerHashmap.containsKey(markerValue)) {
-                            _SelectedTerminalMarkerTitle = null;
-                            Eloop eloopDetails =Helper.GetEloopEntry(markerValue);
-                            ShowInfoLayout(eloopDetails.PlateNumber,
-                                    eloopDetails.DriverName,
-                                    null,
-                                    R.drawable.eco_loop_for_info_transparent,
-                                    Enums.InfoLayoutType.INFO_VEHICLE);
-                        } else if (markerValue.equals("YOU")) {
-                            _SelectedTerminalMarkerTitle = null;
-                        }
-                        //samm user marker has been clicked
-                        else {
-                            _SelectedTerminalMarkerTitle = null;
-                            String STR_IconGetterFlag = markerValue;
-                            if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerValue))
-                                STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
-
-                            final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
-                            Handler HD_FetchFBName = new Handler();
-
-                            if (UM_result.UserType == Enums.UserType.SAMM_FACEBOOK) {
-                                HD_FetchFBName.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        GetFacebookUsername(markerValue, UM_result);
                                     }
-                                }, 1500);
-                            }
-                            ShowInfoLayout(UM_result.UserTitle, UM_result.UserType.toString(), null, UM_result.UserInfoLayoutIcon, Enums.InfoLayoutType.INFO_PERSON);
-                        }
-                    }
-                }
-                catch(Exception ex)
-                {
-                    _helper.logger(ex);
-                }
+                                    //vehicle has been clicked instead
+                                    else if (_driverMarkerHashmap.containsKey(markerValue)) {
+                                        _SelectedTerminalMarkerTitle = null;
+                                        Eloop eloopDetails = Helper.GetEloopEntry(markerValue);
+                                        ShowInfoLayout(eloopDetails.PlateNumber,
+                                                eloopDetails.DriverName,
+                                                null,
+                                                R.drawable.eco_loop_for_info_transparent,
+                                                Enums.InfoLayoutType.INFO_VEHICLE);
+                                    } else if (markerValue.equals("YOU")) {
+                                        _SelectedTerminalMarkerTitle = null;
+                                    }
+                                    //samm user marker has been clicked
+                                    else {
+                                        _SelectedTerminalMarkerTitle = null;
+                                        String STR_IconGetterFlag = markerValue;
+                                        if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerValue))
+                                            STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
 
-                return true;
+                                        final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
+                                        Handler HD_FetchFBName = new Handler();
+
+                                        if (UM_result.UserType == Enums.UserType.SAMM_FACEBOOK) {
+                                            HD_FetchFBName.postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    GetFacebookUsername(markerValue, UM_result);
+                                                }
+                                            }, 1500);
+                                        }
+                                        ShowInfoLayout(UM_result.UserTitle, UM_result.UserType.toString(), null, UM_result.UserInfoLayoutIcon, Enums.InfoLayoutType.INFO_PERSON);
+                                    }
+                                }
+                            } catch (Exception ex) {
+                                _helper.logger(ex);
+                            }
+
+                            return true;
+                        }
+                    });
+                }
+            } else {
+
             }
-        });
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
+
     }
     @Override
     public void onConnectionSuspended(int i) {
@@ -1149,27 +1174,28 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
     }
 
-    public void GetAndDisplayEloopETA(final Terminal TM_CurrentDestination) {
+    public void GetAndDisplayEloopETA(final Terminal TM_SelectedDestination) {
         try {
-            String res = "";
-                if (TM_CurrentDestination != null) {
-                    final List<Terminal> L_TM_DestList_Sorted = new ArrayList<Terminal>(MenuActivity._terminalList);
-                Collections.sort(L_TM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
-                _vehicle_destinationsDBRef.runTransaction(new Transaction.Handler() {
-                    @Override
-                    public Transaction.Result doTransaction(MutableData currentData) {
+            _arrivalHelper.GetGPSDetailsFromFirebase(TM_SelectedDestination, false);
+//            String res = "";
+//                if (TM_CurrentDestination != null) {
+//                    final List<Terminal> L_TM_DestList_Sorted = new ArrayList<Terminal>(MenuActivity._terminalList);
+//                Collections.sort(L_TM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
+//                _vehicle_destinationsDBRef.runTransaction(new Transaction.Handler() {
+//                    @Override
+//                    public Transaction.Result doTransaction(MutableData currentData) {
+//
+//                        return Transaction.success(currentData);
+//                    }
+//
+//                    @Override
+//                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Vehicle_Destinations) {
+//                        ValidateIfEloopIsWithinSameRoute(TM_CurrentDestination, DS_Vehicle_Destinations, L_TM_DestList_Sorted);
+//                    }
+//                });
+//
 
-                        return Transaction.success(currentData);
-                    }
 
-                    @Override
-                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Vehicle_Destinations) {
-                        ValidateIfEloopIsWithinSameRoute(TM_CurrentDestination, DS_Vehicle_Destinations, L_TM_DestList_Sorted);
-                    }
-                });
-
-
-            }
         } catch (Exception ex) {
 
             Helper.logger(ex,true);
@@ -1360,7 +1386,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                                 buildGoogleApiClient();
 
                             }
-                            _googleMap.setMyLocationEnabled(true);
+                            if(_googleAPI.isConnected())
+                             _googleMap.setMyLocationEnabled(true);
                         }
                 } else {
                     // Permission denied, Disable the functionality that depends on this permission.
@@ -3347,6 +3374,17 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
             InfoDialog GuestInfo = new InfoDialog(MenuActivity.this, getResources().getString(R.string.guest_nav_drawer_message));
             GuestInfo.show();
         }
+    }
+    public void UpdateInfoPanelForTimeofArrival(String Title, String Description, String Description2){
+        try{
+            UpdateInfoPanelDetails(Title,
+                    _helper.getEmojiByUnicode(0x1F6BB)
+                    + " : " + _passengerCountInTerminal + " passenger(s) waiting" ,
+                    Description2);
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
+
     }
 }
 

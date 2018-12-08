@@ -7,11 +7,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.support.design.widget.TabLayout;
 import android.util.Log;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
+import com.google.android.gms.cast.framework.MediaNotificationManager;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +35,8 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
+import com.umandalmead.samm_v1.EntityObjects.VehicleGeofenceHistory;
+import com.umandalmead.samm_v1.EntityObjects.VehicleProperties;
 import com.umandalmead.samm_v1.POJO.HTMLDirections.Directions;
 
 import java.util.ArrayList;
@@ -74,13 +78,17 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
     public static Polyline  _skyBluePolyLine;
     private static List<LatLng> listLatLng = new ArrayList<>();
     private  LoaderDialog _loader;
-    private static DatabaseReference DriversDatabaseReference, VehicleDestinationDatabaseReference, _S_VehicleDestinationDatabaseReference;
+    private static DatabaseReference DriversDatabaseReference,
+            VehicleDestinationDatabaseReference,
+            _S_VehicleDestinationDatabaseReference;
     private FirebaseDatabase FB;
     private static ChildEventListener _SingleLoopChildListenerForSelectedTerminal;
     private String _AssignedELoop = "";
     private Boolean _IsAllLoopParked = true;
     private List<Integer> _ListOfLoops = new ArrayList<Integer>();
     private Constants _constants = new Constants();
+    private Helper _helper;
+    private ArrivalHelper _arrivalHelper;
     public asyncPrepareRouteData(Activity activity, Context context, List<Terminal> L_TM_topTerminals, Terminal terminal, GoogleMap googlemap,LoaderDialog loaderDialog){
         this._activity = activity;
         this._context = context;
@@ -88,6 +96,8 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
         this._chosenTerminal = terminal;
         this._map = googlemap;
         this._loader = loaderDialog;
+        this._helper = new Helper(_activity, _context);
+        this._arrivalHelper = new ArrivalHelper(_activity,_context);
     }
 
     @Override
@@ -170,7 +180,8 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                         MenuActivity._SlideUpPanelContainer.setPanelHeight(220);
                     new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
                     MenuActivity._selectedPickUpPoint = L_TM_AllPossibleTerminals.get(tab.getPosition());
-                    GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
+                    _arrivalHelper.GetGPSDetailsFromFirebase(L_TM_AllPossibleTerminals.get(tab.getPosition()),true);
+                    // GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
                     PlayButtonClickSound();
                     drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
@@ -194,7 +205,8 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                 }
             }, 1500);
             new asyncGenerateDirectionSteps(_activity,_activity,_chosenTerminal, L_L_STR_DirectionStepsList.get(MenuActivity._RouteTabSelectedIndex),L_STR_TotalTimeList.get(MenuActivity._RouteTabSelectedIndex), L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex),_loader).execute();
-            GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
+            _arrivalHelper.GetGPSDetailsFromFirebase(L_TM_AllPossibleTerminals.get(0),true);
+            //GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
 
         } catch (Exception ex) {
             //Loader.dismiss();
@@ -251,11 +263,12 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
         List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot(), new Gap(10f));
         _skyBluePolyLine.setPattern(pattern);
     }
+
     public void GetArrivalTimeOfLoopBasedOnSelectedStation(final Terminal TM_CurrentDest) {
         try {
             if (TM_CurrentDest != null) {
                 final List<Terminal> LTM_DestList_Sorted = MenuActivity._terminalList;
-                Collections.sort(LTM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
+                Collections.sort(LTM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL_DESC);
                 FB = FirebaseDatabase.getInstance();
                 VehicleDestinationDatabaseReference = FB.getReference("vehicle_destinations");
                 VehicleDestinationDatabaseReference.runTransaction(new Transaction.Handler() {
@@ -393,7 +406,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
             Helper.logger(ex);
         }
     }
-    public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Destination) {
+    public void GetTimeRemainingFromGoogle(final Integer INT_LoopID, final Terminal TM_Destination) {
 
         if (INT_LoopID != null) {
             FB = FirebaseDatabase.getInstance();
@@ -417,7 +430,9 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                                 for (int i = 0; i < response.body().getRoutes().size(); i++) {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                    Helper.InitializeSearchingRouteUI(true,false, "Filinvest E-loop",Distance, TimeofArrival.toString(),_context);
+                                    //Helper.InitializeSearchingRouteUI(true,false, "Filinvest E-loop",Distance, TimeofArrival.toString(),_context);
+                                    Helper.InitializeSearchingRouteUI(true,false, Helper.GetEloopEntry(INT_LoopID.toString()).PlateNumber,Distance, TimeofArrival.toString(),_context);
+
                                 }
                             } catch (Exception ex) {
                                     Helper.InitializeSearchingRouteUI(true,true,"Data Error!",null,null,_context);
@@ -492,7 +507,6 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
             _S_VehicleDestinationDatabaseReference=null;
             _SingleLoopChildListenerForSelectedTerminal=null;
         }
-        //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
     }
 
 }

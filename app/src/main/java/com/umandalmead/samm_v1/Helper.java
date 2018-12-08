@@ -1,5 +1,7 @@
 package com.umandalmead.samm_v1;
 
+import android.animation.ObjectAnimator;
+import android.animation.TypeEvaluator;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -7,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
@@ -16,11 +19,13 @@ import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Property;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.animation.Interpolator;
 import android.view.animation.TranslateAnimation;
 import android.widget.ArrayAdapter;
-
+import android.os.Handler;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -30,6 +35,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -63,10 +69,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.LogRecord;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
+import static com.umandalmead.samm_v1.MenuActivity._HasExitedInfoLayout;
 import static com.umandalmead.samm_v1.MenuActivity._LL_Arrival_Info;
 import static com.umandalmead.samm_v1.MenuActivity._LoopArrivalProgress;
 import static com.umandalmead.samm_v1.MenuActivity._TV_TimeofArrival;
@@ -298,7 +306,7 @@ public class Helper {
                 _LL_Arrival_Info.setVisibility(View.INVISIBLE);
                 _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
                 _TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
-                _TimeOfArrivalTextView.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+                _TimeOfArrivalTextView.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
                 _TimeOfArrivalTextView.setText(Html.fromHtml(STR_HTMLMessage));
                 //MenuActivity._SlideUpPanelContainer.setPanelHeight(dpToPx(60,context));
             }
@@ -525,6 +533,7 @@ public class Helper {
         }
         return null;
     }
+
     public static UserMarker GetUserMarkerDetails(String entry, Context context){
             UserMarker UM_result = new UserMarker(entry,context);
         return UM_result;
@@ -595,10 +604,10 @@ public class Helper {
                 markerOptions.position(latLng);
 
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
-                markerOptions.snippet("0 passenger/s waiting");
+                //markerOptions.snippet("0 passenger/s waiting");
                 markerOptions.title(station.ID.toString()+"-"+ station.getValue());
                 Marker marker = googleMap.addMarker(markerOptions);
-
+               // dropMarker(marker,googleMap);
                 // marker.showInfoWindow();
 
                 MenuActivity._terminalMarkerHashmap.put(station.Value, marker);
@@ -841,6 +850,43 @@ public class Helper {
         view.startAnimation(animate);
         view.setVisibility(View.VISIBLE);
     }
+    public Integer OrderOfArrivalDifference(Terminal TM_UserLoc, Terminal TM_2){
+        Integer result = 0;
+        try{
+            return TM_UserLoc.OrderOfArrival - TM_2.OrderOfArrival;
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
+        return result;
+    }
+
+    public void dropMarker(final Marker marker, GoogleMap map) {
+        final LatLng finalPosition = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+
+        Projection projection = map.getProjection();
+        Point startPoint = projection.toScreenLocation(finalPosition);
+        startPoint.y = 0;
+        final LatLng startLatLng = projection.fromScreenLocation(startPoint);
+        final Interpolator interpolator = new MarkerInterpolator(0.11, 4.6);
+        final android.os.Handler handler = new android.os.Handler();
+        TypeEvaluator<LatLng> typeEvaluator = new TypeEvaluator<LatLng>() {
+            @Override
+            public LatLng evaluate(float fraction, LatLng startValue, LatLng endValue) {
+
+                float t = interpolator.getInterpolation(fraction);
+                double lng = t * finalPosition.longitude + (1 - t) * startLatLng.longitude;
+                double lat = t * finalPosition.latitude + (1 - t) * startLatLng.latitude;
+                return new LatLng(lat, lng);
+            }
+        };
+
+        Property<Marker, LatLng> property = Property.of(Marker.class, LatLng.class, "position");
+        ObjectAnimator animator =  ObjectAnimator.ofObject(marker,property,typeEvaluator,finalPosition);
+        // (marker, property,typeEvaluator,finalPosition);// ObjectAnimator.ofObject(marker, property, typeEvaluator, finalPosition);
+        animator.setDuration(400);
+        animator.start();
+    }
+
 
 
 }
