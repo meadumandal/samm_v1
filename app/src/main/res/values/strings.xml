@@ -178,6 +178,7 @@
     <string name="dialog_adding_route">Adding route...</string>
     <string name="dialog_succesfully_removed_user">Successfully removed user!</string>
     <string name="dialog_fetching_data">Fetching Data</string>
+    <string name="dialog_fetching_data_with_ellipsis">Fetching data...</string>
     <string name="dialog_generating_report">Report is being generated</string>
     <string name="dialog_no_record_found">No records found</string>
     <string name="dialog_points_update_success">Successfully updated order of points!</string>
@@ -229,6 +230,7 @@
     <string name="TUT_driver_slide_up_panel_title">Select route</string>
     <string name="TUT_create_title">Create</string>
     <string name="TUT_generate_title">Generate</string>
+    <string name="TUT_app_rating">Rate Me!</string>
     <string name="TUT_sign_up_inst">Sign-up any time you want!</string>
     <string name="TUT_samm_drawer_inst">Tap on SAMM icon to explore actions.</string>
     <string name="TUT_my_location_inst">Just tap once to show your current location.</string>
@@ -255,7 +257,7 @@
     <string name="TUT_create_report_inst">Start creating report by clicking \'Create\' button.</string>
     <string name="TUT_report_distance_filter_inst">To generate reports:\n1. Populate date fields by tapping on start date and end date fields.\n2.Click \'Generate\' button.\n3. Report was generated.</string>
     <string name="TUT_report_rounds_filter_inst">To generate reports:\n1. Select a line from the list.\n2. Select a station from the list.\n3. Populate date fields by tapping on each date.\n4.Click \'Generate\' button.\n5. Report was generated.</string>
-
+    <string name="TUT_app_rating_inst">Am I helpful to you? How about giving me a rating/feedback in PlayStore?</string>
     <!--VEHICLE SEARCHING MESSAGES-->
     <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
     <!--FONTS-->

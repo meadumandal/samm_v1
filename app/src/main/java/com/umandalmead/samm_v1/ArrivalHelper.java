@@ -150,7 +150,7 @@ public class ArrivalHelper {
                         Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
                     else {
                         if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
-                            ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser + "-" + TM_NearestFromUser.Description, null,
+                            ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
                                     _helper.getEmojiByUnicode(0x1F68C) + " : " + _GlobalResource.getString(R.string.VEHICLE_already_waiting));
                         }
                     }
@@ -165,7 +165,7 @@ public class ArrivalHelper {
                     Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null,_context);
                 else{
                     if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
-                        ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser + "-" + TM_NearestFromUser.Description, null,
+                        ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
                                 _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby E-loops found.");
                     }
                 }
@@ -270,7 +270,7 @@ public class ArrivalHelper {
                                     }
                                     else{
                                         if(Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
-                                            ((MenuActivity)_activity).UpdateInfoPanelForTimeofArrival(TM_Destination + "-" + TM_Destination.Description, null,
+                                            ((MenuActivity)_activity).UpdateInfoPanelForTimeofArrival(TM_Destination.LineName + "-" + TM_Destination.Description, null,
                                                     _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
                                         }
                                     }
@@ -336,6 +336,8 @@ public class ArrivalHelper {
     public Boolean ValidateOrderOfArrival(Terminal T_EntryLocation, Terminal T_VehicleLastStation){
         Boolean BOOL_result = false;
         try{
+            if(T_EntryLocation.getOrderOfArrival() == 1)
+                return true;
             if(T_EntryLocation.getOrderOfArrival() >= T_VehicleLastStation.getOrderOfArrival())
                return true;
 

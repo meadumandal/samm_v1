@@ -17,7 +17,8 @@ public class Enums {
         APPBAR_MIN_HEIGHT("AppBarMinHeight",8),
         SHOWING_NAVIGATION_DRAWER("ShowingNavigationDrawer",9),
         REPORT_ECOLOOP("ReportEcoLoop",10),
-        REPORT_ROUNDS("ReportRounds",11);
+        REPORT_ROUNDS("ReportRounds",11),
+        ASK_RATING("AskRating",12);
 
         private String stringValue;
         private int intValue;

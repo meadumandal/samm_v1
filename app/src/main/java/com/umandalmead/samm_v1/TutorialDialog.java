@@ -2,6 +2,8 @@ package com.umandalmead.samm_v1;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -32,6 +34,7 @@ public class TutorialDialog extends Dialog implements
     private Integer tutorialCtr =0;
     private Dialog dialog;
     private ArrayList<String> _AL_STR_TutorialTitles = new ArrayList<String>();
+    private Constants _constants = new Constants();
     public TutorialDialog(Activity activity,String[] STR_array_TutorialTitles, String[] STR_array_Tutorials, Integer[] INT_array_ImageResources){
         super(activity);
         this._activity = activity;
@@ -86,20 +89,35 @@ public class TutorialDialog extends Dialog implements
             setCancelable(false);
             SetTypeFace();
             if (_AL_STR_TutorialTitles.size() != 0 &&_AL_INT_ResourceIds.size() != 0 && _AL_STR_Tutorials.size() != 0) {
-                if(_AL_STR_TutorialTitles.size() > 1 && _AL_INT_ResourceIds.size() > 1 && _AL_STR_Tutorials.size() >1)
-                    Toggle(_BTN_NEXT);
-                else{
-                    Toggle(_BTN_OK);
-                    _TV_skip.setVisibility(View.GONE);
+                if(_AL_STR_TutorialTitles.get(0).toLowerCase().contains("rate me")){
+                    _BTN_OK.setText("Sure!");
+                    _BTN_OK.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            final String appPackageName = _activity.getPackageName();
+                            try {
+                                _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(_constants.PLAY_STORE_MARKET_URI + appPackageName)));
+                            } catch (android.content.ActivityNotFoundException anfe) {
+                                _activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(_constants.PLAY_STORE_URI_WITH_QUERYSTRING + appPackageName)));
+                            }
+                            dismiss();
+                        }
+                    }); Toggle(_BTN_OK);
+                }else {
+                    if (_AL_STR_TutorialTitles.size() > 1 && _AL_INT_ResourceIds.size() > 1 && _AL_STR_Tutorials.size() > 1)
+                        Toggle(_BTN_NEXT);
+                    else {
+                        Toggle(_BTN_OK);
+                        _TV_skip.setVisibility(View.GONE);
+                    }
+                    _BTN_OK.setOnClickListener(this);
+                    _BTN_NEXT.setOnClickListener(this);
                 }
+                _TV_skip.setOnClickListener(this);
                 _IV_tutorial_image.setImageResource(_AL_INT_ResourceIds.get(tutorialCtr));
                 _TV_Instructions.setText(_AL_STR_Tutorials.get(tutorialCtr));
                 _TV_Tutorial_Title.setText(_AL_STR_TutorialTitles.get(tutorialCtr));
             }
-
-            _BTN_OK.setOnClickListener(this);
-            _BTN_NEXT.setOnClickListener(this);
-            _TV_skip.setOnClickListener(this);
             MenuActivity.buttonEffect(_BTN_OK);
             MenuActivity.buttonEffect(_BTN_NEXT);
         }catch (Exception ex){

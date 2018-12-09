@@ -615,6 +615,17 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             @Override
                             public void run() {
                                 HideRouteTabsAndSlidingPanel();
+                                if(_sessionManager.getAppRatingStatus() == false){
+                                    TutorialDialog TD_AppRating = new TutorialDialog(MenuActivity.this,
+                                            new String[]{_GlobalResource.getString(R.string.TUT_app_rating)}, new String[]{_GlobalResource.getString(R.string.TUT_app_rating_inst)}, new Integer[]{R.drawable.tut_app_rating});
+                                    TD_AppRating.show();
+                                    TD_AppRating.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                        @Override
+                                        public void onDismiss(DialogInterface dialogInterface) {
+                                            _sessionManager.TutorialStatus(Enums.UIType.ASK_RATING, true);
+                                        }
+                                    });
+                                }
                             }
                         }, 500);
 
@@ -682,16 +693,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 placeAutoCompleteFragmentInstance.setTextSize(18);
                 placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
                 placeAutoCompleteFragmentInstance.setText(null);
-
-//                placeAutoCompleteFragmentInstance.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        LoaderDialog LD_SearchInitialize =  new LoaderDialog(_activity,MenuActivity._GlobalResource.getString(R.string.dialog_initialize_with_ellipsis),
-//                                MenuActivity._GlobalResource.getString(R.string.dialog_please_wait_with_ellipsis));
-//                        LD_SearchInitialize.show();
-//                    }
-//                });
-
 
                 AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
                         .setTypeFilter(Place.TYPE_COUNTRY)
@@ -1082,38 +1083,33 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                         }
                                         _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
                                         final Handler HND_Loc_DataFetchDelay = new Handler();
-                                        final Handler HND_Loc_DataFetchTooLong = new Handler();
                                         final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
-                                        HND_Loc_DataFetchDelay.removeCallbacksAndMessages(null);
-                                        HND_Loc_DataFetchTooLong.removeCallbacksAndMessages(null);
-                                        HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                GetAndDisplayEloopETA(F_TM_ClickedTerminal);
-                                            }
-                                        }, 3000);
+                                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,null,_helper.getEmojiByUnicode(0x1F68C) + " : "+
+                                                    _GlobalResource.getString(R.string.dialog_fetching_data_with_ellipsis),
+                                                    R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
 
-                                        ShowInfoLayout(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                                _helper.getEmojiByUnicode(0x1F6BB) + " : Fetching Data..",
-                                                _helper.getEmojiByUnicode(0x1F68C) + " : Fetching Data..", R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
-                                        _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
-                                            @Override
-                                            public Transaction.Result doTransaction(MutableData currentData) {
+                                            _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                                @Override
+                                                public Transaction.Result doTransaction(MutableData currentData) {
 
-                                                return Transaction.success(currentData);
-                                            }
+                                                    return Transaction.success(currentData);
+                                                }
 
-                                            @Override
-                                            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
-                                                long passengercount = 0;
-                                                passengercount = DS_Terminals.getChildrenCount();
-                                                _passengerCountInTerminal = (int) passengercount;
-                                                UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                                        _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
-                                            }
-                                        });
-
-//                            }
+                                                @Override
+                                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                                    long passengercount = 0;
+                                                    passengercount = DS_Terminals.getChildrenCount();
+                                                    _passengerCountInTerminal = (int) passengercount;
+                                                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
+                                                }
+                                            });
+                                            HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    _arrivalHelper.GetGPSDetailsFromFirebase(F_TM_ClickedTerminal, false);
+                                                }
+                                            }, 2000);
                                     }
                                     //vehicle has been clicked instead
                                     else if (_driverMarkerHashmap.containsKey(markerValue)) {
@@ -1173,202 +1169,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
-    public void GetAndDisplayEloopETA(final Terminal TM_SelectedDestination) {
-        try {
-            _arrivalHelper.GetGPSDetailsFromFirebase(TM_SelectedDestination, false);
-//            String res = "";
-//                if (TM_CurrentDestination != null) {
-//                    final List<Terminal> L_TM_DestList_Sorted = new ArrayList<Terminal>(MenuActivity._terminalList);
-//                Collections.sort(L_TM_DestList_Sorted, Terminal.DestinationComparators.ORDER_OF_ARRIVAL);
-//                _vehicle_destinationsDBRef.runTransaction(new Transaction.Handler() {
-//                    @Override
-//                    public Transaction.Result doTransaction(MutableData currentData) {
-//
-//                        return Transaction.success(currentData);
-//                    }
-//
-//                    @Override
-//                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Vehicle_Destinations) {
-//                        ValidateIfEloopIsWithinSameRoute(TM_CurrentDestination, DS_Vehicle_Destinations, L_TM_DestList_Sorted);
-//                    }
-//                });
-//
-
-
-        } catch (Exception ex) {
-
-            Helper.logger(ex,true);
-        }
-    }
-    private void ValidateIfEloopIsWithinSameRoute(final Terminal TM_CurrentDest, final DataSnapshot DS_Vehicle_Destination, final List<Terminal> L_TM_DestList_Sorted){
-        try{
-            _DriversDatabaseReference.runTransaction(new Transaction.Handler() {
-                @Override
-                public Transaction.Result doTransaction(MutableData mutableData) {
-                    return Transaction.success(mutableData);
-                }
-
-                @Override
-                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Drivers) {
-                    if (DS_Vehicle_Destination.getChildren() != null && DS_Drivers.getChildren() != null) {
-                        Boolean found = false, loopAwaiting = false;
-                        int ctr = 0;
-                        _IsAllLoopParked = true;
-                        for (Terminal TM_Entry : L_TM_DestList_Sorted) {
-                            if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == TM_CurrentDest.OrderOfArrival)) {
-                                for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
-                                    String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
-                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0  && !v.child("IsParked").equals("True")) {
-                                        loopAwaiting = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? true : false;
-                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
-                                        if (loopAwaiting && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, loopId)) {
-                                            loopAwaiting = true;
-                                            _IsAllLoopParked = false;
-                                            found = true;
-                                            GetTimeRemainingFromGoogle(Integer.parseInt(loopId), TM_CurrentDest);
-                                        } else continue;
-
-                                    }
-
-                                }
-                                if (loopAwaiting)
-                                    break;
-                            } else if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival == 1 || TM_CurrentDest.OrderOfArrival == 1)) {
-                                for (Terminal dl2 : L_TM_DestList_Sorted) {
-                                    for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
-                                        String StationName = v.getKey().toString(), StationNameWithTblRouteId = dl2.Value + "_" + TM_Entry.getTblRouteID();
-                                        if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0  && !v.child("IsParked").equals("True")) {
-                                            String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
-                                            if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
-                                                List<String> temploopids = Arrays.asList(loopId.split(","));
-                                                for (String tli : temploopids
-                                                        ) {
-                                                    if (!tli.equals(""))
-                                                        _ListOfLoops.add(Integer.parseInt(tli));
-                                                }
-                                                Collections.sort(_ListOfLoops);
-                                                if (_ListOfLoops.size() > 0 && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
-                                                    _IsAllLoopParked = false;
-                                                    found = true;
-                                                    //VehicleDestinationDatabaseReference.removeEventListener(LoopArrivalEventListener);
-                                                    //Jul-22
-                                                    GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
-                                                    // Toast.makeText(_activity, "if (order of arrival =0) hit!", Toast.LENGTH_LONG).show();
-
-                                                }
-                                                _ListOfLoops.clear();
-                                                break;
-                                            } else continue;
-                                        } else continue;
-
-                                    }
-                                }
-                                if (found)
-                                    break;
-
-                            } else if (Helper.IsSameRoute(TM_Entry, TM_CurrentDest) && (TM_Entry.OrderOfArrival < TM_CurrentDest.OrderOfArrival)) {
-                                for (DataSnapshot v : DS_Vehicle_Destination.getChildren()) {
-                                    String StationName = v.getKey().toString(), StationNameWithTblRouteId = TM_Entry.Value + "_" + TM_Entry.getTblRouteID();
-                                    if (StationNameWithTblRouteId.equals(StationName) && Integer.parseInt(v.child("OrderOfArrival").getValue().toString()) != 0  && !v.child("IsParked").equals("True")) {
-                                        String loopId = (!v.child("Dwell").getValue().toString().equals("") && !v.child("Dwell").getValue().toString().equals(",")) ? Helper.CleanEloopName(v.child("Dwell").getValue().toString()) : Helper.CleanEloopName(v.child("LoopIds").getValue().toString());
-                                        if ((!loopId.equals("") && !loopId.equals(",")) && !found) {
-                                            List<String> temploopids = Arrays.asList(loopId.split(","));
-                                            for (String tli : temploopids) {
-                                                if (!tli.equals(""))
-                                                    _ListOfLoops.add(Integer.parseInt(tli));
-                                            }
-                                            Collections.sort(_ListOfLoops);
-                                            if (_ListOfLoops.size() > 0 && Helper.IsEloopWithinSameRouteID(DS_Drivers, TM_CurrentDest, _ListOfLoops.get(0).toString())) {
-                                                found = true;
-                                                _IsAllLoopParked = false;
-                                                GetTimeRemainingFromGoogle(_ListOfLoops.get(0), TM_CurrentDest);
-                                                //Toast.makeText(_activity, "else if hit!", Toast.LENGTH_LONG).show();
-
-                                                break;
-                                            }
-                                            _ListOfLoops.clear();
-                                            break;
-                                        } else continue;
-                                    } else continue;
-
-                                }
-                                if (found)
-                                    break;
-
-                            } else continue;
-
-                        }
-                    }
-                    if (_IsAllLoopParked) {
-                        if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_CurrentDest.getValue())) {
-                            UpdateInfoPanelDetails(TM_CurrentDest.LineName + "-" + TM_CurrentDest.Description,
-                                     _helper.getEmojiByUnicode(0x1F6BB)
-                                            + " : " + _passengerCountInTerminal
-                                            + " passenger(s) waiting",
-                                    _helper.getEmojiByUnicode(0x1F68C)
-                                            + " : No nearby E-loop found");
-                        }
-                    }
-
-                }
-            });
-        }
-        catch(Exception ex){
-
-        }
-    }
-
-public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Destination) {
-    if (INT_LoopID != null) {
-        _DriversDatabaseReference = _firebaseDB.getReference("drivers").child(INT_LoopID.toString());
-        _DriversDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
-                String url = "https://maps.googleapis.com/maps/";
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(url)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-                RetrofitMaps service = retrofit.create(RetrofitMaps.class);
-                _BOOL_IsTerminalDataFetchOnGoing = true;
-                _AssignedELoop = dataSnapshot.child("deviceid").getValue().toString();
-                Call<Directions> call = service.getDistanceDuration("metric", TM_Destination.Lat + "," + TM_Destination.Lng, dataSnapshot.child("Lat").getValue() + "," + dataSnapshot.child("Lng").getValue(), "driving");
-                call.enqueue(new Callback<Directions>() {
-                    @Override
-                    public void onResponse(Response<Directions> response, Retrofit retrofit) {
-                        try {
-                            for (int i = 0; i < response.body().getRoutes().size(); i++) {
-                                String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                                String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
-                                if(Helper.IsStringEqual(_SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
-                                    UpdateInfoPanelDetails(TM_Destination + "-" + TM_Destination.Description, _helper.getEmojiByUnicode(0x1F6BB)
-                                            + " : " + _passengerCountInTerminal + " passenger(s) waiting" ,
-                                             _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
-                                }
-                                _BOOL_IsTerminalDataFetchDone = true;
-                            }
-                        } catch (Exception ex) {
-                            Log.d("onResponse", "There is an error");
-                            Helper.logger(ex,true);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        Log.d("onFailure", t.toString());
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
-}
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -3071,6 +2871,8 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
                     }
                 });
             } else if(_infoLayout.getVisibility() == View.VISIBLE) {
+                if(!_IsOnSearchMode)
+                    UpdateUI(Enums.UIType.SHOWING_INFO);
                 _infoLayout.startAnimation(slide_down_bounce);
                 slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
                     @Override
@@ -3377,10 +3179,7 @@ public void GetTimeRemainingFromGoogle(Integer INT_LoopID, final Terminal TM_Des
     }
     public void UpdateInfoPanelForTimeofArrival(String Title, String Description, String Description2){
         try{
-            UpdateInfoPanelDetails(Title,
-                    _helper.getEmojiByUnicode(0x1F6BB)
-                    + " : " + _passengerCountInTerminal + " passenger(s) waiting" ,
-                    Description2);
+            UpdateInfoPanelDetails(Title,null,Description2);
         }catch (Exception ex){
             Helper.logger(ex);
         }
