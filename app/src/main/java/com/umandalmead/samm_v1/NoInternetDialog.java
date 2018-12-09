@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import io.supercharge.shimmerlayout.ShimmerLayout;
 
@@ -22,6 +25,7 @@ public class NoInternetDialog extends Dialog implements
     public Button btnTryAgain;
     private ShimmerLayout SL_TryAgain;
     private Helper _helper;
+    private TextView _TV_1, _TV_2;
     public NoInternetDialog(Activity activity) {
         super(activity);
         // TODO Auto-generated constructor stub
@@ -35,11 +39,16 @@ public class NoInternetDialog extends Dialog implements
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_no_internet);
         btnTryAgain = (Button) findViewById(R.id.btnTryAgain);
+        _TV_1 = (TextView) findViewById(R.id.textView);
+        _TV_2 = (TextView) findViewById(R.id.textView2);
         SL_TryAgain = (ShimmerLayout) findViewById(R.id.SL_TryAgain);
         SL_TryAgain.startShimmerAnimation();
         btnTryAgain.setTypeface(_helper.FONT_RUBIK_BOLD);
+        _TV_1.setTypeface(_helper.FONT_RUBIK_REGULAR);
+        _TV_2.setTypeface(_helper.FONT_RUBIK_REGULAR);
         btnTryAgain.setOnClickListener(this);
         MenuActivity.buttonEffect(btnTryAgain);
+        getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
 
     }

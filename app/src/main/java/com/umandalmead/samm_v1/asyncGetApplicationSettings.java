@@ -131,6 +131,7 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
             }
             if(S_entry.getID() == 6){ //6 - Notice/Announcements
                 if(S_entry.getValue() !=null && !S_entry.getValue().trim().equals("")){
+                    //String format: IsPersitent|IsMaintenance|Title|Details|URL
                     NoticeDialog ND_Notice = new NoticeDialog(_activity, "Notice",S_entry.getValue());
                     ND_Notice.show();
                 }

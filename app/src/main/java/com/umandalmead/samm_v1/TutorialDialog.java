@@ -84,6 +84,7 @@ public class TutorialDialog extends Dialog implements
             _TV_Tutorial_Title = (TextView) findViewById(R.id.TV_Tutorial_Title);
             _TV_skip = (TextView) findViewById(R.id.TV_tutorial_skip);
             getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
             dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
             setCancelable(false);

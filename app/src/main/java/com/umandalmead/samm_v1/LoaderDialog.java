@@ -50,7 +50,8 @@ public class LoaderDialog extends Dialog {
         //disable user tap
         dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-       setCancelable(false);
+        getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        setCancelable(false);
         //make view transparent
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 

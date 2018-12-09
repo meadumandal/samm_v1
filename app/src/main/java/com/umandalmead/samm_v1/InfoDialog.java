@@ -46,6 +46,7 @@ public class InfoDialog extends Dialog implements
         btnOk.setTypeface(Helper.FONT_RUBIK_BLACK);
         MenuActivity.buttonEffect(btnOk);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
 
     }

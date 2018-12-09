@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.support.design.widget.TabLayout;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
@@ -105,6 +106,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
         super.onPreExecute();
         MenuActivity.RouteTabs.removeAllTabs();
         _SlideUpPanelContainer.setPanelHeight(220);
+        MenuActivity.FrameSearchBarHolder.setVisibility(View.INVISIBLE);
         Helper.InitializeSearchingRouteUI(false, false,"Searching for nearest E-loop...", null,null, _context);
     }
 

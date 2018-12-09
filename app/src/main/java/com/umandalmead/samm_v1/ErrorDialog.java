@@ -53,6 +53,7 @@ public class ErrorDialog extends Dialog implements
         btnOk.setOnClickListener(this);
         MenuActivity.buttonEffect(btnOk);
         getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
 
     }

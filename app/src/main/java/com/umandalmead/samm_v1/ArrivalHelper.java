@@ -100,7 +100,8 @@ public class ArrivalHelper {
                     if(DS_Vehicle_Destinantions.getChildren()!=null){
                         T_UserLocationSpecimen = getTerminalArrayListObject(TM_NearestFromUser.getValue());
                         for (DataSnapshot DS_Driver_Entry: DS_Vehicle_Destinantions.getChildren()){
-                            String STR_LastEnteredStation = DS_Driver_Entry.child("EnteredStation").getValue().toString();
+                            String STR_LastEnteredStation = DS_Driver_Entry.child("EnteredStation").getValue() != null ?
+                                    DS_Driver_Entry.child("EnteredStation").getValue().toString() : null;
                             if(STR_LastEnteredStation!=null && !STR_LastEnteredStation.equalsIgnoreCase("")) {
                                 VehicleProperties VP_Entry = new VehicleProperties();
                                 VP_Entry.setTargetDestinationSpecimen(getTerminalArrayListObject(STR_LastEnteredStation));
@@ -318,9 +319,13 @@ public class ArrivalHelper {
             ArrayList<Terminal> AL_PickedRouteBasedFromUserLocation = MenuActivity._HM_GroupedTerminals.get(TM_UserLocation.getTblRouteID());
             if(AL_PickedRouteBasedFromUserLocation.size() > 0){
                 Collections.sort(AL_PickedRouteBasedFromUserLocation, Terminal.DestinationComparators.ORDER_OF_ARRIVAL_DESC);
+                Terminal T_MainTerminal = GetStationTerminalFromRoute(TM_UserLocation.getTblRouteID());
                for (Terminal T_Entry:AL_PickedRouteBasedFromUserLocation){
-                   if(ValidateOrderOfArrival(TM_UserLocation, T_Entry) && T_Entry.getIsMainTerminal()!="1"){
+                   if(ValidateOrderOfArrival(TM_UserLocation, T_Entry)
+                           && T_Entry.getIsMainTerminal()!="1"){
                        if(T_Entry.getOrderOfArrival()==TM_VehicleLocation.getOrderOfArrival())
+                           break;
+                       if(T_Entry.equals(T_MainTerminal))
                            break;
                        D_result += T_Entry.getDistanceFromPreviousStation();
 
@@ -332,6 +337,25 @@ public class ArrivalHelper {
             Helper.logger(ex);
         }
         return D_result;
+    }
+    public Terminal GetStationTerminalFromRoute(int INT_RouteID){
+        Terminal T_result = new Terminal();
+        try{
+            if(MenuActivity._HM_GroupedTerminals != null && MenuActivity._HM_GroupedTerminals.size() > 0){
+                ArrayList<Terminal> AL_Terminals = MenuActivity._HM_GroupedTerminals.get(INT_RouteID);
+                for (Terminal T_entry: AL_Terminals){
+                    if(T_entry.getIsMainTerminal() != null && T_entry.getIsMainTerminal().equalsIgnoreCase("1"))
+                        return T_entry;
+                }
+            }
+            else{
+                GetAllTerminalGroupedByRoutes();
+                GetStationTerminalFromRoute(INT_RouteID);
+            }
+        }catch(Exception ex){
+            Helper.logger(ex);
+        }
+        return  T_result;
     }
     public Boolean ValidateOrderOfArrival(Terminal T_EntryLocation, Terminal T_VehicleLastStation){
         Boolean BOOL_result = false;

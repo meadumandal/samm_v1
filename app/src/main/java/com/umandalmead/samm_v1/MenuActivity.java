@@ -404,7 +404,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                 displayLocationSettingsRequest(_context);
 
-
                 new mySQLRoutesDataProvider(_activity, _context).execute();
                 if (_sessionManager.getIsSuperAdmin())
                 {
@@ -606,30 +605,45 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 });
                 Search_BackBtn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
-                        PlayButtonClickSound();
-                        _SlideUpPanelContainer.setTouchEnabled(false);
-                        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-                        final Handler HND_ZoomGoogleMapToUserLocation = new Handler();
-                        HND_ZoomGoogleMapToUserLocation.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                HideRouteTabsAndSlidingPanel();
-                                if(_sessionManager.getAppRatingStatus() == false){
-                                    TutorialDialog TD_AppRating = new TutorialDialog(MenuActivity.this,
-                                            new String[]{_GlobalResource.getString(R.string.TUT_app_rating)}, new String[]{_GlobalResource.getString(R.string.TUT_app_rating_inst)}, new Integer[]{R.drawable.tut_app_rating});
-                                    TD_AppRating.show();
-                                    TD_AppRating.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                                        @Override
-                                        public void onDismiss(DialogInterface dialogInterface) {
-                                            _sessionManager.TutorialStatus(Enums.UIType.ASK_RATING, true);
-                                        }
-                                    });
-                                }
-                            }
-                        }, 500);
+                       try {
+                           Marker marker = (Marker) _userMarkerHashmap.get("destination");
+                          if(marker!=null)
+                              marker.remove();
+                           ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
+                           PlayButtonClickSound();
+                           _SlideUpPanelContainer.setTouchEnabled(false);
+                           _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                           final Handler HND_ZoomGoogleMapToUserLocation = new Handler();
+                           final Handler HND_ZoomGoogleMapToUserLocationLateCallback = new Handler();
+                           HND_ZoomGoogleMapToUserLocation.postDelayed(new Runnable() {
+                               @Override
+                               public void run() {
+                                   HideRouteTabsAndSlidingPanel();
+                                   if (_sessionManager.getAppRatingStatus() == false) {
+                                       TutorialDialog TD_AppRating = new TutorialDialog(MenuActivity.this,
+                                               new String[]{_GlobalResource.getString(R.string.TUT_app_rating)}, new String[]{_GlobalResource.getString(R.string.TUT_app_rating_inst)}, new Integer[]{R.drawable.tut_app_rating});
+                                       TD_AppRating.show();
+                                       TD_AppRating.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                           @Override
+                                           public void onDismiss(DialogInterface dialogInterface) {
+                                               _sessionManager.TutorialStatus(Enums.UIType.ASK_RATING, true);
+                                           }
+                                       });
+                                   }
+                                   HND_ZoomGoogleMapToUserLocationLateCallback.postDelayed(new Runnable() {
+                                       @Override
+                                       public void run() {
+                                           _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                       }
+                                   }, 3000);
+                               }
+                           }, 500);
 
-                    }
+                       }catch (Exception ex){
+                           Helper.logger(ex);
+                       }
+                        }
+
                 });
 //
 //                _AddPointFloatingButton.setOnClickListener(new View.OnClickListener() {
@@ -727,7 +741,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                     markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                                     markerOptions.position(place.getLatLng());
                                     marker = _googleMap.addMarker(markerOptions);
-                                    _helper.dropMarker(marker, _googleMap);
+                                    _userMarkerHashmap.put("destination", marker);
                                 }
                             });
                             new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, place).execute();
@@ -2690,7 +2704,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         }
     }
     public void ShowRouteTabsAndSlidingPanel(){
-        FrameSearchBarHolder.setVisibility(View.INVISIBLE);
         _SL_Map_Fragment.stopShimmerAnimation();
         if(_sessionManager.isDriver()){
             _SlideUpPanelContainer.setTouchEnabled(true);
@@ -2853,6 +2866,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                 _infoDescriptionTV.setVisibility(View.VISIBLE);
                                 _infoDescriptionTV.setTypeface(FONT_RUBIK_REGULAR);
                                 _infoDescriptionTV2.setTypeface(FONT_RUBIK_REGULAR);
+                                _infoTitleTV.setSelected(true);
                                 if(InfoDescription2!=null && !InfoDescription2.equals("")){
                                     _infoDescriptionTV2.setVisibility(View.VISIBLE);
                                 }
@@ -2871,8 +2885,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                 });
             } else if(_infoLayout.getVisibility() == View.VISIBLE) {
-                if(!_IsOnSearchMode)
-                    UpdateUI(Enums.UIType.SHOWING_INFO);
+                _LL_MapActions.setVisibility(View.INVISIBLE);
                 _infoLayout.startAnimation(slide_down_bounce);
                 slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
                     @Override
