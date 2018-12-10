@@ -18,6 +18,7 @@ public class VehicleProperties implements Comparable<VehicleProperties> {
     private Integer OrderOfArrivalDifference;
     private String PossibleRouteIDs;
     private String EntryRouteID;
+    private Boolean IsDwelling = false;
     private ArrayList<Terminal> TargetDestinationSpecimen;
 
     public VehicleProperties(){
@@ -37,6 +38,7 @@ public class VehicleProperties implements Comparable<VehicleProperties> {
     public void setTargetDestinationSpecimen(ArrayList<Terminal> terminal){
         this.TargetDestinationSpecimen = terminal;
     }
+    public void setIsDwelling(Boolean isDwelling){this.IsDwelling =isDwelling;}
     public void setTerminalObject(Terminal terminal){
         this.TerminalObject = terminal;
     }
@@ -73,6 +75,7 @@ public class VehicleProperties implements Comparable<VehicleProperties> {
     public Terminal getTerminalObject(){
         return this.TerminalObject;
     }
+    public Boolean getIsDwelling(){return  this.IsDwelling;}
     public ArrayList<Terminal> getTargetDestinationSpecimen(){ return this.TargetDestinationSpecimen;
     }
     @Override

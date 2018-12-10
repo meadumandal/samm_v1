@@ -631,6 +631,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                        @Override
                                        public void run() {
                                            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                               if(_SlideUpPanelContainer.getPanelState()!= SlidingUpPanelLayout.PanelState.COLLAPSED){
+                                                   _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+
+                                               }
                                        }
                                    }, 3000);
                                }
@@ -1151,7 +1155,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                                     passengercount = DS_Terminals.getChildrenCount();
                                                     _passengerCountInTerminal = (int) passengercount;
                                                     UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + _passengerCountInTerminal + " passenger(s) waiting", null);
+                                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " +(_passengerCountInTerminal == 0 ? "No passenger" : _passengerCountInTerminal +
+                                                                    (_passengerCountInTerminal == 1 ? " passenger":" passengers"))+" waiting", null);
                                                 }
                                             });
                                             HND_Loc_DataFetchDelay.postDelayed(new Runnable() {

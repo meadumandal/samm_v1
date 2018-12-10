@@ -107,6 +107,8 @@ public class ArrivalHelper {
                                 VP_Entry.setTargetDestinationSpecimen(getTerminalArrayListObject(STR_LastEnteredStation));
                                 VP_Entry.setEloop(Helper.GetEloopEntry(DS_Driver_Entry.child("deviceid").getValue().toString()));
                                 VP_Entry.setPossibleRouteIDs(DS_Driver_Entry.child("routeIDs").getValue().toString());
+                                VP_Entry.setIsDwelling((DS_Driver_Entry.child("IsDwelling").getValue() != null ?
+                                        Boolean.getBoolean(DS_Driver_Entry.child("IsDwelling").getValue().toString()): false));
                                 AL_VehicleProperties.add(VP_Entry);
                             }
                         }
@@ -146,7 +148,7 @@ public class ArrivalHelper {
         try{
             if(AL_VehicleProperties.size() > 0) {
                 VehicleProperties VP_SelectedVehicle =  AL_VehicleProperties.get(0);
-                if (VP_SelectedVehicle.getOrderOfArrivalDifference() == 0) {
+                if (VP_SelectedVehicle.getOrderOfArrivalDifference() == 0 && VP_SelectedVehicle.getIsDwelling()) {
                     if (_BOOL_IsFromSearch)
                         Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
                     else {
@@ -156,10 +158,19 @@ public class ArrivalHelper {
                         }
                     }
 
-                } else {
+                } else if(!VP_SelectedVehicle.getIsDwelling()){
                     GetTimeRemainingFromGoogle(VP_SelectedVehicle.getEloop().DeviceId, TM_NearestFromUser);
                     if (_BOOL_IsFromSearch)
                         AttachListenerToLoopV2(VP_SelectedVehicle.getEloop().DeviceId, AL_UserTerminalSpecimen);
+                }else{
+                    if (_BOOL_IsFromSearch)
+                        Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null,_context);
+                    else{
+                        if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
+                            ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
+                                    _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby E-loops found");
+                        }
+                    }
                 }
             }else{
                 if (_BOOL_IsFromSearch)
@@ -167,7 +178,7 @@ public class ArrivalHelper {
                 else{
                     if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
                         ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
-                                _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby E-loops found.");
+                                _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby E-loops found");
                     }
                 }
             }
@@ -272,7 +283,7 @@ public class ArrivalHelper {
                                     else{
                                         if(Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
                                             ((MenuActivity)_activity).UpdateInfoPanelForTimeofArrival(TM_Destination.LineName + "-" + TM_Destination.Description, null,
-                                                    _helper.getEmojiByUnicode(0x1F68C) + " : " + TimeofArrival + " (" + Distance + " away)");
+                                                    _helper.getEmojiByUnicode(0x1F68C) + " : " +Helper.GetEloopEntry(INT_LoopID.toString()).PlateNumber+" - " + TimeofArrival + " (" + Distance + " away)");
                                         }
                                     }
                                 }
