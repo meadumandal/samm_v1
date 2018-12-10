@@ -62,7 +62,6 @@
 
             <Button
                 android:id="@+id/btnReconnectGPS"
-
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight=".3"
@@ -74,6 +73,12 @@
                 android:textSize="10dp"
                 android:focusableInTouchMode="false"/>
         </RelativeLayout>
+        <pl.droidsonroids.gif.GifImageView
+            android:id="@+id/spinnergif"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/spinner"/>
 
 
 

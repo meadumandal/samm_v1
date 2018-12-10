@@ -27,6 +27,7 @@
     <string name="error_not_connected">You are not connected to the internet. Please check your connection and try again.</string>
     <string name="error_contacting_server">Problem contacting the server. Please try again later.</string>
     <string name="error_user_profile_nothing_has_changed">Nothing has changed</string>
+    <string name="error_concurrent_driver_login">Concurrent Login is not allowed. This driver account is already used on other device.</string>
 
     <!--NOTIFICATION MESSAGES-->
     <string name="success_please_verify_email">A verification e-mail has been sent!</string>
@@ -54,7 +55,7 @@
 
     <!--GENERAL-->
     <string name="ellipsis">...</string>
-    <string name="sign_board_separator"> or </string>
+    <string name="sign_board_separator">&lt;br&gt;</string>
 
     <!--ACTIVITY AND FRAGMENT TITLES-->
     <string name="title_total_distance">Total distance traveled</string>
@@ -126,6 +127,7 @@
     <string name="SMS_Not_Online">Device is not online</string>
     <string name="SMS_configuring_gps_via_sms">Configuring GPS via SMS</string>
     <string name="SMS_error_encountered_in_adding_GPS">Error encountered in adding GPS: Please check your signal</string>
+    <string name="SMS_No_Service">Network service unavailable</string>
     <string name="SMS_successfully_added_GPS">Successfully added GPS! It might take up to 10minutes before the GPS appears on the map.</string>
     <string name="SMS_setting_automatic_location_updates">Setting automatic location updates</string>
     <string name="SMS_configuring_ip_and_port">Configuring IP and Port</string>

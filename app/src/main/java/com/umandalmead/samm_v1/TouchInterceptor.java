@@ -220,6 +220,7 @@ public class TouchInterceptor extends ListView {
                     layoutChildren(); // force children to be recreated where needed
                     v = getChildAt(i);
                 } catch (IllegalStateException ex) {
+                    Helper.logger(ex);
                     // layoutChildren throws this sometimes, presumably because we're
                     // in the process of being torn down but are still getting touch
                     // events

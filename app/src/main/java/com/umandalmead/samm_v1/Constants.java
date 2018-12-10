@@ -76,7 +76,7 @@ public class Constants {
     public static final String GPS_PASSWORD = "123456";
     public static final String GLOBE_APN = "http.globe.com.ph";
     public static final String SMART_APN = "internet";
-    public static final String TRACCAR_SERVER = "http://demo.traccar.org/";
+    public static final String TRACCAR_SERVER = "demo.traccar.org";
     public static final String TRACCAR_USERNAME="meadumandal@yahoo.com";
     public static final String TRACCAR_PASSWORD="password";
     public static final String TRACCAR_PORT = "5002";
@@ -86,7 +86,7 @@ public class Constants {
     public static final String SMS_APN_GLOBE  = "apn" + GPS_PASSWORD + " " + GLOBE_APN;
     public static final String SMS_APN_SMART  = "apn" + GPS_PASSWORD + " " + SMART_APN;
     public static final String SMS_ADMINIP = "adminip" + GPS_PASSWORD + " " + TRACCAR_SERVER + " " + TRACCAR_PORT;
-    public static final String SMS_TIMEINTERVAL = "t050s***n" + GPS_PASSWORD;
+    public static final String SMS_TIMEINTERVAL = "t005s***n" + GPS_PASSWORD;
 
     public static final String FRAGMENTNAME_MANAGELINES = "ManageLinesFragment";
     public static final String FRAGMENTNAME_MANAGEROUTES = "ManageRoutesFragment";

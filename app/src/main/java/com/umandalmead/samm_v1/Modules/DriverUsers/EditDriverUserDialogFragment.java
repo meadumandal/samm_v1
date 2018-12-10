@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -37,9 +36,7 @@ import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by MeadRoseAnn on 08/20/2018.
@@ -76,6 +73,7 @@ public class EditDriverUserDialogFragment extends DialogFragment {
             final EditText edit_username = (EditText) view.findViewById(R.id.username);
             final EditText edit_password = (EditText) view.findViewById(R.id.password);
             final TextView textLabel = (TextView) view.findViewById(R.id.txtActionLabel);
+            final TextView textPasswordAction = view.findViewById(R.id.txtPasswordAction);
             final EditText edit_confirmPassword = (EditText) view.findViewById(R.id.confirmPassword);
             final Spinner spinnerLines  = view.findViewById(R.id.spinnerLines);
             final CheckBox checkShowPasswords = view.findViewById(R.id.showPassword);
@@ -83,7 +81,7 @@ public class EditDriverUserDialogFragment extends DialogFragment {
             Button btnDelete = (Button) view.findViewById(R.id.btnDeleteDriverUser);
 
             ArrayList<Lines> tempLineList = new ArrayList<>();
-            tempLineList.add(new Lines(0, "Select a line",0 ,""));
+            tempLineList.add(new Lines(0, "Select a line *",0 ,""));
             tempLineList.addAll(MenuActivity._lineList);
 
             ArrayAdapter<Lines> linesListAdapter = new ArrayAdapter<Lines>(getContext(), R.layout.spinner_item, tempLineList)
@@ -112,6 +110,19 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                     }
                     return view;
                 }
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent)
+                {
+                    TextView tv = (TextView) super.getView(position, convertView, parent);
+
+                    if(position == 0)
+                        tv.setTextColor(Color.RED);
+                    else
+                        tv.setTextColor(Color.BLACK);
+
+                    // Return the view
+                    return tv;
+                }
             };
 
             spinnerLines.setAdapter(linesListAdapter);
@@ -123,7 +134,11 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                 _isAdd = argumentsBundle.getBoolean("isAdd");
 
                 _datamodeljson = argumentsBundle.getString("datamodel");
-                _datamodel =  gson.fromJson(_datamodeljson, Users.class);
+                if (_datamodeljson!=null)
+                {
+                    _datamodel =  gson.fromJson(_datamodeljson, Users.class);
+                }
+
                 if (!_isAdd)
                 {
                     edit_firstname.setText(_datamodel.firstName);
@@ -140,15 +155,17 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                         index++;
 
                     }
+                    _username = _datamodel.username;
+                    _userID = _datamodel.ID;
 
                 }
                 else
                 {
-                    textLabel.setText("Add New Driver User");
+                    textPasswordAction.setText("Set password");
+                    textLabel.setText("Add New Driver Account");
                     btnDelete.setVisibility(View.GONE);
                 }
-                _username = _datamodel.username;
-                _userID = _datamodel.ID;
+
                 SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable =(SerializableRefreshLayoutComponents) argumentsBundle.getSerializable("swipeRefreshLayoutSerializable");
                 _swipeRefresh = swipeRefreshLayoutSerializable._swipeRefreshLayoutSerializable;
                 _fragmentManager = swipeRefreshLayoutSerializable._fragmentManager;
@@ -219,12 +236,13 @@ public class EditDriverUserDialogFragment extends DialogFragment {
                                 Users.validateRegistrationDetails(new Users(new_username, Constants.DRIVER_EMAILADDRESS, new_firstname, new_lastname, null, null));
                                 new mySQLUpdateDriverUserDetails(getActivity(),getActivity(),UpdateDriverLoader,"", EditDriverUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username, new_firstname, new_lastname, null, tblLineID.toString());
                             }
+                            _datamodel.password = password;
+
+                            _datamodel.username = new_username;
 
                         }
 
-                        _datamodel.password = password;
 
-                        _datamodel.username = new_username;
                     }
                     catch(Exception ex)
                     {

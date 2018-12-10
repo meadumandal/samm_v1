@@ -12,6 +12,7 @@ import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.EntityObjects.FirebaseEntities.VehicleDestination;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
 
 import java.util.Arrays;
@@ -37,85 +38,14 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
     }
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
+//        displayNumberOfWaitingPassengers(dataSnapshot);
     }
 
     @Override
     public void onChildChanged(DataSnapshot dataSnapshot, String s) {
         try
         {
-            String message = "";
-            VehicleDestination vehicleDestinationNode = dataSnapshot.getValue(VehicleDestination.class);
-            List<String> dwellingLoopIds = Arrays.asList(vehicleDestinationNode.Dwell.split(","));
-            List<String> leftLoopIds = Arrays.asList(vehicleDestinationNode.LoopIds.split(","));
-            String routeIDsOfTheEloop = MenuActivity._currentRoutesOfEachLoop.get(_sessionManager.getKeyDeviceid());
-            String[] tempRouteIDs = routeIDsOfTheEloop.split(",");
-            Integer[] routeIDs = new Integer[tempRouteIDs.length];
-            Integer ctr = 0;
-            for(String routeID: tempRouteIDs)
-            {
-                routeIDs[ctr] = Integer.parseInt(routeID);
-                ctr++;
-            }
-            Integer minRouteID = _helper.getMin(routeIDs);
-            if (dwellingLoopIds.contains(_sessionManager.getKeyDeviceid()) && Integer.parseInt(vehicleDestinationNode.tblRouteID) == minRouteID){
-                if (!this._dwelledTerminal.toLowerCase().equals(dataSnapshot.getKey()))
-                {
-                    this._dwelledTerminal = dataSnapshot.getKey();
-                    MenuActivity._TimeOfArrivalTextView.setText("You've reached: " + this._dwelledTerminal + ". ");
-                    _terminalsDBRef.child(this._dwelledTerminal).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            long passengerCount = dataSnapshot.getChildrenCount();
-                            MenuActivity._TimeOfArrivalTextView.setText(MenuActivity._TimeOfArrivalTextView.getText() + "There are " + passengerCount + " waiting passengers here.");
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-                }
-
-            }
-            else if(leftLoopIds.contains(_sessionManager.getKeyDeviceid()))
-            {
-
-                if(!this._leftTerminal.toLowerCase().equals(dataSnapshot.getKey()))
-                {
-                        this._leftTerminal = dataSnapshot.getKey();
-
-                    Terminal leftTerminal = _helper.GetTerminalFromValue(this._leftTerminal);
-
-                    if (leftTerminal.tblRouteID == minRouteID)
-                    {
-                        int orderOfArrivalOfTheStation = Integer.parseInt(vehicleDestinationNode.OrderOfArrival);
-
-                        for(Terminal terminal:MenuActivity._terminalList)
-                        {
-                            if(terminal.OrderOfArrival == orderOfArrivalOfTheStation + 1  && terminal.tblRouteID == minRouteID)
-                            {
-                                MenuActivity._TimeOfArrivalTextView.setText( "Approaching: " + terminal.Value);
-                                _terminalsDBRef.child(terminal.Value).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        long passengerCount = dataSnapshot.getChildrenCount();
-                                        MenuActivity._TimeOfArrivalTextView.setText(MenuActivity._TimeOfArrivalTextView.getText() +  ". There are + " + passengerCount + " waiting passengers there");
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-                            }
-                        }
-                    }
-
-                }
-
-
-            }
+            displayNumberOfWaitingPassengers(dataSnapshot);
         } catch(Exception ex)
         {
             Helper.logger(ex,true);
@@ -136,5 +66,82 @@ public class Vehicle_DestinationsListener implements ChildEventListener {
     @Override
     public void onCancelled(DatabaseError databaseError) {
 
+    }
+
+    private void displayNumberOfWaitingPassengers(DataSnapshot dataSnapshot)
+    {
+        String message = "";
+        VehicleDestination vehicleDestinationNode = dataSnapshot.getValue(VehicleDestination.class);
+        List<String> dwellingLoopIds = Arrays.asList(vehicleDestinationNode.Dwell.split(","));
+        List<String> leftLoopIds = Arrays.asList(vehicleDestinationNode.LoopIds.split(","));
+        String routeIDsOfTheEloop = MenuActivity._currentRoutesOfEachLoop.get(_sessionManager.getKeyDeviceid());
+        String[] tempRouteIDs = routeIDsOfTheEloop.split(",");
+        Integer[] routeIDs = new Integer[tempRouteIDs.length];
+        Integer ctr = 0;
+        for(String routeID: tempRouteIDs)
+        {
+            routeIDs[ctr] = Integer.parseInt(routeID);
+            ctr++;
+        }
+        Integer minRouteID = _helper.getMin(routeIDs);
+        if (dwellingLoopIds.contains(_sessionManager.getKeyDeviceid()) && Integer.parseInt(vehicleDestinationNode.tblRouteID) == minRouteID){
+            if (!this._dwelledTerminal.toLowerCase().equals(dataSnapshot.getKey()))
+            {
+                this._dwelledTerminal = dataSnapshot.getKey();
+                MenuActivity._TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status);
+                MenuActivity._TimeOfArrivalTextView.setText("You've reached: " + this._dwelledTerminal + ". ");
+                _terminalsDBRef.child(this._dwelledTerminal).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        long passengerCount = dataSnapshot.getChildrenCount();
+                        MenuActivity._TimeOfArrivalTextView.setText(MenuActivity._TimeOfArrivalTextView.getText() + "There are " + passengerCount + " waiting passengers here.");
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+        }
+        else if(leftLoopIds.contains(_sessionManager.getKeyDeviceid()))
+        {
+
+            if(!this._leftTerminal.toLowerCase().equals(dataSnapshot.getKey()))
+            {
+                this._leftTerminal = dataSnapshot.getKey();
+
+                Terminal leftTerminal = _helper.GetTerminalFromValue(this._leftTerminal);
+
+                if (leftTerminal.tblRouteID == minRouteID)
+                {
+                    int orderOfArrivalOfTheStation = Integer.parseInt(vehicleDestinationNode.OrderOfArrival);
+
+                    for(Terminal terminal:MenuActivity._terminalList)
+                    {
+                        if(terminal.OrderOfArrival == orderOfArrivalOfTheStation + 1  && terminal.tblRouteID == minRouteID)
+                        {
+                            MenuActivity._TimeOfArrivalTextView.setText( "Approaching: " + terminal.Value);
+                            _terminalsDBRef.child(terminal.Value).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    long passengerCount = dataSnapshot.getChildrenCount();
+                                    MenuActivity._TimeOfArrivalTextView.setText(MenuActivity._TimeOfArrivalTextView.getText() +  ". There are + " + passengerCount + " waiting passengers there");
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+                    }
+                }
+
+            }
+
+
+        }
     }
 }

@@ -12,8 +12,8 @@ import android.util.Log;
 
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.EditGPSDialogFragment;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.asyncGetGPSFromTraccar;
+import com.umandalmead.samm_v1.Modules.GPS.EditGPSDialogFragment;
+import com.umandalmead.samm_v1.Modules.GPS.asyncGetGPSFromTraccar;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;

@@ -20,6 +20,7 @@ import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -29,11 +30,13 @@ import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.AddGPSDialogFragment;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.GPSListViewCustomAdapter;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.asyncGetGPSFromTraccar;
+import com.umandalmead.samm_v1.Modules.GPS.AddGPSDialogFragment;
+import com.umandalmead.samm_v1.Modules.GPS.GPSListViewCustomAdapter;
+import com.umandalmead.samm_v1.Modules.GPS.asyncGetGPSFromTraccar;
 
 import java.util.ArrayList;
+
+import pl.droidsonroids.gif.GifImageView;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.Constants.MY_PERMISSIONS_REQUEST_SEND_SMS;
@@ -68,6 +71,7 @@ public class ViewGPSFragment extends Fragment {
     public String _smsAPN;
     public String _smsMessageForGPS;
     public Button _ReconnectGPSButton;
+    public GifImageView _spinnerGif;
     public Boolean _isGPSReconnect = false;
 
 
@@ -104,6 +108,7 @@ public class ViewGPSFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        _activity = MenuActivity._activity;
         _addGPSDialogFragment = new AddGPSDialogFragment();
         _LoaderDialog = new LoaderDialog(getActivity(),null,null);
         _LoaderDialog.show();
@@ -142,9 +147,7 @@ public class ViewGPSFragment extends Fragment {
             _sentSMSPendingIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(SMS_SENT), 0);
             _deliveredSMSPendingIntent = PendingIntent.getBroadcast(getActivity(), 0, new Intent(SMS_DELIVERED), 0);
 
-            //register BroadcastReceiver
-            IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
-            intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+
 
             getActivity().registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
             getActivity().registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
@@ -202,7 +205,7 @@ public class ViewGPSFragment extends Fragment {
     public void sendSMSMessage(String message, String phone) {
         try
         {
-
+            this._GPSMobileNumber = phone;
             Log.i(LOG_TAG, MenuActivity._GlobalResource.getString(R.string.SMS_sending_to_add_new_gps));
             _smsMessageForGPS = message;
             if (ContextCompat.checkSelfPermission(MenuActivity._activity,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -229,7 +232,7 @@ public class ViewGPSFragment extends Fragment {
         }
     }
 
-    public void sendSMSMessage(String message, String phone, Button btnReconnectGPS) {
+    public void sendSMSMessage(String message, String phone, Button btnReconnectGPS, GifImageView spinnerGif) {
         try
         {
             Log.i(LOG_TAG, MenuActivity._GlobalResource.getString(R.string.SMS_sending_to_reconnect_gps));
@@ -250,6 +253,7 @@ public class ViewGPSFragment extends Fragment {
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phone, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
                 this._ReconnectGPSButton = btnReconnectGPS;
+                this._spinnerGif = spinnerGif;
 
                 Log.i(_constants.LOG_TAG, message + MenuActivity._GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
 //                Toast.makeText(getApplicationContext(),this._smsMessageForGPS + " sent", Toast.LENGTH_LONG).show();
@@ -270,6 +274,7 @@ public class ViewGPSFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             try
             {
+                ErrorDialog errorDialog;
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         if (_smsMessageForGPS.equals(_constants.SMS_BEGIN)) {
@@ -278,26 +283,26 @@ public class ViewGPSFragment extends Fragment {
                             sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_GPRS)) {
-                            if(_isGPSReconnect) {
-                                _ReconnectGPSButton.setText(MenuActivity._GlobalResource.getString(R.string.SMS_button_reconnect));
-                                _ReconnectGPSButton.setEnabled(true);
-                            }
-                            else {
+//                            if(_isGPSReconnect) {
+//                                _ReconnectGPSButton.setText(MenuActivity._GlobalResource.getString(R.string.SMS_button_reconnect));
+//                                _ReconnectGPSButton.setEnabled(true);
+//                            }
+//                            else {
                                 _LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_setting_apn));
 
 
                                 sendSMSMessage(_smsAPN, _GPSMobileNumber);
-                            }
+//                            }
                         }
                         else if (_smsMessageForGPS.equals(_smsAPN)) {
-                            if(_isGPSReconnect) {
-                                sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
-                            }
-                            else {
+//                            if(_isGPSReconnect) {
+//                                sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
+//                            }
+//                            else {
                                 _LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_configuring_ip_and_port));
 
                                 sendSMSMessage(_constants.SMS_ADMINIP, _GPSMobileNumber);
-                            }
+//                            }
 
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_ADMINIP)) {
@@ -306,16 +311,21 @@ public class ViewGPSFragment extends Fragment {
                             sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_TIMEINTERVAL)) {
-                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                            alertDialogBuilder.setPositiveButton(MenuActivity._GlobalResource.getText(R.string.SMS_button_ok), new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                }
-                            });
-                            alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_success));
-                            alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_successfully_added_GPS));
-                            alertDialogBuilder.show();
+                            if (_isGPSReconnect)
+                            {
+                                _ReconnectGPSButton.setVisibility(View.VISIBLE);
+                                _spinnerGif.setVisibility(View.GONE);
+                                Toast.makeText(MenuActivity._context, "Done. Please wait for few minutes for the device to become online", Toast.LENGTH_SHORT).show();
 
-                            _LoaderDialog.dismiss();
+                            }
+                            else
+                            {
+                                InfoDialog infoDialog = new InfoDialog(_activity, MenuActivity._GlobalResource.getString(R.string.SMS_successfully_added_GPS));
+                                infoDialog.show();
+                                _LoaderDialog.dismiss();
+                            }
+
+
 
                             //new asyncAddTraccarGPS(getApplicationContext(), _loaderDialog, MenuActivity.this, _addGPSDialogFragment).execute("SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()), _gpsIMEI, _GPSMobileNumber, _gpsNetwork, _gpsPlateNumber, _gpsTblRoutesID.toString(), _gpsTblUsersID.toString());
                         }
@@ -323,52 +333,56 @@ public class ViewGPSFragment extends Fragment {
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                         if(_isGPSReconnect)
                         {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(MenuActivity._GlobalResource.getString(R.string.SMS_button_reconnect));
+                            _ReconnectGPSButton.setVisibility(View.VISIBLE);
+                            _spinnerGif.setVisibility(View.GONE);
                         }
                         else
                         {
                             _LoaderDialog.dismiss();
                         }
-                        Toast.makeText(context, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+                        errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS));
+                        errorDialog.show();
 
                         break;
                     case SmsManager.RESULT_ERROR_NO_SERVICE:
                         if(_isGPSReconnect)
                         {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(MenuActivity._GlobalResource.getString(R.string.SMS_button_reconnect));
+                            _ReconnectGPSButton.setVisibility(View.VISIBLE);
+                            _spinnerGif.setVisibility(View.GONE);
                         }
                         else
                         {
                             _LoaderDialog.dismiss();
                         }
-                        Toast.makeText(context, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+                        errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.SMS_No_Service));
+                        errorDialog.show();
                         break;
                     case SmsManager.RESULT_ERROR_NULL_PDU:
                         if(_isGPSReconnect)
                         {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(MenuActivity._GlobalResource.getString(R.string.SMS_button_reconnect));
+                            _ReconnectGPSButton.setVisibility(View.VISIBLE);
+                            _spinnerGif.setVisibility(View.GONE);
                         }
                         else
                         {
                             _LoaderDialog.dismiss();
                         }
-                        Toast.makeText(context, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+                        errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS));
+                        errorDialog.show();
                         break;
 
                     case SmsManager.RESULT_ERROR_RADIO_OFF:
                         if(_isGPSReconnect)
                         {
-                            _ReconnectGPSButton.setEnabled(true);
-                            _ReconnectGPSButton.setText(MenuActivity._GlobalResource.getString(R.string.SMS_button_reconnect));
+                            _ReconnectGPSButton.setVisibility(View.VISIBLE);
+                            _spinnerGif.setVisibility(View.GONE);
                         }
                         else
                         {
                             _LoaderDialog.dismiss();
                         }
-                        Toast.makeText(context, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS), Toast.LENGTH_SHORT).show();
+                        errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.SMS_error_encountered_in_adding_GPS));
+                        errorDialog.show();
                         break;
                 }
 

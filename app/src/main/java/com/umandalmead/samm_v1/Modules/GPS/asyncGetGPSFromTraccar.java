@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Modules.TrackedPUVs;
+package com.umandalmead.samm_v1.Modules.GPS;
 
 import android.app.Activity;
 import android.app.FragmentManager;

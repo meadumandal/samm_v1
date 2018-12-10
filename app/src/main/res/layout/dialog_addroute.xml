@@ -37,19 +37,18 @@
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/textRouteName"
+                android:focusableInTouchMode="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
                 android:ellipsize="start"
-                android:gravity="center_horizontal"
                 android:singleLine="true"
-
+                android:hint="Route Name *"
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
 

@@ -26,6 +26,8 @@ import android.widget.TextView;
 
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.maps.model.LatLng;
+import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Enums;
 import com.umandalmead.samm_v1.ErrorDialog;
@@ -70,10 +72,14 @@ public class ManageLinesFragment extends Fragment {
     {
         try
         {
+
             _myView =  inflater.inflate(R.layout.activity_addline, container, false);
             _context = getContext();
             _activity = getActivity();
+            SessionManager sessionManager = new SessionManager(_context);
             FAB_addLine = _myView.findViewById(R.id.floatingActionButton_addLine);
+
+            FAB_addLine.setVisibility(sessionManager.getIsSuperAdmin()?View.VISIBLE:View.GONE);
 
             Bundle arguments = getArguments();
             if (arguments!=null)
@@ -91,7 +97,6 @@ public class ManageLinesFragment extends Fragment {
             try
             {
                 InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_manage_lines_activity));
-                SessionManager sessionManager = new SessionManager(_context);
                 _lineListView = (NonScrollListView) _myView.findViewById(R.id.linelistview);
                 _swipeRefreshLines = (SwipeRefreshLayout) _myView.findViewById(R.id.swipe_refresh_lines);
                 _swipeRefreshLines.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -189,6 +194,11 @@ public class ManageLinesFragment extends Fragment {
             txtLineName = (EditText) findViewById(R.id.textLineName);
             spinnerAdminUser = (Spinner) findViewById(R.id.spinnerAdminUsers);
             tvActionTitle = (TextView) findViewById(R.id.textviewActionTitle);
+
+            submitButton.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            txtLineName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            tvActionTitle.setTypeface(Helper.FONT_RUBIK_REGULAR);
+
             tvActionTitle.setText(isNew ? "NEW LINE NAME" : "EDIT LINE NAME");
             submitButton.setText(MenuActivity._GlobalResource.getString(R.string.save_button));
             txtLineName.setText(this._lineName);

@@ -83,6 +83,7 @@ public class LoginActivity extends AppCompatActivity{
     public LoaderDialog LD_FBLoginLoader;
 
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         callbackManager.onActivityResult(requestCode, resultCode, data);
@@ -384,6 +385,8 @@ public class LoginActivity extends AppCompatActivity{
                                         if (!response.body().getUserType().equals(Constants.DRIVER_USERTYPE)) {
                                             ShowLogInProgressDialog(response.body().getUserType());
                                             signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(), "", response.body().getUserType());
+
+                                            _helper.DisconnectPreviousUser();
                                         } else {
                                             if (response.body().getDeviceId()==null)
                                             {
@@ -406,20 +409,27 @@ public class LoginActivity extends AppCompatActivity{
                                                 //String hashedPassword = new BigInteger(1, md.digest()).toString(16);
                                                 String hashedPassword = sb.toString();
                                                 if (hashedPassword.toLowerCase().equals(response.body().getPassword().toLowerCase())) {
-                                                    DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("drivers");
-                                                    _driverDatabaseReference.child(response.body().getDeviceId().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    DatabaseReference _driverDatabaseReference = _firebaseDatabase.getReference("users");
+                                                    _driverDatabaseReference.child(response.body().getUsername().toString()).addListenerForSingleValueEvent(new ValueEventListener() {
                                                         @Override
                                                         public void onDataChange(DataSnapshot dataSnapshot) {
-                                                            if (dataSnapshot != null) {
-                                                                if (dataSnapshot.child("connections") == null)
-                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(),  response.body().getDeviceId().toString(), response.body().getUserType());
-                                                                else if (dataSnapshot.child("connections").getValue() == null)
-                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(),  response.body().getDeviceId().toString(), response.body().getUserType());
-                                                                else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true)
+                                                            if (dataSnapshot != null ) {
+                                                                if (dataSnapshot.child("connections") == null) {
                                                                     signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                    _helper.DisconnectPreviousUser();
+                                                                }
+                                                                else if (dataSnapshot.child("connections").getValue() == null) {
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                    _helper.DisconnectPreviousUser();
+                                                                }
+                                                                else if (!Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) == true) {
+                                                                    signIn(response.body().getEmailAddress(), Constants.DRIVER_PASSWORD, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername(), response.body().getUserID(), response.body().getDeviceId().toString(), response.body().getUserType());
+                                                                    _helper.DisconnectPreviousUser();
+                                                                }
                                                                 else {
-
-                                                                    Toast.makeText(LoginActivity.this, "Concurrent Login is not allowed. This driver account is already used on other device.", Toast.LENGTH_LONG).show();
+                                                                    ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, MenuActivity._GlobalResource.getString(R.string.error_concurrent_driver_login));
+                                                                    errorDialog.show();
+                                                                    HideLogInProgressDialog();
                                                                 }
 //                                                        {
 //                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
@@ -491,8 +501,11 @@ public class LoginActivity extends AppCompatActivity{
             _helper.showNoInternetPrompt(LoginActivity.this);
         }
     }
+
+
     private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final Integer param_userid,  final String param_deviceId, final String userType)
     {
+
         userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(param_email, param_password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
@@ -572,6 +585,7 @@ public class LoginActivity extends AppCompatActivity{
             finish();
         }catch(Exception ex){
             String test = ex.getMessage();
+            _helper.logger(ex);
         }
     }
     private void handleFacebookAccessToken(final AccessToken token, final String LastName, final String FirstName, final String Email) {

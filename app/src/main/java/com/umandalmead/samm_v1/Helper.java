@@ -42,9 +42,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.umandalmead.samm_v1.EntityObjects.Eloop;
+import com.umandalmead.samm_v1.EntityObjects.GPS;
 import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
@@ -64,7 +69,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -850,6 +857,59 @@ public class Helper {
         view.startAnimation(animate);
         view.setVisibility(View.VISIBLE);
     }
+    public String getLineNameBasedOnLineID(Integer lineID)
+    {
+        for(Lines line:MenuActivity._lineList)
+        {
+            if (line.getID() == lineID)
+            {
+                return line.getName();
+            }
+        }
+        return "";
+    }
+    public String getPlateNumberBasedOnUserID(Integer UserID)
+    {
+        for(Eloop eloop:MenuActivity._eloopList)
+        {
+            if (eloop.tblUsersID == UserID)
+            {
+                return eloop.PlateNumber;
+            }
+        }
+        return "";
+    }
+    public void DisconnectPreviousUser()
+    {
+        final SessionManager sessionManager = new SessionManager(MenuActivity._context);
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final DatabaseReference terminalDBRef = database.getReference("terminals");
+        String node="users/" + sessionManager.getUsername();
+        final DatabaseReference userRef = database.getReference(node);
+        final DatabaseReference myConnectionsRef = database.getReference(node + "/connections");
+        final DatabaseReference lastOnlineRef = database.getReference("/"+node + "/lastOnline");
+        if (sessionManager.isGuest())
+            userRef.removeValue();
+        else
+        {
+            lastOnlineRef.onDisconnect().setValue(DateFormat.getDateTimeInstance().format(new Date()));
+            myConnectionsRef.setValue(false);
+        }
+        terminalDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot snapshot:dataSnapshot.getChildren())
+                {
+                    terminalDBRef.child(snapshot.getKey().toString()).child(sessionManager.getUsername()).onDisconnect().removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
     public Integer OrderOfArrivalDifference(Terminal TM_UserLoc, Terminal TM_2){
         Integer result = 0;
         try{
@@ -886,7 +946,6 @@ public class Helper {
         animator.setDuration(400);
         animator.start();
     }
-
 
 
 }

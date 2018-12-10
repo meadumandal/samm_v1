@@ -112,7 +112,7 @@ public class AddPassengerCountLabel implements ChildEventListener {
                 ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
                 Log.i(LOG_TAG, "Updating passenger count for reports...");
 
-                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(childrenCount));
+//                new mySQLUpdateWaitingPassengerHistory(_context, _activity).execute(dataSnapshot.getKey(),  Long.toString(childrenCount));
 
 
             }

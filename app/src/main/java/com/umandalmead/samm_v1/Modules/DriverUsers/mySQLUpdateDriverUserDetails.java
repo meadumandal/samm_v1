@@ -205,7 +205,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                     public void onRefresh() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new mySQLGetDriverUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
+                        new mySQLGetDriverUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute(_sessionManager.getUserID());
 
                     }
                 });
@@ -214,7 +214,7 @@ public class mySQLUpdateDriverUserDetails extends AsyncTask<String, Void, String
                     public void run() {
                         _swipeRefreshLayout.setRefreshing(true);
                         FragmentManager fm = _activity.getFragmentManager();
-                        new mySQLGetDriverUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute();
+                        new mySQLGetDriverUsers(_activity, _LoaderDialog, _adminUserListView, fm,_swipeRefreshLayout).execute(_sessionManager.getUserID());
                     }
                 });
             }

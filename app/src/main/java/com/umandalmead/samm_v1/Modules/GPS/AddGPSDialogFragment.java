@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Modules.TrackedPUVs;
+package com.umandalmead.samm_v1.Modules.GPS;
 
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -91,7 +91,6 @@ public class AddGPSDialogFragment extends DialogFragment  {
 
             networkList.add(MenuActivity._GlobalResource.getString(R.string.NETWORK_GLOBE));
             networkList.add(MenuActivity._GlobalResource.getString(R.string.NETWORK_SMART));
-            driverAdapterList.addAll(MenuActivity._driverList);
             driverAdapterList.addAll(MenuActivity._driverList);
             routesAdapterList.addAll(MenuActivity._routeList);
             linesAdapterList.addAll(MenuActivity._lineList);

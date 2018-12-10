@@ -1,44 +1,43 @@
-package com.umandalmead.samm_v1.Modules.AdminUsers;
+package com.umandalmead.samm_v1.Modules.DriverUsers;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.vision.text.Line;
 import com.umandalmead.samm_v1.EntityObjects.Users;
+import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.R;
 
 import java.util.ArrayList;
 
 /**
- * Created by MeadRoseAnn on 7/29/2018.
+ * Created by MeadRoseAnn on 12/2/2018.
  */
 
-public class AdminUsersCustomAdapter extends ArrayAdapter<Users> implements View.OnClickListener {
+public class DriverUsersCustomAdapter extends ArrayAdapter<Users> implements View.OnClickListener {
     private ArrayList<Users> dataSet;
     Context mContext;
     String TAG = "mead";
+    private Helper _helper = new Helper();
 
     // View lookup cache
     private static class ViewHolder {
-        TextView txtUsername;
+        TextView txtName,txtUsername, txtPlateNumber;
         LinearLayout layoutAdminUser;
         ImageView iconPerson;
-        ImageView iconAdd;
+
 
     }
 
-    public AdminUsersCustomAdapter(ArrayList<Users> data, Context context) {
-        super(context, R.layout.listview_adminusers, data);
+    public DriverUsersCustomAdapter(ArrayList<Users> data, Context context) {
+        super(context, R.layout.listview_driverusers, data);
         this.dataSet = data;
         this.mContext=context;
 
@@ -57,42 +56,43 @@ public class AdminUsersCustomAdapter extends ArrayAdapter<Users> implements View
         // Get the data item for this position
         Users dataModel = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
-        final ViewHolder viewHolder; // view lookup cache stored in tag
+        final DriverUsersCustomAdapter.ViewHolder viewHolder; // view lookup cache stored in tag
 
         final View result;
 
         if (convertView == null) {
 
-            viewHolder = new ViewHolder();
+            viewHolder = new DriverUsersCustomAdapter.ViewHolder();
             LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.listview_adminusers, parent, false);
+            convertView = inflater.inflate(R.layout.listview_driverusers, parent, false);
+            viewHolder.txtName = convertView.findViewById(R.id.txtName);
+            viewHolder.txtUsername = convertView.findViewById(R.id.username);
+            viewHolder.txtPlateNumber = convertView.findViewById(R.id.txtPlateNumber);
+            viewHolder.iconPerson = convertView.findViewById(R.id.iconPerson);
 
-            viewHolder.txtUsername = (TextView) convertView.findViewById(R.id.username);
-            viewHolder.iconAdd = (ImageView) convertView.findViewById(R.id.iconAdd);
-            viewHolder.iconPerson = (ImageView) convertView.findViewById(R.id.iconPerson);
+            viewHolder.txtName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            viewHolder.txtUsername.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            viewHolder.txtPlateNumber.setTypeface(Helper.FONT_RUBIK_REGULAR);
 
             result=convertView;
 
             convertView.setTag(viewHolder);
         } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+            viewHolder = (DriverUsersCustomAdapter.ViewHolder) convertView.getTag();
             result=convertView;
         }
 
         Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
         result.startAnimation(animation);
         lastPosition = position;
+        String assignedVehiclePlateNumber = _helper.getPlateNumberBasedOnUserID(dataModel.ID);
+
+        viewHolder.txtName.setText(dataModel.firstName + " " + dataModel.lastName);
+        viewHolder.txtPlateNumber.setText(
+                _helper.getLineNameBasedOnLineID(dataModel.tblLineID)
+                + (assignedVehiclePlateNumber.isEmpty() ? "" : ": "+ assignedVehiclePlateNumber));
         viewHolder.txtUsername.setText(dataModel.username);
-        if (dataModel.username.equals("Add new admin user"))
-        {
-            viewHolder.iconAdd.setVisibility(View.VISIBLE);
-            viewHolder.iconPerson.setVisibility(View.GONE);
-        }
-        else
-        {
-            viewHolder.iconPerson.setVisibility(View.VISIBLE);
-            viewHolder.iconAdd.setVisibility(View.GONE);
-        }
+
 
         //viewHolder.layoutAdminUser.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorGreen));
 

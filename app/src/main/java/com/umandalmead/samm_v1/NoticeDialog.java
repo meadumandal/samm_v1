@@ -141,6 +141,7 @@ public class NoticeDialog extends Dialog implements android.view.View.OnClickLis
                 imageURL = new URL(_STR_Image_URL);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                _helper.logger(e);
             }
             Bitmap bitmap = null;
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -152,10 +153,11 @@ public class NoticeDialog extends Dialog implements android.view.View.OnClickLis
                     bitmap = BitmapFactory.decodeStream(imageURL.openConnection().getInputStream());
                     return bitmap;
                 }catch (Exception ex){
-
+                    _helper.logger(ex);
                 }
 
             }catch (IOException exc){
+                _helper.logger(exc);
 
             }
             return bitmap;

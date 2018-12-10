@@ -27,6 +27,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Enums;
@@ -36,6 +37,7 @@ import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.TouchInterceptor;
+import com.umandalmead.samm_v1.YesNoDialog;
 
 import java.util.Arrays;
 
@@ -290,6 +292,13 @@ public class ManageStationsFragment extends ListFragment{
                 editLat = (EditText) findViewById(R.id.lat);
                 editLng = (EditText) findViewById(R.id.lng);
                 check_isMainTerminal = findViewById(R.id.chk_isMainTerminal);
+
+                btnAddPoints.setTypeface(Helper.FONT_RUBIK_REGULAR);
+                editName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+                editLat.setTypeface(Helper.FONT_RUBIK_REGULAR);
+                editLng.setTypeface(Helper.FONT_RUBIK_REGULAR);
+                check_isMainTerminal.setTypeface(Helper.FONT_RUBIK_REGULAR);
+
                 TextView txtAction = (TextView) findViewById(R.id.txtActionLabel);
                 final TextView txtDestinationIDForEdit = (TextView) findViewById(R.id.txtDestinationIDForEdit);
                 Integer orderOfArrival = 0;
@@ -297,7 +306,6 @@ public class ManageStationsFragment extends ListFragment{
                 btnAddPoints.setText(MenuActivity._GlobalResource.getString(R.string.save_button));
                 if(_action.equals("add"))
                 {
-                    ;
                     txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
 
                 }
@@ -321,53 +329,82 @@ public class ManageStationsFragment extends ListFragment{
 
 
                 }
-                final DialogInterface.OnClickListener dialog_deletepoint = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
-                            case DialogInterface.BUTTON_POSITIVE:
-                                deletePoint(Integer.parseInt(txtDestinationIDForEdit.getText().toString()));
-                                break;
 
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                //No button clicked
-                                break;
-                        }
-                    }
-                };
+
+
 
                 btnAddPoints.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         if(_action.equals("add")) {
-                            String name = editName.getText().toString();
-                            String lat = editLat.getText().toString();
-                            String lng = editLng.getText().toString();
-                            String isMainTerminal = check_isMainTerminal.isChecked()?"1":"0";
+                            final String name = editName.getText().toString();
+                            final String lat = editLat.getText().toString();
+                            final String lng = editLng.getText().toString();
+                            final String isMainTerminal = check_isMainTerminal.isChecked()?"1":"0";
 
-                            Double doubleLat = Double.parseDouble(lat);
-                            Double doubleLng = Double.parseDouble(lng);
+                            final Double doubleLat = Double.parseDouble(lat);
+                            final Double doubleLng = Double.parseDouble(lng);
                             ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, "");
 
                             if (name.trim().length() == 0 || lat.trim().length() == 0 || lng.trim().length() == 0) {
                                 errorDialog.setErrorMessage("Please supply all fields");
                                 errorDialog.show();
+                                return;
                             }
                             else if (doubleLat<=-90 || doubleLat>=90)
                             {
                                 errorDialog.setErrorMessage("Invalid latitude");
                                 errorDialog.show();
+                                return;
                             }
                             else if (doubleLng<=-180 || doubleLng>=180)
                             {
                                 errorDialog.setErrorMessage("Invalid longitude");
                                 errorDialog.show();
+                                return;
                             }
-                            else {
 
-                                savePoint(name,doubleLat, doubleLng, MenuActivity._currentRouteIDSelected, isMainTerminal);
-                                ManageStationsFragment.AddPointDialog.this.dismiss();
+                            for(Terminal terminal:MenuActivity._terminalList)
+                            {
+                                Double distanceFromExistingTerminal = _helper.getDistanceFromLatLonInKm(
+                                        new LatLng(terminal.getLat(), terminal.getLng()),
+                                        new LatLng(doubleLat, doubleLng));
+
+                                if (distanceFromExistingTerminal*1000 <= Constants.GEOFENCE_RADIUS)
+                                {
+                                    final Terminal existingTerminal = terminal;
+                                    final YesNoDialog dialog = new YesNoDialog(MenuActivity._activity, "Cannot add station",
+                                            "The station you were trying to add collides with an existing station and it would cause conflict in the application.\n\n"+
+                                            "Are you trying to add this station?\n"+
+                                            existingTerminal.getDescription() + ": " + existingTerminal.getLat() + ","+ existingTerminal.getLng());
+
+
+                                    dialog._btnYes.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Toast.makeText(MenuActivity._activity, "Add station", Toast.LENGTH_LONG).show();
+                                            dialog.dismiss();
+                                            savePoint(existingTerminal.Description,existingTerminal.getLat(), existingTerminal.getLng(), MenuActivity._currentRouteIDSelected, isMainTerminal);
+                                            ManageStationsFragment.AddPointDialog.this.dismiss();
+
+                                        }
+                                    });
+                                    dialog._btnNo.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Toast.makeText(MenuActivity._activity, "Station not added", Toast.LENGTH_LONG).show();
+                                            dialog.dismiss();
+
+                                        }
+                                    });
+                                    dialog.show();
+                                    return;
+                                }
                             }
+                            savePoint(name,doubleLat, doubleLng, MenuActivity._currentRouteIDSelected, isMainTerminal);
+                            ManageStationsFragment.AddPointDialog.this.dismiss();
+
+
                         }
                         else if(_action.equals("update"))
                         {

@@ -366,6 +366,7 @@ public class ArrivalHelper {
                return true;
 
         }catch (Exception ex){
+            _helper.logger(ex);
 
         }
         return BOOL_result;

@@ -60,6 +60,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/TIL_edit_firstName"
+                    android:textColorHint="@color/colorRed"
                     >
 
                     <EditText
@@ -69,14 +70,13 @@
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentStart="true"
                         android:backgroundTint="@android:color/white"
-                        android:hint="First Name"
+                        android:hint="First Name *"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
                         android:imeOptions="actionNext"
                         android:singleLine="true"
                         android:maxLines="1"
-                        android:textColorHint="#ffffff"
-                        android:gravity="center_horizontal"/>
+                        android:textColorHint="#ffffff"/>
                 </android.support.design.widget.TextInputLayout>
 
 
@@ -85,6 +85,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/TIL_edit_lastName"
+                    android:textColorHint="@color/colorRed"
                     >
 
                     <EditText
@@ -94,14 +95,12 @@
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentStart="true"
                         android:backgroundTint="@android:color/white"
-                        android:hint="Last Name"
+                        android:hint="Last Name *"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
                         android:imeOptions="actionNext"
                         android:singleLine="true"
-                        android:maxLines="1"
-                        android:textColorHint="#ffffff"
-                        android:gravity="center_horizontal"/>
+                        android:maxLines="1"/>
                 </android.support.design.widget.TextInputLayout>
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
@@ -110,6 +109,7 @@
                     android:layout_below="@+id/TIL_edit_lastName"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentEnd="true"
+                    android:textColorHint="@color/colorRed"
                     >
 
                     <EditText
@@ -123,13 +123,11 @@
                         android:maxLines="1"
                         android:backgroundTint="@android:color/white"
                         android:ems="10"
-                        android:hint="E-mail Address"
+                        android:hint="E-mail Address *"
                         android:inputType="textEmailAddress"
                         android:singleLine="true"
                         android:textAlignment="center"
-                        android:textColor="#ffffff"
-                        android:textColorHint="#ffffff"
-                        android:gravity="center_horizontal"/>
+                        android:textColor="#ffffff"/>
                 </android.support.design.widget.TextInputLayout>
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
@@ -138,23 +136,22 @@
                     android:layout_below="@+id/TIL_edit_address"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentEnd="true"
+                    android:textColorHint="@color/colorRed"
                     >
 
                     <EditText
-                        android:id="@+id/textRoute"
+                        android:id="@+id/textUsername"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
                         android:layout_alignParentStart="true"
                         android:imeOptions="actionNext"
                         android:backgroundTint="@android:color/white"
-                        android:hint="Username"
+                        android:hint="Username *"
                         android:singleLine="true"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
-                        android:textColorHint="#ffffff"
-                        android:maxLines="1"
-                        android:gravity="center_horizontal"/>
+                        android:maxLines="1"/>
                 </android.support.design.widget.TextInputLayout>
 
                 <CheckBox
@@ -173,30 +170,30 @@
                     android:layout_below="@+id/TIL_textRoute"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentEnd="true"
+                    android:textColorHint="@color/colorRed"
                     >
 
                     <EditText
                         android:id="@+id/edit_password"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignEnd="@+id/textRoute"
+                        android:layout_alignEnd="@+id/textUsername"
                         android:imeOptions="actionNext"
                         android:layout_alignParentStart="true"
                         android:backgroundTint="@android:color/white"
                         android:ems="10"
-                        android:hint="Password"
+                        android:hint="Password *"
                         android:inputType="textPassword"
                         android:textAlignment="center"
                         android:singleLine="true"
                         android:textColor="#ffffff"
-                        android:textColorHint="#ffffff"
-                        android:maxLines="1"
-                        android:gravity="center_horizontal"/>
+                        android:maxLines="1"/>
                 </android.support.design.widget.TextInputLayout>
                 <android.support.design.widget.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/TIL_edit_confirmpassword"
+                    android:textColorHint="@color/colorRed"
                     >
 
                     <EditText
@@ -208,14 +205,13 @@
                         android:layout_alignParentStart="true"
                         android:backgroundTint="@android:color/white"
                         android:ems="10"
-                        android:hint="Confirm Password"
+                        android:hint="Confirm Password *"
                         android:singleLine="true"
                         android:inputType="textPassword"
                         android:textAlignment="center"
                         android:textColor="#ffffff"
                         android:textColorHint="#ffffff"
-                        android:maxLines="1"
-                        android:gravity="center_horizontal"/>
+                        android:maxLines="1"/>
                 </android.support.design.widget.TextInputLayout>
 
 

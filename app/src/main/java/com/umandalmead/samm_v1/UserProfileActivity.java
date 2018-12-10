@@ -92,6 +92,13 @@ public class UserProfileActivity extends Fragment {
         _sessionManager = new SessionManager(getContext());
         SL_FB_InfoMessageShimmer = (ShimmerLayout) _view.findViewById(R.id.SL_FBUser_Profile_InfoMessage);
 
+        tv_firstName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        tv_lastName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        tv_password.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        tv_confirmPassword.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        tv_currentPassword.setTypeface(Helper.FONT_RUBIK_REGULAR);
+
+
         _LoaderDialog = new LoaderDialog(this.getActivity(), "Updating", "Updating your profile, please wait...");
         _LoaderDialog.setCancelable(false);
 
@@ -278,6 +285,7 @@ public class UserProfileActivity extends Fragment {
                 imageURL = new URL(_facebookImg);
             } catch (MalformedURLException e) {
                 e.printStackTrace();
+                Helper.logger(e);
             }
             Bitmap bitmap = null;
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -289,10 +297,11 @@ public class UserProfileActivity extends Fragment {
                     bitmap = BitmapFactory.decodeStream(imageURL.openConnection().getInputStream());
                     return bitmap;
                 }catch (Exception ex){
-
+                    Helper.logger(ex);
                 }
 
             }catch (IOException exc){
+                Helper.logger(exc);
 
             }
             return bitmap;

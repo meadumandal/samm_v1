@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Modules.TrackedPUVs;
+package com.umandalmead.samm_v1.Modules.GPS;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -83,7 +83,7 @@ public class EditGPSDialogFragment extends DialogFragment
             ArrayList<Routes> routesAdapterList = new ArrayList<>();
             ArrayList<Lines> linesAdapterList = new ArrayList<>();
 
-            driverAdapterList.add(new Users(0, "Select a driver for this PUV", "", "","","Driver", "", 1));
+            driverAdapterList.add(new Users(0,MenuActivity._GlobalResource.getString(R.string.GPS_select_driver), "", "","","Driver", "", 1));
             routesAdapterList.add(new Routes(0, 0, "Select a route for this PUV", 0));
 
             driverAdapterList.addAll(MenuActivity._driverList);
@@ -323,8 +323,10 @@ public class EditGPSDialogFragment extends DialogFragment
 
                 if (_dataModelSelectedGPS.getGPSNetworkProvider().toLowerCase().equals("globe"))
                     GPSNetwork.setSelection(1);
-                else
+                else if (_dataModelSelectedGPS.getGPSNetworkProvider().toLowerCase().equals("smart"))
                     GPSNetwork.setSelection(2);
+                else
+                    GPSNetwork.setSelection(0);
                 SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable =(SerializableRefreshLayoutComponents) argumentsBundle.getSerializable("swipeRefreshLayoutSerializable");
                 _swipeRefresh = swipeRefreshLayoutSerializable._swipeRefreshLayoutSerializable;
                 _fragmentManager = swipeRefreshLayoutSerializable._fragmentManager;

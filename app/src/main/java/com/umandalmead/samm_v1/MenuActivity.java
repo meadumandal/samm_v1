@@ -6,9 +6,7 @@ package com.umandalmead.samm_v1;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.PendingIntent;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -56,15 +54,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewStub;
-import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.WebView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -73,7 +68,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -111,7 +105,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -155,6 +148,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -202,7 +196,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static DatabaseReference _usersDBRef;
         public static DatabaseReference _terminalsDBRef;
         public static DatabaseReference _driversDBRef;
-        public DatabaseReference _vehicle_destinationsDBRef, _DriversDatabaseReference;
+        public DatabaseReference _vehicle_destinationsDBRef, _DriversDatabaseReference, _driverRoutesDatabaseReference;
 
         //Put here all global Collection Variables
         public static List<Terminal> _possiblePickUpPointList;
@@ -342,7 +336,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static ManageRoutesFragment _manageRoutesFragment;
         public static ManageStationsFragment _manageStationsFragment;
 
-
+        public Boolean _allowLogin;
 
 
 
@@ -378,6 +372,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             Toast ifx = Toast.makeText(context, "Unable to connect to server!", Toast.LENGTH_SHORT);
         }
 
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
         try {
@@ -398,6 +393,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0,  "", "", false, Constants.GUEST_USERTYPE);
             }
+
            // new asyncCheckInternetConnectivity(MenuActivity.this).execute();
             if(_helper.isOnline(MenuActivity.this, getApplicationContext())) {
                 _isAppFirstLoad = true;
@@ -413,7 +409,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 else if (_sessionManager.getIsAdmin())
                 {
                     new mySQLLinesDataProvider(_activity, null, _manageLinesFragment, null).execute(_sessionManager.getUserID().toString());
-                    new mySQLGetDriverUsers(_context).execute();
+                    new mySQLGetDriverUsers(_context).execute(_sessionManager.getUserID());
                 }
                 //region EloopList
                 new mySQLGetEloopList(_context).execute();
@@ -464,12 +460,13 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                 });
 
-                if (_firebaseDB == null || _usersDBRef == null || _vehicle_destinationsDBRef == null) {
+                if (_firebaseDB == null || _usersDBRef == null || _vehicle_destinationsDBRef == null || _driverRoutesDatabaseReference == null) {
                     _firebaseDB = FirebaseDatabase.getInstance();
                     _usersDBRef = _firebaseDB.getReference("users");
                     _terminalsDBRef = _firebaseDB.getReference("terminals");
                     _vehicle_destinationsDBRef = _firebaseDB.getReference("vehicle_destinations");
                     _DriversDatabaseReference = _firebaseDB.getReference("drivers");
+                    _driverRoutesDatabaseReference = _firebaseDB.getReference("driversroute");
                 }
                 if (_driversDBRef == null)
                     _driversDBRef = _firebaseDB.getReference("drivers");
@@ -772,8 +769,46 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
 
                 if (_sessionManager.isDriver()) {
-                    _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
-                    ShowRouteTabsAndSlidingPanel();
+                    _allowLogin =false;
+                    _usersDBRef.child(_sessionManager.getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            if (dataSnapshot.child("connections") == null) {
+                                _allowLogin = true;
+                            }
+                            else if (dataSnapshot.child("connections").getValue() == null) {
+                                _allowLogin = true;
+                            }
+                            else if (Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) != true) {
+                                _allowLogin = true;
+                            }
+                            if (_allowLogin)
+                            {
+                                MenuActivity._TimeOfArrivalTextView.setText("GPS information not yet available");
+                                MenuActivity._TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
+
+                                _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
+                                ShowRouteTabsAndSlidingPanel();
+                            }
+                            else {
+                                ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.error_concurrent_driver_login));
+                                errorDialog.show();
+                                _sessionManager.logoutUser();
+                                String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
+                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
+
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
                 }
 
                 // _RouteTabLayout.setMinimumWidth(150);
@@ -814,7 +849,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 //
 //                //register BroadcastReceiver
                 IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
-//                intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+                intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+
                 registerReceiver(_userMovementBroadcastReceiver, intentFilter);
 //                registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
 //                registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
@@ -894,7 +930,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                     _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
                     _googleMap.setMyLocationEnabled(true);
-                    _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                     _googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                         @Override
                         public void onCameraIdle() {
@@ -1331,7 +1367,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                     _helper.logger(ex,true);
 
                                 }
-
+                                _helper.DisconnectPreviousUser();
                                 _sessionManager.logoutUser();
                                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
                                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
@@ -1527,7 +1563,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     public void updatePassengerCountForReport(String terminal, long numberOfWaitingPassengers)
     {
         Log.i(LOG_TAG, "Updating passenger count for reports...");
-        new mySQLUpdateWaitingPassengerHistory(getApplicationContext(), this).execute(terminal,  Long.toString(numberOfWaitingPassengers));
+//        new mySQLUpdateWaitingPassengerHistory(getApplicationContext(), this).execute(terminal,  Long.toString(numberOfWaitingPassengers));
     }
     private void passengerMovement(final String destinationValue, final String movement)
     {
@@ -1755,6 +1791,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
         @Override
         public void onReceive(Context context, Intent intent) {
+
             Log.i(LOG_TAG, "Passenger movement to terminal detected...");
             String eventType = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_EVENT_TYPE);
             String geofenceRequestId = intent.getStringExtra(GeofenceTransitionsIntentService.KEY_GEOFENCEREQUESTID);
@@ -1762,6 +1799,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             {
                 if (d.GeofenceId.equals(geofenceRequestId))
                 {
+                    if (!_sessionManager.isDriver() && !_sessionManager.getIsAdmin())
                     passengerMovement(d.Value, eventType);
                     Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
                 }
@@ -1911,12 +1949,12 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         // any time that connectionsRef's value is null, device is offline
         Log.i(LOG_TAG, "Initializing online presence...");
         String node="";
-        if (_sessionManager.isDriver()) {
-            node ="drivers/" + _sessionManager.getLastName();
-        }
-        else {
+//        if (_sessionManager.isDriver()) {
+//            node ="drivers/" + _sessionManager.getUsername();
+//        }
+//        else {
             node="users/" + _sessionManager.getUsername();
-        }
+//        }
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         final DatabaseReference userRef = database.getReference(node);
         final DatabaseReference myConnectionsRef = database.getReference(node + "/connections");
@@ -1930,19 +1968,18 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             public void onDataChange(DataSnapshot snapshot) {
                 boolean connected = snapshot.getValue(Boolean.class);
                 if (connected) {
-                    // when this device disconnects, remove it
+
                     if(_sessionManager.isGuest())
                         userRef.onDisconnect().removeValue();
                     else
                     {
                         myConnectionsRef.onDisconnect().setValue(false);
-                        // update the last online timestamp
-                        lastOnlineRef.onDisconnect().setValue(ServerValue.TIMESTAMP);
+                        lastOnlineRef.onDisconnect().setValue(DateFormat.getDateTimeInstance().format(new Date()));
                     }
-                    // add this device to connections list
                     myConnectionsRef.setValue(true);
 
                     final DatabaseReference terminalDBRef = database.getReference("terminals");
+
                     terminalDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -1957,6 +1994,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                         }
                     });
+                    if(_sessionManager.isDriver())
+                    {
+                        _driverRoutesDatabaseReference.child(_sessionManager.getKeyDeviceid()).onDisconnect().removeValue();
+                    }
                 }
             }
 
@@ -2545,144 +2586,146 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     }
 
     public void UpdateUI(Enums.UIType type){
-        _LL_MapStyleHolder.setVisibility(View.INVISIBLE);
-        if(_sessionManager != null && _sessionManager.getMainTutorialStatus() != null) {
-            switch (type) {
-                case MAIN:
-                    if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
-                        {
-                            if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin() && !_sessionManager.isDriver())
+        try
+        {
+            _LL_MapStyleHolder.setVisibility(View.INVISIBLE);
+            if(_sessionManager != null && _sessionManager.getMainTutorialStatus() != null) {
+                switch (type) {
+                    case MAIN:
+                        if (!_sessionManager.getMainTutorialStatus() && _BOOL_IsGPSAcquired && _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
                             {
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),MenuActivity._GlobalResource.getString(R.string.TUT_search_title), MenuActivity._GlobalResource.getString(R.string.TUT_select_title), MenuActivity._GlobalResource.getString(R.string.TUT_map_style_title), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_title), MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
-                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_inst),MenuActivity._GlobalResource.getString(R.string.TUT_search_target_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_pick_your_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_change_map_style_inst), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_inst), MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
-                                        new Integer[]{R.drawable.tut_welcome, R.drawable.tut_searchbar, R.drawable.tut_destinationsuggest, R.drawable.tut_changemaps, R.drawable.tut_mylocation, R.drawable.tut_sammdrawericon});
-                                MapTutorial.show();
-                            }
-                            else if(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()){
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
-                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),
-                                                MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
-                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_admin_inst)+(_sessionManager.getIsSuperAdmin()?MenuActivity._GlobalResource.getString(R.string.TUT_welcome_superadmin):MenuActivity._GlobalResource.getString(R.string.TUT_welcome_admin)),MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
-                                        new Integer[] {R.drawable.tut_welcome,R.drawable.tut_sammdrawericon});
-                                MapTutorial.show();
-                            }
-                            else if(_sessionManager.isDriver()){
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
-                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title)
-                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)
-                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)
-                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)},
-                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_driver_inst)
-                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slideup_panel_inst)
-                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slideup_panel_expanded_inst)
-                                                ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_select_routes_inst)},
-                                        new Integer[] {R.drawable.tut_welcome,
-                                                R.drawable.tut_driverslideuppanel,R.drawable.tut_driverselectroute,R.drawable.tut_driverrouteselected});
-                                MapTutorial.show();
-                            }
-                        }
-                        //BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.MAP_LAYER_STYLE);
-                        //BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
-                        _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
-                    }
-                    break;
-                case SHOWING_ROUTES:
-                    if (!_sessionManager.getRouteTutorialStatus()) {
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
-                        BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
-                        _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
-                        _HasExitedInfoLayout = false;
-                    }
-                    if (_infoLayout.getVisibility() == View.VISIBLE)
-                        InfoPanelHide();
-                    _HasExitedInfoLayout = false;
-
-                    break;
-                case SHOWING_INFO:
-                    FAB_SammIcon.setVisibility(View.INVISIBLE);
-                    _LL_MapActions.setVisibility(View.INVISIBLE);
-                    break;
-                case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
-                    FAB_SammIcon.setVisibility(View.INVISIBLE);
-                    break;
-                case HIDE_INFO:
-                    FAB_SammIcon.setVisibility(View.VISIBLE);
-                    _LL_MapActions.setVisibility(View.VISIBLE);
-                    _infoLayout.setVisibility(View.INVISIBLE);
-                    _infoPanelBtnClose.setVisibility(View.VISIBLE);
-                    break;
-                case HIDE_INFO_SEARCH:
-                    Search_BackBtn.setVisibility(View.VISIBLE);
-                    _infoLayout.setVisibility(View.INVISIBLE);
-                    _infoPanelBtnClose.setVisibility(View.VISIBLE);
-                    break;
-                case ADMIN_HIDE_MAPS_LINEARLAYOUT:
-                    _MapsHolderLinearLayout.setVisibility(View.GONE);
-                    UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
-                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
-                    _RoutesPane.setVisibility(View.INVISIBLE);
-                    _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
-                    break;
-                case ADMIN_SHOW_MAPS_LINEARLAYOUT:
-                    _MapsHolderLinearLayout.setVisibility(View.VISIBLE);
-                    _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
-                    getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-                    if(!_BOOL_IsGPSAcquired)
-                        ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
-                    if(_BOOL_IsGPSAcquired) {
-                        new asyncGetApplicationSettings(_activity, _context, true).execute();
-                        if (_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
-                            Handler HND_ShowSearchBar = new Handler();
-                            HND_ShowSearchBar.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                                    _RoutesPane.setVisibility(View.VISIBLE);
+                                if(!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin() && !_sessionManager.isDriver())
+                                {
+                                    TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),MenuActivity._GlobalResource.getString(R.string.TUT_search_title), MenuActivity._GlobalResource.getString(R.string.TUT_select_title), MenuActivity._GlobalResource.getString(R.string.TUT_map_style_title), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_title), MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
+                                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_inst),MenuActivity._GlobalResource.getString(R.string.TUT_search_target_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_pick_your_destination_inst),MenuActivity._GlobalResource.getString(R.string.TUT_change_map_style_inst), MenuActivity._GlobalResource.getString(R.string.TUT_my_location_inst), MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
+                                            new Integer[]{R.drawable.tut_welcome, R.drawable.tut_searchbar, R.drawable.tut_destinationsuggest, R.drawable.tut_changemaps, R.drawable.tut_mylocation, R.drawable.tut_sammdrawericon});
+                                    MapTutorial.show();
                                 }
-                            }, 500);
+                                else if(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin()){
+                                    TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title),
+                                                    MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title)},
+                                            new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_admin_inst)+(_sessionManager.getIsSuperAdmin()?MenuActivity._GlobalResource.getString(R.string.TUT_welcome_superadmin):MenuActivity._GlobalResource.getString(R.string.TUT_welcome_admin)),MenuActivity._GlobalResource.getString(R.string.TUT_samm_drawer_inst)},
+                                            new Integer[] {R.drawable.tut_welcome,R.drawable.tut_sammdrawericon});
+                                    MapTutorial.show();
+                                }
+                                else if(_sessionManager.isDriver()){
+                                    TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                            new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_welcome_title)
+                                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)
+                                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)
+                                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slide_up_panel_title)},
+                                            new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_welcome_to_samm_driver_inst)
+                                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slideup_panel_inst)
+                                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_slideup_panel_expanded_inst)
+                                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_driver_select_routes_inst)},
+                                            new Integer[] {R.drawable.tut_welcome,
+                                                    R.drawable.tut_driverslideuppanel,R.drawable.tut_driverselectroute,R.drawable.tut_driverrouteselected});
+                                    MapTutorial.show();
+                                }
+                            }
+                            //BuildToolTip(_GlobalResource.getString(R.string.ToolTip_show_menu_options), this, FAB_SammIcon, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.MAP_LAYER_STYLE);
+                            //BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_here), this, FrameSearchBarHolder, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
+                            _sessionManager.TutorialStatus(Enums.UIType.MAIN, true);
                         }
-                    }
-                    break;
-                case APPBAR_MIN_HEIGHT:
-                    _AppBarLayout.height = 0;
-                    _AppBar.setLayoutParams(_AppBarLayout);
-                    break;
-                case SHOWING_NAVIGATION_DRAWER:
-                    if(_sessionManager.getNavigationDrawerTutotialStatus()!=null && !_sessionManager.getNavigationDrawerTutotialStatus()){
-                        if(_sessionManager.getIsSuperAdmin()){
-                            // admin tools enabled
+                        break;
+                    case SHOWING_ROUTES:
+                        if (!_sessionManager.getRouteTutorialStatus()) {
+                            BuildToolTip(_GlobalResource.getString(R.string.ToolTip_search_again), this, Search_BackBtn, Gravity.END, OverlayView.HIGHLIGHT_SHAPE_OVAL, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
+                            BuildToolTip(_GlobalResource.getString(R.string.ToolTip_navigation_instructions), this, _RoutesPane, Gravity.TOP, OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
+                            _sessionManager.TutorialStatus(Enums.UIType.SHOWING_ROUTES, true);
+                            _HasExitedInfoLayout = false;
+                        }
+                        if (_infoLayout.getVisibility() == View.VISIBLE)
+                            InfoPanelHide();
+                        _HasExitedInfoLayout = false;
+
+                        break;
+                    case SHOWING_INFO:
+                        FAB_SammIcon.setVisibility(View.INVISIBLE);
+                        _LL_MapActions.setVisibility(View.INVISIBLE);
+                        break;
+                    case HIDE_SEARCH_FRAGMENT_ON_SEARCH:
+                        FAB_SammIcon.setVisibility(View.INVISIBLE);
+                        break;
+                    case HIDE_INFO:
+                        FAB_SammIcon.setVisibility(View.VISIBLE);
+                        _LL_MapActions.setVisibility(View.VISIBLE);
+                        _infoLayout.setVisibility(View.INVISIBLE);
+                        _infoPanelBtnClose.setVisibility(View.VISIBLE);
+                        break;
+                    case HIDE_INFO_SEARCH:
+                        Search_BackBtn.setVisibility(View.VISIBLE);
+                        _infoLayout.setVisibility(View.INVISIBLE);
+                        _infoPanelBtnClose.setVisibility(View.VISIBLE);
+                        break;
+                    case ADMIN_HIDE_MAPS_LINEARLAYOUT:
+                        _MapsHolderLinearLayout.setVisibility(View.GONE);
+                        UpdateUI(Enums.UIType.APPBAR_MIN_HEIGHT);
+                        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                        _RoutesPane.setVisibility(View.INVISIBLE);
+                        _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
+                        break;
+                    case ADMIN_SHOW_MAPS_LINEARLAYOUT:
+                        _MapsHolderLinearLayout.setVisibility(View.VISIBLE);
+                        _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = true;
+                        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
+                        if(!_BOOL_IsGPSAcquired)
+                            ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
+                        if(_BOOL_IsGPSAcquired) {
+                            new asyncGetApplicationSettings(_activity, _context, true).execute();
+                            if (_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
+                                Handler HND_ShowSearchBar = new Handler();
+                                HND_ShowSearchBar.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                        _RoutesPane.setVisibility(View.VISIBLE);
+                                    }
+                                }, 500);
+                            }
+                        }
+                        break;
+                    case APPBAR_MIN_HEIGHT:
+                        _AppBarLayout.height = 0;
+                        _AppBar.setLayoutParams(_AppBarLayout);
+                        break;
+                    case SHOWING_NAVIGATION_DRAWER:
+                        if(_sessionManager.getNavigationDrawerTutotialStatus()!=null && !_sessionManager.getNavigationDrawerTutotialStatus()){
+                            if(_sessionManager.getIsSuperAdmin()){
+                                // admin tools enabled
 //                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title),MenuActivity._GlobalResource.getString(R.string.TUT_super_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title)},
 //                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_super_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_superadmin_users_inst),MenuActivity._GlobalResource.getString(R.string.TUT_admin_users_inst)
 //                                            ,MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst)},
 //                                    new Integer[] {R.drawable.tut_navsuperadmintools,R.drawable.tut_navitemsuperadminusers, R.drawable.tut_navitemadminusers, R.drawable.tut_navitemlines});
 //                            MapTutorial.show();
-                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
-                                    new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
-                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
-                                    new Integer[] {R.drawable.tut_navsectionreports});
-                            MapTutorial.show();
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
+                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
+                                        new Integer[] {R.drawable.tut_navsectionreports});
+                                MapTutorial.show();
 
-                        }
-                        else if(_sessionManager.getIsAdmin()){
-                            // admin tools enabled
+                            }
+                            else if(_sessionManager.getIsAdmin()){
+                                // admin tools enabled
 //                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title), MenuActivity._GlobalResource.getString(R.string.TUT_drivers_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title),MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title)},
 //                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_drivers_inst),MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst),
 //                                            MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_inst)
 //                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst),MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst)},
 //                                    new Integer[] {R.drawable.tut_navadmintools,R.drawable.tut_navitemdrivers, R.drawable.tut_navitemlines, R.drawable.tut_navitemtrackedpuvs, R.drawable.tut_fabcollapsed, R.drawable.tut_fabexpanded });
 //                            MapTutorial.show();
-                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
-                                    new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
-                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
-                                    new Integer[] {R.drawable.tut_navsectionreports});
-                            MapTutorial.show();
-                        }
-                        else if(_sessionManager.isGuest()){
-                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_title)},
-                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_inst)},
-                                    new Integer[] {R.drawable.tut_onetapsignup});
-                            MapTutorial.show();
-                        }
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
+                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
+                                        new Integer[] {R.drawable.tut_navsectionreports});
+                                MapTutorial.show();
+                            }
+                            else if(_sessionManager.isGuest()){
+                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_title)},
+                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_inst)},
+                                        new Integer[] {R.drawable.tut_onetapsignup});
+                                MapTutorial.show();
+                            }
 //                        LinearLayout Basics = (LinearLayout) findViewById(id.LL_adminTools) ;
 //                        int count = 0;
 //                        ViewGroup.LayoutParams params = Basics.getLayoutParams();
@@ -2695,13 +2738,19 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 //                        params.height = count*120;//Helper.dpToPx(count*110,_context); //55 each
 //                        Basics.setLayoutParams(params);
 //                        BuildToolTip(_helper.GenerateNavigationDrawerTooltip() + " tools section", this, Basics , Gravity.END,OverlayView.HIGHLIGHT_SHAPE_RECTANGULAR, false, R.color.colorElectronBlue, Enums.TutorialType.NONE);
-                       _sessionManager.TutorialStatus(Enums.UIType.SHOWING_NAVIGATION_DRAWER, true);
-                    }
-                    break;
-                default:
-                    break;
+                            _sessionManager.TutorialStatus(Enums.UIType.SHOWING_NAVIGATION_DRAWER, true);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
+        catch(Exception ex){
+            _helper.logger(ex);
+
+        }
+
     }
     public void ShowRouteTabsAndSlidingPanel(){
         _SL_Map_Fragment.stopShimmerAnimation();
@@ -3174,7 +3223,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                         ((Button)view).setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
                         ((Button)view).setTypeface(FONT_RUBIK_BOLD);
                         TV_DriverRoutePanelTitle.setText("Selected: "+routeEntry.getRouteName().toUpperCase());
-                        _driversDBRef.child(_sessionManager.getKeyDeviceid()).child("routeIDs").setValue(String.valueOf(routeEntry.getID()));
+                        _driverRoutesDatabaseReference.child(_sessionManager.getKeyDeviceid()).child("routeID").setValue(String.valueOf(routeEntry.getID()));
+//                        _driversDBRef.child(_sessionManager.getKeyDeviceid()).child("routeIDs").setValue(String.valueOf(routeEntry.getID()));
                     }
                 });
                 LL_RoutesListDisplay.addView(BTN_routeButton);

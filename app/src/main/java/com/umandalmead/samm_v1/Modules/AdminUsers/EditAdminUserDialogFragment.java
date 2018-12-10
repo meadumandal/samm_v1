@@ -65,6 +65,16 @@ public class EditAdminUserDialogFragment extends DialogFragment {
             Button btnUpdate = view.findViewById(R.id.btnUpdateAdminUser);
             Button btnDelete = view.findViewById(R.id.btnDeleteAdminUser);
 
+            edit_firstname.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            edit_lastname.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            edit_username.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            edit_emailAddress.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            edit_password.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            textLabel.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            edit_confirmPassword.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            btnUpdate.setTypeface(Helper.FONT_RUBIK_REGULAR);
+            btnDelete.setTypeface(Helper.FONT_RUBIK_REGULAR);
+
             Bundle argumentsBundle = getArguments();
             if(argumentsBundle !=null)
             {

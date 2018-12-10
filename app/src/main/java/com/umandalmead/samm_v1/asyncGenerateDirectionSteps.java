@@ -140,12 +140,11 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
         ArrayList<Terminal> DropOffList = Helper.GetAllDestinationRegardlessOfTheirTableRouteIds(TM_DropOff);
         String strSignBoard = "";
         String signBoardSeparator = MenuActivity._GlobalResource.getString(R.string.sign_board_separator);
+        String strTab = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
         for(Terminal dropOff: DropOffList)
         {
-            strSignBoard += dropOff.getRouteName() + signBoardSeparator;
+            strSignBoard += dropOff.getRouteName() + signBoardSeparator + strTab;
         }
-        strSignBoard = strSignBoard.substring(0,strSignBoard.length() - signBoardSeparator.length());
-
         for (Terminal entry: DropOffList) {
             if(entry.getTblRouteID()==TM_PickUp.getTblRouteID()){
                 int dist = 0;
@@ -158,7 +157,11 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
                 {
                     dist = entry.OrderOfArrival - TM_PickUp.OrderOfArrival;
                 }
-                return "Ride the e-loop and alight on "
+                return "Ride the e-loop. Signboard should be:<br>"
+                        +strTab
+                        +strSignBoard
+                        +"<br>"+strTab
+                        +"Alight on "
                         + "<b>"
 //                        +dist
                         +TM_DropOff.Description

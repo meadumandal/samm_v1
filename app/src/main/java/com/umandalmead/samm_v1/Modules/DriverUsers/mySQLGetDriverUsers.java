@@ -35,7 +35,7 @@ import java.util.ArrayList;
  */
 
 
-public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
+public class mySQLGetDriverUsers extends AsyncTask<Integer, Void, JSONArray>{
     public Context _context;
     public Activity _activity;
     public LoaderDialog _LoaderDialog;
@@ -44,7 +44,7 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
     public FragmentManager _fragmentManager;
 
     public SwipeRefreshLayout _swipeRefreshDriverUsers;
-    public AdminUsersCustomAdapter customAdapter;
+    public DriverUsersCustomAdapter customAdapter;
 
     private Constants _constants = new Constants();
 
@@ -83,13 +83,15 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
      * @return A hashmap with column names and values
      */
     @Override
-    protected JSONArray doInBackground(Void... voids) {
+    protected JSONArray doInBackground(Integer... params) {
         Log.i(_constants.LOG_TAG, "mySQLGetDriverUsers doInBackground");
         try {
 
+            Integer adminUserID = params[0];
+
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context)) {
-                String link = _constants.WEB_API_URL + _constants.USERS_API_FOLDER + "getUsersByType.php?usertype=driver";
+                String link = _constants.WEB_API_URL + _constants.DRIVER_API_FOLDER + "get.php?adminUserID="+adminUserID;
                 URL url = new URL(link);
                 URLConnection conn = url.openConnection();
 
@@ -150,27 +152,21 @@ public class mySQLGetDriverUsers extends AsyncTask<Void, Void, JSONArray>{
             MenuActivity._driverList = new ArrayList<>(_dataModels);
             if(_listView!=null)
             {
-                _dataModels.add(new Users(0,"Add new driver", "","","","","",1));
-
-                customAdapter =new AdminUsersCustomAdapter(_dataModels, _context);
+                customAdapter =new DriverUsersCustomAdapter(_dataModels, _context);
                 _listView.setAdapter(customAdapter);
 
                 _listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         try {
-                            Boolean isAdd;
-                            if (_dataModels.get(position).username.length() >6 && _dataModels.get(position).username.substring(0, 7).equals("Add new"))
-                                isAdd = true;
-                            else
-                                isAdd = false;
+
                             Gson gson = new Gson();
                             String json = gson.toJson(_dataModels.get(position));
                             Bundle bundle = new Bundle();
                             bundle.putString("datamodel", json);
                             SerializableRefreshLayoutComponents swipeRefreshLayoutSerializable = new SerializableRefreshLayoutComponents(_swipeRefreshDriverUsers, _fragmentManager, _listView);
                             bundle.putSerializable("swipeRefreshLayoutSerializable", swipeRefreshLayoutSerializable);
-                            bundle.putBoolean("isAdd", isAdd);
+                            bundle.putBoolean("isAdd", false);
 
                             EditDriverUserDialogFragment editDriverUserDialog = new EditDriverUserDialogFragment();
                             editDriverUserDialog.setArguments(bundle);

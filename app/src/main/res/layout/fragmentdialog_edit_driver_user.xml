@@ -19,74 +19,72 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="20dp">
+        android:layout_margin="20dp"
+        android:focusableInTouchMode="true">
         <TextView
             android:id="@+id/txtActionLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MODIFY DRIVER USER"
+            android:text="MODIFY DRIVER ACCOUNT"
             android:textAlignment="center"
             android:textColor="@color/colorBlack"
             android:textSize="20dp"
             android:textStyle="bold" />
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/firstname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="First name"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="First name *"
                 android:inputType="text"
-
+                android:maxLines="1"
                 android:singleLine="true"
-
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/lastname"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="Last name"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="Last name *"
                 android:inputType="text"
-
+                android:maxLines="1"
                 android:singleLine="true"
-
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="Username"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="Username *"
                 android:inputType="text"
-
+                android:maxLines="1"
                 android:singleLine="true"
-
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
@@ -101,9 +99,10 @@
                 />
         </android.support.design.widget.TextInputLayout>
         <TextView
+            android:id="@+id/txtPasswordAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Change Password"/>
+            android:text="Change password"/>
         <CheckBox
             android:id="@+id/showPassword"
             android:layout_width="wrap_content"
@@ -111,42 +110,36 @@
             android:text="Show Passwords"/>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="Password"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="Password *"
                 android:inputType="textPassword"
-
                 android:singleLine="true"
-
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
+                android:textColorHint="@color/colorRed"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:textColorHint="@color/colorRed">
 
             <EditText
                 android:id="@+id/confirmPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
-
-                android:gravity="center_horizontal"
-                android:hint="Confirm Password"
+                android:backgroundTint="@color/colorGrey"
+                android:hint="Confirm Password *"
                 android:inputType="textPassword"
-
                 android:singleLine="true"
-
                 android:textColor="@color/colorBlack"
-                android:textColorHint="@color/colorAccent"
+                android:textColorHint="@color/colorRed"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
 

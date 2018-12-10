@@ -5,8 +5,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -41,7 +39,7 @@ public class InfoDialog extends Dialog implements
         this.infoMessage.setText(this._infoMessage);
         this.infoMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         this.infoMessage.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        btnOk    = (Button) findViewById(R.id.btnOK);
+        btnOk    = (Button) findViewById(R.id.btnYes);
         btnOk.setOnClickListener(this);
         btnOk.setTypeface(Helper.FONT_RUBIK_BLACK);
         MenuActivity.buttonEffect(btnOk);
@@ -53,7 +51,7 @@ public class InfoDialog extends Dialog implements
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnOK:
+            case R.id.btnYes:
                 dismiss();
                 break;
             default:

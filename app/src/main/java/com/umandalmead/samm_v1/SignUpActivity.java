@@ -1,7 +1,6 @@
 package com.umandalmead.samm_v1;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -9,19 +8,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
-import android.view.Menu;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +29,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.supercharge.shimmerlayout.ShimmerLayout;
 import retrofit.Call;
@@ -78,10 +69,18 @@ public class SignUpActivity extends AppCompatActivity {
         edit_firstName = (EditText) findViewById(R.id.edit_firstName);
         edit_lastName = (EditText) findViewById(R.id.edit_lastName);
         edit_emailAddress = (EditText) findViewById(R.id.edit_address);
-        edit_username = (EditText) findViewById(R.id.textRoute);
+        edit_username = (EditText) findViewById(R.id.textUsername);
         edit_password = (EditText) findViewById(R.id.edit_password);
         edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
         CheckBox checkbox_showpassword = (CheckBox) findViewById(R.id.checkBox_showPassword);
+
+        btn_signUp.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        edit_firstName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        edit_lastName.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        edit_emailAddress.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        edit_username.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        edit_password.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        edit_confirmPassword.setTypeface(Helper.FONT_RUBIK_REGULAR);
 
         checkbox_showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -129,14 +128,6 @@ public class SignUpActivity extends AppCompatActivity {
 
                 try
                 {
-                    edit_firstName = (EditText) findViewById(R.id.edit_firstName);
-                    edit_lastName = (EditText) findViewById(R.id.edit_lastName);
-                    edit_emailAddress = (EditText) findViewById(R.id.edit_address);
-                    edit_username = (EditText) findViewById(R.id.textRoute);
-                    edit_password = (EditText) findViewById(R.id.edit_password);
-                    edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
-
-
                     String firstName="",
                             lastName="",
                             emailAddress="",

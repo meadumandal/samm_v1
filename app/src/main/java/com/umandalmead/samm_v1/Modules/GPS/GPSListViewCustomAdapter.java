@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Modules.TrackedPUVs;
+package com.umandalmead.samm_v1.Modules.GPS;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
@@ -14,12 +14,15 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.GPS;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.ViewGPSFragment;
 
 import java.util.ArrayList;
+
+import pl.droidsonroids.gif.GifImageView;
 
 /**
  * Created by MeadRoseAnn on 2/17/2018.
@@ -39,6 +42,7 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
         TextView txtGPSStatus;
         LinearLayout layoutGPSItem;
         Button btnReconnectGPS;
+        GifImageView spinnerGIF;
 
     }
 
@@ -86,6 +90,8 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
             viewHolder.txtGPSStatus = (TextView) convertView.findViewById(R.id.gpsstatus);
             viewHolder.layoutGPSItem = (LinearLayout) convertView.findViewById(R.id.gpsitemLinearLayout);
             viewHolder.btnReconnectGPS = (Button) convertView.findViewById(R.id.btnReconnectGPS);
+            viewHolder.spinnerGIF = convertView.findViewById(R.id.spinnergif);
+
 
             viewHolder.txtPlateNumber.setTypeface(Helper.FONT_RUBIK_REGULAR);
             viewHolder.txtGPSName.setTypeface(Helper.FONT_RUBIK_REGULAR);
@@ -103,21 +109,21 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
         viewHolder.btnReconnectGPS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                viewHolder.btnReconnectGPS.setText("Reconnecting..");
-                viewHolder.btnReconnectGPS.setEnabled(false);
-                View parentRow = (View) view.getParent();
-                ListView listView = (ListView) parentRow.getParent().getParent();
-                final int position = listView.getPositionForView(parentRow);
-                Log.i(TAG, String.valueOf(position));
-                GPS gps = dataSet.get(position);
-                String apn;
-                if(gps.getGPSNetworkProvider().toLowerCase().equals("globe"))
-                    apn = "http.globe.com.ph";
-                else
-                    apn = "internet";
-                _viewGPSFragment._smsAPN = apn;
-                _viewGPSFragment._isGPSReconnect = true;
-                _viewGPSFragment.sendSMSMessage("apn123456 "+apn, gps.getGPSPhone(), viewHolder.btnReconnectGPS);
+
+                    ShowSpinner(viewHolder);
+                    View parentRow = (View) view.getParent();
+                    ListView listView = (ListView) parentRow.getParent().getParent().getParent();
+                    final int position = listView.getPositionForView(parentRow);
+                    Log.i(TAG, String.valueOf(position));
+                    GPS gps = dataSet.get(position);
+                    String apn;
+                    if(gps.getGPSNetworkProvider().toLowerCase().equals("globe"))
+                        apn = "http.globe.com.ph";
+                    else
+                        apn = "internet";
+                    _viewGPSFragment._smsAPN = "apn" + Constants.GPS_PASSWORD + " " + apn;
+                    _viewGPSFragment._isGPSReconnect = true;
+                    _viewGPSFragment.sendSMSMessage(Constants.SMS_BEGIN, gps.getGPSPhone(), viewHolder.btnReconnectGPS, viewHolder.spinnerGIF);
 
 
             }
@@ -137,5 +143,10 @@ public class GPSListViewCustomAdapter extends ArrayAdapter<GPS> implements View.
 
         // Return the completed view to render on screen
         return convertView;
+    }
+    private void ShowSpinner(ViewHolder viewHolder)
+    {
+        viewHolder.btnReconnectGPS.setVisibility(View.GONE);
+        viewHolder.spinnerGIF.setVisibility(View.VISIBLE);
     }
 }

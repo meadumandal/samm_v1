@@ -1,4 +1,4 @@
-package com.umandalmead.samm_v1.Modules.TrackedPUVs;
+package com.umandalmead.samm_v1.Modules.GPS;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,7 +11,6 @@ import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
-import com.umandalmead.samm_v1.Modules.TrackedPUVs.AddGPSDialogFragment;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.ViewGPSFragment;
 
@@ -32,7 +31,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
     Context _context;
     Activity _activity;
     LoaderDialog _LoaderDialog;
-    String progressMessage, _GPSMobileNumber;
+    String progressMessage, _GPSMobileNumber, _GPSNetwork;
     ViewGPSFragment _viewGPSFragment;
     AddGPSDialogFragment _dialog;
 
@@ -85,6 +84,7 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             String returnString  ="";
             Integer deviceId = 0;
             _GPSMobileNumber = phoneNo;
+            _GPSNetwork = network;
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
@@ -154,8 +154,13 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             {
                 _dialog.dismiss();
                 _LoaderDialog.setMessage("Starting to configure GPS");
-//                ((MenuActivity)_activity).sendSMSMessage(_constants.SMS_BEGIN, _GPSMobileNumber);
-                _viewGPSFragment.sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
+                String apn;
+                if(_GPSNetwork.toLowerCase().equals("globe"))
+                    apn = "http.globe.com.ph";
+                else
+                    apn = "internet";
+                _viewGPSFragment._smsAPN = "apn" + Constants.GPS_PASSWORD + " " + apn;
+                _viewGPSFragment.sendSMSMessage(_constants.SMS_BEGIN, _GPSMobileNumber);
                 _viewGPSFragment.refreshGPSListView();
 
             }
