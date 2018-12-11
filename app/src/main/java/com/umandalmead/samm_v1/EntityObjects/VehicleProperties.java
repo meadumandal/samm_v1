@@ -18,7 +18,7 @@ public class VehicleProperties implements Comparable<VehicleProperties> {
     private Integer OrderOfArrivalDifference;
     private String PossibleRouteIDs;
     private String EntryRouteID;
-    private Boolean IsDwelling = false;
+    private Boolean IsDwelling;
     private ArrayList<Terminal> TargetDestinationSpecimen;
 
     public VehicleProperties(){

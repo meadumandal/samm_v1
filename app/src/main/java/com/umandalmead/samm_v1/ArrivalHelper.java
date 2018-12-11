@@ -107,8 +107,7 @@ public class ArrivalHelper {
                                 VP_Entry.setTargetDestinationSpecimen(getTerminalArrayListObject(STR_LastEnteredStation));
                                 VP_Entry.setEloop(Helper.GetEloopEntry(DS_Driver_Entry.child("deviceid").getValue().toString()));
                                 VP_Entry.setPossibleRouteIDs(DS_Driver_Entry.child("routeIDs").getValue().toString());
-                                VP_Entry.setIsDwelling((DS_Driver_Entry.child("IsDwelling").getValue() != null ?
-                                        Boolean.getBoolean(DS_Driver_Entry.child("IsDwelling").getValue().toString()): false));
+                                VP_Entry.setIsDwelling(Boolean.parseBoolean(DS_Driver_Entry.child("IsDwelling").getValue().toString()));
                                 AL_VehicleProperties.add(VP_Entry);
                             }
                         }
@@ -128,6 +127,7 @@ public class ArrivalHelper {
                                             VP_Entry2.setOrderOfArrivalDifference(_helper.OrderOfArrivalDifference(T_Entry, VP_Entry.getTargetDestinationSpecimen().get(ctr)));
                                             VP_Entry2.setTerminalObject(VP_Entry.getTargetDestinationSpecimen().get(ctr));
                                             VP_Entry2.setDistance(getAggregatedDistanceFromUserLocation(T_Entry, VP_Entry.getTargetDestinationSpecimen().get(ctr)));
+                                            VP_Entry2.setIsDwelling(VP_Entry.getIsDwelling());
                                             AL_CandidateVehicles.add(VP_Entry2);
                                         }
                                         ctr++;
@@ -158,19 +158,10 @@ public class ArrivalHelper {
                         }
                     }
 
-                } else if(!VP_SelectedVehicle.getIsDwelling()){
+                } else {
                     GetTimeRemainingFromGoogle(VP_SelectedVehicle.getEloop().DeviceId, TM_NearestFromUser);
                     if (_BOOL_IsFromSearch)
                         AttachListenerToLoopV2(VP_SelectedVehicle.getEloop().DeviceId, AL_UserTerminalSpecimen);
-                }else{
-                    if (_BOOL_IsFromSearch)
-                        Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null,_context);
-                    else{
-                        if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
-                            ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
-                                    _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby E-loops found");
-                        }
-                    }
                 }
             }else{
                 if (_BOOL_IsFromSearch)
