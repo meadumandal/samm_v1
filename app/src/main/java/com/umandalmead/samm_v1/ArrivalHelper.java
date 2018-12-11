@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.ChildEventListener;
@@ -37,7 +38,7 @@ import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
 
 public class ArrivalHelper {
     private FirebaseDatabase FB;
-    private DatabaseReference DriversDatabaseReference,
+    private static DatabaseReference DriversDatabaseReference,
             VehicleDestinationDatabaseReference,
             _S_VehicleDestinationDatabaseReference;
     private static ChildEventListener _SingleLoopChildListenerForSelectedTerminal;
@@ -45,6 +46,9 @@ public class ArrivalHelper {
     private Context _context;
     private Helper _helper;
     private Boolean _BOOL_IsFromSearch = false;
+
+    private String STR_EnteredStation = null;
+    private Boolean IsDwelling = false;
     public ArrivalHelper(Activity activity, Context context){
         this._activity = activity;
         this._context = context;
@@ -102,12 +106,14 @@ public class ArrivalHelper {
                         for (DataSnapshot DS_Driver_Entry: DS_Vehicle_Destinantions.getChildren()){
                             String STR_LastEnteredStation = DS_Driver_Entry.child("EnteredStation").getValue() != null ?
                                     DS_Driver_Entry.child("EnteredStation").getValue().toString() : null;
-                            if(STR_LastEnteredStation!=null && !STR_LastEnteredStation.equalsIgnoreCase("")) {
+                            Boolean BOOL_IsDwelling = Boolean.parseBoolean(DS_Driver_Entry.child("IsDwelling").getValue().toString());
+                            if(STR_LastEnteredStation!=null && !STR_LastEnteredStation.equalsIgnoreCase("")
+                                    && !(STR_LastEnteredStation.equalsIgnoreCase(TM_NearestFromUser.getValue()) && !BOOL_IsDwelling)) {
                                 VehicleProperties VP_Entry = new VehicleProperties();
                                 VP_Entry.setTargetDestinationSpecimen(getTerminalArrayListObject(STR_LastEnteredStation));
                                 VP_Entry.setEloop(Helper.GetEloopEntry(DS_Driver_Entry.child("deviceid").getValue().toString()));
                                 VP_Entry.setPossibleRouteIDs(DS_Driver_Entry.child("routeIDs").getValue().toString());
-                                VP_Entry.setIsDwelling(Boolean.parseBoolean(DS_Driver_Entry.child("IsDwelling").getValue().toString()));
+                                VP_Entry.setIsDwelling(BOOL_IsDwelling);
                                 AL_VehicleProperties.add(VP_Entry);
                             }
                         }
@@ -120,8 +126,8 @@ public class ArrivalHelper {
                                     Integer ctr =0;
                                     while(ctr<VP_Entry.getTargetDestinationSpecimen().size()){
                                         if(T_Entry.getTblRouteID()==VP_Entry.getTargetDestinationSpecimen().get(ctr).getTblRouteID()
-                                                && ValidateOrderOfArrival(T_Entry,VP_Entry.getTargetDestinationSpecimen().get(ctr)) && VP_Entry
-                                                .getPossibleRouteIDs().contains(String.valueOf(T_Entry.getTblRouteID()))){
+                                                && ValidateOrderOfArrival(T_Entry,VP_Entry.getTargetDestinationSpecimen().get(ctr), false)
+                                                && VP_Entry.getPossibleRouteIDs().contains(String.valueOf(T_Entry.getTblRouteID()))){
                                             VehicleProperties VP_Entry2 = new VehicleProperties();
                                             VP_Entry2.setEloop(VP_Entry.getEloop());
                                             VP_Entry2.setOrderOfArrivalDifference(_helper.OrderOfArrivalDifference(T_Entry, VP_Entry.getTargetDestinationSpecimen().get(ctr)));
@@ -149,19 +155,19 @@ public class ArrivalHelper {
             if(AL_VehicleProperties.size() > 0) {
                 VehicleProperties VP_SelectedVehicle =  AL_VehicleProperties.get(0);
                 if (VP_SelectedVehicle.getOrderOfArrivalDifference() == 0 && VP_SelectedVehicle.getIsDwelling()) {
-                    if (_BOOL_IsFromSearch)
-                        Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
-                    else {
-                        if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
-                            ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
-                                    _helper.getEmojiByUnicode(0x1F68C) + " : " + _GlobalResource.getString(R.string.VEHICLE_already_waiting));
+                        if (_BOOL_IsFromSearch)
+                            Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
+                        else {
+                            if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
+                                ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
+                                        _helper.getEmojiByUnicode(0x1F68C) + " : " + _GlobalResource.getString(R.string.VEHICLE_already_waiting));
+                            }
                         }
-                    }
+                    AttachListenerToLoopV2(VP_SelectedVehicle.getEloop().DeviceId, AL_UserTerminalSpecimen);
 
                 } else {
                     GetTimeRemainingFromGoogle(VP_SelectedVehicle.getEloop().DeviceId, TM_NearestFromUser);
-                    if (_BOOL_IsFromSearch)
-                        AttachListenerToLoopV2(VP_SelectedVehicle.getEloop().DeviceId, AL_UserTerminalSpecimen);
+                    AttachListenerToLoopV2(VP_SelectedVehicle.getEloop().DeviceId, AL_UserTerminalSpecimen);
                 }
             }else{
                 if (_BOOL_IsFromSearch)
@@ -178,17 +184,20 @@ public class ArrivalHelper {
              Helper.logger(ex);
         }
     }
-    public void RemoveListenerFromLoop(){
-        if(_S_VehicleDestinationDatabaseReference!=null) {
+    public static void RemoveListenerFromLoop() {
+        try{
+        if (_S_VehicleDestinationDatabaseReference != null && _SingleLoopChildListenerForSelectedTerminal != null) {
             _S_VehicleDestinationDatabaseReference.removeEventListener(_SingleLoopChildListenerForSelectedTerminal);
-            _S_VehicleDestinationDatabaseReference=null;
-            _SingleLoopChildListenerForSelectedTerminal=null;
+        }
+        }catch (Exception ex){
+            Helper.logger(ex);
         }
     }
     private void AttachListenerToLoopV2(final Integer INT_LoopID, final ArrayList<Terminal> AL_UserTerminalSpecimen){
         try {
             FB = FirebaseDatabase.getInstance();
             _S_VehicleDestinationDatabaseReference = FB.getReference("drivers").child(INT_LoopID.toString());
+            RemoveListenerFromLoop();
             _SingleLoopChildListenerForSelectedTerminal = _S_VehicleDestinationDatabaseReference.addChildEventListener(new ChildEventListener() {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -215,11 +224,24 @@ public class ArrivalHelper {
                             if (AL_Firebase_routeIDs.size() == 0) {
                                 _S_VehicleDestinationDatabaseReference.removeEventListener(this);
                                 //Toast.makeText(_context, "Listener removed!", Toast.LENGTH_SHORT).show();
-                                GetGPSDetailsFromFirebase(AL_UserTerminalSpecimen.get(0), true);
+                                GetGPSDetailsFromFirebase(AL_UserTerminalSpecimen.get(0), _BOOL_IsFromSearch);
                             } else if (!MenuActivity._HasExitedInfoLayout && AL_Firebase_routeIDs.size() != 0) {
                                 GetTimeRemainingFromGoogle(INT_LoopID, AL_UserTerminalSpecimen.get(0));
-                                //Toast.makeText(_context, "Listener attached! RouteID:" + routeId + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(_context, "Listener attached! RouteID:" + AL_Firebase_routeIDs + " FirebaseRouteID: " + Firebase_routeIDs, Toast.LENGTH_SHORT).show();
                             }
+                        }
+                    }
+                    if(dataSnapshot.getKey().toUpperCase().equals("ISDWELLING")){
+                            IsDwelling = Boolean.parseBoolean(dataSnapshot.getValue().toString());
+                            if(AL_UserTerminalSpecimen.size()>0){
+                                HasArrived(STR_EnteredStation, AL_UserTerminalSpecimen.get(0), IsDwelling);
+                            }
+                    }
+                    if(dataSnapshot.getKey().toUpperCase().equals("ENTEREDSTATION")) {
+                            STR_EnteredStation = (dataSnapshot.getValue() != null && !dataSnapshot.getValue().toString().equalsIgnoreCase(""))
+                                    ? dataSnapshot.getValue().toString() : null;
+                        if(AL_UserTerminalSpecimen.size()>0){
+                            HasArrived(STR_EnteredStation, AL_UserTerminalSpecimen.get(0), IsDwelling);
                         }
                     }
                 }
@@ -268,13 +290,15 @@ public class ArrivalHelper {
                                     String TimeofArrival = response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText();
                                     String Distance = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
                                     //Helper.InitializeSearchingRouteUI(true,false, "Filinvest E-loop",Distance, TimeofArrival.toString(),_context);
+                                    String STR_VehicleAlias = MenuActivity._BOOL_IsPlateNumberVisible ? Helper.GetEloopEntry(INT_LoopID.toString()).PlateNumber : MenuActivity._GlobalResource.getString(R.string.vehicle_alias_Filinvest);
                                     if(_BOOL_IsFromSearch) {
-                                        Helper.InitializeSearchingRouteUI(true, false, Helper.GetEloopEntry(INT_LoopID.toString()).PlateNumber, Distance, TimeofArrival.toString(), _context);
+                                        Helper.InitializeSearchingRouteUI(true, false, STR_VehicleAlias, Distance, TimeofArrival.toString(), _context);
                                     }
                                     else{
                                         if(Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_Destination.getValue())) {
                                             ((MenuActivity)_activity).UpdateInfoPanelForTimeofArrival(TM_Destination.LineName + "-" + TM_Destination.Description, null,
-                                                    _helper.getEmojiByUnicode(0x1F68C) + " : " +Helper.GetEloopEntry(INT_LoopID.toString()).PlateNumber+" - " + TimeofArrival + " (" + Distance + " away)");
+                                                    _helper.getEmojiByUnicode(0x1F68C) + " : "
+                                                            + (MenuActivity._BOOL_IsPlateNumberVisible ? STR_VehicleAlias+" - ": "")+ TimeofArrival + " (" + Distance + " away)");
                                         }
                                     }
                                 }
@@ -323,7 +347,7 @@ public class ArrivalHelper {
                 Collections.sort(AL_PickedRouteBasedFromUserLocation, Terminal.DestinationComparators.ORDER_OF_ARRIVAL_DESC);
                 Terminal T_MainTerminal = GetStationTerminalFromRoute(TM_UserLocation.getTblRouteID());
                for (Terminal T_Entry:AL_PickedRouteBasedFromUserLocation){
-                   if(ValidateOrderOfArrival(TM_UserLocation, T_Entry)
+                   if(ValidateOrderOfArrival(TM_UserLocation, T_Entry, true)
                            && T_Entry.getIsMainTerminal()!="1"){
                        if(T_Entry.getOrderOfArrival()==TM_VehicleLocation.getOrderOfArrival())
                            break;
@@ -359,10 +383,10 @@ public class ArrivalHelper {
         }
         return  T_result;
     }
-    public Boolean ValidateOrderOfArrival(Terminal T_EntryLocation, Terminal T_VehicleLastStation){
+    public Boolean ValidateOrderOfArrival(Terminal T_EntryLocation, Terminal T_VehicleLastStation, Boolean IsForAggregation){
         Boolean BOOL_result = false;
         try{
-            if(T_EntryLocation.getOrderOfArrival() == 1)
+            if(T_EntryLocation.getOrderOfArrival() == 1 && IsForAggregation)
                 return true;
             if(T_EntryLocation.getOrderOfArrival() >= T_VehicleLastStation.getOrderOfArrival())
                return true;
@@ -372,5 +396,24 @@ public class ArrivalHelper {
 
         }
         return BOOL_result;
+    }
+    public void HasArrived(String STR_EnteredStation, Terminal T_NearestFromUser, Boolean IsDwelling){
+        try{
+            if(STR_EnteredStation.equalsIgnoreCase(T_NearestFromUser.getValue()) && IsDwelling){
+                if (_BOOL_IsFromSearch)
+                    Helper.InitializeSearchingRouteUI(true, false, _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
+                else {
+                    if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, T_NearestFromUser.getValue())) {
+                        ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(T_NearestFromUser.LineName + "-" + T_NearestFromUser.Description, null,
+                                _helper.getEmojiByUnicode(0x1F68C) + " : " + _GlobalResource.getString(R.string.VEHICLE_already_waiting));
+                    }
+                }
+            }
+            else if (STR_EnteredStation.equalsIgnoreCase(T_NearestFromUser.getValue())){
+                GetGPSDetailsFromFirebase(T_NearestFromUser, _BOOL_IsFromSearch);
+            }
+        }catch (Exception ex){
+            Helper.logger(ex);
+        }
     }
 }

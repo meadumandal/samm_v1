@@ -136,6 +136,13 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
                     ND_Notice.show();
                 }
             }
+            if(S_entry.getID()==7){ //7-IsPlateNumberVisible
+                if(S_entry.getValue()!=null && !S_entry.getValue().trim().equals("")){
+                    if(S_entry.getValue().equalsIgnoreCase("1"))
+                        MenuActivity._BOOL_IsPlateNumberVisible = true;
+                }
+
+            }
         }
     }
     public void ShowAppVersionInfo(String ThisAppBuildVersion, String LatestAppVersionFromServer){

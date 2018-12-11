@@ -317,6 +317,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static View _MAINCONTENT;
         public static Activity _activity;
         public static Context _context;
+        public static Boolean _BOOL_IsPlateNumberVisible=false;
 
 
 
@@ -608,6 +609,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                               marker.remove();
                            ZoomAndAnimateMapCamera(_userCurrentLoc, 15);
                            PlayButtonClickSound();
+                           ArrivalHelper.RemoveListenerFromLoop();
                            _SlideUpPanelContainer.setTouchEnabled(false);
                            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
                            final Handler HND_ZoomGoogleMapToUserLocation = new Handler();
@@ -630,11 +632,13 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                    HND_ZoomGoogleMapToUserLocationLateCallback.postDelayed(new Runnable() {
                                        @Override
                                        public void run() {
-                                           _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                                               if(_SlideUpPanelContainer.getPanelState()!= SlidingUpPanelLayout.PanelState.COLLAPSED){
+                                           if(_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
+                                               _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                               if (_SlideUpPanelContainer.getPanelState() != SlidingUpPanelLayout.PanelState.COLLAPSED) {
                                                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
 
                                                }
+                                           }
                                        }
                                    }, 3000);
                                }
@@ -934,7 +938,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                     _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
                     _googleMap.setMyLocationEnabled(true);
-                    _googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                    _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
                     _googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                         @Override
                         public void onCameraIdle() {
@@ -3003,6 +3007,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 R.anim.slide_down_bounce);
         _infoLayout.startAnimation(slide_down_bounce);
         ClearInfoPanelDetails();
+        ArrivalHelper.RemoveListenerFromLoop();
         slide_down_bounce.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {

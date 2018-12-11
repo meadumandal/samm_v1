@@ -295,5 +295,8 @@
     <string name="signup_button">Sign-up</string>
     <string name="signinwithfacebook_button">Sign-in via Facebook</string>
 
+    <!--ELOOP RELATED-->
+    <string name="vehicle_alias_Filinvest">Filinvest E-loop</string>
+
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
