@@ -121,8 +121,10 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
                 String ThisAppBuildVersion = BuildConfig.VERSION_NAME, LatestAppVersionFromServer = S_entry.getValue();
                 Boolean IsUpdated = ThisAppBuildVersion.equals(LatestAppVersionFromServer);
                 if (!_BOOL_isAdhoc) {
+                    Boolean IsThisBuildGreaterThanServerBuild = CheckThisBuildAgainstServerBuild(ThisAppBuildVersion,LatestAppVersionFromServer);
                     AboutActivity.TV_SammLatestVersion.setText("(" + (IsUpdated ? MenuActivity._GlobalResource.getString(R.string.info_up_to_date)
-                            : (MenuActivity._GlobalResource.getString(R.string.info_latest_version_available) + S_entry.getValue())) + ")");
+                            : (IsThisBuildGreaterThanServerBuild ? MenuActivity._GlobalResource.getString(R.string.info_beta_version)
+                            :MenuActivity._GlobalResource.getString(R.string.info_latest_version_available)) +" "+ S_entry.getValue()) + ")");
                     AboutActivity._SL_TV_LatestVersion.startShimmerAnimation();
                 } else {
                     if (!IsUpdated)
