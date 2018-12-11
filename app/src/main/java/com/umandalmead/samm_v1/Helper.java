@@ -276,6 +276,7 @@ public class Helper {
                 }
             }
         }catch (Exception ex){
+            logger(ex);
 
         }
         return BOOL_Result;
@@ -292,6 +293,7 @@ public class Helper {
             return STR_LOC_Result;
 
         }catch(Exception ex){
+            logger(ex);
 
         }
         return STR_LOC_Result;

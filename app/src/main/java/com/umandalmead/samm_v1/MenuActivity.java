@@ -908,7 +908,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     try {
                         mapType = Enums.GoogleMapType.valueOf(_sessionManager.getMapStylePreference());
                     } catch (Exception ex) {
-                        Helper.logger(ex);
+                        mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
                     }
                     SetMapType(_googleMap, mapType);
                     //Initialize Google Play Services
@@ -1805,8 +1805,11 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 if (d.GeofenceId.equals(geofenceRequestId))
                 {
                     if (!_sessionManager.isDriver() && !_sessionManager.getIsAdmin())
-                    passengerMovement(d.Value, eventType);
-                    Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
+                    {
+                        passengerMovement(d.Value, eventType);
+                        Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
+                    }
+
                 }
 
             }
