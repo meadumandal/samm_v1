@@ -172,6 +172,7 @@ public class LoginActivity extends AppCompatActivity{
                                                 if (response.body() == null || response.body().getAuthType().equals("FacebookAuth")) {
                                                     try {
                                                         handleFacebookAccessToken(loginResult.getAccessToken(), user_lastname, user_firstname, user_email);
+                                                        _helper.DisconnectPreviousUser();
                                                     }
                                                     catch (Exception ex){
                                                         HideLogInProgressDialog();

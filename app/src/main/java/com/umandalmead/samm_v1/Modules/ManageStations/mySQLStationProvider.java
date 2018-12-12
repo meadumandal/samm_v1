@@ -26,6 +26,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
@@ -184,18 +185,28 @@ public class mySQLStationProvider extends AsyncTask<Integer,Void, List<Terminal>
         try
         {
             Log.i(LOG_TAG,"mySQLStationProvider(onPostExecute)");
-            List<String> strDestinations = new ArrayList<>();
+//            List<String> strDestinations = new ArrayList<>();
+            HashMap<String, Terminal> distinctTerminals = new HashMap<>();
+
             MenuActivity._terminalList = terminals;
             //((MenuActivity)this._activity)._terminalList = terminals;
+//            for (Terminal d: terminals)
+//            {
+//                if(!strDestinations.contains(d.Description))
+//                    strDestinations.add(d.Description);
+//            }
+//
+//            StationCustomAdapter adapter = null;
+//            ArrayList<Terminal> terminalArrayList = new ArrayList<>(terminals);
+
             for (Terminal d: terminals)
             {
-                if(!strDestinations.contains(d.Description))
-                    strDestinations.add(d.Description);
+                if (!distinctTerminals.containsKey(d.getValue()))
+                {
+                    distinctTerminals.put(d.getValue(), d);
+                }
             }
-
-            StationCustomAdapter adapter = null;
-            ArrayList<Terminal> terminalArrayList = new ArrayList<>(terminals);
-
+            MenuActivity._distinctTerminalList = distinctTerminals;
             _helper.UpdateStationMarkersOnTheMap(terminals, _googleMap, _googleApiClient);
         }
         catch(Exception ex)

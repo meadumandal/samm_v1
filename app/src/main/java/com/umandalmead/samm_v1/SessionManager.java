@@ -50,6 +50,7 @@ public class SessionManager {
     public static final String KEY_ECOLOOPREPORTTUTORIAL = "Tutorial_EcoloopReport";
     public static final String KEY_ROUNDSREPORTTUTORIAL = "Tutorial_RoundsReport";
     public static final String KEY_APP_RATING = "App_Rating";
+    public static final String KEY_ENTERED_STATION = "Entered_Station";
 
     public SessionManager(Context context)
     {
@@ -177,6 +178,7 @@ public class SessionManager {
         prefEditor.putBoolean(KEY_ISSUPERADMIN, IsPassenger);
         prefEditor.commit();
     }
+
     public String getUsername()
     {
         return pref.getString(KEY_USERNAME,"");
@@ -230,6 +232,13 @@ public class SessionManager {
     {
         return pref.getBoolean(KEY_ISGUEST, false);
 
+    }
+
+    public String getKeyEnteredStation(){return pref.getString(KEY_ENTERED_STATION, "");}
+    public void setKeyEnteredStation(String geofenceStatus){
+        prefEditor.remove(KEY_ENTERED_STATION);
+        prefEditor.putString(KEY_ENTERED_STATION, geofenceStatus);
+        prefEditor.commit();
     }
     public boolean isFacebook()
     {

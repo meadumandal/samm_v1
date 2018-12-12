@@ -194,11 +194,14 @@ public class Helper {
         double R = 6371; // Radius of the earth in km
         double dLat = ToRadians(Second.latitude-First.latitude);  // deg2rad below
         double dLon = ToRadians(Second.longitude-First.longitude);
+        double sinLat = Math.sin(dLat/2);
+        double sinLon = Math.sin(dLon/2);
+
         double a =
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                sinLat * sinLat +
                         Math.cos(ToRadians(First.latitude)) * Math.cos(ToRadians(Second.latitude)) *
-                                Math.sin(dLon/2) * Math.sin(dLon/2)
-                ;
+                                sinLon * sinLon
+            ;
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         double d = R * c; // Distance in km
         return d;
@@ -622,7 +625,7 @@ public class Helper {
                 MenuActivity._terminalMarkerHashmap.put(station.Value, marker);
             }
         }
-        startGeofence(StationList, googleMap, googleApiClient);
+//        startGeofence(StationList, googleMap, googleApiClient);
     }
     // Start Geofence creation process
     private void startGeofence(List<Terminal> listTerminals, GoogleMap googleMap, GoogleApiClient googleApiClient) {
@@ -948,6 +951,8 @@ public class Helper {
         animator.setDuration(400);
         animator.start();
     }
+
+
 
 
 }

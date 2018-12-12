@@ -92,8 +92,10 @@ public class Constants {
     public static final String FRAGMENTNAME_MANAGEROUTES = "ManageRoutesFragment";
     public static final String FRAGMENTNAME_MANAGESTATIONS = "ManageStationsFragment";
 
-    public static final Integer GEOFENCE_RADIUS = 10;
+    public static final Integer GEOFENCE_RADIUS = 11    ;
+    public static final Integer GEOFENCE_RADIUS_FOR_USER = 11;
 
 
 }
+
 

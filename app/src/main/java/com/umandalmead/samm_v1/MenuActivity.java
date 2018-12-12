@@ -201,6 +201,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         //Put here all global Collection Variables
         public static List<Terminal> _possiblePickUpPointList;
         public static List<Terminal> _terminalList;
+        public static HashMap<String, Terminal> _distinctTerminalList;
         public static HashMap<String, Marker> _terminalMarkerHashmap = new HashMap<>();
         public HashMap _userMarkerHashmap = new HashMap();
         public HashMap<String, Long> _passengerCount = new HashMap<>();
@@ -391,9 +392,15 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             if (_sessionManager == null)
                 _sessionManager = new SessionManager(_context);
             if (!_sessionManager.isLoggedIn()) {
-                String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
+                String username="";
+                if (_sessionManager.getUsername().isEmpty())
+                    username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
+                else
+                    username = _sessionManager.getUsername();
                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0,  "", "", false, Constants.GUEST_USERTYPE);
             }
+
+            _sessionManager.setKeyEnteredStation("");
 
            // new asyncCheckInternetConnectivity(MenuActivity.this).execute();
             if(_helper.isOnline(MenuActivity.this, getApplicationContext())) {
@@ -859,7 +866,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
                 intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
-                registerReceiver(_userMovementBroadcastReceiver, intentFilter);
+//                registerReceiver(_userMovementBroadcastReceiver, intentFilter);
 //                registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
 //                registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
                 initializeOnlinePresence();
@@ -1019,7 +1026,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
                         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_userCurrentLoc, 16);
                         _googleMap.animateCamera(cameraUpdate);
-                        locationManager.removeUpdates(this);
+//                        locationManager.removeUpdates(this);
 
                     }
 
@@ -1027,6 +1034,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     if (_googleAPI != null) {
                         LocationServices.FusedLocationApi.removeLocationUpdates(_googleAPI, this);
                     }
+                    if (_distinctTerminalList!=null)
+                        new asyncGeofence(_context).execute(new LatLng(location.getLatitude(), location.getLongitude()));
                 }
 
             }
@@ -1110,8 +1119,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     new mySQLStationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
                     LocationServices.FusedLocationApi.requestLocationUpdates(_googleAPI, _locationRequest, this);
                     locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000   , 0, this);
                     _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
@@ -1160,7 +1169,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                                     _passengerCountInTerminal = (int) passengercount;
                                                     UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
                                                             _helper.getEmojiByUnicode(0x1F6BB) + " : " +(_passengerCountInTerminal == 0 ? "No passenger" : _passengerCountInTerminal +
-                                                                    (_passengerCountInTerminal == 1 ? " passenger":" passengers"))+" waiting", null);
+                                                                    (_passengerCountInTerminal == 1 ? " passenger":" passengers"))+" waiting (approx.)", null);
                                                 }
                                             });
                                             HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
@@ -1574,46 +1583,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         Log.i(LOG_TAG, "Updating passenger count for reports...");
 //        new mySQLUpdateWaitingPassengerHistory(getApplicationContext(), this).execute(terminal,  Long.toString(numberOfWaitingPassengers));
     }
-    private void passengerMovement(final String destinationValue, final String movement)
-    {
-        Log.i(LOG_TAG, "Saving passenger movement to firebase...");
-        final HashMap<String, Object> count = new HashMap<>();
-        final HashMap<String, Object> hashmapCount = new HashMap<>();
-        final String uid = _sessionManager.getUsername();
 
-        _terminalsDBRef.child(destinationValue).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-//                if(dataSnapshot == null || dataSnapshot.getValue() == null)
-//                {
-                if(movement.toLowerCase().equals("entered"))
-                {
-                    _terminalsDBRef.child(destinationValue).child(uid).setValue(true);
-                    //updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
-                }
-
-//                }
-                else if(movement.toLowerCase().equals("exit")){
-                    _terminalsDBRef.child(destinationValue).child(uid).removeValue();
-                }
-                else if (movement.toLowerCase().equals("entered"))
-                {
-                    //updatePassengerCountForReport(_sessionManager.getUsername(), destinationValue);
-                }
-//                _passengerCount.remove(destinationValue);
-//                _passengerCount.put(destinationValue, dataSnapshot.getChildrenCount());
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-
-    }
     private void passengerMovement_withNoRunTransaction(final String destinationValue, final String movement)
     {
         Log.i(LOG_TAG, "Saving passenger movement to firebase...");
@@ -1810,7 +1780,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 {
                     if (!_sessionManager.isDriver() && !_sessionManager.getIsAdmin())
                     {
-                        passengerMovement(d.Value, eventType);
+//                        passengerMovement(d.Value, eventType);
                         Toast.makeText(context, "You " + eventType + " " +  d.Description, Toast.LENGTH_LONG).show();
                     }
 
@@ -1968,19 +1938,17 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             node="users/" + _sessionManager.getUsername();
 //        }
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference userRef = database.getReference(node);
+        final DatabaseReference userRef = database.getReference("users/" + _sessionManager.getUsername());
         final DatabaseReference myConnectionsRef = database.getReference(node + "/connections");
-
-        // stores the timestamp of last online
-        final DatabaseReference lastOnlineRef = database.getReference("/"+node + "/lastOnline");
-
+        final DatabaseReference lastOnlineRef = database.getReference("users/" +  _sessionManager.getUsername() + "/lastOnline");
         final DatabaseReference connectedRef = database.getReference(".info/connected");
+
+
         connectedRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 boolean connected = snapshot.getValue(Boolean.class);
                 if (connected) {
-
                     if(_sessionManager.isGuest())
                         userRef.onDisconnect().removeValue();
                     else
@@ -1990,22 +1958,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     }
                     myConnectionsRef.setValue(true);
 
-                    final DatabaseReference terminalDBRef = database.getReference("terminals");
 
-                    terminalDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for(DataSnapshot snapshot:dataSnapshot.getChildren())
-                            {
-                                terminalDBRef.child(snapshot.getKey().toString()).child(_sessionManager.getUsername()).onDisconnect().removeValue();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
                     if(_sessionManager.isDriver())
                     {
                         _driverRoutesDatabaseReference.child(_sessionManager.getKeyDeviceid()).onDisconnect().removeValue();
