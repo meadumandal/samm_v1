@@ -105,10 +105,11 @@ public class AddPassengerCountLabel implements ChildEventListener {
                 markerOptions.position(markerPosition);
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
                 //markerOptions.snippet(childrenCount + " passenger/s waiting");
+//                markerOptions.title(MenuActivity._terminalMarkerHashmap.get(dataSnapshot.getKey()).getTitle());
                 markerOptions.title(dataSnapshot.getKey());
                 Marker newTerminalMarker = MenuActivity._googleMap.addMarker(markerOptions);
                 newTerminalMarker.showInfoWindow();
-
+//                MenuActivity._terminalMarkerHashmap.remove(dataSnapshot.getKey());
                 ((MenuActivity)this._activity)._terminalMarkerHashmap.put(dataSnapshot.getKey(), newTerminalMarker);
                 Log.i(LOG_TAG, "Updating passenger count for reports...");
 

@@ -203,6 +203,7 @@ public class SessionManager {
     {
         prefEditor.remove(KEY_LNAME);
         prefEditor.putString(KEY_LNAME, lastName);
+
         prefEditor.commit();
     }
     public boolean isLoggedIn()

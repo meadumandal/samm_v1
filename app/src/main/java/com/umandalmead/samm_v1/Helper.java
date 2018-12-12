@@ -617,6 +617,7 @@ public class Helper {
 
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
                 //markerOptions.snippet("0 passenger/s waiting");
+
                 markerOptions.title(station.ID.toString()+"-"+ station.getValue());
                 Marker marker = googleMap.addMarker(markerOptions);
                // dropMarker(marker,googleMap);

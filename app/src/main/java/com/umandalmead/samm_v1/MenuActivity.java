@@ -1119,8 +1119,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     new mySQLStationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
                     LocationServices.FusedLocationApi.requestLocationUpdates(_googleAPI, _locationRequest, this);
                     locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, this);
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000   , 0, this);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0   , 0, this);
                     _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {

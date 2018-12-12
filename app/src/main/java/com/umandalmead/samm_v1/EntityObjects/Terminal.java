@@ -212,6 +212,12 @@ public class Terminal implements Comparable<Terminal>{
                 return dest1.tblRouteID - dest2.tblRouteID;
             }
         };
+        public static Comparator<Terminal> ORDER_BY_DISTANCEFROMUSER_ASC = new Comparator<Terminal>() {
+            @Override
+            public int compare(Terminal dest1, Terminal dest2) {
+                return Double.compare(dest1.distanceFromCurrentLocation, dest2.distanceFromCurrentLocation);
+            }
+        };
 //        public static Comparator<Terminal> DEFAULT = new Comparator<Terminal>() {
 //            @Override
 //            public int compare(Terminal destination, Terminal t1) {

@@ -2,6 +2,8 @@ package com.umandalmead.samm_v1;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,11 +15,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 
-import java.text.DateFormat;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import static com.google.android.gms.internal.zzahn.runOnUiThread;
 import static com.umandalmead.samm_v1.Constants.LOG_TAG;
 import static com.umandalmead.samm_v1.MenuActivity._terminalsDBRef;
 
@@ -43,6 +49,7 @@ public class asyncGeofence extends AsyncTask<LatLng, Void, Terminal> {
     }
     @Override
     protected Terminal doInBackground(LatLng... latLngs) {
+        List<Terminal> enteredStations = new ArrayList<>();
         Terminal returnTerminal = null;
         try
         {
@@ -51,17 +58,20 @@ public class asyncGeofence extends AsyncTask<LatLng, Void, Terminal> {
             for(Map.Entry<String, Terminal> terminal: MenuActivity._distinctTerminalList.entrySet())
             {
                 LatLng terminalLoc = new LatLng(terminal.getValue().getLat(), terminal.getValue().getLng());
-                if (terminal.getValue().getValue().equalsIgnoreCase("capitalone"))
+                Double distanceFromCurrentLocation = _helper.getDistanceFromLatLonInKm(userLoc, terminalLoc)*1000;
+                if (distanceFromCurrentLocation <= Constants.GEOFENCE_RADIUS_FOR_USER)
                 {
-                    double distance =_helper.getDistanceFromLatLonInKm(userLoc, terminalLoc)*1000;
-                }
-                if (_helper.getDistanceFromLatLonInKm(userLoc, terminalLoc)*1000 <= Constants.GEOFENCE_RADIUS_FOR_USER)
-                {
-                    returnTerminal  = terminal.getValue();
-                    break;
-
+                    Terminal t = terminal.getValue();
+                    t.distanceFromCurrentLocation = distanceFromCurrentLocation;
+                    enteredStations.add(t);
                 }
             }
+            if (enteredStations.size()>0)
+            {
+                Collections.sort(enteredStations, Terminal.DestinationComparators.ORDER_BY_DISTANCEFROMUSER_ASC);
+                return enteredStations.get(0);
+            }
+
         }
         catch(Exception ex)
         {
@@ -72,32 +82,34 @@ public class asyncGeofence extends AsyncTask<LatLng, Void, Terminal> {
     @Override
     protected void onPostExecute(Terminal terminal)
     {
+
         if (terminal!=null)
         {
+
             if (!_sessionManager.getKeyEnteredStation().isEmpty()
                     && !_sessionManager.getKeyEnteredStation().equalsIgnoreCase(terminal.getValue())) {
 
                 passengerMovement(_sessionManager.getKeyEnteredStation(), "exit");
                 passengerMovement(terminal.getValue(), "entered");
-                Toast.makeText(_context, "You entered " + terminal.getDescription(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(_context, "You entered " + terminal.getDescription(), Toast.LENGTH_LONG).show();
                 _sessionManager.setKeyEnteredStation(terminal.getValue());
             }
             else if (_sessionManager.getKeyEnteredStation().isEmpty())
             {
                 passengerMovement(terminal.getValue(), "entered");
-                Toast.makeText(_context, "You entered " + terminal.getDescription(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(_context, "You entered " + terminal.getDescription(), Toast.LENGTH_LONG).show();
                 _sessionManager.setKeyEnteredStation(terminal.getValue());
             }
-            else
-            {
+            else {
                 passengerMovement(terminal.getValue(), "entered");
             }
+
 
         }
         else if (terminal == null && !_sessionManager.getKeyEnteredStation().isEmpty())
         {
             passengerMovement(_sessionManager.getKeyEnteredStation(), "exit");
-            Toast.makeText(_context, "You exit " + _sessionManager.getKeyEnteredStation(), Toast.LENGTH_LONG).show();
+//            Toast.makeText(_context, "You exited " + _sessionManager.getKeyEnteredStation(), Toast.LENGTH_LONG).show();
             _sessionManager.setKeyEnteredStation("");
         }
         initializeOnlinePresence();
