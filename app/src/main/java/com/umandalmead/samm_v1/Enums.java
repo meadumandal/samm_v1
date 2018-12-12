@@ -36,7 +36,9 @@ public class Enums {
         SAMM_DEFAULT("SAMMER (Guest)",0),
         SAMM_FACEBOOK("SAMMER (Facebook)",1),
         SAMM_ADMINISTRATOR("SAMMER (Administrator)",2),
-        SAMM_DEFAULT_REGISTERED("Registered SAMMER",3);
+        SAMM_DEFAULT_REGISTERED("Registered SAMMER",3),
+        SAMM_DRIVER("SAMM Driver",4),
+        SAMM_SUPERADMIN("SAMMER (Super Administrator)",5);
         private String stringValue;
         private int intValue;
         private UserType(String toString, int value){

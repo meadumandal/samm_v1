@@ -262,7 +262,7 @@
     <string name="TUT_report_rounds_filter_inst">To generate reports:\n1. Select a line from the list.\n2. Select a station from the list.\n3. Populate date fields by tapping on each date.\n4.Click \'Generate\' button.\n5. Report was generated.</string>
     <string name="TUT_app_rating_inst">Am I helpful to you? How about giving me a rating/feedback in PlayStore?</string>
     <!--VEHICLE SEARCHING MESSAGES-->
-    <string name="VEHICLE_already_waiting">An E-loop is already waiting!</string>
+    <string name="VEHICLE_already_waiting"> is already waiting!</string>
     <!--FONTS-->
     <string name="FONT_TRENDER" translatable="false">font/Trender.ttf</string>
     <string name="FONT_SAN_FRANCISCO_REG" translatable="false">font/San-Francisco-Regular.ttf</string>

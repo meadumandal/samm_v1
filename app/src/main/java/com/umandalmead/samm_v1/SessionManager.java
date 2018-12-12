@@ -273,5 +273,20 @@ public class SessionManager {
         prefEditor.putBoolean(KEY_APP_RATING, false);
         prefEditor.commit();
     }
+    public Enums.UserType getUserType(){
+        if(isFacebook())
+            return Enums.UserType.SAMM_FACEBOOK;
+        if(pref.getBoolean(KEY_ISDRIVER, false))
+            return Enums.UserType.SAMM_DEFAULT_REGISTERED;
+        if(pref.getBoolean(KEY_ISADMIN,false))
+            return Enums.UserType.SAMM_ADMINISTRATOR;
+        if(pref.getBoolean(KEY_ISSUPERADMIN,false))
+            return Enums.UserType.SAMM_SUPERADMIN;
+        if(pref.getBoolean(KEY_ISGUEST,false))
+            return Enums.UserType.SAMM_DEFAULT;
+        if(pref.getBoolean(KEY_ISPASSENGER,false))
+            return Enums.UserType.SAMM_DEFAULT_REGISTERED;
+        return null;
+    }
 
 }

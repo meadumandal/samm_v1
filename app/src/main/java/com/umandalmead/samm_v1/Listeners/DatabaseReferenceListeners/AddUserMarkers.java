@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.umandalmead.samm_v1.EntityObjects.UserMarker;
+import com.umandalmead.samm_v1.Enums;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -86,23 +87,17 @@ public class AddUserMarkers implements
                         }
 
                     }else{
-                        String STR_IconGetterFlag = null,
-                                STR_Snippet=dataSnapshot.child("emailAddress").getValue()!=null?dataSnapshot.child("emailAddress").getValue().toString(): null;
+                        String STR_UserType = dataSnapshot.child("UserType").getValue()!=null ?
+                                dataSnapshot.child("UserType").getValue().toString(): null;
                         if(IsUserOnline) {
                             MarkerOptions markerOptions = new MarkerOptions();
                             markerOptions.position(latLng);
-                            markerOptions.snippet(STR_Snippet);
                             markerOptions.title(username);
-                            if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(username)) {
-                                STR_IconGetterFlag = STR_Snippet == null ? username : STR_Snippet;
-                            } else {
-                                STR_IconGetterFlag = username;
+                            if(STR_UserType!=null) {
+                                markerOptions.snippet(STR_UserType);
+                                UserMarker UM_user = Helper.GetUserMarkerDetails(STR_UserType, _activity.getApplicationContext());
+                                markerOptions.icon(BitmapDescriptorFactory.fromResource(UM_user.UserIcon));
                             }
-                            markerOptions.title(username);
-                            UserMarker UM_user = Helper.GetUserMarkerDetails(STR_IconGetterFlag, _activity.getApplicationContext());
-                            // markerOptions.snippet(markerOptions.getSnippet() + ","+UM_user.UserType.toString());
-                            markerOptions.icon(BitmapDescriptorFactory.fromResource(UM_user.UserIcon));
-                            //marker.setPosition(latLng);
                             marker = ((MenuActivity) this._activity)._googleMap.addMarker(markerOptions);
                             ((MenuActivity) this._activity)._userMarkerHashmap.put(username, marker);
                         }

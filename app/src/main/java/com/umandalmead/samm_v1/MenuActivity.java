@@ -1102,6 +1102,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         nodes.put(_sessionManager.getUsername() + "/Longitude", lng);
         nodes.put(_sessionManager.getUsername() + "/Latitude", lat);
         nodes.put(_sessionManager.getUsername() + "/lastUpdated", lastUpdated);
+        nodes.put(_sessionManager.getUsername() + "/UserType", _sessionManager.getUserType());
         _usersDBRef.updateChildren(nodes);
     }
     @Override
@@ -1194,9 +1195,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                     //samm user marker has been clicked
                                     else {
                                         _SelectedTerminalMarkerTitle = null;
-                                        String STR_IconGetterFlag = markerValue;
-                                        if (Helper.IsPossibleAdminBasedOnFirebaseUserKey(markerValue))
-                                            STR_IconGetterFlag = marker.getSnippet() == null ? STR_IconGetterFlag : marker.getSnippet();
+                                        String STR_IconGetterFlag = marker.getSnippet() == null ? null : marker.getSnippet();
 
                                         final UserMarker UM_result = new UserMarker(STR_IconGetterFlag, _context);
                                         Handler HD_FetchFBName = new Handler();

@@ -546,8 +546,8 @@ public class Helper {
         return null;
     }
 
-    public static UserMarker GetUserMarkerDetails(String entry, Context context){
-            UserMarker UM_result = new UserMarker(entry,context);
+    public static UserMarker GetUserMarkerDetails(String STR_UserType, Context context){
+            UserMarker UM_result = new UserMarker(STR_UserType,context);
         return UM_result;
     }
     public static Boolean IsPossibleAdminBasedOnFirebaseUserKey(String STR_FirebaseUserKey){
