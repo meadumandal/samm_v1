@@ -100,6 +100,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -196,8 +197,11 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static DatabaseReference _usersDBRef;
         public static DatabaseReference _terminalsDBRef;
         public static DatabaseReference _driversDBRef;
-        public DatabaseReference _vehicle_destinationsDBRef, _DriversDatabaseReference, _driverRoutesDatabaseReference;
-
+        public DatabaseReference _vehicle_destinationsDBRef,
+                _DriversDatabaseReference,
+                _driverRoutesDatabaseReference,
+                _stationDatabaseReference;
+        private static ChildEventListener _stationChildEventListener;
         //Put here all global Collection Variables
         public static List<Terminal> _possiblePickUpPointList;
         public static List<Terminal> _terminalList;
@@ -1151,28 +1155,37 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                         }
                                         _SelectedTerminalMarkerTitle = TM_ClickedTerminal.getValue();
                                         final Handler HND_Loc_DataFetchDelay = new Handler();
+                                        final Handler HND_PassengerCountDelay = new Handler();
                                         final Terminal F_TM_ClickedTerminal = TM_ClickedTerminal;
-                                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,null,_helper.getEmojiByUnicode(0x1F68C) + " : "+
+                                            ShowInfoLayout(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,"Init",_helper.getEmojiByUnicode(0x1F68C) + " : "+
                                                     _GlobalResource.getString(R.string.dialog_fetching_data_with_ellipsis),
                                                     R.drawable.ic_ecoloopstop_for_info, Enums.InfoLayoutType.INFO_STATION);
+                                            _terminalsDBRef = _firebaseDB.getReference("terminals");
 
-                                            _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                            HND_PassengerCountDelay.postDelayed(new Runnable() {
                                                 @Override
-                                                public Transaction.Result doTransaction(MutableData currentData) {
+                                                public void run() {
+                                                    _terminalsDBRef.child(markerValue).runTransaction(new Transaction.Handler() {
+                                                        @Override
+                                                        public Transaction.Result doTransaction(MutableData currentData) {
 
-                                                    return Transaction.success(currentData);
-                                                }
+                                                            return Transaction.success(currentData);
+                                                        }
 
-                                                @Override
-                                                public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
-                                                    long passengercount = 0;
-                                                    passengercount = DS_Terminals.getChildrenCount();
-                                                    _passengerCountInTerminal = (int) passengercount;
-                                                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
-                                                            _helper.getEmojiByUnicode(0x1F6BB) + " : " +(_passengerCountInTerminal == 0 ? "No passenger" : _passengerCountInTerminal +
-                                                                    (_passengerCountInTerminal == 1 ? " passenger":" passengers"))+" waiting (approx.)", null);
+                                                        @Override
+                                                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot DS_Terminals) {
+                                                            long passengercount = 0;
+                                                            passengercount = DS_Terminals.getChildrenCount();
+                                                            _passengerCountInTerminal = (int) passengercount;
+                                                            UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                                                                    _helper.getEmojiByUnicode(0x1F6BB) + " : " +(_passengerCountInTerminal == 0 ? "No passenger" : _passengerCountInTerminal +
+                                                                            (_passengerCountInTerminal == 1 ? " passenger":" passengers"))+" waiting (approx.)", null);
+                                                            AttachListenerToTerminalsForPassengerCount();
+
+                                                        }
+                                                    });
                                                 }
-                                            });
+                                            },1000);
                                             HND_Loc_DataFetchDelay.postDelayed(new Runnable() {
                                                 @Override
                                                 public void run() {
@@ -1227,6 +1240,85 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         }
 
     }
+        private void AttachListenerToTerminalsForPassengerCount(){
+            try{
+
+                _terminalsDBRef.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        CountTerminalPassengersAndUpdateInfoLayout(dataSnapshot, false);
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        CountTerminalPassengersAndUpdateInfoLayout(dataSnapshot, false);
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                        CountTerminalPassengersAndUpdateInfoLayout(dataSnapshot, true);
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }catch(Exception ex){
+                Helper.logger(ex);
+            }
+        }
+//        private static void RemoveListenerFromTerminal() {
+//            try{
+//                if (_terminalsDBRef != null && _stationChildEventListener != null) {
+//                    _terminalsDBRef.removeEventListener(_stationChildEventListener);
+//                    _terminalsDBRef = null;
+//                    _stationChildEventListener = null;
+//                }
+//            }catch (Exception ex){
+//                Helper.logger(ex);
+//            }
+//        }
+//        private void RunTrasactionOnStationToGetPassengerCount(String STR_StationName){
+//                _terminalsDBRef.child(STR_StationName).runTransaction(new Transaction.Handler() {
+//                    @Override
+//                    public Transaction.Result doTransaction(MutableData mutableData) {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+//                        CountTerminalPassengersAndUpdateInfoLayout(dataSnapshot);
+//                    }
+//                });
+//
+//        }
+        private void CountTerminalPassengersAndUpdateInfoLayout(DataSnapshot DS_Terminal, Boolean WasDeleted){
+            try{
+
+                String STR_TerminalFirebaseKey = DS_Terminal.getKey() != null ? DS_Terminal.getKey().toString() : null;
+                long passengercount = 0;
+                if(STR_TerminalFirebaseKey.equalsIgnoreCase(_SelectedTerminalMarkerTitle)) {
+                    if(!WasDeleted) {
+                        for (DataSnapshot DS_Entry : DS_Terminal.getChildren()) {
+                            passengercount++;
+                        }
+                    }
+                    _passengerCountInTerminal = (int) passengercount;
+                    UpdateInfoPanelDetails(TM_ClickedTerminal.LineName + "-" + TM_ClickedTerminal.Description,
+                            _helper.getEmojiByUnicode(0x1F6BB) + " : " + (_passengerCountInTerminal == 0 ? "No passenger" : _passengerCountInTerminal +
+                                    (_passengerCountInTerminal == 1 ? " passenger" : " passengers")) + " waiting (approx.)", null);
+                }
+            }catch (Exception ex){
+                Helper.logger(ex);
+            }
+        }
     @Override
     public void onConnectionSuspended(int i) {
 
@@ -2941,8 +3033,12 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     public void UpdateInfoPanelDetails(String Title, String Description, String Description2){
         if(_InfoPanel_IsEditingEnabled) {
                 _infoTitleTV.setText(Title);
-            if(Description!=null)
-                 _infoDescriptionTV.setText(Description);
+            if(Description!=null){
+                if(Description.equalsIgnoreCase("init"))
+                    _infoDescriptionTV.setText(_helper.getEmojiByUnicode(0x1F6BB) + " : "+_GlobalResource.getString(R.string.dialog_fetching_data_with_ellipsis));
+                else
+                _infoDescriptionTV.setText(Description);
+            }
             if(Description2!=null)
             _infoDescriptionTV2.setText(Description2);
         }

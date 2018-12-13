@@ -171,7 +171,7 @@ public class ArrivalHelper {
                 }
             }else{
                 if (_BOOL_IsFromSearch)
-                    Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all E-loops are parked (or offline)",null,null,_context);
+                    Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all "+ TM_NearestFromUser.LineName+" are parked (or offline)",null,null,_context);
                 else{
                     if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
                         ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
@@ -227,8 +227,8 @@ public class ArrivalHelper {
                                 GetGPSDetailsFromFirebase(AL_UserTerminalSpecimen.get(0), _BOOL_IsFromSearch);
                             } else if (!MenuActivity._HasExitedInfoLayout && AL_Firebase_routeIDs.size() != 0) {
                                 GetTimeRemainingFromGoogle(INT_LoopID, AL_UserTerminalSpecimen.get(0));
-                                Toast.makeText(_context, "Listener attached! RouteID:" + AL_Firebase_routeIDs
-                                        + " FirebaseRouteID: " + AL_RouteIds + "Eloop: " + Helper.GetEloopEntry(String.valueOf(INT_LoopID)).DeviceId, Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(_context, "Listener attached! RouteID:" + AL_Firebase_routeIDs
+//                                        + " FirebaseRouteID: " + AL_RouteIds + "Eloop: " + Helper.GetEloopEntry(String.valueOf(INT_LoopID)).DeviceId, Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -344,19 +344,35 @@ public class ArrivalHelper {
         double D_result = 0.0;
         try{
             ArrayList<Terminal> AL_PickedRouteBasedFromUserLocation = MenuActivity._HM_GroupedTerminals.get(TM_UserLocation.getTblRouteID());
+           // ArrayList<Terminal> Test = new ArrayList<Terminal>();
             if(AL_PickedRouteBasedFromUserLocation.size() > 0){
                 Collections.sort(AL_PickedRouteBasedFromUserLocation, Terminal.DestinationComparators.ORDER_OF_ARRIVAL_DESC);
                 Terminal T_MainTerminal = GetStationTerminalFromRoute(TM_UserLocation.getTblRouteID());
                for (Terminal T_Entry:AL_PickedRouteBasedFromUserLocation){
-                   if(ValidateOrderOfArrival(TM_UserLocation, T_Entry, true)
-                           && T_Entry.getIsMainTerminal()!="1"){
-                       if(T_Entry.getOrderOfArrival()==TM_VehicleLocation.getOrderOfArrival())
-                           break;
-                       if(T_Entry.equals(T_MainTerminal))
-                           break;
-                       D_result += T_Entry.getDistanceFromPreviousStation();
-
+//                   if(T_Entry.getOrderOfArrival()<=TM_UserLocation.getOrderOfArrival())
+//                       Test.add(T_Entry);
+//                   if(T_Entry.getOrderOfArrival()==1){
+//                       for(Terminal T: AL_PickedRouteBasedFromUserLocation){
+//                           Test.add(T_Entry);
+//                           if(T.equals(TM_UserLocation))
+//                               break;
+//                       }
+//                   }
+                   if (TM_VehicleLocation.getOrderOfArrival()> TM_UserLocation.getOrderOfArrival())
+                   {
+                       if(T_Entry.getOrderOfArrival() > TM_VehicleLocation.getOrderOfArrival()
+                               || T_Entry.getOrderOfArrival() <= TM_UserLocation.getOrderOfArrival()){
+                           D_result += T_Entry.getDistanceFromPreviousStation();
+                       }
                    }
+                   else if (TM_UserLocation.getOrderOfArrival()> TM_VehicleLocation.getOrderOfArrival())
+                   {
+                       if(T_Entry.getOrderOfArrival() > TM_VehicleLocation.getOrderOfArrival()
+                               && T_Entry.getOrderOfArrival() <= TM_UserLocation.getOrderOfArrival()){
+                           D_result += T_Entry.getDistanceFromPreviousStation();
+                       }
+                   }
+
                }
 
             }
@@ -390,13 +406,13 @@ public class ArrivalHelper {
             Terminal T_MainTerminal = GetStationTerminalFromRoute(T_EntryLocation.getTblRouteID());
 
             if(T_EntryLocation.getOrderOfArrival() > T_MainTerminal.getOrderOfArrival()){
-                if(T_EntryLocation.getOrderOfArrival() <= T_VehicleLastStation.getOrderOfArrival()
-                        && T_EntryLocation.getOrderOfArrival() >= T_MainTerminal.getOrderOfArrival())
+                if(T_VehicleLastStation.getOrderOfArrival() <= T_EntryLocation.getOrderOfArrival()
+                        && T_VehicleLastStation.getOrderOfArrival() >= T_MainTerminal.getOrderOfArrival())
                     return true;
             }
             else if(T_EntryLocation.getOrderOfArrival() <= T_MainTerminal.getOrderOfArrival()){
-                if(T_EntryLocation.getOrderOfArrival() >= T_MainTerminal.getOrderOfArrival()
-                        || T_EntryLocation.getOrderOfArrival() <= T_VehicleLastStation.getOrderOfArrival())
+                if(T_VehicleLastStation.getOrderOfArrival() >= T_MainTerminal.getOrderOfArrival()
+                        || T_VehicleLastStation.getOrderOfArrival() <= T_EntryLocation.getOrderOfArrival())
                     return true;
             }
 //            if(T_EntryLocation.getOrderOfArrival() == 1

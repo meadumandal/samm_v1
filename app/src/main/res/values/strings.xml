@@ -94,6 +94,7 @@
     <string name="info_beta_version">You\'re using beta version: </string>
     <string name="info_station_order_save_success">Stations succesfully updated</string>
     <string name="info_patch_is_available">Patch is available. Please update your app to proceed.</string>
+    <string name="info_searching">Searching for nearest</string>
     <!--PLACE AUTOCOMPLETE FRAGMENT-->
     <string name="PlaceAutoCompleteFragment_Hint">Where are you going?</string>
     <string name="PlaceAutoCompleteFragment_FontColor" translatable="false">#000000</string>

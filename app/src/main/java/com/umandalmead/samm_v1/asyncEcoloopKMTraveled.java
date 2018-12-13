@@ -350,7 +350,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
         PC.animateY(1400, Easing.EaseInOutQuad);
         PC.setCenterText(PieCenterText);
         PC.setCenterTextTypeface(Helper.FONT_RUBIK_BOLD);
-        PC.setHoleRadius(50f);
+        PC.setHoleRadius(30f);
         PC.setCenterTextTypeface(Helper.FONT_RUBIK_REGULAR);
         PC.setEntryLabelTypeface(Helper.FONT_RUBIK_BOLD);
         InitializePieLegend(PC);
@@ -358,7 +358,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
     private void InitializePieLegend(PieChart PC){
         Legend legend = PC.getLegend();
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setEnabled(true);
+        legend.setEnabled(false);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
         legend.setDrawInside(false);
@@ -394,8 +394,8 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 return String.valueOf(value) + (IsDistance ? " km" : " kn");
             }
         });
-        dataSet.setSelectionShift(5f);
-        //dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        dataSet.setSelectionShift(10);
+        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
         //dataSet.setValueLinePart1OffsetPercentage(100f); /** When valuePosition is OutsideSlice, indicates offset as percentage out of the slice size */
         //dataSet.setValueLinePart1Length(0.6f); /** When valuePosition is OutsideSlice, indicates length of first half of the line */
         //dataSet.setValueLinePart2Length(0.6f); /** When valuePosition is OutsideSlice, indicates length of second half of the line */
