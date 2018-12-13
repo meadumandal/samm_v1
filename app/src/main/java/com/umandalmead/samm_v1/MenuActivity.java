@@ -950,6 +950,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     _driversDBRef.addChildEventListener(new AddVehicleMarkers(getApplicationContext(), this));
                     _googleMap.setMyLocationEnabled(true);
                     _googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    _googleMap.getUiSettings().setCompassEnabled(false);
                     _googleMap.setOnCameraIdleListener(new GoogleMap.OnCameraIdleListener() {
                         @Override
                         public void onCameraIdle() {

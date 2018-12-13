@@ -176,7 +176,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
             MenuActivity.RouteTabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
-                    Helper.InitializeSearchingRouteUI(false, false,MenuActivity._GlobalResource.getString(R.string.info_searching)+" " + L_TM_AllPossibleTerminals.get(MenuActivity._RouteTabSelectedIndex).LineName +MenuActivity._GlobalResource.getString(R.string.ellipsis), null,null, _context);
+                    Helper.InitializeSearchingRouteUI(false, false,MenuActivity._GlobalResource.getString(R.string.info_searching), null,null, _context);
                     MenuActivity._RouteTabSelectedIndex = tab.getPosition();
                     if(MenuActivity._SlideUpPanelContainer.getPanelState()== SlidingUpPanelLayout.PanelState.COLLAPSED)
                         MenuActivity._SlideUpPanelContainer.setPanelHeight(220);
