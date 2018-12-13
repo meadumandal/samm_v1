@@ -171,7 +171,8 @@ public class ArrivalHelper {
                 }
             }else{
                 if (_BOOL_IsFromSearch)
-                    Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all "+ TM_NearestFromUser.LineName+" are parked (or offline)",null,null,_context);
+                    Helper.InitializeSearchingRouteUI(true, true, "Unfortunately, all "+ (TM_NearestFromUser.LineName !=null
+                            || !TM_NearestFromUser.LineName.trim().equalsIgnoreCase("") ? "vehicles" : TM_NearestFromUser.LineName)+" are parked (or offline)",null,null,_context);
                 else{
                     if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
                         ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,

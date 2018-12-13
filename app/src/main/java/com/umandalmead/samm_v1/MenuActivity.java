@@ -1201,7 +1201,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                         ShowInfoLayout(eloopDetails.PlateNumber,
                                                 eloopDetails.DriverName,
                                                 null,
-                                                R.drawable.eco_loop_for_info_transparent,
+                                                R.drawable.e_jeep_universal,
                                                 Enums.InfoLayoutType.INFO_VEHICLE);
                                     } else if (markerValue.equals("YOU")) {
                                         _SelectedTerminalMarkerTitle = null;
@@ -2731,7 +2731,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             ShowGPSLoadingInfo(_GlobalResource.getString(R.string.GM_acquiring_gps), true);
                         if(_BOOL_IsGPSAcquired) {
                             new asyncGetApplicationSettings(_activity, _context, true).execute();
-                            if (_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin())) {
+                            if (_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin()) && (MenuActivity._terminalList!=null && MenuActivity._terminalList.size()>0)) {
                                 Handler HND_ShowSearchBar = new Handler();
                                 HND_ShowSearchBar.postDelayed(new Runnable() {
                                     @Override

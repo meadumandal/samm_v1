@@ -16,10 +16,10 @@ android {
         applicationId "com.umandalmead.samm_v1"
         minSdkVersion 21
         targetSdkVersion 28
-        versionName '1.0.3'
+        versionName '1.0.5'
         multiDexEnabled true
         signingConfig signingConfigs.release
-        versionCode 4
+        versionCode 5
     }
     buildTypes {
         release {

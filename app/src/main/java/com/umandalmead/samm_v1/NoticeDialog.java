@@ -67,6 +67,7 @@ public class NoticeDialog extends Dialog implements android.view.View.OnClickLis
             super.onCreate(savedInstanceState);
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             setContentView(R.layout.dialog_notice);
+            //IsPersitent|IsMaintenance|Title|Details|URL
             InitializeNoticeUI();
         }catch (Exception ex){
             Helper.logger(ex);
@@ -114,12 +115,14 @@ public class NoticeDialog extends Dialog implements android.view.View.OnClickLis
     private void ExtractDetails(){
         try{
             String[] results = this._STR_Details.split("\\|");
-            this._BOOL_IsPersistent = Boolean.parseBoolean(results[0]);
-            this._BOOL_IsMaintenance = Boolean.parseBoolean(results[1]);
-            this._STR_Title = results[2];
-            this._STR_Details = results[3];
-            if(results.length > 4)
-                _STR_Image_URL = results[4];
+            if(results.length>1) {
+                this._BOOL_IsPersistent = Boolean.parseBoolean(results[0]);
+                this._BOOL_IsMaintenance = Boolean.parseBoolean(results[1]);
+                this._STR_Title = results[2];
+                this._STR_Details = results[3];
+                if (results.length > 4)
+                    _STR_Image_URL = results[4];
+            }
         }catch (Exception ex){
             Helper.logger(ex);
         }

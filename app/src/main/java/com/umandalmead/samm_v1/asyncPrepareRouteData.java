@@ -107,7 +107,7 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
         MenuActivity.RouteTabs.removeAllTabs();
         _SlideUpPanelContainer.setPanelHeight(220);
         MenuActivity.FrameSearchBarHolder.setVisibility(View.INVISIBLE);
-        Helper.InitializeSearchingRouteUI(false, false,MenuActivity._GlobalResource.getString(R.string.info_searching)+" "+this._chosenTerminal.LineName+MenuActivity._GlobalResource.getString(R.string.ellipsis), null,null, _context);
+        Helper.InitializeSearchingRouteUI(false, false,MenuActivity._GlobalResource.getString(R.string.info_searching), null,null, _context);
     }
 
     @Override

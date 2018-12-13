@@ -123,7 +123,7 @@ import com.umandalmead.samm_v1.SessionManager;
                                 if (deviceId.toString().equals(_sessionManager.getKeyDeviceid()))
                                     markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
                                 else{
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloop_blue));
+                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_vehicle_map_icon_default));
                                     markerOptions.title(deviceId);
                                 }
 

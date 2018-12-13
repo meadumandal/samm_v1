@@ -3,6 +3,7 @@ package com.umandalmead.samm_v1.Modules.ManageStations;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -11,11 +12,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.EntityObjects.Terminal;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
+import com.umandalmead.samm_v1.NoticeDialog;
 import com.umandalmead.samm_v1.R;
 
 import org.json.JSONArray;
@@ -188,7 +191,20 @@ public class mySQLStationProvider extends AsyncTask<Integer,Void, List<Terminal>
 //            List<String> strDestinations = new ArrayList<>();
             HashMap<String, Terminal> distinctTerminals = new HashMap<>();
 
-            MenuActivity._terminalList = terminals;
+            if(terminals == null){
+                //IsPersitent|IsMaintenance|Title|Details|URL
+                NoticeDialog ND_TerminalEmpty = new NoticeDialog(_activity,"Empty Data","False|False|Empty Data|Internal error.\nNo terminal/station found. Searching for target destination has been disabled.");
+                ND_TerminalEmpty.show();
+                ND_TerminalEmpty.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        MenuActivity._SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
+                    }
+                });
+            }
+            else {
+                MenuActivity._terminalList = terminals;
+            }
             //((MenuActivity)this._activity)._terminalList = terminals;
 //            for (Terminal d: terminals)
 //            {

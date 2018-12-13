@@ -18,7 +18,8 @@ public class Enums {
         SHOWING_NAVIGATION_DRAWER("ShowingNavigationDrawer",9),
         REPORT_ECOLOOP("ReportEcoLoop",10),
         REPORT_ROUNDS("ReportRounds",11),
-        ASK_RATING("AskRating",12);
+        ASK_RATING("AskRating",12),
+        SEARCHING_DISABLED("SearchingDisabled",13);
 
         private String stringValue;
         private int intValue;
