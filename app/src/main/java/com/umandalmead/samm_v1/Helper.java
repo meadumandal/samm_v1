@@ -901,20 +901,8 @@ public class Helper {
             lastOnlineRef.onDisconnect().setValue(DateFormat.getDateTimeInstance().format(new Date()));
             myConnectionsRef.setValue(false);
         }
-        terminalDBRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot snapshot:dataSnapshot.getChildren())
-                {
-                    terminalDBRef.child(snapshot.getKey().toString()).child(sessionManager.getUsername()).onDisconnect().removeValue();
-                }
-            }
+        terminalDBRef.child(_sessionManager.getKeyEnteredStation()).child(sessionManager.getUsername()).removeValue();
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
     public Integer OrderOfArrivalDifference(Terminal TM_UserLoc, Terminal TM_2){
         Integer result = 0;

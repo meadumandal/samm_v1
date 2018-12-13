@@ -58,7 +58,14 @@ public class AddUserMarkers implements
             {
                 Marker marker;
                 marker = (Marker) ((MenuActivity)this._activity)._userMarkerHashmap.get(username);
-                Boolean IsUserOnline = Boolean.valueOf(dataSnapshot.child("connections").getValue().toString());
+                Boolean IsUserOnline = false;
+                try
+                {
+                    IsUserOnline = Boolean.valueOf(dataSnapshot.child("connections").getValue().toString());
+                }
+                catch(Exception ex){
+                    IsUserOnline = false;
+                }
 
                 Object Latitude = dataSnapshot.child("Latitude").getValue();
                 Object Longitude = dataSnapshot.child("Longitude").getValue();

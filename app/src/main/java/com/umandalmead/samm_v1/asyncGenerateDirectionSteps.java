@@ -25,6 +25,7 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
     private Constants _constants = new Constants();
     private LoaderDialog _loader;
     private Helper _helper = new Helper();
+    private Integer _stepCount = 1;
     public asyncGenerateDirectionSteps(Activity activity, Context context, Terminal terminal, List<String> stepslist, String totaltime, Terminal prospectTerminal,LoaderDialog loaderDialog){
         this._activity=activity;
         this._context=context;
@@ -60,9 +61,23 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
         _loader.dismiss();
     }
     public String SelectedTabInstructions(List<String> STR_StepsList, String STR_TotalTime, Terminal TM_Terminal) {
+        String firstAction = "";
+        Integer totalTime = 0;
 
+        try
+        {
+            totalTime = Integer.parseInt(STR_TotalTime.replaceAll("[^\\d.]",""));
+        }catch(Exception ex){}
+
+        if (totalTime>5){
+            firstAction = "Go to " + TM_Terminal.getDescription() + " station";
+        }
+        else
+        {
+            firstAction = "Walk your way to "+ TM_Terminal.getDescription() + " station";
+        }
         String Step = "<html><head><style type=\"text/css\">@font-face {font-family: MyFont;src: url(\"file:///android_asset/font/Rubik/Rubik-Regular.ttf\")}body {font-family: MyFont;font-size: medium;text-align: justify;}</style></head><h3 style='padding-left:5%;color:#4834d4;'>Suggested Actions</h3><body style='margin: 0; padding: 0'>";
-        Step+="<div style=\"text-align: left; margin-left: 2%; margin-right: 4%; padding-bottom: 5%;\">" + "\t<div style=\"font-weight: bold;text-align: center;\">Walk your way to "+TM_Terminal.getDescription()+" terminal</div><div style='text-align: center;'>("+STR_TotalTime+")</div>\n";
+        Step+="<div style=\"text-align: left; margin-left: 2%; margin-right: 4%; padding-bottom: 5%;\">" + "\t<div style=\"font-weight: bold;text-align: center;\"> "+firstAction+" </div><div style='text-align: center;'>("+STR_TotalTime+")</div>\n";
         if (STR_StepsList != null) {
             for (int x = 0; x < STR_StepsList.size(); x++) {
                 Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='"+GetDirectionIcon(STR_StepsList.get(x))+"'>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".<div style=\"\n" +

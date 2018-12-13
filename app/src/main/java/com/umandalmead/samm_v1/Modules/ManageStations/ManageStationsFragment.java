@@ -566,25 +566,39 @@ public class ManageStationsFragment extends ListFragment{
     private TouchInterceptor.DropListener mDropListener =
             new TouchInterceptor.DropListener() {
                 public void drop(int from, int to) {
+                    try {
+                        if (pointsArrayInString.length!=MenuActivity._PointsArray.length)
+                        {
+                            pointsArrayInString = new String[MenuActivity._PointsArray.length];
+                            int ctr = 0;
+                            for(Terminal t: MenuActivity._PointsArray)
+                            {
+                                pointsArrayInString[ctr] = t.getValue();
+                                ctr++;
+                            }
 
-                    //Toast.makeText(getApplicationContext(),"Drop listener from: "+from+" to:"+to, Toast.LENGTH_LONG).show();
-                    int direction = -1;
-                    int loop_start = from;
-                    int loop_end = to;
-                    if(from < to) {
-                        direction = 1;
+                        }
+                        //Toast.makeText(getApplicationContext(),"Drop listener from: "+from+" to:"+to, Toast.LENGTH_LONG).show();
+                        int direction = -1;
+                        int loop_start = from;
+                        int loop_end = to;
+                        if (from < to) {
+                            direction = 1;
+                        }
+                        Terminal target = MenuActivity._PointsArray[from];
+                        for (int i = loop_start; i != loop_end; i = i + direction) {
+
+                            pointsArrayInString[i] = MenuActivity._PointsArray[i + direction].getValue();
+                            MenuActivity._PointsArray[i] = MenuActivity._PointsArray[i + direction];
+
+                        }
+                        MenuActivity._PointsArray[to] = target;
+                        pointsArrayInString[to] = target.getValue();
+                        //Toast.makeText(getApplicationContext(),"New array arrangement: "+ Arrays.toString(pointsArrayInString), Toast.LENGTH_LONG).show();
+                        ((BaseAdapter) mList.getAdapter()).notifyDataSetChanged();
+                    } catch (Exception ex) {
+                        _helper.logger(ex);
                     }
-                    Terminal target = MenuActivity._PointsArray[from];
-                    for(int i=loop_start;i!=loop_end;i=i+direction){
-
-                        pointsArrayInString[i] = MenuActivity._PointsArray[i+direction].getValue();
-                        MenuActivity._PointsArray[i] = MenuActivity._PointsArray[i+direction];
-
-                    }
-                    MenuActivity._PointsArray[to] = target;
-                    pointsArrayInString[to] = target.getValue();
-                    //Toast.makeText(getApplicationContext(),"New array arrangement: "+ Arrays.toString(pointsArrayInString), Toast.LENGTH_LONG).show();
-                    ((BaseAdapter) mList.getAdapter()).notifyDataSetChanged();
                 }
 
 

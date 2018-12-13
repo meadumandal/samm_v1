@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
+import static com.umandalmead.samm_v1.MenuActivity._terminalsDBRef;
 
 /**
  * Created by MeadRoseAnn on 11/3/2018.

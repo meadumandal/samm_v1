@@ -27,7 +27,7 @@
     <string name="error_not_connected">You are not connected to the internet. Please check your connection and try again.</string>
     <string name="error_contacting_server">Problem contacting the server. Please try again later.</string>
     <string name="error_user_profile_nothing_has_changed">Nothing has changed</string>
-    <string name="error_concurrent_driver_login">Concurrent Login is not allowed. This driver account is already used on other device.</string>
+    <string name="error_concurrent_driver_login">Concurrent Driver Login is not allowed. You will be logged out</string>
 
     <!--NOTIFICATION MESSAGES-->
     <string name="success_please_verify_email">A verification e-mail has been sent!</string>

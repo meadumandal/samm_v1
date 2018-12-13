@@ -77,7 +77,7 @@ public class LoginActivity extends AppCompatActivity{
     private TextView forgotPasswordTextView;
     private LoginButton facebookLoginButton;
     private static String TAG = "mead";
-    private static Helper _helper = new Helper();
+    private static Helper _helper = new Helper(MenuActivity._activity, MenuActivity._context);
     private Constants _constants = new Constants();
     private MediaPlayer _buttonClick;
     public LoaderDialog LD_FBLoginLoader;

@@ -239,7 +239,16 @@ public class ViewGPSFragment extends Fragment {
             this._smsMessageForGPS = message;
             this._GPSMobileNumber = phone;
 
+
+
+            this._ReconnectGPSButton = btnReconnectGPS;
+            this._spinnerGif = spinnerGif;
             if (ContextCompat.checkSelfPermission(MenuActivity._activity,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                MenuActivity._GPSMobileNumber = phone;
+                MenuActivity._smsMessageForGPS = message;
+                MenuActivity._sentSMSPendingIntent = _sentSMSPendingIntent;
+                MenuActivity._deliveredSMSPendingIntent = _deliveredSMSPendingIntent;
+
                 Log.i(_constants.LOG_TAG,MenuActivity._GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space)+ this._smsMessageForGPS + MenuActivity._GlobalResource.getString(R.string.ellipsis));
 //                    Toast.makeText(getApplicationContext(), "sending " + this._smsMessageForGPS, Toast.LENGTH_LONG).show();
                 ActivityCompat.requestPermissions(getActivity(),
@@ -252,8 +261,7 @@ public class ViewGPSFragment extends Fragment {
 //                Toast.makeText(getApplicationContext(), "sending " + this._smsMessageForGPS, Toast.LENGTH_LONG).show();
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phone, null, this._smsMessageForGPS, _sentSMSPendingIntent, _deliveredSMSPendingIntent);
-                this._ReconnectGPSButton = btnReconnectGPS;
-                this._spinnerGif = spinnerGif;
+
 
                 Log.i(_constants.LOG_TAG, message + MenuActivity._GlobalResource.getString(R.string.SMS_status_sent_with_extra_white_space_prefix));
 //                Toast.makeText(getApplicationContext(),this._smsMessageForGPS + " sent", Toast.LENGTH_LONG).show();

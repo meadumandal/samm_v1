@@ -223,8 +223,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         private UserMovementBroadcastReceiver _userMovementBroadcastReceiver;
 //        private SentSMSBroadcastReceiver _smsSentBroadcastReceiver;
 //        private SMSDeliveredBroadcastReceiver _smsDeliveredBroadcastReceiver;
-        private PendingIntent _sentSMSPendingIntent;
-        private PendingIntent _deliveredSMSPendingIntent;
+        public static PendingIntent _sentSMSPendingIntent;
+        public static PendingIntent _deliveredSMSPendingIntent;
 
         //Put here all global variables for UI Objects
         public static LinearLayout _RoutesPane;
@@ -292,8 +292,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static Boolean _isUserLoggingOut = false, _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
         public String _facebookImg;
         public static Boolean _isVehicleMarkerRotating = false, _IsPolyLineDrawn=false;
-        public String _smsMessageForGPS;
-        private String _GPSMobileNumber;
+        public static String _smsMessageForGPS;
+        public static String _GPSMobileNumber;
         private String _gpsPlateNumber;
         private Integer _gpsTblUsersID;
         private Integer _gpsTblRoutesID;
@@ -811,13 +811,13 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                 ShowRouteTabsAndSlidingPanel();
                             }
                             else {
-                                ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.error_concurrent_driver_login));
-                                errorDialog.show();
+
                                 _sessionManager.logoutUser();
                                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
                                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
-
-
+                                finish();
+                                startActivity(getIntent());
+                                Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.error_concurrent_driver_login), Toast.LENGTH_LONG).show();
                             }
 
                         }
@@ -1107,6 +1107,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         nodes.put(_sessionManager.getUsername() + "/Latitude", lat);
         nodes.put(_sessionManager.getUsername() + "/lastUpdated", lastUpdated);
         nodes.put(_sessionManager.getUsername() + "/UserType", _sessionManager.getUserType());
+
         _usersDBRef.updateChildren(nodes);
     }
     @Override
@@ -1148,7 +1149,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 //                                _manageStationsFragment.ProcessSelectedPointEvent(Enums.ActionType.EDIT, markerID);
 //                            } else {
                                         for (Terminal terminal : _terminalList) {
-                                            if (terminal.ID.equals(markerID)) {
+                                            if (terminal.Value.equals(markerValue)) {
                                                 TM_ClickedTerminal = terminal;
                                             }
 
