@@ -174,16 +174,15 @@ public class asyncAppSubName extends AsyncTask<Void, Void, String>{
             });
             if(message.equals("Success"))
             {
-                alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_success));
-                alertDialogBuilder.setMessage(MenuActivity._GlobalResource.getString(R.string.GPS_update_success));
+                InfoDialog infoDialog = new InfoDialog(_activity, MenuActivity._GlobalResource.getString(R.string.GPS_update_success));
+                infoDialog.show();
 //              new mySQLSignUp(_context, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
             }
             else
             {
-                alertDialogBuilder.setTitle(MenuActivity._GlobalResource.getString(R.string.dialog_status_error));
-                alertDialogBuilder.setMessage(message);
+                ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_status_error));
+                errorDialog.show();
             }
-            alertDialogBuilder.show();
 //        Toast.makeText(_context, s, Toast.LENGTH_LONG).show();
         }
         catch(Exception ex)

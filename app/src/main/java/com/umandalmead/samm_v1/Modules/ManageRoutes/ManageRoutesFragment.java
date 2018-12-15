@@ -77,7 +77,7 @@ public class ManageRoutesFragment extends Fragment {
             FAB_addRoute.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ProcessSelectedRoute(Enums.ActionType.ADD,null, null);
+                    ProcessSelectedRoute(Enums.ActionType.ADD,null, null, _lineID);
                 }
             });
             Bundle bundle = this.getArguments();
@@ -191,18 +191,20 @@ public class ManageRoutesFragment extends Fragment {
         public String TAG ="eleaz";
         public final Activity _activity;
         private Integer _routeID;
+        private Integer _lineID;
         private String _routeName;
         private Enums.ActionType _action;
         LoaderDialog _LoaderDialog;
 
 
-        public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable Integer RouteID, @Nullable String RouteName) {
+        public AddRouteDialog(Activity activity, Enums.ActionType Action, @Nullable Integer RouteID, @Nullable String RouteName, @Nullable Integer LineID) {
             super(activity);
             // TODO Auto-generated constructor stub
             this._activity = activity;
             this._action = Action;
             this._routeName = RouteName;
             this._routeID = RouteID;
+            this._lineID = LineID;
         }
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -222,8 +224,9 @@ public class ManageRoutesFragment extends Fragment {
             submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String newRouteName = txtRouteName.getText().toString();
-                    if (newRouteName.isEmpty())
+                    String newRouteName = txtRouteName.getText().toString().trim();
+
+                    if (newRouteName.isEmpty() || Helper.HasSpecialCharacters(newRouteName))
                     {
                         Toast.makeText(_context,MenuActivity._GlobalResource.getString(R.string.error_invalid_route_name), Toast.LENGTH_SHORT).show();
                     }
@@ -231,11 +234,11 @@ public class ManageRoutesFragment extends Fragment {
                     {
                         if(isNew)
                         {
-                            new mySQLAddRoute(_context,_activity, _LoaderDialog, dialog,"", _manageRoutesFragment, getFragmentManager()).execute(txtRouteName.getText().toString(),_lineID.toString());
+                            new mySQLAddRoute(_context,_activity, _LoaderDialog, dialog,"", _manageRoutesFragment, getFragmentManager()).execute(newRouteName,_lineID.toString());
                         }
                         else
                         {
-                            new mySQLUpdateRoute(_context,_activity, _LoaderDialog, dialog,"", _manageRoutesFragment).execute(String.valueOf(_routeID), txtRouteName.getText().toString());
+                            new mySQLUpdateRoute(_context,_activity, _LoaderDialog, dialog,"", _manageRoutesFragment).execute(String.valueOf(_routeID), newRouteName);
                         }
                     }
                 }
@@ -248,7 +251,7 @@ public class ManageRoutesFragment extends Fragment {
 
         }
     }
-    public void ProcessSelectedRoute(Enums.ActionType Action,@Nullable Integer RouteID, @Nullable String RouteName){
+    public void ProcessSelectedRoute(Enums.ActionType Action,@Nullable Integer RouteID, @Nullable String RouteName, @Nullable Integer LineID){
 
 
         final int  id = RouteID!=null?RouteID:0;
@@ -284,7 +287,7 @@ public class ManageRoutesFragment extends Fragment {
 
             //Toast.makeText(ManageRoutesFragment.this, "Delete action here", Toast.LENGTH_LONG).show();
         }else {
-            dialog = new AddRouteDialog(_activity, Action, RouteID, RouteName);
+            dialog = new AddRouteDialog(_activity, Action, RouteID, RouteName, LineID);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }

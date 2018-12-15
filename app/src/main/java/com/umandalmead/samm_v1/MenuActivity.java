@@ -386,15 +386,17 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             Log.i(_constants.LOG_TAG, "Creating MenuActivity...");
             setTheme(R.style.SplashTheme);
             super.onCreate(savedInstanceState);
+
             _context = getApplicationContext();
-            _helper = new Helper(MenuActivity.this, this._context);
-            _arrivalHelper = new ArrivalHelper(MenuActivity.this, getApplicationContext());
+            _activity = MenuActivity.this;
+            _helper = new Helper(_activity, this._context);
+            _arrivalHelper = new ArrivalHelper(_activity, _context);
             _GlobalResource = getResources();
             _constants = new Constants();
-            _activity = MenuActivity.this;
-//            _addGPSDialogFragment = new AddGPSDialogFragment(MenuActivity.this);
+
             if (_sessionManager == null)
                 _sessionManager = new SessionManager(_context);
+
             if (!_sessionManager.isLoggedIn()) {
                 String username="";
                 if (_sessionManager.getUsername().isEmpty())
@@ -403,9 +405,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                     username = _sessionManager.getUsername();
                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0,  "", "", false, Constants.GUEST_USERTYPE);
             }
-
             _sessionManager.setKeyEnteredStation("");
-
            // new asyncCheckInternetConnectivity(MenuActivity.this).execute();
             if(_helper.isOnline(MenuActivity.this, getApplicationContext())) {
                 _isAppFirstLoad = true;
@@ -787,48 +787,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 //                _LoaderDialog.setCancelable(false);
 
 
-                if (_sessionManager.isDriver()) {
-                    _allowLogin =false;
-                    _usersDBRef.child(_sessionManager.getUsername()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                            if (dataSnapshot.child("connections") == null) {
-                                _allowLogin = true;
-                            }
-                            else if (dataSnapshot.child("connections").getValue() == null) {
-                                _allowLogin = true;
-                            }
-                            else if (Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) != true) {
-                                _allowLogin = true;
-                            }
-                            if (_allowLogin)
-                            {
-                                MenuActivity._TimeOfArrivalTextView.setText("GPS information not yet available");
-                                MenuActivity._TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
-
-                                _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
-                                ShowRouteTabsAndSlidingPanel();
-                            }
-                            else {
-
-                                _sessionManager.logoutUser();
-                                String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
-                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
-                                finish();
-                                startActivity(getIntent());
-                                Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.error_concurrent_driver_login), Toast.LENGTH_LONG).show();
-                            }
-
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                }
 
                 // _RouteTabLayout.setMinimumWidth(150);
                 _facebookImg = _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL) + _sessionManager.getUsername().trim() + _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL_QueryString);
@@ -857,24 +816,62 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _terminalsDBRef.addChildEventListener(new AddPassengerCountLabel(getApplicationContext(), this));
 
                 _userMovementBroadcastReceiver = new UserMovementBroadcastReceiver();
-//                _smsSentBroadcastReceiver = new SentSMSBroadcastReceiver();
-//                _smsDeliveredBroadcastReceiver = new SMSDeliveredBroadcastReceiver();
-//
-//                String SMS_SENT = _GlobalResource.getString(R.string.SMS_SENT);
-//                String SMS_DELIVERED = _GlobalResource.getString(R.string.SMS_DELIVERED);
-//
-//                _sentSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_SENT), 0);
-//                _deliveredSMSPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SMS_DELIVERED), 0);
-//
-//                //register BroadcastReceiver
+
                 IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
                 intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
-//                registerReceiver(_userMovementBroadcastReceiver, intentFilter);
-//                registerReceiver(_smsSentBroadcastReceiver, new IntentFilter(SMS_SENT));
-//                registerReceiver(_smsDeliveredBroadcastReceiver, new IntentFilter(SMS_DELIVERED));
-                initializeOnlinePresence();
+                if (_sessionManager.isDriver()) {
+                    _allowLogin =false;
+                    _usersDBRef.child(_sessionManager.getUsername()).runTransaction(new Transaction.Handler()
+                    {
+
+                        @Override
+                        public Transaction.Result doTransaction(MutableData mutableData) {
+                            return Transaction.success(mutableData);
+                        }
+
+                        @Override
+                        public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.child("connections") == null) {
+                                _allowLogin = true;
+                            }
+                            else if (dataSnapshot.child("connections").getValue() == null) {
+                                _allowLogin = true;
+                            }
+                            else if (Boolean.valueOf(dataSnapshot.child("connections").getValue().toString()) != true) {
+                                _allowLogin = true;
+                            }
+                            if (_allowLogin)
+                            {
+                                MenuActivity._TimeOfArrivalTextView.setText("GPS information not yet available");
+                                MenuActivity._TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
+
+                                _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
+                                ShowRouteTabsAndSlidingPanel();
+                            }
+                            else {
+
+                                _sessionManager.logoutUser();
+                                String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
+                                _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
+                                finish();
+                                startActivity(getIntent());
+                                Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.error_concurrent_driver_login), Toast.LENGTH_LONG).show();
+                            }
+                            initializeOnlinePresence();
+
+                        }
+                    });
+                }
+                else
+                {
+                    initializeOnlinePresence();
+                }
+
+
                 _mapRoot = (CustomFrameLayout) findViewById(R.id.mapCFL);
+
+
 
             }
             else{
@@ -895,7 +892,6 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             _manageStationsFragment = new ManageStationsFragment();
 
             _context = getApplicationContext();
-
 
 
         }catch(Exception ex)
@@ -984,19 +980,26 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     }
 
     protected synchronized void buildGoogleApiClient() {
-        Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.G_API_Building));
-        if(_helper.isGooglePlayInstalled(_context)) {
-            _googleAPI = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-            _googleAPI.connect();
-        }
-        else
-        {
-            Toast.makeText(_context, _GlobalResource.getString(R.string.G_Play_Services_Not_Installed), Toast.LENGTH_LONG).show();
-        }
+            Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.G_API_Building));
+            try
+            {
+                if(_helper.isGooglePlayInstalled(_context)) {
+                    _googleAPI = new GoogleApiClient.Builder(this)
+                            .addConnectionCallbacks(this)
+                            .addOnConnectionFailedListener(this)
+                            .addApi(LocationServices.API)
+                            .build();
+                    _googleAPI.connect();
+                }
+                else
+                {
+                    Toast.makeText(_context, _GlobalResource.getString(R.string.G_Play_Services_Not_Installed), Toast.LENGTH_LONG).show();
+                }
+            }
+            catch(Exception ex)
+            {
+                _helper.logger(ex);
+            }
     }
 
     @Override

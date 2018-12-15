@@ -287,31 +287,37 @@ public class AddGPSDialogFragment extends DialogFragment  {
                             ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, MenuActivity._GlobalResource.getString(R.string.error_please_supply_required_fields));
                             errorDialog.show();
                             ViewGPSFragment._LoaderDialog.dismiss();
+                            return;
                         }
-                        else {
-                            if (spinnerNetworks.getSelectedItem().toString().equals("Globe"))
-                                _smsAPN = _constants.SMS_APN_GLOBE;
-                            else
-                                _smsAPN = _constants.SMS_APN_SMART;
+                        if (_gpsIMEI.trim().length()<5)
+                        {
+                            ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, "IMEI too short");
+                            errorDialog.show();
+                            ViewGPSFragment._LoaderDialog.dismiss();
+                            return;
+                        }
+                        if (spinnerNetworks.getSelectedItem().toString().equals("Globe"))
+                            _smsAPN = _constants.SMS_APN_GLOBE;
+                        else
+                            _smsAPN = _constants.SMS_APN_SMART;
 
-                            //TO DO: Call AsynTask class
-                            //Add to MySQL SAMM Database
-                            //Add to Traccar Server
-                            //Send SMS to activate the GPS
-                            new asyncAddTraccarGPS(MenuActivity._context,
-                                    ViewGPSFragment._LoaderDialog,
-                                    MenuActivity._activity,
-                                    AddGPSDialogFragment.this,
-                                    ViewGPSFragment._viewGPSFragment).execute(
-                                    "SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()),
-                                    _gpsIMEI,
-                                    _GPSMobileNumber,
-                                    _gpsNetwork,
-                                    _gpsPlateNumber,
-                                    _gpsTblRoutesID.toString(),
-                                    _gpsTblUsersID.toString(),
-                                    _gpsTblLineID.toString());
-                        }
+                        //TO DO: Call AsynTask class
+                        //Add to MySQL SAMM Database
+                        //Add to Traccar Server
+                        //Send SMS to activate the GPS
+                        new asyncAddTraccarGPS(MenuActivity._context,
+                                ViewGPSFragment._LoaderDialog,
+                                MenuActivity._activity,
+                                AddGPSDialogFragment.this,
+                                ViewGPSFragment._viewGPSFragment).execute(
+                                "SAMM_"+ _gpsIMEI.substring(_gpsIMEI.length()-5, _gpsIMEI.length()),
+                                _gpsIMEI,
+                                _GPSMobileNumber,
+                                _gpsNetwork,
+                                _gpsPlateNumber,
+                                _gpsTblRoutesID.toString(),
+                                _gpsTblUsersID.toString(),
+                                _gpsTblLineID.toString());
                     }catch(Exception ex)
                     {
                         ViewGPSFragment._LoaderDialog.dismiss();

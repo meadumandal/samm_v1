@@ -26,6 +26,7 @@ import com.umandalmead.samm_v1.EntityObjects.GPS;
 import com.umandalmead.samm_v1.EntityObjects.Lines;
 import com.umandalmead.samm_v1.EntityObjects.Routes;
 import com.umandalmead.samm_v1.EntityObjects.Users;
+import com.umandalmead.samm_v1.ErrorDialog;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
@@ -73,7 +74,7 @@ public class EditGPSDialogFragment extends DialogFragment
             final Spinner GPSNetwork = (Spinner) view.findViewById(R.id.spinnerNetworks);
             final Spinner GPSDriver = (Spinner) view.findViewById(R.id.spinnerDrivers);
             final Spinner GPSRoute = (Spinner) view.findViewById(R.id.spinnerRoutes);
-            final Spinner spinnerLines  = view.findViewById(R.id.spinnerLines);
+            final Spinner GPSLine  = view.findViewById(R.id.spinnerLines);
 
             Button btnUpdate = (Button) view.findViewById(R.id.btnUpdateGPS);
             Button btnDelete = (Button) view.findViewById(R.id.btnDeleteGPS);
@@ -258,7 +259,7 @@ public class EditGPSDialogFragment extends DialogFragment
                 }
             };
 
-            spinnerLines.setAdapter(linesListAdapter);
+            GPSLine.setAdapter(linesListAdapter);
             GPSNetwork.setAdapter(networkProvidersAdapter);
             GPSDriver.setAdapter(driverListAdapter);
             GPSRoute.setAdapter(routesListAdapter);
@@ -318,7 +319,7 @@ public class EditGPSDialogFragment extends DialogFragment
                 GPSPlateNumber.setText(_dataModelSelectedEloop.PlateNumber);
                 GPSDriver.setSelection(userPositionInSpinner);
                 GPSRoute.setSelection(routePositionInSpinner);
-                spinnerLines.setSelection(linePositionInSpinner);
+                GPSLine.setSelection(linePositionInSpinner);
 
 
                 if (_dataModelSelectedGPS.getGPSNetworkProvider().toLowerCase().equals("globe"))
@@ -346,20 +347,42 @@ public class EditGPSDialogFragment extends DialogFragment
                 public void onClick(View view) {
                     LoaderDialog GPSUpdateLoader = new LoaderDialog(getActivity(), "Updating GPS", "Please wait...");
                     GPSUpdateLoader.setCancelable(false);
-                    GPSUpdateLoader.show();
+
                     String IMEI = GPSIMEI.getText().toString();
                     String Phone = GPSPhone.getText().toString();
                     String PlateNumber = GPSPlateNumber.getText().toString();
                     int tblRouteID = ((Routes)GPSRoute.getSelectedItem()).getID();
                     int tblUsersID = ((Users)GPSDriver.getSelectedItem()).ID;
+                    int tblLineID = ((Lines)GPSLine.getSelectedItem()).getID();
                     String networkProvider = GPSNetwork.getSelectedItem().toString();
+                    if(Phone.trim().length() == 0
+                            || IMEI.trim().length() == 0
+                            || networkProvider.equals(MenuActivity._GlobalResource.getString(R.string.GPS_select_network))
+                            || tblLineID == 0
+                            )
+                    {
+                        ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, MenuActivity._GlobalResource.getString(R.string.error_please_supply_required_fields));
+                        errorDialog.show();
+                        ViewGPSFragment._LoaderDialog.dismiss();
+                        return;
+                    }
+                    if (IMEI.trim().length()<5)
+                    {
+                        ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, "IMEI too short");
+                        errorDialog.show();
+                        ViewGPSFragment._LoaderDialog.dismiss();
+                        return;
+                    }
+                    GPSUpdateLoader.show();
                     _dataModelSelectedGPS.setGPSIMEI(IMEI);
                     _dataModelSelectedGPS.setGPSPhone(Phone);
                     _dataModelSelectedGPS.setGPSNetworkProvider(networkProvider);
                     _dataModelSelectedGPS.setGPSName("SAMM_"+ IMEI.substring(IMEI.length()-5, IMEI.length()));
+
                     _dataModelSelectedEloop.PlateNumber = PlateNumber;
                     _dataModelSelectedEloop.tblRoutesID = tblRouteID;
                     _dataModelSelectedEloop.tblUsersID = tblUsersID;
+                    _dataModelSelectedEloop.tblLinesID = tblLineID;
                     _dataModelSelectedEloop.DeviceName= "SAMM_"+ IMEI.substring(IMEI.length()-5, IMEI.length());
 
                     new asyncUpdateTraccarGPSandMySQLEloop(getActivity(), GPSUpdateLoader, getActivity(), EditGPSDialogFragment.this, _dataModelSelectedGPS, _dataModelSelectedEloop, _swipeRefresh, _gpsListView).execute();

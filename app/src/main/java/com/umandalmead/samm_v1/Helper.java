@@ -71,6 +71,7 @@ import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -607,8 +608,10 @@ public class Helper {
 
         for (Terminal station : StationList)
         {
-            if(station.Lat >0 && station.Lng >0)
+            if(station.Lat >= -90 && station.Lng <=180)
             {
+
+
                 double lat = station.Lat;
                 double lng = station.Lng;
                 LatLng latLng = new LatLng(lat, lng);
@@ -798,19 +801,20 @@ public class Helper {
 
     }
     public void UpdateStationsData(ManageStationsFragment manageStationsFragment, String updatedStationsDataInJSONFormat)
-    {
+        {
 
-        Type listTypeOfTerminal = new TypeToken<List<Terminal>>(){}.getType();
-        String stationList = (updatedStationsDataInJSONFormat);
-        Gson gson = new Gson();
+            Type listTypeOfTerminal = new TypeToken<List<Terminal>>(){}.getType();
+            String stationList = (updatedStationsDataInJSONFormat);
+            Gson gson = new Gson();
 
-        MenuActivity._terminalList = gson.fromJson(stationList, listTypeOfTerminal);
+            MenuActivity._terminalList = gson.fromJson(stationList, listTypeOfTerminal);
 
-        FilterStationsForManageStationsModule(MenuActivity._currentRouteIDSelected);
-        ArrayAdapter adp = new ArrayAdapter(_context, R.layout.listview_viewpoints, MenuActivity._PointsArray);
-        MenuActivity._manageStationsFragment.setListAdapter(adp);
+            FilterStationsForManageStationsModule(MenuActivity._currentRouteIDSelected);
+            ArrayAdapter adp = new ArrayAdapter(_context, R.layout.listview_viewpoints, MenuActivity._PointsArray);
+            MenuActivity._manageStationsFragment.setListAdapter(adp);
+            MenuActivity._manageStationsFragment.originalPointsArray = Arrays.copyOf(MenuActivity._PointsArray, MenuActivity._PointsArray.length);
 
-    }
+        }
     public void UpdateLinesData(ManageLinesFragment manageLinesFragment, String updatedLinesDataInJSONFormat)
     {
 

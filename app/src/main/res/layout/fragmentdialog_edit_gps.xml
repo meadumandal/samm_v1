@@ -43,7 +43,7 @@
                 android:layout_alignParentStart="true"
                 android:backgroundTint="@color/colorGrey"
                 android:hint="GPS IMEI *"
-                android:inputType="text|number"
+                android:inputType="number"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textColor="@color/colorBlack"
@@ -61,7 +61,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorGrey"
                 android:hint="GPS Mobile Number *"
-                android:inputType="text|phone"
+                android:inputType="phone"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textSize="16sp" />
@@ -137,6 +137,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/colorGrey"
                 android:foregroundTint="@color/colorGrey"
+                android:visibility="gone"
                 android:gravity="left"/>
         </android.support.design.widget.TextInputLayout>
 

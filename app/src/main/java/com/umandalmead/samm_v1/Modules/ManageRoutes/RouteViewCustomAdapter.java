@@ -155,7 +155,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
                             else
                                 action = Enums.ActionType.DELETE;
 
-                            _manageRouesFragment.ProcessSelectedRoute(action, route.getID(), route.getRouteName());
+                            _manageRouesFragment.ProcessSelectedRoute(action, route.getID(), route.getRouteName(), route.getTblLineID());
 
                         } else { //View Routes
                             MenuActivity._FragmentTitle = route.getRouteName();

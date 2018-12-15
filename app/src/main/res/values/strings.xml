@@ -23,7 +23,7 @@
     <string name="error_try_again_all_caps">TRY AGAIN</string>
     <string name="error_exception_with_concat">Exception : </string>
     <string name="error_please_supply_required_fields">Please supply all required fields</string>
-    <string name="error_invalid_route_name">Please enter a valid route name</string>
+    <string name="error_invalid_route_name">Please enter a valid route name.</string>
     <string name="error_not_connected">You are not connected to the internet. Please check your connection and try again.</string>
     <string name="error_contacting_server">Problem contacting the server. Please try again later.</string>
     <string name="error_user_profile_nothing_has_changed">Nothing has changed</string>

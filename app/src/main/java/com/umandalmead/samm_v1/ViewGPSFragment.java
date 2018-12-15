@@ -124,7 +124,7 @@ public class ViewGPSFragment extends Fragment {
         myView = inflater.inflate(R.layout.fragment_view_gps, container, false);
         try
         {
-            InitializeToolbar("Tracked Vehicles");
+            InitializeToolbar("GPS Devices");
             _gpsListview = (NonScrollListView) myView.findViewById(R.id.gpslistview);
             _swipeRefreshGPS = (SwipeRefreshLayout) myView.findViewById(R.id.swipe_refresh_gps);
             floatingActionButton_addGPS = myView.findViewById(R.id.floatingActionButton_addGPS);
@@ -205,11 +205,15 @@ public class ViewGPSFragment extends Fragment {
     public void sendSMSMessage(String message, String phone) {
         try
         {
+            this._smsMessageForGPS = message;
             this._GPSMobileNumber = phone;
             Log.i(LOG_TAG, MenuActivity._GlobalResource.getString(R.string.SMS_sending_to_add_new_gps));
             _smsMessageForGPS = message;
             if (ContextCompat.checkSelfPermission(MenuActivity._activity,android.Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-
+                MenuActivity._GPSMobileNumber = phone;
+                MenuActivity._smsMessageForGPS = message;
+                MenuActivity._sentSMSPendingIntent = _sentSMSPendingIntent;
+                MenuActivity._deliveredSMSPendingIntent = _deliveredSMSPendingIntent;
                 Log.i(_constants.LOG_TAG,MenuActivity._GlobalResource.getString(R.string.SMS_status_sending_with_extra_white_space) + this._smsMessageForGPS + MenuActivity._GlobalResource.getString(R.string.ellipsis));
                 ActivityCompat.requestPermissions(getActivity(),
                         new String[]{android.Manifest.permission.SEND_SMS},

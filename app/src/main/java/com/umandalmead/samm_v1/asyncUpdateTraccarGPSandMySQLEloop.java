@@ -102,6 +102,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
             String plateNumber = _dataModelEloop.PlateNumber;
             String tblRoutesID = String.valueOf(_dataModelEloop.tblRoutesID);
             String tblUsersID = String.valueOf(_dataModelEloop.tblUsersID);
+            String tblLineID = String.valueOf(_dataModelEloop.tblLinesID);
 
             Helper helper = new Helper();
             if (helper.isConnectedToInternet(this._context))
@@ -118,6 +119,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                 postParameters.add(new BasicNameValuePair("plateNumber", plateNumber));
                 postParameters.add(new BasicNameValuePair("tblRoutesID", tblRoutesID));
                 postParameters.add(new BasicNameValuePair("tblUsersID", tblUsersID));
+                postParameters.add(new BasicNameValuePair("tblLineID", tblLineID));
                 httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
                 HttpResponse response = httpClient.execute(httpPost);
                 String strResponse = EntityUtils.toString(response.getEntity());
@@ -146,6 +148,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
         {
             Helper.logger(ex,true);
             returnString = ex.getMessage();
+            _dialog.dismiss();
 
         }
         return returnString;
@@ -165,8 +168,7 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
 
             if(message.equals("Success"))
             {
-                alertDialogBuilder.setTitle("Success");
-                alertDialogBuilder.setMessage("Successfully updated GPS!");
+                InfoDialog infoDialog = new InfoDialog(_activity, MenuActivity._GlobalResource.getString(R.string.GPS_update_success));
                 _dialog.dismiss();
                 _swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
@@ -185,20 +187,23 @@ public class asyncUpdateTraccarGPSandMySQLEloop extends AsyncTask<Void, Void, St
                         new asyncGetGPSFromTraccar(_activity, _LoaderDialog, _gpsListView, fm,_swipeRefreshLayout, ViewGPSFragment._viewGPSFragment).execute();
                     }
                 });
+                infoDialog.show();
 //              new mySQLSignUp(_activity, _activity).execute(gpsname, "SAMM", deviceId, "sammdriver@yahoo.com");
             }
             else
             {
-                alertDialogBuilder.setTitle("Error");
-                alertDialogBuilder.setMessage(message);
+                ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_status_error) + ": " + message);
+                errorDialog.show();
+                _dialog.dismiss();
             }
-            alertDialogBuilder.show();
+
 //        Toast.makeText(_activity, s, Toast.LENGTH_LONG).show();
         }
         catch(Exception ex)
         {
-            alertDialogBuilder.setTitle("Error");
-            alertDialogBuilder.setMessage(ex.getMessage());
+            ErrorDialog errorDialog = new ErrorDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_status_error));
+            errorDialog.show();
+            _dialog.dismiss();
             Helper.logger(ex,true);
 
         }

@@ -69,9 +69,9 @@ public class Users {
             throw new IllegalArgumentException("Last name is required and must not contain special characters");
 
         }
-        if (user.username.trim().isEmpty() || Helper.HasSpecialCharacters(user.username)) {
+        if (user.username.trim().isEmpty() || Helper.HasSpecialCharacters(user.username) || user.username.contains(" ")) {
 
-                throw new IllegalArgumentException("Username must not be empty and must not contain special characters");
+                throw new IllegalArgumentException("Username must not be empty and must not contain special characters and spaces");
 
         }
         if (TextUtils.isEmpty(user.emailAddress.trim())) {

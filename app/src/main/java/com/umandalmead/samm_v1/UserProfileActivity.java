@@ -67,7 +67,7 @@ public class UserProfileActivity extends Fragment {
     private TextView SammTV;
     private View myView;
     private ImageButton FAB_SammIcon, IB_profile_loader_circle;
-    public static TextView ViewTitle,tv_isFacebook,tv_NameDisplay, tv_userTypeDisplay;
+    public static TextView ViewTitle,tv_isFacebook,tv_NameDisplay, tv_userTypeDisplay, tv_userType;
     private ShimmerLayout SL_FB_InfoMessageShimmer;
     private LinearLayout LL_UserCredentialsHolder;
     @Nullable
@@ -81,6 +81,7 @@ public class UserProfileActivity extends Fragment {
         tv_firstName = (EditText)_view.findViewById(R.id.edit_firstName);
         tv_lastName = (EditText)_view.findViewById(R.id.edit_lastName);
         tv_password = (EditText)_view.findViewById(R.id.edit_password);
+        tv_userType = _view.findViewById(R.id.txtUsertype);
         tv_confirmPassword = (EditText)_view.findViewById(R.id.edit_confirmpassword);
         tv_currentPassword = (EditText) _view.findViewById(R.id.edit_currentPassword);
         tv_isFacebook = (TextView) _view.findViewById(R.id.tv_isFacebook);
@@ -152,6 +153,7 @@ public class UserProfileActivity extends Fragment {
         if(_sessionManager.isLoggedIn()){
             tv_NameDisplay.setText(_sessionManager.getFullName().toUpperCase());
             tv_NameDisplay.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+            tv_userType.setText(_sessionManager.getUserType().toString());
         }
 
 

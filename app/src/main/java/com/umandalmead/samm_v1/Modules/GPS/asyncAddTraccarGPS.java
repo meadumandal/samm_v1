@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.umandalmead.samm_v1.Constants;
+import com.umandalmead.samm_v1.ErrorDialog;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
@@ -166,14 +167,8 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             }
             else
             {
-                AlertDialog.Builder errorAlertDialogBuilder = new AlertDialog.Builder(this._activity);
-                errorAlertDialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                    }
-                });
-                errorAlertDialogBuilder.setTitle("Error encountered");
-                errorAlertDialogBuilder.setMessage(returnMessage);
-                errorAlertDialogBuilder.show();
+                ErrorDialog errorDialog = new ErrorDialog(_activity, returnMessage);
+                errorDialog.show();
                 _LoaderDialog.dismiss();
             }
         }

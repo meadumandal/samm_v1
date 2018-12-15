@@ -102,7 +102,7 @@ public class mySQLUpdateStation extends AsyncTask<String, Void, Void>{
 
         Log.i(_constants.LOG_TAG, "mySQLAddStation doInBackground");
         try{
-            String name="";
+                String name="";
             String lat="";
             String lng="";
             String tblRouteID = "";
