@@ -444,7 +444,8 @@ public class LoginActivity extends AppCompatActivity{
                                                         }
                                                     });
                                                 } else {
-                                                    Toast.makeText(getApplicationContext(), "Driver Password is incorrect", Toast.LENGTH_LONG).show();
+                                                    ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, MenuActivity._GlobalResource.getString(R.string.error_driver_password_incorrect));
+                                                    errorDialog.show();
                                                     HideLogInProgressDialog();
                                                 }
                                             }
@@ -606,7 +607,7 @@ public class LoginActivity extends AppCompatActivity{
                             Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                             startActivity(intent);
                             finish();
-                            Toast.makeText(LoginActivity.this, ("Logged in as "+ FirstName +" "+ LastName), Toast.LENGTH_LONG).show();
+                            //Toast.makeText(LoginActivity.this, ("Logged in as "+ FirstName +" "+ LastName), Toast.LENGTH_LONG).show();
 
 
                         } else {

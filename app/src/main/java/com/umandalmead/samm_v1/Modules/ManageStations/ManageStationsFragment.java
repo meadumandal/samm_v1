@@ -69,6 +69,7 @@ public class ManageStationsFragment extends ListFragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         _manageStationsFragment = this;
+        _helper = new Helper(getActivity(),getContext());
     }
 
     @Override
@@ -81,8 +82,10 @@ public class ManageStationsFragment extends ListFragment{
         try {
             Integer routeID =0 ;
             Bundle bundle = getArguments();
-            if (bundle!=null)
+            if (bundle!=null) {
                 routeID = bundle.getInt("routeID");
+                MenuActivity._FragmentTitle =_helper.GetRouteObjectByID(routeID).getRouteName();
+            }
 
             _helper = new Helper();
             isItTheSame = true;

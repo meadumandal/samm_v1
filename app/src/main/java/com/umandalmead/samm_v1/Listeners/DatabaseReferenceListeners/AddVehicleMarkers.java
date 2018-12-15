@@ -31,7 +31,7 @@ import com.umandalmead.samm_v1.SessionManager;
  * Created by MeadRoseAnn on 3/25/2018.
  */
 
-    public class AddVehicleMarkers implements ChildEventListener {
+public class AddVehicleMarkers implements ChildEventListener {
 
     Activity _activity;
     Context _context;
@@ -74,15 +74,14 @@ import com.umandalmead.samm_v1.SessionManager;
 
     }
 
-    private void plotVehicleMarkers(DataSnapshot dataSnapshot)
-    {
+    private void plotVehicleMarkers(DataSnapshot dataSnapshot) {
         try {
             final String deviceId = dataSnapshot.getKey();
             double lat, lng;
             Object Latitude = dataSnapshot.child("Lat").getValue();
             Object Longitude = dataSnapshot.child("Lng").getValue();
             String routeIDs = dataSnapshot.child("routeIDs").getValue().toString();
-            if(MenuActivity._currentRoutesOfEachLoop.get(deviceId)==null)
+            if (MenuActivity._currentRoutesOfEachLoop.get(deviceId) == null)
                 MenuActivity._currentRoutesOfEachLoop.put(deviceId, routeIDs);
 
             if (Latitude == null || Latitude.toString().equals("0"))
@@ -112,91 +111,69 @@ import com.umandalmead.samm_v1.SessionManager;
 
             if (MenuActivity._googleMap != null) {
                 //if(MenuActivity._selectedPickUpPoint ==null) {
-                    MenuActivity._markerAnimator = ValueAnimator.ofFloat(0, 1);
-                    MenuActivity._markerAnimator.setDuration(2000);
-                    MenuActivity._markerAnimator.setInterpolator(new LinearInterpolator());
-                    MenuActivity._markerAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            try {
-                                final MarkerOptions markerOptions = new MarkerOptions();
-                                if (deviceId.toString().equals(_sessionManager.getKeyDeviceid()))
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
-                                else{
-                                    markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_vehicle_map_icon_default));
-                                    markerOptions.title(deviceId);
-                                }
-
-                                markerOptions.flat(true);
-                                float v = valueAnimator.getAnimatedFraction();
-                                double lng = v * currLocation.getLongitude() + (1 - v)
-                                        * prevLocation.getLongitude();
-                                double lat = v * currLocation.getLatitude() + (1 - v)
-                                        * prevLocation.getLatitude();
-                                LatLng newPos = new LatLng(lat, lng);
-                                markerOptions.position(newPos);
-                                if (bearing != 0.0) {
-                                    markerOptions.anchor(0.5f, 0.5f);
-                                    markerOptions.rotation(bearing);
-                                    rotateMarker(markerOptions, bearing);
-                                }
-                                if (deviceId.toString().equals(_sessionManager.getKeyDeviceid())) {
-                                    markerOptions.title("HEY!");
-                                    markerOptions.snippet("It's you");
-                                }
-
-                                _vehicleAnimatedMarker = (Marker) MenuActivity._driverMarkerHashmap.get(deviceId);
-                                if(_vehicleAnimatedMarker == null)
-                                {
-                                    _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
-                                    MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
-                                }
-                                else
-                                {
-
-
-                                    //if(_vehicleAnimatedMarker==null){
-//                                    Handler HND_RemoveMarker = new Handler();
-//                                    HND_RemoveMarker.postDelayed(new Runnable() {
-//                                        @Override
-//                                        public void run() {
-//                                            _vehicleAnimatedMarker.setAlpha(0f);
-                                            _vehicleAnimatedMarker.remove();
-                                            _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
-//                                        }
-//                                    }, 100);
-
-                                    //}
-                                    //else{
-//                                        _vehicleAnimatedMarker.setPosition(newPos);
-//                                    _vehicleAnimatedMarker.setRotation(bearing);
-                                    //}
-                                   // _vehicleAnimatedMarker.showInfoWindow();
-                                    MenuActivity._driverMarkerHashmap.remove(deviceId);
-                                    MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
-                                }
-                                if (deviceId.toString().equals(_sessionManager.getKeyDeviceid())) {
-                                    //_vehicleAnimatedMarker.showInfoWindow();
-                                }
-                               // _vehicleAnimatedMarker.showInfoWindow();
-                            } catch (Exception ex) {
-                                Helper.logger(ex,true);
-
+                MenuActivity._markerAnimator = ValueAnimator.ofFloat(0, 1);
+                MenuActivity._markerAnimator.setDuration(2000);
+                MenuActivity._markerAnimator.setInterpolator(new LinearInterpolator());
+                MenuActivity._markerAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        try {
+                            final MarkerOptions markerOptions = new MarkerOptions();
+                            if (deviceId.toString().equals(_sessionManager.getKeyDeviceid()))
+                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopdriver));
+                            else {
+                                markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_vehicle_map_icon_default));
+                                markerOptions.title(deviceId);
                             }
+
+                            markerOptions.flat(true);
+                            float v = valueAnimator.getAnimatedFraction();
+                            double lng = v * currLocation.getLongitude() + (1 - v)
+                                    * prevLocation.getLongitude();
+                            double lat = v * currLocation.getLatitude() + (1 - v)
+                                    * prevLocation.getLatitude();
+                            LatLng newPos = new LatLng(lat, lng);
+                            markerOptions.position(newPos);
+                            if (bearing != 0.0) {
+                                markerOptions.anchor(0.5f, 0.5f);
+                                markerOptions.rotation(bearing);
+                                rotateMarker(markerOptions, bearing);
+                            }
+                            if (deviceId.toString().equals(_sessionManager.getKeyDeviceid())) {
+                                markerOptions.title("HEY!");
+                                markerOptions.snippet("It's you");
+                            }
+
+                            _vehicleAnimatedMarker = (Marker) MenuActivity._driverMarkerHashmap.get(deviceId);
+                            if (_vehicleAnimatedMarker == null) {
+                                _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                                MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
+                                // ObjectAnimator.ofFloat(_vehicleAnimatedMarker, "alpha", 0f, 1f).setDuration(500).start();
+
+                            } else {
+                                _vehicleAnimatedMarker.remove();
+                                //ObjectAnimator.ofFloat(_vehicleAnimatedMarker, "alpha", 0f, 1f).setDuration(500).start();
+                                _vehicleAnimatedMarker = MenuActivity._googleMap.addMarker(markerOptions);
+                                MenuActivity._driverMarkerHashmap.remove(deviceId);
+                                MenuActivity._driverMarkerHashmap.put(deviceId, _vehicleAnimatedMarker);
+                            }
+                        } catch (Exception ex) {
+                            Helper.logger(ex, true);
+
                         }
-                    });
-                    MenuActivity._markerAnimator.start();
-                }
-                else
-                {
-                }
-           // }
+                    }
+                });
+                MenuActivity._markerAnimator.start();
+            } else {
+            }
+            // }
         } catch (Exception ex) {
-            Helper.logger(ex,true);
+            Helper.logger(ex, true);
         }
     }
+
     private void rotateMarker(final MarkerOptions marker, final float toRotation) {
-        if(!MenuActivity._isVehicleMarkerRotating) {
+        if (!MenuActivity._isVehicleMarkerRotating) {
             final Handler handler = new Handler();
             final long start = SystemClock.uptimeMillis();
             final float startRotation = marker.getRotation();

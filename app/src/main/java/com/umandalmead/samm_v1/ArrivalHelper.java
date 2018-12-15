@@ -156,11 +156,11 @@ public class ArrivalHelper {
                 VehicleProperties VP_SelectedVehicle =  AL_VehicleProperties.get(0);
                 if (VP_SelectedVehicle.getOrderOfArrivalDifference() == 0 && VP_SelectedVehicle.getIsDwelling()) {
                         if (_BOOL_IsFromSearch)
-                            Helper.InitializeSearchingRouteUI(true, false, TM_NearestFromUser.LineName+" "+ _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
+                            Helper.InitializeSearchingRouteUI(true, false,  TM_NearestFromUser.LineName +" "+ _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
                         else {
                             if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
                                 ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
-                                        _helper.getEmojiByUnicode(0x1F68C) + " : " + TM_NearestFromUser.LineName+" "+ _GlobalResource.getString(R.string.VEHICLE_already_waiting));
+                                        _helper.getEmojiByUnicode(0x1F68C) + " : " +  TM_NearestFromUser.LineName+" "+ _GlobalResource.getString(R.string.VEHICLE_already_waiting));
                             }
                         }
                     AttachListenerToLoopV2(VP_SelectedVehicle.getEloop().DeviceId, AL_UserTerminalSpecimen);
@@ -176,7 +176,7 @@ public class ArrivalHelper {
                 else{
                     if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, TM_NearestFromUser.getValue())) {
                         ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(TM_NearestFromUser.LineName + "-" + TM_NearestFromUser.Description, null,
-                                _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby "+TM_NearestFromUser.LineName+" found");
+                                _helper.getEmojiByUnicode(0x1F68C) + " : " + "No nearby "+ TM_NearestFromUser.LineName+" found");
                     }
                 }
             }
@@ -432,14 +432,14 @@ public class ArrivalHelper {
     public void HasArrived(String STR_EnteredStation, Terminal T_NearestFromUser, Boolean IsDwelling){
         try{
             if(STR_EnteredStation.equalsIgnoreCase(T_NearestFromUser.getValue()) && IsDwelling){
-                if (_BOOL_IsFromSearch)
+               // if (_BOOL_IsFromSearch)
                     Helper.InitializeSearchingRouteUI(true, false,T_NearestFromUser.LineName+" "+ _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
-                else {
-                    if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, T_NearestFromUser.getValue())) {
+                //else {
+                  //  if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, T_NearestFromUser.getValue())) {
                         ((MenuActivity) _activity).UpdateInfoPanelForTimeofArrival(T_NearestFromUser.LineName + "-" + T_NearestFromUser.Description, null,
                                 _helper.getEmojiByUnicode(0x1F68C) + " : " + T_NearestFromUser.LineName+" "+_GlobalResource.getString(R.string.VEHICLE_already_waiting));
-                    }
-                }
+                   // }
+               // }
             }
             else if (STR_EnteredStation.equalsIgnoreCase(T_NearestFromUser.getValue())){
                 GetGPSDetailsFromFirebase(T_NearestFromUser, _BOOL_IsFromSearch);

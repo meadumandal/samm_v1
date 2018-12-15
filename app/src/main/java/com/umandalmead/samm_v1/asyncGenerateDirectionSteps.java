@@ -47,6 +47,7 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
         String finalInstructions=null;
         try{
             finalInstructions = SelectedTabInstructions(_STR_StepsList,_STR_TotalTime,_prospectTerminal);
+
         }catch (Exception ex){
             Helper.logger(ex);
         }
@@ -80,7 +81,10 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
         Step+="<div style=\"text-align: left; margin-left: 2%; margin-right: 4%; padding-bottom: 5%;\">" + "\t<div style=\"font-weight: bold;text-align: center;\"> "+firstAction+" </div><div style='text-align: center;'>("+STR_TotalTime+")</div>\n";
         if (STR_StepsList != null) {
             for (int x = 0; x < STR_StepsList.size(); x++) {
-                Step += "<div style='margin-top:4%; marging-bottom:4%;'><img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='"+GetDirectionIcon(STR_StepsList.get(x))+"'>" + (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".<div style=\"\n" +
+                String STR_DirectionIcon = GetDirectionIcon(STR_StepsList.get(x));
+                Step += "<div style='margin-top:4%; marging-bottom:4%;'>" +
+                        (STR_DirectionIcon!=null? "<img style='margin-left:4%; margin-right:2%;' width=\"20px\" height=\"20px\" src='"+STR_DirectionIcon+"'>":"<>") +
+                        (x + 1) + ". " + CleanDirectionStep(STR_StepsList.get(x)) + ".<div style=\"\n" +
                         "    border-bottom: 1px solid #00000026;\n" +
                         "    margin-top: 0.5%;\n" +
                         "    margin-left: 8%;\n" +
@@ -114,27 +118,34 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
     private String GetDirectionIcon(String STR_Step){
         String STR_Result = "file:///android_res/drawable/";
         if(STR_Step!=null){
-           String STR_temp=STR_Step.toLowerCase();
+           String STR_temp=STR_Step.trim().toLowerCase();
             STR_temp= STR_temp.replace("<b>","");
             STR_temp= STR_temp.replace("</b>","");
             if(STR_temp.contains("slight left")){
-                STR_Result+="slight_left.png";
+                STR_Result+="step_slightleft.png";
             }
             else if(STR_temp.contains("slight right")){
-                STR_Result+="slight_right.png";
+                STR_Result+="step_slightright.png";
             }
             else if(STR_temp.contains("head") || STR_temp.contains("continue")){
                 STR_Result+="head.png";
             }
-            else if(STR_temp.contains("turn right") || STR_Result.contains("sharp right")){
+            else if(STR_temp.contains("turn right") || STR_temp.contains("sharp right")){
                 STR_Result+="turn_right.png";
             }
-            else if(STR_temp.contains("turn left") || STR_Result.contains("sharp left")){
+            else if(STR_temp.contains("turn left") || STR_temp.contains("sharp left")){
                 STR_Result+="turn_left.png";
             }
-            else if(STR_temp.contains("final")){
-                STR_Result+="checked.png";
+            else if(STR_temp.contains("round about") || STR_temp.contains("roundabout")){
+                STR_Result+="step_roundabout.png";
             }
+            else if(STR_temp.contains("uturn") || STR_temp.contains("u-turn") || STR_temp.contains("u turn")){
+                STR_Result+="step_uturn.png";
+            }
+            else if(STR_temp.contains("final")){
+                STR_Result+="step_ride.png";
+            }
+            else STR_Result+="head.png";
         }
         return  STR_Result;
     }
@@ -172,7 +183,7 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
                 {
                     dist = entry.OrderOfArrival - TM_PickUp.OrderOfArrival;
                 }
-                return "Ride the e-loop. Signboard should be:<br>"
+                return "Ride the <b>"+TM_PickUp.LineName+"</b>. Signboard should be:<br>"
                         +strTab
                         +strSignBoard
                         +"<br>"+strTab

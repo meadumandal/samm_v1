@@ -14,7 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.share.widget.LikeView;
 
@@ -32,11 +34,14 @@ public class AboutActivity extends Fragment {
     private TextView ViewTitle;
     private LikeView fbLike;
     public static ShimmerLayout _SL_TV_LatestVersion;
+    private SessionManager _sessionManager;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getContext());
+        _sessionManager = new SessionManager(getContext());
         myView = inflater.inflate(R.layout.activity_about, container, false);
         SammTV = (TextView) myView.findViewById(R.id.SAMM_text);
         TV_SammVersion = (TextView) myView.findViewById(R.id.SAMM_version);
@@ -45,7 +50,8 @@ public class AboutActivity extends Fragment {
         fbLike =  (LikeView) myView.findViewById(R.id.fb_like_view);
         SessionManager sessionManager = new SessionManager(myView.getContext());
         InitializeToolbar(MenuActivity._GlobalResource.getString(R.string.title_about_activity));
-        InitializeFacebookLikeButton();
+        if(_sessionManager.isFacebook())
+            InitializeFacebookLikeButton();
         SammTV.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
         TV_SammVersion.setTypeface(MenuActivity.FONT_RUBIK_BOLD);
         TV_SammLatestVersion.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
@@ -54,8 +60,16 @@ public class AboutActivity extends Fragment {
         return myView;
     }
     private void InitializeFacebookLikeButton(){
-        FacebookSdk.sdkInitialize(getContext());
+        fbLike.setVisibility(View.VISIBLE);
         fbLike.setObjectIdAndType(MenuActivity._GlobalResource.getString(R.string.Facebook_samm_page_url), LikeView.ObjectType.PAGE);
+        fbLike.setLikeViewStyle(LikeView.Style.BOX_COUNT);
+        fbLike.setFragment(this);
+        fbLike.setOnErrorListener(new LikeView.OnErrorListener() {
+            @Override
+            public void onError(FacebookException e) {
+                Toast.makeText(getContext(),e.toString(),Toast.LENGTH_LONG).show();
+            }
+        });
     }
     public void InitializeToolbar(String fragmentName){
         try {

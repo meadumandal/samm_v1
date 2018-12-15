@@ -166,7 +166,7 @@ public class asyncGetApplicationSettings extends AsyncTask<Void,Void, JSONObject
                     }
                 });
             }
-            if (MenuActivity._BOOL_IsGoogleMapShownAndAppIsOnHomeScreen) {
+            if (MenuActivity._BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && MenuActivity._BOOL_IsGPSAcquired) {
                 MenuActivity._AppBarLayout.height = _helper.dpToPx(20, _context);
                 MenuActivity._AppBar.setLayoutParams(MenuActivity._AppBarLayout);
                 MenuActivity._AppBar.setVisibility(View.VISIBLE);

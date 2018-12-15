@@ -239,9 +239,9 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
                 }
             });
             double D_KM_accumulatedValues = 0.0, D_MaxSpeed_accumulatedValues=0.0 ;
-
+            int INT_Splitter = (listReport.size()%2==0) ? listReport.size()/2 : (int)((listReport.size()/2)+0.5);
             for (int i = 0; i < listReport.size() ; i++) {
-                if(i<13) {
+                if(i<=INT_Splitter) {
                     AL_TopEntries.add(new PieEntry((float) listReport.get(i).distance, String.valueOf(listReport.get(i).plateNumber)));
                     AL_TopEntriesMaxSpeed.add(new PieEntry((float) listReport.get(i).maxSpeed, String.valueOf(listReport.get(i).plateNumber)));
                 }
@@ -358,7 +358,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
     private void InitializePieLegend(PieChart PC){
         Legend legend = PC.getLegend();
         legend.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
-        legend.setEnabled(false);
+        legend.setEnabled(true);
         legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
         legend.setOrientation(Legend.LegendOrientation.VERTICAL);
         legend.setDrawInside(false);
@@ -395,7 +395,7 @@ public class asyncEcoloopKMTraveled extends AsyncTask<String, Void, ArrayList<Su
             }
         });
         dataSet.setSelectionShift(10);
-        dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
+        //dataSet.setXValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
         //dataSet.setValueLinePart1OffsetPercentage(100f); /** When valuePosition is OutsideSlice, indicates offset as percentage out of the slice size */
         //dataSet.setValueLinePart1Length(0.6f); /** When valuePosition is OutsideSlice, indicates length of first half of the line */
         //dataSet.setValueLinePart2Length(0.6f); /** When valuePosition is OutsideSlice, indicates length of second half of the line */

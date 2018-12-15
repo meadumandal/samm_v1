@@ -75,46 +75,59 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/frmLoginButtons"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.27"
-        android:layout_width="300dp"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:gravity="center"
+        >
+        <LinearLayout
+            android:id="@+id/frmLoginButtons"
+            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/email_sign_in_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="0dp"
-            android:layout_height="42dp"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@string/FONT_Rubik_Regular"
-            android:layout_weight=".4"
-            android:background="@drawable/oval_background"
-            android:onClick="SignIn"
-            android:text="@string/signin_button"
-            android:textColor="@color/colorPrimaryDark"
-            android:textStyle="bold" />
+            <Button
+                android:id="@+id/email_sign_in_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@string/FONT_Rubik_Regular"
+                android:background="@drawable/oval_background"
+                android:onClick="SignIn"
+                android:text="@string/signin_button"
+                android:textColor="@color/colorPrimaryDark"
+                android:textStyle="bold" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight=".05"
-            android:visibility="invisible" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight=".05"
+                android:visibility="invisible" />
 
-        <Button
-            android:id="@+id/btn_goToSignUp"
-            android:layout_width="0dp"
-            android:layout_height="42dp"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@string/FONT_Rubik_Regular"
-            android:layout_weight=".4"
-            android:background="@drawable/oval_background"
-            android:onClick="SignUp"
-            android:text="@string/signup_button"
-            android:textColor="@color/colorPrimaryDark"
-            android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_marginTop="15dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center|center_vertical"
+            android:gravity="center">
+            <TextView
+                android:id="@+id/TV_goToSignUp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:clickable="true"
+                android:text="Not yet a member?"
+                android:onClick="SignUp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorAccent" />
+        </LinearLayout>
+
     </LinearLayout>
-
 
     <View
         android:layout_marginTop="20dp"
@@ -146,7 +159,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:clickable="true"
-        android:text="Forgot Password? Click here"
+        android:text="Forgot Password?"
         android:textColor="@color/colorAccent" />
 
 

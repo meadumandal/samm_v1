@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
@@ -143,10 +144,10 @@ public class ManageLinesFragment extends Fragment {
             FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-    //                Intent menuIntent = new Intent(ManageLinesFragment.this, MenuActivity.class);
-    //                startActivity(menuIntent);
-    //                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-    //                finish();
+                    Intent menuIntent = new Intent(getContext(), MenuActivity.class);
+                    startActivity(menuIntent);
+                    getActivity().overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                    getActivity().finish();
                 }
             });
             ViewTitle = (TextView) _myView.findViewById(R.id.samm_toolbar_title);

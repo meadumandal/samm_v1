@@ -401,13 +401,13 @@ public class ReportsActivity extends Fragment {
                 public void onClick(View view) {
                     try {
                         if (_distanceSpeed_fromDataTextBox.getText().length() > 0 && _distanceSpeed_toDateTextBox.getText().length() > 0) {
-                            _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
-                            _RL_DistanceTraveled.setVisibility(View.VISIBLE);
                             SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
                             if (dateFormat.parse(_distanceSpeed_fromDataTextBox.getText().toString()).after(dateFormat.parse(_distanceSpeed_toDateTextBox.getText().toString()))) {
                                 ErrorDialog errorDialog = new ErrorDialog(_activity, "Invalid date range");
                                 errorDialog.show();
                             }else {
+                                _TL_EcoloopTraveled.setVisibility(View.VISIBLE);
+                                _RL_DistanceTraveled.setVisibility(View.VISIBLE);
                                 new asyncEcoloopKMTraveled(getContext(), getActivity()).execute(_distanceSpeed_fromDataTextBox.getText().toString(), _distanceSpeed_toDateTextBox.getText().toString());
                             }
                         } else {

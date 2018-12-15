@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.Fragment;
 import android.content.Context;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.clans.fab.FloatingActionButton;
+import com.umandalmead.samm_v1.Constants;
 import com.umandalmead.samm_v1.Enums;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
@@ -35,6 +37,7 @@ import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SessionManager;
 
+import static com.umandalmead.samm_v1.MenuActivity._GlobalResource;
 import static com.umandalmead.samm_v1.MenuActivity._googleAPI;
 import static com.umandalmead.samm_v1.MenuActivity._googleMap;
 
@@ -81,8 +84,10 @@ public class ManageRoutesFragment extends Fragment {
                 }
             });
             Bundle bundle = this.getArguments();
-            if (bundle!=null)
+            if (bundle!=null) {
                 _lineID = bundle.getInt("lineID");
+                MenuActivity._FragmentTitle = _helper.GetLineObjectByID(_lineID).getName();
+            }
 
             _routesListView = (NonScrollListView) _myView.findViewById(R.id.routelistview);
             try
@@ -132,12 +137,11 @@ public class ManageRoutesFragment extends Fragment {
             FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-//                    DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
-//                    drawerLayout.openDrawer(Gravity.LEFT);
-//                Intent menuIntent = new Intent(ManageRoutesFragment.this, MenuActivity.class);
-//                startActivity(menuIntent);
-//                overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-//                finish();
+                    MenuActivity._FragmentTitle = _GlobalResource.getString(R.string.title_manage_lines_activity);
+                    getActivity().overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, MenuActivity._manageLinesFragment)
+                            .addToBackStack(Constants.FRAGMENTNAME_MANAGELINES)
+                            .commit();
                 }
             });
             ViewTitle = (TextView) _myView.findViewById(R.id.samm_toolbar_title);

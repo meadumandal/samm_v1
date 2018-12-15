@@ -74,13 +74,13 @@ public class SignUpActivity extends AppCompatActivity {
         edit_confirmPassword = (EditText) findViewById(R.id.edit_confirmpassword);
         CheckBox checkbox_showpassword = (CheckBox) findViewById(R.id.checkBox_showPassword);
 
-        btn_signUp.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        edit_firstName.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        edit_lastName.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        edit_emailAddress.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        edit_username.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        edit_password.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        edit_confirmPassword.setTypeface(Helper.FONT_RUBIK_REGULAR);
+        btn_signUp.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+        edit_firstName.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+        edit_lastName.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+        edit_emailAddress.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+        edit_username.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+        edit_password.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
+        edit_confirmPassword.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
 
         checkbox_showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -313,8 +313,8 @@ public class SignUpActivity extends AppCompatActivity {
                     startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
                     finish();
                 }else{
-                    startActivity(new Intent(SignUpActivity.this, MenuActivity.class));
                     overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+                    startActivity(new Intent(SignUpActivity.this, MenuActivity.class));
                     finish();
                 }
             }

@@ -334,7 +334,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static HashMap<String, String> _currentRoutesOfEachLoop = new HashMap<>();
 
         public static ArrayList<Users> _adminUsers = new ArrayList<Users>();
-        public String _currentFragment ="";
+        public static String _currentFragment ="";
         public final FragmentManager _fragmentManager = getSupportFragmentManager();
 
         //Declare all fragments here:
@@ -425,6 +425,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 }
                 //region EloopList
                 new mySQLGetEloopList(_context).execute();
+                new asyncGetApplicationSettings(MenuActivity.this,_context,true).execute();
                 //endregion
 
 
@@ -854,8 +855,8 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                 _sessionManager.logoutUser();
                                 String username = _constants.GUEST_USERNAME_PREFIX + UUID.randomUUID().toString();
                                 _sessionManager.CreateLoginSession(_constants.GUEST_FIRSTNAME, _constants.GUEST_LASTNAME, username, 0, "", "", false, Constants.GUEST_USERTYPE);
-                                finish();
                                 startActivity(getIntent());
+                                finish();
                                 Toast.makeText(MenuActivity.this,_GlobalResource.getString(R.string.error_concurrent_driver_login), Toast.LENGTH_LONG).show();
                             }
                             initializeOnlinePresence();
@@ -961,11 +962,18 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                         @Override
                         public void onCameraMoveStarted(int reason) {
                             if (reason == REASON_GESTURE) {
-                                // FrameSearchBarHolder.setVisibility(View.INVISIBLE);
-                                // isMaptouched=true;
+                                if (_BOOL_IsGoogleMapShownAndAppIsOnHomeScreen && (!_sessionManager.getIsSuperAdmin() && !_sessionManager.getIsAdmin()) && (MenuActivity._terminalList!=null && MenuActivity._terminalList.size()>0)
+                                        && _SlideUpPanelContainer.getPanelState()!= SlidingUpPanelLayout.PanelState.COLLAPSED && _BOOL_IsGPSAcquired) {
+                                    Handler HND_ShowSearchBar = new Handler();
+                                    HND_ShowSearchBar.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                                        }
+                                    }, 500);
+                                }
                             } else if (reason == REASON_API_ANIMATION) {
-//                    Toast.makeText(MenuActivity.this, "The user tapped something on the map.",
-//                            Toast.LENGTH_SHORT).show();
+
                             } else if (reason == REASON_DEVELOPER_ANIMATION) {
 //                    Toast.makeText(MenuActivity.this, "The app moved the camera.",
 //                            Toast.LENGTH_SHORT).show();
@@ -1413,9 +1421,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
             {
                 if (_MainDrawerLayout.isDrawerOpen(GravityCompat.START)) {
                     _MainDrawerLayout.closeDrawer(GravityCompat.START);
-                } else {
-                    super.onBackPressed();
                 }
+//                else {
+//                    super.onBackPressed();
+//                }
             }
 
 
@@ -1428,6 +1437,47 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
 
     }
 
+//    public static void NavigationToolBarBackButtonAction(Activity activity){
+//            try{
+//                if (_currentFragment !="") {
+//                    switch (_currentFragment) {
+//                        case Constants.FRAGMENTNAME_MANAGELINES:
+//                            UpdateUI(Enums.UIType.ADMIN_SHOW_MAPS_LINEARLAYOUT);
+//                            Enums.GoogleMapType mapType = Enums.GoogleMapType.MAP_TYPE_NORMAL;
+//                            try{
+//                                mapType = Enums.GoogleMapType.valueOf(_sessionManager.getMapStylePreference());
+//                            }catch (Exception ex){
+//                                Helper.logger(ex);
+//                            }
+//                            SetMapType(_googleMap, mapType);
+//
+//                            return;
+//                        case Constants.FRAGMENTNAME_MANAGEROUTES:
+//                            .replace(R.id.content_frame, _manageLinesFragment)
+//                                    .addToBackStack(Constants.FRAGMENTNAME_MANAGELINES)
+//                                    .commit();
+//                            return;
+//                        case Constants.FRAGMENTNAME_MANAGESTATIONS:
+//                            _manageStationsFragment.HandleChangesInOrderOfPoints();
+//
+//                            return;
+//
+//
+//                    }
+//                }
+//                else
+//                {
+//                    if (_MainDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+//                        _MainDrawerLayout.closeDrawer(GravityCompat.START);
+//                    }
+////                else {
+////                    super.onBackPressed();
+////                }
+//                }
+//            }catch (Exception ex){
+//                Helper.logger(ex);
+//            }
+//    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -2642,6 +2692,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
         }
         _SL_AppBar_Top_TextView.startShimmerAnimation();
         _DestinationTextView.setVisibility(View.VISIBLE);
+        _DestinationTextView.setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
         _DestinationTextView.setText(STR_message!=null? STR_message.toUpperCase(): null);
         _DestinationTextView.setBackgroundResource(IsVisible ? R.color.colorElectronBlue : R.color.colorWebFlatGreen);
     }
@@ -2755,31 +2806,31 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                         if(_sessionManager.getNavigationDrawerTutotialStatus()!=null && !_sessionManager.getNavigationDrawerTutotialStatus()){
                             if(_sessionManager.getIsSuperAdmin()){
                                 // admin tools enabled
-//                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title),MenuActivity._GlobalResource.getString(R.string.TUT_super_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title)},
-//                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_super_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_superadmin_users_inst),MenuActivity._GlobalResource.getString(R.string.TUT_admin_users_inst)
-//                                            ,MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst)},
-//                                    new Integer[] {R.drawable.tut_navsuperadmintools,R.drawable.tut_navitemsuperadminusers, R.drawable.tut_navitemadminusers, R.drawable.tut_navitemlines});
-//                            MapTutorial.show();
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
-                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
-                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
-                                        new Integer[] {R.drawable.tut_navsectionreports});
-                                MapTutorial.show();
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title),MenuActivity._GlobalResource.getString(R.string.TUT_super_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_admin_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_super_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_superadmin_users_inst),MenuActivity._GlobalResource.getString(R.string.TUT_admin_users_inst)
+                                            ,MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst)},
+                                    new Integer[] {R.drawable.tut_navsuperadmintools,R.drawable.tut_navitemsuperadminusers, R.drawable.tut_navitemadminusers, R.drawable.tut_navitemlines});
+                            MapTutorial.show();
+//                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+//                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
+//                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
+//                                        new Integer[] {R.drawable.tut_navsectionreports});
+//                                MapTutorial.show();
 
                             }
                             else if(_sessionManager.getIsAdmin()){
                                 // admin tools enabled
-//                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title), MenuActivity._GlobalResource.getString(R.string.TUT_drivers_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title),MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title)},
-//                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_drivers_inst),MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst),
-//                                            MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_inst)
-//                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst),MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst)},
-//                                    new Integer[] {R.drawable.tut_navadmintools,R.drawable.tut_navitemdrivers, R.drawable.tut_navitemlines, R.drawable.tut_navitemtrackedpuvs, R.drawable.tut_fabcollapsed, R.drawable.tut_fabexpanded });
-//                            MapTutorial.show();
-                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
-                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
-                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
-                                        new Integer[] {R.drawable.tut_navsectionreports});
-                                MapTutorial.show();
+                            TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_explore_more_title), MenuActivity._GlobalResource.getString(R.string.TUT_drivers_title),MenuActivity._GlobalResource.getString(R.string.TUT_lines_title),MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title),MenuActivity._GlobalResource.getString(R.string.TUT_shortcuts_title)},
+                                    new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_explore_administartor_inst),MenuActivity._GlobalResource.getString(R.string.TUT_drivers_inst),MenuActivity._GlobalResource.getString(R.string.TUT_lines_inst),
+                                            MenuActivity._GlobalResource.getString(R.string.TUT_tracked_puvs_inst)
+                                    ,MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst),MenuActivity._GlobalResource.getString(R.string.TUT_floating_action_button_inst)},
+                                    new Integer[] {R.drawable.tut_navadmintools,R.drawable.tut_navitemdrivers, R.drawable.tut_navitemlines, R.drawable.tut_navitemtrackedpuvs, R.drawable.tut_fabcollapsed, R.drawable.tut_fabexpanded });
+                            MapTutorial.show();
+//                                TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this,
+//                                        new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_reports_title)},
+//                                        new String[] {MenuActivity._GlobalResource.getString(R.string.TUT_reports_inst)},
+//                                        new Integer[] {R.drawable.tut_navsectionreports});
+//                                MapTutorial.show();
                             }
                             else if(_sessionManager.isGuest()){
                                 TutorialDialog MapTutorial = new TutorialDialog(MenuActivity.this, new String[]{MenuActivity._GlobalResource.getString(R.string.TUT_sign_up_title)},
@@ -2816,15 +2867,23 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
     public void ShowRouteTabsAndSlidingPanel(){
         _SL_Map_Fragment.stopShimmerAnimation();
         if(_sessionManager.isDriver()){
-            _SlideUpPanelContainer.setTouchEnabled(true);
+            final Handler HND_CollapsePanel = new Handler();
+            HND_CollapsePanel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                }
+            }, 1000);
+            _SlideUpPanelContainer.setTouchEnabled(false);
             _SlideUpPanelContainer.setPanelHeight(220);
             _RoutesPane.setVisibility(View.VISIBLE);
             _TimeOfArrivalTextView.setVisibility(View.VISIBLE);
             _StepsScroller.setVisibility(View.GONE);
+            FrameSearchBarHolder.setVisibility(View.INVISIBLE);
         }
         else {
             _SlideUpPanelContainer.setTouchEnabled(true);
-            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
+            _SlideUpPanelContainer.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             _AppBarLayout.height = Helper.dpToPx(60,_context);
             _AppBar.setLayoutParams(_AppBarLayout);
             _RouteTabLayout.setVisibility(View.VISIBLE);

@@ -193,7 +193,7 @@ public class mySQLStationProvider extends AsyncTask<Integer,Void, List<Terminal>
 
             if(terminals == null){
                 //IsPersitent|IsMaintenance|Title|Details|URL
-                NoticeDialog ND_TerminalEmpty = new NoticeDialog(_activity,"Empty Data","False|False|Empty Data|Internal error.\nNo terminal/station found. Searching for target destination has been disabled.");
+                NoticeDialog ND_TerminalEmpty = new NoticeDialog(_activity,"Empty Data","False|False|Empty Data|Internal error.\nNo terminal/station found. Searching for target destination will be disabled.");
                 ND_TerminalEmpty.show();
                 ND_TerminalEmpty.setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override

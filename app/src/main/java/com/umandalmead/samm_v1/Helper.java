@@ -61,6 +61,7 @@ import com.umandalmead.samm_v1.Modules.ManageLines.ManageLinesFragment;
 import com.umandalmead.samm_v1.Modules.ManageRoutes.ManageRoutesFragment;
 import com.umandalmead.samm_v1.Modules.ManageRoutes.RouteViewCustomAdapter;
 import com.umandalmead.samm_v1.Modules.ManageStations.ManageStationsFragment;
+import com.umandalmead.samm_v1.POJO.HTMLDirections.Route;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -943,6 +944,34 @@ public class Helper {
         // (marker, property,typeEvaluator,finalPosition);// ObjectAnimator.ofObject(marker, property, typeEvaluator, finalPosition);
         animator.setDuration(400);
         animator.start();
+    }
+    public Routes GetRouteObjectByID(Integer INT_LineID){
+        try{
+            if(INT_LineID!=null && MenuActivity._routeList.size() > 0){
+                for (Routes R_Entry: MenuActivity._routeList){
+                    if(R_Entry.getID()==INT_LineID)
+                        return R_Entry;
+                }
+            }
+        }catch (Exception ex)
+        {
+        logger(ex);
+        }
+        return null;
+    }
+    public Lines GetLineObjectByID(Integer INT_LineID){
+        try{
+            if(INT_LineID!=null && MenuActivity._lineList.size() > 0){
+                for (Lines L_Entry: MenuActivity._lineList){
+                    if(L_Entry.getID()==INT_LineID)
+                        return L_Entry;
+                }
+            }
+        }catch (Exception ex)
+        {
+            logger(ex);
+        }
+        return null;
     }
 
 
