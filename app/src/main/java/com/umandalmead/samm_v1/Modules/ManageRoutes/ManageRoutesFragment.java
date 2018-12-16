@@ -60,6 +60,8 @@ public class ManageRoutesFragment extends Fragment {
     Helper _helper = new Helper();
     ManageRoutesFragment _manageRoutesFragment;
     FloatingActionButton FAB_addRoute;
+    SessionManager _sessionManager;
+
 
 
     @Override
@@ -76,7 +78,16 @@ public class ManageRoutesFragment extends Fragment {
             _myView =  inflater.inflate(R.layout.activity_addroute, container, false);
             _context = getContext();
             _activity = getActivity();
+            _sessionManager = new SessionManager(_context);
             FAB_addRoute = _myView.findViewById(R.id.floatingActionButton_addRoute);
+            if (_sessionManager.getIsAdmin())
+            {
+                FAB_addRoute.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                FAB_addRoute.setVisibility(View.GONE);
+            }
             FAB_addRoute.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

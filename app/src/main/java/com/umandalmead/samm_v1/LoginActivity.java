@@ -366,7 +366,15 @@ public class LoginActivity extends AppCompatActivity{
                         ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "Invalid username and password");
                         errorDialog.show();
                         LogInLoader.dismiss();
-                    } else {
+                    }
+                    else if (username.trim().equalsIgnoreCase(Constants.DRIVER_EMAILADDRESS)
+                            || username.trim().equalsIgnoreCase(Constants.ADMIN_EMAILADDRESS))
+                    {
+                        ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "Invalid username and password");
+                        errorDialog.show();
+                        LogInLoader.dismiss();
+                    }
+                    else {
                         String url = _constants.WEB_API_URL;
                         Retrofit retrofit = new Retrofit.Builder()
                                 .baseUrl(url)

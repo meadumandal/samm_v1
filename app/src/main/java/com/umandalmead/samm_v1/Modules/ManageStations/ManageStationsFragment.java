@@ -36,6 +36,7 @@ import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 import com.umandalmead.samm_v1.TouchInterceptor;
 import com.umandalmead.samm_v1.YesNoDialog;
 
@@ -57,6 +58,7 @@ public class ManageStationsFragment extends ListFragment{
     View _myView;
     ManageStationsFragment _manageStationsFragment;
     Activity _activity;
+    SessionManager _sessionManager;
 
     public ManageStationsFragment()
     {
@@ -70,6 +72,7 @@ public class ManageStationsFragment extends ListFragment{
         super.onCreate(savedInstanceState);
         _manageStationsFragment = this;
         _helper = new Helper(getActivity(),getContext());
+        _sessionManager =new SessionManager(getContext());
     }
 
     @Override
@@ -120,9 +123,15 @@ public class ManageStationsFragment extends ListFragment{
         try
         {
             mList = (TouchInterceptor) getListView();
-            mList.setDropListener(mDropListener);
+            if (_sessionManager.getIsAdmin())
+            {
 
+                mList.setDropListener(mDropListener);
+
+
+            }
             registerForContextMenu(mList);
+
         }
         catch(Exception ex)
         {
@@ -191,10 +200,14 @@ public class ManageStationsFragment extends ListFragment{
     }
 
     public void InitializeToolbar(String fragmentName){
+        SessionManager sessionManager = new SessionManager(MenuActivity._context);
         FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
         FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
         BtnAddPoint = (ImageView) _myView.findViewById(R.id.topnav_addButton);
-        BtnAddPoint.setVisibility(View.VISIBLE);
+        if (sessionManager.getIsAdmin())
+            BtnAddPoint.setVisibility(View.VISIBLE);
+        else
+            BtnAddPoint.setVisibility(View.GONE);
         BtnAddPoint.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -224,6 +237,19 @@ public class ManageStationsFragment extends ListFragment{
         Terminal selection = MenuActivity._PointsArray[position];
         final PopupMenu popup = new PopupMenu(getContext(), v, Gravity.RIGHT);
         popup.getMenuInflater().inflate(R.menu.popup_station_actions, popup.getMenu());
+
+        if (_sessionManager.getIsAdmin())
+        {
+            popup.getMenu().findItem(R.id.itemView).setVisible(true);
+            popup.getMenu().findItem(R.id.itemDelete).setVisible(true);
+            popup.getMenu().findItem(R.id.itemEdit).setVisible(true);
+        }
+        else
+        {
+            popup.getMenu().findItem(R.id.itemView).setVisible(true);
+            popup.getMenu().findItem(R.id.itemDelete).setVisible(false);
+            popup.getMenu().findItem(R.id.itemEdit).setVisible(false);
+        }
         popup.show();
         AttachPopupEvents(popup, selection);
 
@@ -231,7 +257,14 @@ public class ManageStationsFragment extends ListFragment{
     private void AttachPopupEvents(PopupMenu popup, final Terminal selectedTerminal){
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
-                Enums.ActionType action = item.getTitle().toString().equalsIgnoreCase("edit") ? Enums.ActionType.EDIT : Enums.ActionType.DELETE;
+                String clickedItemAction = item.getTitle().toString();
+                Enums.ActionType action  = Enums.ActionType.EDIT;
+                if (clickedItemAction.equalsIgnoreCase("edit"))
+                    action = Enums.ActionType.EDIT;
+                if (clickedItemAction.equalsIgnoreCase("delete"))
+                    action = Enums.ActionType.DELETE;
+                if (clickedItemAction.equalsIgnoreCase("view"))
+                    action = Enums.ActionType.VIEW;
                 ProcessSelectedPointEvent(action, selectedTerminal);
                 return true;
             }
@@ -309,12 +342,12 @@ public class ManageStationsFragment extends ListFragment{
                 Integer orderOfArrival = 0;
                 MenuActivity.buttonEffect(btnAddPoints);
                 btnAddPoints.setText(MenuActivity._GlobalResource.getString(R.string.save_button));
-                if(_action.equals("add"))
+                if(_action.equalsIgnoreCase("add"))
                 {
                     txtAction.setText("ADD NEW PICKUP/DROPOFF POINT");
 
                 }
-                else {
+                else if(_action.equalsIgnoreCase("update")) {
 
 
 
@@ -327,12 +360,39 @@ public class ManageStationsFragment extends ListFragment{
                             editLat.setText(d.Lat.toString());
                             editLng.setText(d.Lng.toString());
                             check_isMainTerminal.setChecked(d.getIsMainTerminal().equals("1")?true:false);
+                            editName.setEnabled(true);
+                            editLat.setEnabled(true);
+                            editLng.setEnabled(true);
+                            check_isMainTerminal.setEnabled(true);
+                            btnAddPoints.setEnabled(true);
                             break;
                         }
                     }
                     txtAction.setText("EDIT PICKUP/DROPOFF POINT");
 
 
+                }
+                else if (_action.equalsIgnoreCase("view"))
+                {
+                    for(Terminal d: MenuActivity._terminalList)
+                    {
+                        if (d.ID.equals(_destinationIDthatWillBeEdited))
+                        {
+                            txtDestinationIDForEdit.setText(String.valueOf(d.ID));
+                            editName.setText(d.Description);
+                            editLat.setText(d.Lat.toString());
+                            editLng.setText(d.Lng.toString());
+                            check_isMainTerminal.setChecked(d.getIsMainTerminal().equals("1")?true:false);
+
+                            editName.setEnabled(false);
+                            editLat.setEnabled(false);
+                            editLng.setEnabled(false);
+                            check_isMainTerminal.setEnabled(false);
+                            btnAddPoints.setVisibility(View.GONE);
+                            break;
+                        }
+                    }
+                    txtAction.setText("VIEW PICKUP/DROPOFF POINT");
                 }
 
 
@@ -553,9 +613,9 @@ public class ManageStationsFragment extends ListFragment{
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
-    public void ModifyStationPoint(String DialogTitle, Terminal stationToBeEdited){
+    public void ModifyStationPoint(String DialogTitle, Terminal stationToBeEdited, Enums.ActionType actionType){
         try {
-            AddPointDialog dialog = new AddPointDialog(MenuActivity._activity, "Update", stationToBeEdited);
+            AddPointDialog dialog = new AddPointDialog(MenuActivity._activity, DialogTitle, stationToBeEdited);
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
         }catch (Exception ex){
@@ -600,8 +660,12 @@ public class ManageStationsFragment extends ListFragment{
                     .show();
 
             //Toast.makeText(getApplicationContext(), "Delete action here", Toast.LENGTH_LONG).show();
-        }else {
-            ModifyStationPoint("UPDATE",terminal);
+        }else if (Action == Enums.ActionType.EDIT){
+            ModifyStationPoint("UPDATE",terminal, Enums.ActionType.EDIT);
+        }
+        else if (Action == Enums.ActionType.VIEW)
+        {
+            ModifyStationPoint("VIEW", terminal, Enums.ActionType.VIEW);
         }
 
     }

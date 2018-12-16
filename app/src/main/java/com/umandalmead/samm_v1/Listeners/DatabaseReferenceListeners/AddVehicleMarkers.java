@@ -83,6 +83,12 @@ public class AddVehicleMarkers implements ChildEventListener {
             String routeIDs = dataSnapshot.child("routeIDs").getValue().toString();
             if (MenuActivity._currentRoutesOfEachLoop.get(deviceId) == null)
                 MenuActivity._currentRoutesOfEachLoop.put(deviceId, routeIDs);
+            else
+            {
+                MenuActivity._currentRoutesOfEachLoop.remove(deviceId);
+                MenuActivity._currentRoutesOfEachLoop.put(deviceId, routeIDs);
+
+            }
 
             if (Latitude == null || Latitude.toString().equals("0"))
                 lat = 0.0;

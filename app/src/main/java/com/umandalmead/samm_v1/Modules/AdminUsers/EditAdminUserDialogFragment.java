@@ -61,6 +61,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
             final EditText edit_emailAddress = view.findViewById(R.id.emailaddress);
             final EditText edit_password = view.findViewById(R.id.password);
             final TextView textLabel = view.findViewById(R.id.txtActionLabel);
+            final TextView textPasswordAction = view.findViewById(R.id.txtPasswordAction);
             final EditText edit_confirmPassword = view.findViewById(R.id.confirmPassword);
             Button btnUpdate = view.findViewById(R.id.btnUpdateAdminUser);
             Button btnDelete = view.findViewById(R.id.btnDeleteAdminUser);
@@ -89,6 +90,10 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                     edit_lastname.setText(_datamodel.lastName);
                     edit_username.setText(_datamodel.username);
                     edit_emailAddress.setText(_datamodel.emailAddress);
+                    edit_emailAddress.setVisibility(View.GONE);
+                    textPasswordAction.setVisibility(View.GONE);
+                    edit_password.setVisibility(View.GONE);
+                    edit_confirmPassword.setVisibility(View.GONE);
                 }
                 else
                 {
@@ -179,7 +184,7 @@ public class EditAdminUserDialogFragment extends DialogFragment {
                                         RemoveUserLoader.setCancelable(false);
                                         RemoveUserLoader.show();
 
-                                        new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),RemoveUserLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Delete").execute(_userID.toString(), "","","","");
+                                        new mySQLUpdateAdminUserDetails(getActivity(),getActivity(),RemoveUserLoader,"", EditAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Delete").execute(_userID.toString(), "","","","","");
 
                                     }
                                     catch(Exception ex)

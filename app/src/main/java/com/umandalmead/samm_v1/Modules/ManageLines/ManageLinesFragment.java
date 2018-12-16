@@ -293,7 +293,7 @@ public class ManageLinesFragment extends Fragment {
                     String newLineName = txtLineName.getText().toString();
                     Users chosenLineAdmin = (Users) spinnerAdminUser.getSelectedItem();
 
-                    if (newLineName.isEmpty())
+                    if (newLineName.trim().isEmpty()|| _helper.HasSpecialCharacters(newLineName))
                     {
                         ErrorDialog errorDialog = new ErrorDialog(_activity, "Please enter a valid line name");
                         errorDialog.show();
@@ -309,11 +309,11 @@ public class ManageLinesFragment extends Fragment {
                     {
                         if(isNew)
                         {
-                            new mySQLAddLine(_context,_activity, _LoaderDialog, dialog,"", _manageLinesFragment, getFragmentManager()).execute(txtLineName.getText().toString(), chosenLineAdmin.ID.toString());
+                            new mySQLAddLine(_context,_activity, _LoaderDialog, dialog,"", _manageLinesFragment, getFragmentManager()).execute(txtLineName.getText().toString().trim(), chosenLineAdmin.ID.toString());
                         }
                         else
                         {
-                            new mySQLUpdateLine(_context,_activity, _LoaderDialog, dialog,"", _manageLinesFragment, getFragmentManager()).execute(String.valueOf(_lineID), txtLineName.getText().toString(), chosenLineAdmin.ID.toString());
+                            new mySQLUpdateLine(_context,_activity, _LoaderDialog, dialog,"", _manageLinesFragment, getFragmentManager()).execute(String.valueOf(_lineID), txtLineName.getText().toString().trim(), chosenLineAdmin.ID.toString());
                         }
                     }
                 }

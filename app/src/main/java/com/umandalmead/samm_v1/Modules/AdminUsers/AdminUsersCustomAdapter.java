@@ -83,7 +83,7 @@ public class AdminUsersCustomAdapter extends ArrayAdapter<Users> implements View
         result.startAnimation(animation);
         lastPosition = position;
         viewHolder.txtUsername.setText(dataModel.username);
-        if (dataModel.username.equals("Add new admin user"))
+        if (dataModel.username.contains("Add new"))
         {
             viewHolder.iconAdd.setVisibility(View.VISIBLE);
             viewHolder.iconPerson.setVisibility(View.GONE);

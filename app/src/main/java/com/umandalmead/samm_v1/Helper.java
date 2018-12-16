@@ -533,7 +533,8 @@ public class Helper {
         return STR_Entry_1.toLowerCase().equals(STR_Entry_2.toLowerCase());
     }
 
-    public Terminal GetTerminalFromValue(String value)
+    //Get the terminal object based on vehicledestinations node: fastbytes_2, manhattanspa_3
+    public Terminal GetTerminalUsingVehicleDestinationsNode(String value)
     {
 
         String[] arrayString = value.split("_");
@@ -547,6 +548,42 @@ public class Helper {
         }
         return null;
     }
+
+    public Terminal GetTerminalFromValueAndRouteID(String value, Integer routeID)
+    {
+
+        for(Terminal terminal: MenuActivity._terminalList)
+        {
+            if (terminal.getValue().equalsIgnoreCase(value) && terminal.getTblRouteID() == routeID)
+                return terminal;
+
+        }
+        return null;
+    }
+    public Terminal GetNextTerminalBasedOnCurrentTerminal(Terminal currentTerminal)
+    {
+        int maxRouteID = 0;
+        for(Terminal terminal: MenuActivity._terminalList) {
+            if(terminal.getTblRouteID() == currentTerminal.getTblRouteID())
+                maxRouteID++;
+        }
+
+        for(Terminal terminal: MenuActivity._terminalList)
+        {
+
+            if (currentTerminal.getOrderOfArrival()+1==terminal.getOrderOfArrival()
+                    && currentTerminal.getTblRouteID()==terminal.getTblRouteID())
+                return terminal;
+            if (currentTerminal.getOrderOfArrival() == maxRouteID
+                    && terminal.getOrderOfArrival() == 1
+                    && terminal.getTblRouteID() == currentTerminal.getTblRouteID())
+            {
+                return terminal;
+            }
+        }
+        return null;
+    }
+
 
     public static UserMarker GetUserMarkerDetails(String STR_UserType, Context context){
             UserMarker UM_result = new UserMarker(STR_UserType,context);

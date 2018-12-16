@@ -27,6 +27,7 @@ import com.umandalmead.samm_v1.Enums;
 import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
+import com.umandalmead.samm_v1.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
     private FragmentManager _FragmentManager;
     private int lastPosition = -1;
     ManageRoutesFragment _manageRouesFragment;
+    SessionManager _sessionManager;
 
 
 
@@ -55,6 +57,7 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
         this._RouteListView = listView;
         this._FragmentManager = fm;
         this._manageRouesFragment = manageRoutesFragment;
+        this._sessionManager = new SessionManager(_context);
     }
 
     private static class ViewHolder {
@@ -99,6 +102,18 @@ public class RouteViewCustomAdapter extends ArrayAdapter<Routes> implements View
             final Routes route = _TestData.get(position);
             final PopupMenu popup = new PopupMenu(_context, convertView, Gravity.RIGHT);
             popup.getMenuInflater().inflate(R.menu.popup_route_actions, popup.getMenu());
+            if (_sessionManager.getIsAdmin())
+            {
+                popup.getMenu().findItem(R.id.itemEdit).setVisible(true);
+                popup.getMenu().findItem(R.id.itemDelete).setVisible(true);
+            }
+            else
+            {
+                popup.getMenu().findItem(R.id.itemEdit).setVisible(false);
+                popup.getMenu().findItem(R.id.itemDelete).setVisible(false);
+            }
+
+
             viewHolder.textRouteName.setText(route.getRouteName());
 //            if(route.getRouteName().toLowerCase().contains("add route")) {
 //                viewHolder.layoutRouteItem.setBackgroundColor(ContextCompat.getColor(_context, R.color.colorWhite));

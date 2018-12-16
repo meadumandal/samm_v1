@@ -47,6 +47,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.Html;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -63,6 +64,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -118,7 +120,7 @@ import com.umandalmead.samm_v1.EntityObjects.Users;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddPassengerCountLabel;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddUserMarkers;
 import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.AddVehicleMarkers;
-import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.Vehicle_DestinationsListener;
+import com.umandalmead.samm_v1.Listeners.DatabaseReferenceListeners.DriversListener;
 import com.umandalmead.samm_v1.Modules.AdminUsers.AdminUsersFragment;
 import com.umandalmead.samm_v1.Modules.AdminUsers.mySQLGetAdminUsers;
 import com.umandalmead.samm_v1.Modules.DriverUsers.DriverUsersFragment;
@@ -153,7 +155,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -497,6 +498,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _RouteTabLayout = (TabLayout) findViewById(R.id.route_tablayout);
                 _StepsScroller = (ScrollView) findViewById(R.id.step_scroll_view);
                 _TimeOfArrivalTextView = (TextView) findViewById(R.id.toatextview);
+
                 _NavView = (NavigationView) findViewById(R.id.nav_view);
                 _MenuNav = (Menu) _NavView.getMenu();
                 _UserNameMenuItem = _MenuNav.findItem(R.id.menu_username);
@@ -844,10 +846,12 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                             }
                             if (_allowLogin)
                             {
+                                MenuActivity._TimeOfArrivalTextView.setTypeface(FONT_RUBIK_REGULAR);
+                                MenuActivity._TimeOfArrivalTextView.setTextSize(15);
+                                MenuActivity._TimeOfArrivalTextView.setGravity(Gravity.LEFT);
                                 MenuActivity._TimeOfArrivalTextView.setText("GPS information not yet available");
                                 MenuActivity._TimeOfArrivalTextView.setBackgroundResource(R.drawable.pill_shaped_eloop_status_error);
-
-                                _vehicle_destinationsDBRef.addChildEventListener(new Vehicle_DestinationsListener(getApplicationContext(), _terminalsDBRef));
+                                _driversDBRef.child(_sessionManager.getKeyDeviceid()).addValueEventListener(new DriversListener(getApplicationContext(), _terminalsDBRef));
                                 ShowRouteTabsAndSlidingPanel();
                             }
                             else {

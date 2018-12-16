@@ -114,7 +114,7 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, Void>{
                 String strResponse = EntityUtils.toString(response.getEntity());
                 JSONObject json = new JSONObject(strResponse);
 
-                _returnMessageOfUpdatingTheUserDetails = json.getString("Message") +  "\n";
+                _returnMessageOfUpdatingTheUserDetails = json.getString("message") +  "\n";
                 _isUpdatingOfUserDetailsSuccessful = true;
             }
             catch(Exception ex)
@@ -145,7 +145,6 @@ public class mySQLUpdateUserDetails extends AsyncTask<String, Void, Void>{
             if (_updatePassword)
             {
                 ChangePassword(_currentPassword, _newPassword, _confirmPassword);
-
             }
             else
             {

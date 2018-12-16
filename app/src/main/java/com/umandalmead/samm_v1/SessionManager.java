@@ -51,6 +51,7 @@ public class SessionManager {
     public static final String KEY_ROUNDSREPORTTUTORIAL = "Tutorial_RoundsReport";
     public static final String KEY_APP_RATING = "App_Rating";
     public static final String KEY_ENTERED_STATION = "Entered_Station";
+    public static final String KEY_ADMIN_PASSWORD = "Admin_Password";
 
     public SessionManager(Context context)
     {
@@ -75,6 +76,7 @@ public class SessionManager {
         prefEditor.putBoolean(KEY_ISSUPERADMIN, userType.equals(Constants.SUPERADMIN_USERTYPE));
         prefEditor.putBoolean(KEY_ISGUEST, userType.equals(Constants.GUEST_USERTYPE));
         prefEditor.putBoolean(KEY_ISPASSENGER, userType.equals(Constants.PASSENGER_USERTYPE));
+
         prefEditor.commit();
     }
     public Boolean getMainTutorialStatus()
@@ -204,6 +206,13 @@ public class SessionManager {
         prefEditor.remove(KEY_LNAME);
         prefEditor.putString(KEY_LNAME, lastName);
 
+        prefEditor.commit();
+    }
+
+    public String getKeyAdminPassword(){ return pref.getString(KEY_ADMIN_PASSWORD, "");}
+    public void setKeyAdminPassword(String adminPassword) {
+        prefEditor.remove(KEY_ADMIN_PASSWORD);
+        prefEditor.putString(KEY_ADMIN_PASSWORD, adminPassword);
         prefEditor.commit();
     }
     public boolean isLoggedIn()

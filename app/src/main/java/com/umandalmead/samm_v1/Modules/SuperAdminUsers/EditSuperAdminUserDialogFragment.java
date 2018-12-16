@@ -18,8 +18,10 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.umandalmead.samm_v1.EntityObjects.Users;
+import com.umandalmead.samm_v1.ErrorDialog;
 import com.umandalmead.samm_v1.Helper;
 import com.umandalmead.samm_v1.LoaderDialog;
+import com.umandalmead.samm_v1.MenuActivity;
 import com.umandalmead.samm_v1.NonScrollListView;
 import com.umandalmead.samm_v1.R;
 import com.umandalmead.samm_v1.SerializableRefreshLayoutComponents;
@@ -61,6 +63,8 @@ public class EditSuperAdminUserDialogFragment extends DialogFragment {
             final EditText edit_password = view.findViewById(R.id.password);
             final TextView textLabel = view.findViewById(R.id.txtActionLabel);
             final EditText edit_confirmPassword = view.findViewById(R.id.confirmPassword);
+            final TextView textPasswordAction = view.findViewById(R.id.txtPasswordAction);
+
             Button btnUpdate = view.findViewById(R.id.btnUpdateAdminUser);
             Button btnDelete = view.findViewById(R.id.btnDeleteAdminUser);
 
@@ -89,10 +93,16 @@ public class EditSuperAdminUserDialogFragment extends DialogFragment {
                     edit_lastname.setText(_datamodel.lastName);
                     edit_username.setText(_datamodel.username);
                     edit_emailAddress.setText(_datamodel.emailAddress);
+                    textPasswordAction.setText("Change Password");
+                    edit_emailAddress.setVisibility(View.GONE);
+                    textPasswordAction.setVisibility(View.GONE);
+                    edit_password.setVisibility(View.GONE);
+                    edit_confirmPassword.setVisibility(View.GONE);
                 }
                 else
                 {
-                        textLabel.setText("Add New SuperAdmin Users");
+                    textLabel.setText("Add New SuperAdmin Users");
+                    textPasswordAction.setText("Set Password");
 
                     btnDelete.setVisibility(View.GONE);
                 }
@@ -130,7 +140,7 @@ public class EditSuperAdminUserDialogFragment extends DialogFragment {
                     {
                         if (_isAdd) //If new entry
                         {
-                            Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
+                            Users.validateRegistrationDetails(new Users(new_username, new_emailAddress, new_firstname, new_lastname, password, confirmedPassword));
                             new mySQLUpdateSuperAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditSuperAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Add").execute("0", new_username, new_emailAddress, new_firstname, new_lastname, password);
 
                         }
@@ -138,13 +148,26 @@ public class EditSuperAdminUserDialogFragment extends DialogFragment {
                         {
                             if (password.trim().length()>0) //Check if password is changed
                             {
-
-                                Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, password, confirmedPassword));
-                                new mySQLUpdateSuperAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditSuperAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_firstname, new_lastname, password);
+                                if (!password.equals(confirmedPassword))
+                                {
+                                    ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, "Passwords do not match!");
+                                    errorDialog.show();
+                                    SaveChangesLoader.hide();
+                                    return;
+                                }
+                                if (password.trim().length()<6)
+                                {
+                                    ErrorDialog errorDialog = new ErrorDialog(MenuActivity._activity, MenuActivity._GlobalResource.getString(R.string.error_shortpassword));
+                                    errorDialog.show();
+                                    SaveChangesLoader.hide();
+                                    return;
+                                }
+                                Users.validateRegistrationDetails(new Users(new_username, new_emailAddress, new_firstname, new_lastname, password, confirmedPassword));
+                                new mySQLUpdateSuperAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditSuperAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_emailAddress, new_firstname, new_lastname, password);
                             }
                             else
                             {
-                                Users.validateRegistrationDetails(new Users(new_username, null, new_firstname, new_lastname, null, null));
+                                Users.validateRegistrationDetails(new Users(new_username, new_emailAddress, new_firstname, new_lastname, null, null));
                                 new mySQLUpdateSuperAdminUserDetails(getActivity(),getActivity(),SaveChangesLoader,"", EditSuperAdminUserDialogFragment.this, _swipeRefresh, _adminUserListView, "Edit").execute(_userID.toString(), new_username,new_emailAddress, new_firstname, new_lastname, null);
                             }
 
