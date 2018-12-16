@@ -1550,7 +1550,7 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                                 // do nothing
                             }
                         })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setIcon(R.drawable.ic_logout_white)
                         .show();
 
 

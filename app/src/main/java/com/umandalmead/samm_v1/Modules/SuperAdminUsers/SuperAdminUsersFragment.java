@@ -99,6 +99,7 @@ public class SuperAdminUsersFragment extends Fragment {
             }
         });
         ViewTitle = (TextView) _myView.findViewById(R.id.samm_toolbar_title);
+        ViewTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
         ViewTitle.setText(fragmentName);
     }
 

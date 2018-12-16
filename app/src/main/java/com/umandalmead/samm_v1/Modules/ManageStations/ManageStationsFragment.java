@@ -202,7 +202,7 @@ public class ManageStationsFragment extends ListFragment{
     public void InitializeToolbar(String fragmentName){
         SessionManager sessionManager = new SessionManager(MenuActivity._context);
         FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
-        FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
+        FAB_SammIcon.setImageResource(R.drawable.ic_back_left_arrow);
         BtnAddPoint = (ImageView) _myView.findViewById(R.id.topnav_addButton);
         if (sessionManager.getIsAdmin())
             BtnAddPoint.setVisibility(View.VISIBLE);

@@ -12,7 +12,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -140,14 +142,11 @@ public class ManageLinesFragment extends Fragment {
     public void InitializeToolbar(String fragmentName){
         try {
             FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
-            FAB_SammIcon.setImageResource(R.drawable.ic_arrow_back_black_24dp);
             FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent menuIntent = new Intent(getContext(), MenuActivity.class);
-                    startActivity(menuIntent);
-                    getActivity().overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
-                    getActivity().finish();
+                    DrawerLayout drawerLayout = (DrawerLayout) ((MenuActivity) getActivity()).findViewById(R.id.drawer_layout);
+                    drawerLayout.openDrawer(Gravity.LEFT);
                 }
             });
             ViewTitle = (TextView) _myView.findViewById(R.id.samm_toolbar_title);

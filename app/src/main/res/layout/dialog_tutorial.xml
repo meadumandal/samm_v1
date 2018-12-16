@@ -55,6 +55,7 @@
             android:layout_height="40dp"
             android:layout_marginTop="15dp"
             android:background="@drawable/rounded_button_blue"
+            android:textColor="@color/colorWhite"
             android:visibility="gone"
             android:text="Next"
             android:textSize="12sp"
