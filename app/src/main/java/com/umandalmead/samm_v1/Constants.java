@@ -10,8 +10,8 @@ public class Constants {
     public static final int MY_PERMISSION_REQUEST_LOCATION=99;
     public static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     public static final String LOG_TAG ="Custom_Log";
-    //public static final String WEB_API_URL = "http://samm.website/sammAPI/";
-    public static final String WEB_API_URL = "http://sammdev.website/sammAPIDev/";
+    public static final String WEB_API_URL = "http://samm.website/sammAPI/";
+//    public static final String WEB_API_URL = "http://sammdev.website/sammAPIDev/";
     public static final String PLAY_STORE_URI_WITH_QUERYSTRING="https://play.google.com/store/apps/details?id=";
     public static final String PLAY_STORE_MARKET_URI = "market://details?id=";
     public static final String DESTINATIONS_API_FOLDER = "destinations/";

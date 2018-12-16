@@ -533,10 +533,10 @@ import static com.umandalmead.samm_v1.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _NavView.getMenu().findItem(R.id.nav_logout).setVisible(!_sessionManager.isGuest());
                 _NavView.getMenu().findItem(R.id.nav_login).setVisible(_sessionManager.isGuest());
 //                _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(false);
-                _NavView.getMenu().findItem(R.id.nav_vehiclesummary).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin());
-                _NavView.getMenu().findItem(id.nav_numberofrounds).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin());
+                _NavView.getMenu().findItem(R.id.nav_vehiclesummary).setVisible(_sessionManager.getIsAdmin());
+                _NavView.getMenu().findItem(id.nav_numberofrounds).setVisible(_sessionManager.getIsAdmin());
                // _NavView.getMenu().findItem(R.id.nav_passengerpeakandlean).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsPassenger() || _sessionManager.isGuest());
-                _NavView.getMenu().findItem(R.id.nav_vehiclesummary).setVisible(_sessionManager.getIsAdmin() || _sessionManager.getIsSuperAdmin());
+                _NavView.getMenu().findItem(R.id.nav_vehiclesummary).setVisible(_sessionManager.getIsAdmin());
 
                 FAB_SammIcon = (ImageView) findViewById(R.id.SAMMLogoFAB);
                 FrameSearchBarHolder = (FrameLayout) findViewById(R.id.FrameSearchBarHolder);

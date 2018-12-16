@@ -186,7 +186,7 @@ public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, A
                             1);
 
 
-                    ReportsActivity._PC_NumberOfRounds.saveToGallery("VehicleRoundsReport " + STR_dateRange,100);//,"/DCIM/Camera");
+                    ReportsActivity._PC_NumberOfRounds.saveToGallery("VehicleRoundsReport",100);//,"/DCIM/Camera");
                     Handler HND_PostExportMessage = new Handler();
                     HND_PostExportMessage.postDelayed(new Runnable() {
                         @Override
