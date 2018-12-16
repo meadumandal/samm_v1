@@ -432,7 +432,7 @@ public class ArrivalHelper {
     public void HasArrived(String STR_EnteredStation, Terminal T_NearestFromUser, Boolean IsDwelling){
         try{
             if(STR_EnteredStation.equalsIgnoreCase(T_NearestFromUser.getValue()) && IsDwelling){
-               // if (_BOOL_IsFromSearch)
+                if (MenuActivity._IsOnSearchMode)
                     Helper.InitializeSearchingRouteUI(true, false,T_NearestFromUser.LineName+" "+ _GlobalResource.getString(R.string.VEHICLE_already_waiting), null, null, _context);
                 //else {
                   //  if (Helper.IsStringEqual(MenuActivity._SelectedTerminalMarkerTitle, T_NearestFromUser.getValue())) {
