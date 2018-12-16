@@ -177,7 +177,7 @@ public class mySQLVehicleGeofenceHistoryReport extends AsyncTask<String, Void, A
             ReportsActivity._PC_NumberOfRounds.setData(data);
             ReportsActivity._PC_NumberOfRounds.highlightValues(null);
             ReportsActivity._PC_NumberOfRounds.invalidate();
-            ReportsActivity._IV_ExportReport.setVisibility(View.VISIBLE);
+            ReportsActivity._IV_ExportReport.setVisibility(View.GONE);
             ReportsActivity._IV_ExportReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
