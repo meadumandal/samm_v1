@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">SAMM</string>
-    <string name="title_activity_menu">SAMM</string>
+    <string name="app_name">EVXperience</string>
+    <string name="title_activity_menu">EVXperience</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -237,14 +237,14 @@
     <string name="TUT_generate_title">Generate</string>
     <string name="TUT_app_rating">Rate Me!</string>
     <string name="TUT_sign_up_inst">Sign-up any time you want!</string>
-    <string name="TUT_samm_drawer_inst">Tap on SAMM icon to explore actions.</string>
+    <string name="TUT_samm_drawer_inst">Tap on EVXperience icon to explore actions.</string>
     <string name="TUT_my_location_inst">Just tap once to show your current location.</string>
     <string name="TUT_change_map_style_inst">You can change your map style any way you want!</string>
     <string name="TUT_pick_your_destination_inst">Pick your destination from the list.</string>
     <string name="TUT_search_target_destination_inst">Start by searching your desired target destination.</string>
-    <string name="TUT_welcome_to_samm_inst">"Welcome to SAMM!\nKnow more about the features of this app!"</string>
-    <string name="TUT_welcome_to_samm_admin_inst">"Welcome to SAMM!\nKnow more what you can do as "</string>
-    <string name="TUT_welcome_to_samm_driver_inst">"Welcome to SAMM!\nKnow more what you can do a registered driver!"</string>
+    <string name="TUT_welcome_to_samm_inst">"Welcome to EVXperience!\nKnow more about the features of this app!"</string>
+    <string name="TUT_welcome_to_samm_admin_inst">"Welcome to EVXperience!\nKnow more what you can do as "</string>
+    <string name="TUT_welcome_to_samm_driver_inst">"Welcome to EVXperience!\nKnow more what you can do a registered driver!"</string>
     <string name="TUT_welcome_superadmin">a Super Administrator!</string>
     <string name="TUT_welcome_admin">an Administrator!</string>
     <string name="TUT_lines_inst">Tap on \'Lines\' menu to add, modify and delete lines.</string>
