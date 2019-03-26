@@ -269,7 +269,6 @@ public class AddGPSDialogFragment extends DialogFragment  {
                 public void onClick(View view) {
                     try
                     {
-                        ViewGPSFragment._LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.GPS_Initialize));
                         ViewGPSFragment._LoaderDialog.show();
                         _GPSMobileNumber = txtphoneNo.getText().toString().trim();
                         _gpsIMEI = txtIMEI.getText().toString().trim();

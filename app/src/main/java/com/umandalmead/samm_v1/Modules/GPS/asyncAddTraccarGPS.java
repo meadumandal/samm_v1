@@ -154,7 +154,6 @@ public class asyncAddTraccarGPS extends AsyncTask<String, Void, String>{
             if(returnMessage.equals("Success"))
             {
                 _dialog.dismiss();
-                _LoaderDialog.setMessage("Starting to configure GPS");
                 String apn;
                 if(_GPSNetwork.toLowerCase().equals("globe"))
                     apn = "http.globe.com.ph";

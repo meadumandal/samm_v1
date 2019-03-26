@@ -106,7 +106,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         // 3. Create and send a notification
         Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher)
                 .setContentTitle(text)
                 .setContentText(text)
                 .setContentIntent(pendingNotificationIntent)

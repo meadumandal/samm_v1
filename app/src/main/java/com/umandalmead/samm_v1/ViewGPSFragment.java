@@ -290,7 +290,6 @@ public class ViewGPSFragment extends Fragment {
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         if (_smsMessageForGPS.equals(_constants.SMS_BEGIN)) {
-                            _LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_activating_gprs));
 
                             sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
                         }
@@ -300,7 +299,6 @@ public class ViewGPSFragment extends Fragment {
 //                                _ReconnectGPSButton.setEnabled(true);
 //                            }
 //                            else {
-                                _LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_setting_apn));
 
 
                                 sendSMSMessage(_smsAPN, _GPSMobileNumber);
@@ -311,14 +309,12 @@ public class ViewGPSFragment extends Fragment {
 //                                sendSMSMessage(_constants.SMS_GPRS, _GPSMobileNumber);
 //                            }
 //                            else {
-                                _LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_configuring_ip_and_port));
 
                                 sendSMSMessage(_constants.SMS_ADMINIP, _GPSMobileNumber);
 //                            }
 
                         }
                         else if (_smsMessageForGPS.equals(_constants.SMS_ADMINIP)) {
-                            _LoaderDialog.setMessage(MenuActivity._GlobalResource.getString(R.string.SMS_setting_automatic_location_updates));
 
                             sendSMSMessage(_constants.SMS_TIMEINTERVAL, _GPSMobileNumber);
                         }

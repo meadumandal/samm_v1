@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/dialog_loader"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="150dp"
+    android:layout_height="150dp"
     android:layout_gravity="center"
     android:gravity="center"
     android:orientation="vertical"
     android:background="@drawable/loader_background"
     android:visibility="visible">
 
-    <RelativeLayout
-        android:id="@+id/etst"
-        android:layout_width="350dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"
-        android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="35dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:animateLayoutChanges="true"
-            android:gravity="center_vertical"
+            android:gravity="center"
+            android:layout_gravity="center"
             android:orientation="vertical">
 
             <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -30,53 +23,23 @@
                 android:layout_height="fill_parent"
                 android:orientation="vertical">
 
-                <ImageButton
+                <ImageView
                     android:id="@+id/IB_samm_loader_circle"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_vertical"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center"
                     android:background="@android:color/transparent"
-                    android:src="@drawable/samm_loader_circle_s" />
+                    android:src="@drawable/loader_circle_outline" />
 
                 <ImageView
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
                     android:layout_gravity="center"
-                    android:src="@drawable/samm_loader_s" />
+                    android:src="@drawable/loader_circle_inner" />
             </FrameLayout>
 
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="100dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="30dp"
-            android:animateLayoutChanges="true"
-            android:gravity="left"
-            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/loader_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:gravity="left"
-                android:textColor="@color/colorWhite"
-                android:textSize="20dp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/loader_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:gravity="left"
-                android:textColor="@color/colorWhite" />
-        </LinearLayout>
     </RelativeLayout>
-
-</RelativeLayout>

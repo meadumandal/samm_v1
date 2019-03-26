@@ -22,7 +22,7 @@
            android:background="@color/colorWhite"
            app:headerLayout="@layout/nav_header_menu"
            app:menu="@menu/activity_menu_drawer"
-           app:itemIconTint="@color/colorBlueInSammLogo">
+           app:itemIconTint="@color/colorDarkGrey">
            <LinearLayout
                android:id="@+id/LL_adminTools"
                android:layout_marginTop="280dp"

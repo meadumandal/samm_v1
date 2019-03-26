@@ -24,6 +24,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,7 +67,8 @@ public class UserProfileActivity extends Fragment {
     public static String _facebookImg;
     private TextView SammTV;
     private View myView;
-    private ImageButton FAB_SammIcon, IB_profile_loader_circle;
+    private ImageButton FAB_SammIcon;
+    private ImageView IB_profile_loader_circle;
     public static TextView ViewTitle,tv_isFacebook,tv_NameDisplay, tv_userTypeDisplay, tv_userType;
     private ShimmerLayout SL_FB_InfoMessageShimmer;
     private LinearLayout LL_UserCredentialsHolder;
@@ -86,7 +88,7 @@ public class UserProfileActivity extends Fragment {
         tv_currentPassword = (EditText) _view.findViewById(R.id.edit_currentPassword);
         tv_isFacebook = (TextView) _view.findViewById(R.id.tv_isFacebook);
         userImage = (CircleImageView) _view.findViewById(R.id.profileImg);
-        IB_profile_loader_circle = (ImageButton)  _view.findViewById(R.id.IB_profile_loader_circle);
+        IB_profile_loader_circle = (ImageView)  _view.findViewById(R.id.IB_profile_loader_circle);
         btn_save = (Button) _view.findViewById(R.id.btn_save);
         tv_NameDisplay = (TextView) _view.findViewById(R.id.txtUserFullname);
         LL_UserCredentialsHolder = (LinearLayout) _view.findViewById(R.id.LL_UserCredentialsHolder);

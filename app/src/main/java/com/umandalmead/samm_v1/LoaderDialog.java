@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
@@ -18,7 +19,7 @@ public class LoaderDialog extends Dialog {
     public Activity _activity;
     public Dialog dialog;
     public String _loaderMessage, _loaderTitle;
-    public ImageButton _loaderImage;
+    public ImageView _loaderImage;
     public TextView TV_LoaderTitle, TV_LoaderMessage;
     public LoaderDialog(Activity activity, String loaderTitle, String loaderMessage) {
         super(activity);
@@ -34,13 +35,7 @@ public class LoaderDialog extends Dialog {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_loader);
-        this.TV_LoaderMessage = (TextView) findViewById(R.id.loader_message);
-        this.TV_LoaderTitle = (TextView) findViewById(R.id.loader_title) ;
-        this.TV_LoaderTitle.setTypeface(MenuActivity.FONT_ROBOTO_CONDENDSED_BOLD);
-        this.TV_LoaderMessage.setTypeface(MenuActivity.FONT_RUBIK_REGULAR);
-        this.TV_LoaderMessage.setText(this._loaderMessage);
-        this.TV_LoaderTitle.setText(this._loaderTitle);
-        this._loaderImage = (ImageButton) findViewById(R.id.IB_samm_loader_circle);
+        this._loaderImage = (ImageView) findViewById(R.id.IB_samm_loader_circle);
         this.dialog = new Dialog(_activity.getApplicationContext());
         Animation rotation;
         rotation = AnimationUtils.loadAnimation(_activity, R.anim.rotate);
@@ -58,11 +53,6 @@ public class LoaderDialog extends Dialog {
 
     }
 
-    public void setMessage(String message)
-    {
-        this.TV_LoaderMessage = (TextView) findViewById(R.id.loader_message);
-        this.TV_LoaderMessage.setText(message);
-    }
 
 
 }
