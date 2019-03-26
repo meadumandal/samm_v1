@@ -42,7 +42,7 @@
             android:text="Info Message"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorWhiteEC"
+            android:textColor="@color/colorBlack"
             android:textSize="14sp"
             android:textStyle="bold"
             tools:layout_editor_absoluteX="52dp"

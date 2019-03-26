@@ -4,7 +4,8 @@
     <color name="colorSherpaBlue">#013243</color>
     <color name="colorBlueInSammLogo">#00c1ff</color>
     <color name="colorPrimaryDark">#1e1e1e</color>
-    <color name="colorAccent">#1BA39C</color>
+    <!--<color name="colorAccent">#1BA39C</color>-->
+    <color name="colorAccent">#000000</color>
     <color name="colorSprayBlue">#81CFE0</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorLightBluishGrey">#b2bec3</color>

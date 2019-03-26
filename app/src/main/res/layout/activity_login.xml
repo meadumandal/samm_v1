@@ -11,7 +11,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp"
     tools:context="com.umandalmead.samm_v1.LoginActivity"
-    android:background="@color/colorPrimaryDark"
+    android:background="@color/colorLightGrey"
     android:weightSum="1">
 
     <LinearLayout
@@ -34,14 +34,14 @@
                 android:id="@+id/username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
+                android:backgroundTint="@color/colorBlack"
                 android:gravity="center_horizontal"
                 android:hint="Username or E-mail address"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorWhite"
-                android:textColorHint="@color/colorAccent"
+                android:textColor="@color/colorBlack"
+                android:textColorHint="@color/colorBlack"
                 android:textSize="16sp" />
         </android.support.design.widget.TextInputLayout>
 
@@ -53,14 +53,14 @@
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/colorAccent"
+                android:backgroundTint="@color/colorBlack"
                 android:gravity="center_horizontal"
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorWhite"
-                android:textColorHint="@color/colorAccent"
+                android:textColor="@color/colorBlack"
+                android:textColorHint="@color/colorBlack"
                 android:textSize="16sp" />
 
         </android.support.design.widget.TextInputLayout>
@@ -70,8 +70,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Show Password"
-            android:textColor="@color/colorWhiteEC"
-            android:buttonTint="@color/colorWhiteEC"/>
+            android:textColor="@color/colorBlack"
+            android:buttonTint="@color/colorBlack"/>
     </LinearLayout>
 
     <LinearLayout
@@ -124,7 +124,7 @@
                 android:text="Not yet a member?"
                 android:onClick="SignUp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:textColor="@color/colorAccent" />
+                android:textColor="@color/colorBlack" />
         </LinearLayout>
 
     </LinearLayout>

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorPrimaryDark"
+    android:background="@color/colorLightGrey"
     android:orientation="vertical"
     tools:context="com.umandalmead.samm_v1.UserProfileActivity">
     <include layout="@layout/samm_toolbar"
@@ -68,7 +68,7 @@
                 android:layout_below="@+id/profileImg"
                 android:layout_centerHorizontal="true"
                 android:text="Mead Umandal"
-                android:textColor="@color/colorWhiteEC"
+                android:textColor="@color/colorBlack"
                 android:textStyle="bold" />
 
             <TextView
@@ -80,7 +80,7 @@
                 android:layout_below="@+id/txtUserFullname"
                 android:layout_centerHorizontal="true"
                 android:text="SAMM"
-                android:textColor="@color/colorGrey"
+                android:textColor="@color/colorBlack"
                 android:textSize="10dp"
                 android:textStyle="italic" />
             <io.supercharge.shimmerlayout.ShimmerLayout
@@ -88,7 +88,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                app:shimmer_color="@color/colorWhite"
+                app:shimmer_color="@color/colorBlack"
                 app:shimmer_animation_duration="1500">
                 <TextView
                     android:id="@+id/tv_isFacebook"
@@ -125,13 +125,13 @@
                             android:id="@+id/edit_firstName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:backgroundTint="@android:color/white"
+                            android:backgroundTint="@android:color/black"
                             android:ellipsize="start"
                             android:hint="First Name"
                             android:singleLine="true"
                             android:textAlignment="center"
-                            android:textColor="#ffffff"
-                            android:textColorHint="#ffffff" />
+                            android:textColor="#000000"
+                            android:textColorHint="#000000" />
                     </android.support.design.widget.TextInputLayout>
 
 
@@ -147,7 +147,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Update Password"
-                            android:textColor="@color/colorWhiteEC"
+                            android:textColor="@color/colorBlack"
                             android:textSize="15dp"
                             android:layout_marginTop="10dp"/>
 
@@ -157,7 +157,7 @@
                             android:layout_weight="1"
                             android:textSize="10dp"
                             android:textStyle="italic"
-                            android:textColor="@color/colorWhiteEC"
+                            android:textColor="@color/colorBlack"
                             android:text="Leave blank if you don't want to change your password" />
 
                         <CheckBox
@@ -165,21 +165,21 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Show Passwords"
-                            android:textColor="@color/colorWhiteEC"
-                            android:buttonTint="@color/colorWhiteEC"/>
+                            android:textColor="@color/colorBlack"
+                            android:buttonTint="@color/colorBlack"/>
                         <EditText
                             android:id="@+id/edit_lastName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentStart="true"
-                            android:backgroundTint="@android:color/white"
+                            android:backgroundTint="@android:color/black"
                             android:ellipsize="start"
                             android:hint="Last Name"
                             android:textAlignment="center"
                             android:singleLine="true"
-                            android:textColor="#ffffff"
-                            android:textColorHint="#ffffff" />
+                            android:textColor="#000000"
+                            android:textColorHint="#000000" />
                     </android.support.design.widget.TextInputLayout>
 
                     <android.support.design.widget.TextInputLayout
@@ -215,15 +215,15 @@
                             android:layout_height="wrap_content"
                             android:layout_alignEnd="@+id/textUsername"
                             android:layout_alignParentStart="true"
-                            android:backgroundTint="@android:color/white"
+                            android:backgroundTint="@android:color/black"
                             android:ellipsize="start"
                             android:ems="10"
                             android:hint="Current Password"
                             android:singleLine="true"
                             android:inputType="textPassword"
                             android:textAlignment="center"
-                            android:textColor="#ffffff"
-                            android:textColorHint="#ffffff" />
+                            android:textColor="#000000"
+                            android:textColorHint="#000000" />
                     </android.support.design.widget.TextInputLayout>
 
 
@@ -238,15 +238,15 @@
                             android:layout_height="wrap_content"
                             android:layout_alignEnd="@+id/textUsername"
                             android:layout_alignParentStart="true"
-                            android:backgroundTint="@android:color/white"
+                            android:backgroundTint="@android:color/black"
                             android:ellipsize="start"
                             android:ems="10"
                             android:hint="New Password"
                             android:singleLine="true"
                             android:inputType="textPassword"
                             android:textAlignment="center"
-                            android:textColor="#ffffff"
-                            android:textColorHint="#ffffff" />
+                            android:textColor="#000000"
+                            android:textColorHint="#000000" />
                     </android.support.design.widget.TextInputLayout>
 
                     <android.support.design.widget.TextInputLayout
@@ -260,15 +260,15 @@
                             android:layout_height="wrap_content"
                             android:layout_alignEnd="@+id/edit_password"
                             android:layout_alignParentStart="true"
-                            android:backgroundTint="@android:color/white"
+                            android:backgroundTint="@android:color/black"
                             android:ellipsize="start"
                             android:ems="10"
                             android:hint="Confirm Password"
                             android:inputType="textPassword"
                             android:singleLine="true"
                             android:textAlignment="center"
-                            android:textColor="#ffffff"
-                            android:textColorHint="#ffffff" />
+                            android:textColor="#000000"
+                            android:textColorHint="#000000" />
                     </android.support.design.widget.TextInputLayout>
 
 

@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="@color/colorPrimaryDark"
+    android:background="@color/colorLightGrey"
     tools:context=".NoInternetActivity">
 
     <ImageView
@@ -30,7 +30,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp"
         android:text="Looks like you have no internet connection :-("
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorBlack"
         android:textSize="14sp"
         tools:layout_editor_absoluteX="52dp"
         tools:layout_editor_absoluteY="275dp" />
@@ -43,7 +43,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="46dp"
         android:text="Please connect to the internet and try again."
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorBlack"
         android:textSize="14sp"
         tools:layout_editor_absoluteX="55dp"
         tools:layout_editor_absoluteY="303dp" />

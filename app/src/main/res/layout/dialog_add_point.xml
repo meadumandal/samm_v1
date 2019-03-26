@@ -156,7 +156,7 @@
             android:background="@drawable/oval_background"
             android:backgroundTint="@color/colorAccent"
             android:text="@string/save_button"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorLightGrey"
             android:textStyle="bold" />
         <!--<Button-->
             <!--android:id="@+id/btnDeletePoint"-->

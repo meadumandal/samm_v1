@@ -18,7 +18,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_marginTop="31dp"
-            app:srcCompat="@drawable/ic_question_answer_white_24dp"
+            app:srcCompat="@drawable/ic_question_answer_black_24dp"
             tools:layout_editor_absoluteX="80dp"
             tools:layout_editor_absoluteY="16dp"
             android:layout_alignParentTop="true"
@@ -46,7 +46,7 @@
                 android:text="Title"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorWhiteEC"
+                android:textColor="@color/colorBlack"
                 android:textStyle="bold"
                 android:textSize="18dp"
 
@@ -61,7 +61,7 @@
                 android:text="Are you ?"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:textColor="@color/colorWhiteEC"
+                android:textColor="@color/colorBlack"
                 android:textSize="14sp"
 
                 tools:layout_editor_absoluteX="52dp"

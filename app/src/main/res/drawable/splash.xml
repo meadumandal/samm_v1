@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
     android:opacity="opaque">
-    <item android:drawable="@color/colorBlack"/>
+    <item android:drawable="@color/colorLightGrey"/>
 
     <item>
 
@@ -13,7 +13,7 @@
             />
         <bitmap
             android:gravity="center"
-            android:src="@drawable/samm_splash"
+            android:src="@drawable/evx_splash"
             />
 
     </item>

@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:animateLayoutChanges="true"
-    android:background="@color/colorDarkGrey"
+    android:background="@color/colorLightGrey"
 
     android:layout_height="match_parent">
   <include layout="@layout/samm_toolbar"
@@ -32,7 +32,7 @@
                 android:scrollHorizontally="false"
                 android:text="@string/dialog_please_wait_with_ellipsis"
                 android:textAlignment="center"
-                android:textColor="@color/colorWhite"
+                android:textColor="@color/colorBlack"
                 android:visibility="visible"/>
             <com.facebook.share.widget.LikeView
                 android:id="@+id/fb_like_view"
@@ -54,7 +54,8 @@
                     android:textSize="15sp"
                     android:scrollHorizontally="false"
                     android:textAlignment="center"
-                    android:textColor="@color/colorWhite" />
+                    android:visibility="gone"
+                    android:textColor="@color/colorBlack" />
                 <io.supercharge.shimmerlayout.ShimmerLayout
                     android:id="@+id/SL_LatestVersion"
                     android:layout_width="wrap_content"
@@ -71,7 +72,7 @@
                         android:scrollHorizontally="false"
                         android:text="@string/info_checking_latest_version"
                         android:textAlignment="center"
-                        android:textColor="@color/colorLightGrey" />
+                        android:textColor="@color/colorBlack" />
                 </io.supercharge.shimmerlayout.ShimmerLayout>
 
             </LinearLayout>
