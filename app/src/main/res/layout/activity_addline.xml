@@ -18,14 +18,14 @@
             android:layout_height="match_parent">
 
 
-            <com.umandalmead.samm_v1.NonScrollListView
+            <com.evolve.evx.NonScrollListView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:divider="@null"
                 android:dividerHeight="0dp"
                 android:id="@+id/linelistview"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"></com.umandalmead.samm_v1.NonScrollListView>
+                android:layout_marginRight="10dp"></com.evolve.evx.NonScrollListView>
 
         </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>

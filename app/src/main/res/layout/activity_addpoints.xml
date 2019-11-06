@@ -7,7 +7,7 @@
     <include layout="@layout/samm_toolbar"
         android:layout_width="match_parent" android:layout_height="match_parent" />
 
-            <com.umandalmead.samm_v1.TouchInterceptor
+            <com.evolve.evx.TouchInterceptor
                 android:id="@android:id/list"
                 android:layout_marginTop="55dp"
                 android:layout_width="match_parent"

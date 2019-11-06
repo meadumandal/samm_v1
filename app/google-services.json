@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:343110979833:android:a89c7e95a0fe3aa6",
+        "mobilesdk_app_id": "1:343110979833:android:208b97260b2bdacf699228",
         "android_client_info": {
-          "package_name": "com.umandalmead.samm_v1"
+          "package_name": "com.evolve.evx"
         }
       },
       "oauth_client": [
@@ -25,15 +25,56 @@
         }
       ],
       "services": {
-        "analytics_service": {
-          "status": 1
-        },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
+          "other_platform_oauth_client": [
+            {
+              "client_id": "343110979833-tus7crtt08tgqbuiuoudqvot8qp74ctn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "343110979833-90ulhffa00lecn09ur7vksrp5o87jvf6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.eleazerarcilla.SAMM"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343110979833:android:a89c7e95a0fe3aa6",
+        "android_client_info": {
+          "package_name": "com.example.samm_v1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "343110979833-tus7crtt08tgqbuiuoudqvot8qp74ctn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCamCm7QezKq13-D6_YgDOt68YmR4ivFzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "343110979833-tus7crtt08tgqbuiuoudqvot8qp74ctn.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "343110979833-90ulhffa00lecn09ur7vksrp5o87jvf6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.eleazerarcilla.SAMM"
+              }
+            }
+          ]
         }
       }
     }

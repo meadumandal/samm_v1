@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/colorLightGrey"
     android:orientation="vertical"
-    tools:context="com.umandalmead.samm_v1.UserProfileActivity">
+    tools:context="com.evolve.evx.UserProfileActivity">
     <include layout="@layout/samm_toolbar"
         android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/appBarLayout2" />
          <!--/>-->

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.umandalmead.samm_v1.UserProfileActivity"
+    tools:context="com.evolve.evx.UserProfileActivity"
     tools:showIn="@layout/activity_user_profile">
 
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.umandalmead.samm_v1">
+    package="com.evolve.evx">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -15,17 +15,17 @@
 
 
     <application
-        android:name=".SAMM"
+        android:name="com.evolve.evx.EVX"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".LoginActivity"
+            android:name="com.evolve.evx.LoginActivity"
             android:theme="@style/SplashTheme" />
         <activity
-            android:name=".MenuActivity"
+            android:name="com.evolve.evx.MenuActivity"
             android:label="@string/title_activity_menu"
             android:theme="@style/SplashTheme"
             android:windowSoftInputMode="adjustNothing">
@@ -35,7 +35,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignUpActivity" />
+        <activity android:name="com.evolve.evx.SignUpActivity" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -50,15 +50,15 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name="com.evolve.evx.MapsActivity"
             android:label="@string/title_activity_maps"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".SignUpDriverActivity" />
+        <activity android:name="ccom.evolve.evx.SignUpDriverActivity" />
 
-        <service android:name=".GeofenceTransitionsIntentService" />
+        <service android:name="com.evolve.evx.GeofenceTransitionsIntentService" />
 
-        <activity android:name=".NoInternetActivity" />
-        <activity android:name=".ReportsActivity" />
+        <activity android:name="com.evolve.evx.NoInternetActivity" />
+        <activity android:name="com.evolve.evx.ReportsActivity" />
 
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -95,18 +95,18 @@
         <!-- </intent-filter> -->
         <!-- </receiver> -->
         <activity
-            android:name=".UserProfileActivity"
+            android:name="com.evolve.evx.UserProfileActivity"
             android:label="@string/title_activity_user_profile"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".Modules.ManageRoutes.ManageRoutesFragment"
+            android:name="com.evolve.evx.Modules.ManageRoutes.ManageRoutesFragment"
             android:label="Manage Routes"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".Modules.ManageStations.ManageStationsFragment"
+            android:name="com.evolve.evx.Modules.ManageStations.ManageStationsFragment"
             android:label="Manage Points"
             android:theme="@style/AppTheme" />
-        <activity android:name=".Modules.ManageLines.ManageLinesFragment" />
+        <activity android:name="com.evolve.evx.Modules.ManageLines.ManageLinesFragment" />
         <activity android:name=".Modules.VehicleTripsReport.VehicleTripsActivity"></activity>
     </application>
 

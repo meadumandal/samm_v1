@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp"
-    tools:context="com.umandalmead.samm_v1.AddPointsFragment"
+    tools:context="com.evolve.evx.AddPointsFragment"
     android:background="@color/colorWhite"
     android:weightSum="1">
 

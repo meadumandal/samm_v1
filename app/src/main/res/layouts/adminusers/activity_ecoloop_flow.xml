@@ -4,6 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.umandalmead.samm_v1.EcoloopFlowActivity">
+    tools:context="com.evolve.evx.EcoloopFlowActivity">
 
 </android.support.constraint.ConstraintLayout>

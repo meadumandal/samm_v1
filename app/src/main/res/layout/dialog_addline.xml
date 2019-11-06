@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp"
-    tools:context="com.umandalmead.samm_v1.MenuActivity"
+    tools:context="com.evolve.evx.MenuActivity"
     android:background="@color/colorWhite"
     android:weightSum="1"
     android:id="@+id/addNewLineLinearLayout">

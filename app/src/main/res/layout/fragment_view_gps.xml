@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.umandalmead.samm_v1.ViewGPSFragment">
+    tools:context="com.evolve.evx.ViewGPSFragment">
     <include layout="@layout/samm_toolbar"
         android:layout_width="match_parent" android:layout_height="match_parent" />
     <!-- TODO: Update blank fragment layout -->
@@ -20,11 +20,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <com.umandalmead.samm_v1.NonScrollListView
+            <com.evolve.evx.NonScrollListView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:divider="@null"
-                android:id="@+id/gpslistview"></com.umandalmead.samm_v1.NonScrollListView>
+                android:id="@+id/gpslistview"></com.evolve.evx.NonScrollListView>
 
         </ScrollView>
 

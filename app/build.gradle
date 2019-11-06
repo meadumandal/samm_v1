@@ -13,7 +13,7 @@ android {
     buildToolsVersion '26.0.2'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
-        applicationId "com.umandalmead.samm_v1"
+        applicationId "com.evolve.evx"
         minSdkVersion 21
         targetSdkVersion 28
         versionName '1.0.9'

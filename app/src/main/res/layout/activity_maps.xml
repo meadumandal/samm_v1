@@ -1,4 +1,4 @@
-<com.umandalmead.samm_v1.CustomFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.evolve.evx.CustomFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            tools:context="com.umandalmead.samm_v1.MapsActivity" />
+            tools:context="com.evolve.evx.MapsActivity" />
     <include layout="@layout/layout_info_holder" android:layout_gravity="center|top"
         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
     <ImageButton
@@ -162,5 +162,5 @@
     </LinearLayout>
 
 
-</com.umandalmead.samm_v1.CustomFrameLayout>
+</com.evolve.evx.CustomFrameLayout>
 
