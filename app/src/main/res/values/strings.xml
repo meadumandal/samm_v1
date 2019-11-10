@@ -293,6 +293,7 @@
 
     <!--BUTTON LABELS-->
     <string name="save_button">Save</string>
+    <string name="getcurrentloc_button">Get Current Location</string>
     <string name="delete_button">Delete</string>
     <string name="signin_button">Sign-in</string>
     <string name="signup_button">Sign-up</string>

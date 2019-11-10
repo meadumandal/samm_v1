@@ -147,6 +147,18 @@
             android:text="Mark this as main pick-up/drop-off station" />
 
         <Button
+            android:id="@+id/btnGetCurrentLocation"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:layout_marginTop="16dp"
+            android:layout_weight=".4"
+            android:background="@drawable/oval_background"
+            android:backgroundTint="@color/colorGrassGreen"
+            android:text="@string/getcurrentloc_button"
+            android:textColor="@color/colorWhiteEC"
+            android:textStyle="bold" />
+        <Button
             android:id="@+id/btnAddPoint"
             style="?android:textAppearanceSmall"
             android:layout_width="match_parent"
@@ -158,6 +170,7 @@
             android:text="@string/save_button"
             android:textColor="@color/colorLightGrey"
             android:textStyle="bold" />
+
         <!--<Button-->
             <!--android:id="@+id/btnDeletePoint"-->
             <!--style="?android:textAppearanceSmall"-->

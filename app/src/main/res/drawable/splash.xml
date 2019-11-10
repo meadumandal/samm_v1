@@ -3,18 +3,9 @@
     android:opacity="opaque">
     <item android:drawable="@color/colorLightGrey"/>
 
-    <item>
-
-        <!--<pl.droidsonroids.gif.GifImageView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:src="@drawable/sammspin"-->
-            <!--android:background="@color/colorBlack"-->
-            />
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/evx_splash"
-            />
-
-    </item>
+    <item
+        android:width="200dp"
+        android:height="200dp"
+        android:drawable="@drawable/evx_splash"
+        android:gravity="center" />
 </layer-list>

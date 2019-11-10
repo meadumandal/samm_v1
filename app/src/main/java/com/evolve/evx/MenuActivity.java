@@ -3,6 +3,7 @@ package com.evolve.evx;
 
 //region Imports
 
+import android.Manifest;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -85,13 +86,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -100,6 +98,13 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.AutocompleteFragment;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -156,6 +161,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -263,8 +269,9 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _IB_MapType_Satellite, _IB_MapType_Hybrid, _IB_MapType_Terrain;
         private ImageView _infoImage;
         private Animation  slide_down, slide_down_bounce, slide_up, slide_up_bounce;
-        private static EditText placeAutoCompleteFragmentInstance;
-        private LocationManager locationManager;
+        private static TextView placeAutoCompleteFragmentInstance;
+        public static LocationManager _locationManager;
+        public static Place _placeSearchSelected;
 
         //Arrival Info elements
         public static LinearLayout _LL_Arrival_Info, _LL_MapStyleHolder;
@@ -322,6 +329,7 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
         public static Activity _activity;
         public static Context _context;
         public static Boolean _BOOL_IsPlateNumberVisible=false;
+        public int AUTOCOMPLETE_REQUEST_CODE = 1;
 
 
 
@@ -377,6 +385,41 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
             Toast ifx = Toast.makeText(context, "Unable to connect to server!", Toast.LENGTH_SHORT);
         }
 
+
+        @Override
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+                if (resultCode == RESULT_OK) {
+                    Place place = Autocomplete.getPlaceFromIntent(data);
+                    _placeSearchSelected =place;
+                    _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
+                            _DestinationTextView.setBackgroundResource(R.color.colorGrassGreen);
+                            _DestinationTextView.setTextSize(Helper.dpToPx(8,_context));
+                            _DestinationTextView.setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
+                            _DestinationTextView.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_placeSearchSelected.getLatLng(), 16);
+                                    _googleMap.animateCamera(cameraUpdate);
+                                    Marker marker;
+                                    MarkerOptions markerOptions = new MarkerOptions();
+                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+                                    markerOptions.position(_placeSearchSelected.getLatLng());
+                                    marker = _googleMap.addMarker(markerOptions);
+                                    _userMarkerHashmap.put("destination", marker);
+                                }
+                            });
+                            new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, _placeSearchSelected).execute();
+
+                } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                    // TODO: Handle the error.
+                    Status status = Autocomplete.getStatusFromIntent(data);
+                    //Log.i(TAG, status.getStatusMessage());
+                } else if (resultCode == RESULT_CANCELED) {
+                    // The user canceled the operation.
+                }
+            }
+        }
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -562,7 +605,9 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 _MainDrawerLayout = (DrawerLayout) findViewById(id.drawer_layout);
                 _BTN_SignUp_NavDrawer = (Button) findViewById(id.btn_nav_signup);
                 _BTN_SignUp_NavDrawer.setVisibility(_sessionManager.isGuest() ? View.VISIBLE:View.INVISIBLE); //setVisibility(_sessionManager.isGuest());
-
+                if (!Places.isInitialized()) {
+                    Places.initialize(getApplicationContext(), "AIzaSyCwqM4iWlz858pNZnhXBJQxRwquFlIztDc");
+                }
                 _BTN_SignUp_NavDrawer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -718,79 +763,19 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
                        _LL_MapStyleHolder.setVisibility(_LL_MapStyleHolder.getVisibility() == View.INVISIBLE ? View.VISIBLE :View.INVISIBLE);
                     }
                 });
-                placeAutoCompleteFragmentInstance = (EditText) findViewById(id.place_autocomplete_search_input);
+                FrameSearchBarHolder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        RenderSearchAutocomplete();
+                    }
+                });
+                placeAutoCompleteFragmentInstance = findViewById(id.placeAutoCompleteFragmentInstance);
                 placeAutoCompleteFragmentInstance.setTextColor(Color.parseColor(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_FontColor)));
                 placeAutoCompleteFragmentInstance.setTypeface(FONT_RUBIK_REGULAR);
                 placeAutoCompleteFragmentInstance.setTextSize(18);
                 placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
                 placeAutoCompleteFragmentInstance.setText(null);
 
-                AutocompleteFilter autocompleteFilter = new AutocompleteFilter.Builder()
-                        .setTypeFilter(Place.TYPE_COUNTRY)
-                        .setCountry("PH")
-                        .build();
-                PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-                        getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-                autocompleteFragment.setFilter(autocompleteFilter);
-                //set bounds to search within bounds only~
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(new LatLng(14.427248, 120.996781));
-                builder.include(new LatLng(14.413897, 121.077285));
-
-                autocompleteFragment.setBoundsBias(builder.build());
-
-                autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-                    @Override
-                    //GO-2R
-                    public void onPlaceSelected(final Place place) {
-                        try {
-                            _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
-                            _DestinationTextView.setBackgroundResource(R.color.colorGrassGreen);
-                            _DestinationTextView.setTextSize(Helper.dpToPx(8,_context));
-                            _DestinationTextView.setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
-                            _DestinationTextView.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 16);
-                                    _googleMap.animateCamera(cameraUpdate);
-                                    Marker marker;
-                                    MarkerOptions markerOptions = new MarkerOptions();
-                                    markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                                    markerOptions.position(place.getLatLng());
-                                    marker = _googleMap.addMarker(markerOptions);
-                                    _userMarkerHashmap.put("destination", marker);
-                                }
-                            });
-                            new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, place).execute();
-
-                        } catch (Exception ex) {
-                            Log.i(_constants.LOG_TAG, ex.toString());
-                        }
-                    }
-
-                    @Override
-                    public void onError(Status status) {
-                        // TODO: Handle the error.
-                        Log.i(_constants.LOG_TAG, _GlobalResource.getString(R.string.error_an_error_occurred) + status);
-                    }
-                });
-                autocompleteFragment.getView().findViewById(R.id.place_autocomplete_clear_button)
-                        .setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                PlayButtonClickSound();
-                                HideRouteTabsAndSlidingPanel();
-                                placeAutoCompleteFragmentInstance.setText(null);
-                            }
-                        });
-
-//                _LoaderDialog = new LoaderDialog(this, _GlobalResource.getString(R.string.Adding_Vehicle_GPS), _GlobalResource.getString(R.string.GPS_Initialize));
-//                _LoaderDialog.setCancelable(false);
-
-
-
-
-                // _RouteTabLayout.setMinimumWidth(150);
                 _facebookImg = _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL) + _sessionManager.getUsername().trim() + _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL_QueryString);
                 try {
                     FetchFBDPTask dptask = new FetchFBDPTask();
@@ -808,7 +793,6 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 // Obtain the SupportMapFragment and get notified when the map is ready to be used.
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                         .findFragmentById(id.map);
-
                 mapFragment.getMapAsync(this);
 
                 _usersDBRef.addChildEventListener(new AddUserMarkers(getApplicationContext(), this));
@@ -1138,9 +1122,9 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
                 if (_googleAPI.isConnected()) {
                     new mySQLStationProvider(_context, MenuActivity.this, "", _googleMap, _googleAPI).execute();
                     LocationServices.FusedLocationApi.requestLocationUpdates(_googleAPI, _locationRequest, this);
-                    locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
-                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0   , 0, this);
+                    _locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                    _locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                    _locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0   , 0, this);
                     _googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
@@ -3216,8 +3200,7 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
         _buttonClick.start();
     }
     private void SearchBarClicked(){
-        LoaderDialog pleasewait = new LoaderDialog(MenuActivity.this,"Please wait","..");
-        pleasewait.show();
+       RenderSearchAutocomplete();
     }
         public void GetFacebookUsername(final String STR_FB_id, final UserMarker userMarkerCache){
             try{
@@ -3375,6 +3358,23 @@ import static com.evolve.evx.Constants.MY_PERMISSION_REQUEST_LOCATION;
         }
 
     }
+    public void RenderSearchAutocomplete(){
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+    public static Location GetCurrentLocation(){
+        if (ContextCompat.checkSelfPermission(_context,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(_context, Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Location current = _locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            return current;
+        }
+       return  null;
+
+    }
+
 }
 
 

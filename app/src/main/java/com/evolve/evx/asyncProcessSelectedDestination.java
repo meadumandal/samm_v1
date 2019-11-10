@@ -5,10 +5,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.maps.model.LatLng;
 import com.evolve.evx.EntityObjects.Routes;
 import com.evolve.evx.EntityObjects.Terminal;
+import com.google.android.libraries.places.api.model.Place;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +34,7 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<
     private Constants _constants = new Constants();
     private Terminal _ChosenTerminal;
     private List<Terminal> _TerminalList;
-    private  Place _place;
+    private Place _place;
     private Boolean _IsPossibleTerminalsEmpty, _IsOnline = false;
     private HashMap<Routes, Integer> _numberOfStationsPerRoute = new HashMap<>();
     private ArrayList<Integer> _routeIDsThatServeTheChosenDropOffPoint = new ArrayList<>();
