@@ -18,11 +18,11 @@
             android:layout_gravity="center|center_vertical">
             <ImageButton
                 android:id="@+id/SAMMLogoFAB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:layout_margin="10dp"
-                android:src="@drawable/samm_user_map_icon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitCenter"
+                android:paddingRight="8dp"
+                android:src="@drawable/evx_main_logo"
                 android:background="@android:color/transparent"
                 />
 

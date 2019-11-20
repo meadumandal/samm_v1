@@ -34,12 +34,12 @@ public class Enums {
 
     }
     public enum UserType{
-        SAMM_DEFAULT("SAMMER (Guest)",0),
-        SAMM_FACEBOOK("SAMMER (Facebook)",1),
-        SAMM_ADMINISTRATOR("SAMMER (Administrator)",2),
-        SAMM_DEFAULT_REGISTERED("Registered SAMMER",3),
-        SAMM_DRIVER("EVX Driver",4),
-        SAMM_SUPERADMIN("SAMMER (Super Administrator)",5);
+        EVX_DEFAULT("EVX (Guest)",0),
+        EVX_FACEBOOK("EVX (Facebook)",1),
+        EVX_ADMINISTRATOR("EVX (Administrator)",2),
+        EVX_DEFAULT_REGISTERED("Registered EVX-er",3),
+        EVX_DRIVER("EVX Driver",4),
+        EVX_SUPERADMIN("EVX (Super Administrator)",5);
         private String stringValue;
         private int intValue;
         private UserType(String toString, int value){

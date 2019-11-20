@@ -19,10 +19,12 @@
            android:layout_height="match_parent"
            android:layout_gravity="start"
            android:fitsSystemWindows="true"
-           android:background="@color/colorWhite"
+           android:background="@color/colorDarkGrey"
            app:headerLayout="@layout/nav_header_menu"
            app:menu="@menu/activity_menu_drawer"
-           app:itemIconTint="@color/colorDarkGrey">
+           android:theme="@style/NavigationView"
+           app:itemTextColor="@color/colorWhite"
+           app:itemIconTint="@color/colorWhite">
            <LinearLayout
                android:id="@+id/LL_adminTools"
                android:layout_marginTop="280dp"
@@ -49,7 +51,7 @@
                        android:textStyle="bold"
                        android:layout_height="wrap_content"
                        android:textColor="@color/colorWhite"
-                       android:background="@color/colorBlack"
+                       android:background="@color/EVX_navheader"
                        android:text="Sign Up"/>
                </LinearLayout>
            </RelativeLayout>

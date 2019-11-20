@@ -16,7 +16,7 @@
         android:layout_height="130dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:src="@drawable/sammlogo" />
+        android:src="@drawable/evx_main_logo" />
 
     <TextView
         android:id="@+id/textNewAcct"

@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -79,7 +78,6 @@ public class LoginActivity extends AppCompatActivity{
     private static String TAG = "mead";
     private static Helper _helper = new Helper(MenuActivity._activity, MenuActivity._context);
     private Constants _constants = new Constants();
-    private MediaPlayer _buttonClick;
     public LoaderDialog LD_FBLoginLoader;
 
 
@@ -134,14 +132,8 @@ public class LoginActivity extends AppCompatActivity{
             facebookLoginButton = (LoginButton) findViewById(R.id.login_button_fb);
             facebookLoginButton.setReadPermissions("email", "public_profile");
             MenuActivity.buttonEffect(facebookLoginButton);
-            _buttonClick = MediaPlayer.create(this, R.raw.button_click);
 
-            facebookLoginButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    PlayButtonClickSound();
-                }
-            });
+
 
 
             facebookLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -245,7 +237,6 @@ public class LoginActivity extends AppCompatActivity{
             forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    PlayButtonClickSound();
                     try {
                         final ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this);
                         final LoaderDialog FP_Loader = new LoaderDialog(LoginActivity.this, "Please wait...", "Sending password reset link to your e-mail");
@@ -357,7 +348,6 @@ public class LoginActivity extends AppCompatActivity{
             btn_SignIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    PlayButtonClickSound();
                     final LoaderDialog LogInLoader = new LoaderDialog(LoginActivity.this, "Verifying", "Please wait...");
                     LogInLoader.show();
                     final String username = usernameField.getText().toString();
@@ -659,9 +649,6 @@ public class LoginActivity extends AppCompatActivity{
             FirebaseAuth.getInstance().signOut();
         }
         return  result;
-    }
-    private void PlayButtonClickSound(){
-        _buttonClick.start();
     }
 
 }

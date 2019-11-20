@@ -106,7 +106,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         // 3. Create and send a notification
         Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.evx_main_logo)
                 .setContentTitle(text)
                 .setContentText(text)
                 .setContentIntent(pendingNotificationIntent)

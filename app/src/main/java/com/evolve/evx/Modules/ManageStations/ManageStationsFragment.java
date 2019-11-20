@@ -190,6 +190,8 @@ public class ManageStationsFragment extends ListFragment {
         SessionManager sessionManager = new SessionManager(MenuActivity._context);
         FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
         FAB_SammIcon.setImageResource(R.drawable.ic_back_left_arrow);
+        FAB_SammIcon.getLayoutParams().height = 60;
+        FAB_SammIcon.getLayoutParams().width = 60;
         BtnAddPoint = (ImageView) _myView.findViewById(R.id.topnav_addButton);
         if (sessionManager.getIsAdmin())
             BtnAddPoint.setVisibility(View.VISIBLE);

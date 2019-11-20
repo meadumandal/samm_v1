@@ -92,7 +92,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         try {
             super.onPreExecute();
             Loader = new LoaderDialog(_activity, MenuActivity._GlobalResource.getString(R.string.dialog_title_analyzing_routes),MenuActivity._GlobalResource.getString(R.string.dialog_message_analyzing_routes));
-            MenuActivity._buttonClick = MediaPlayer.create(_context, R.raw.button_click);
             Loader.show();
 
         } catch (Exception ex) {
@@ -180,11 +179,6 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         }
 
     }
-
-    public void PlayButtonClickSound(){
-        MenuActivity._buttonClick.start();
-    }
-
 
 
 

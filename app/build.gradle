@@ -3,10 +3,10 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         release {
-            keyAlias 'Android-Release-Eleaz'
-            keyPassword 'eleazpogi'
-            storeFile file('/Users/eleazerarcilla/AndroidStudioProjects/AppReleaseKeyStore.jks')
-            storePassword 'eleazpogi'
+            keyAlias 'EVX-release'
+            keyPassword 'evxdev123'
+            storeFile file('/Users/eleazerarcilla/Documents/Android/EVX-Release')
+            storePassword 'evxdev123'
         }
     }
     compileSdkVersion 28
@@ -16,10 +16,10 @@ android {
         applicationId "com.evolve.evx"
         minSdkVersion 21
         targetSdkVersion 28
-        versionName '1.0.9'
+        versionName '1.0.1'
         multiDexEnabled true
         signingConfig signingConfigs.release
-        versionCode 9
+        versionCode 3
     }
     buildTypes {
         release {

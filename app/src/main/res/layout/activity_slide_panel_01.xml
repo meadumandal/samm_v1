@@ -44,11 +44,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="20dp"
                     android:layout_gravity="center_horizontal"
+                    android:foregroundGravity="center_vertical|center_horizontal"
                     android:background="@color/colorTransparent"
                     android:visibility="visible">
 
                     <TextView
                         android:id="@+id/placeAutoCompleteFragmentInstance"
+                        android:gravity="center_vertical|center_horizontal"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
                 </FrameLayout>

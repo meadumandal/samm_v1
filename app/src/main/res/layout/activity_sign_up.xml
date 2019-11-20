@@ -28,7 +28,7 @@
                     android:id="@+id/imgLogo"
                     android:layout_width="70dp"
                     android:layout_height="70dp"
-                    android:src="@drawable/samm_transparent" />
+                    android:src="@drawable/evx_main_logo" />
                 <io.supercharge.shimmerlayout.ShimmerLayout
                     android:id="@+id/SL_NewAccount"
                     app:shimmer_color="@color/colorBlack"

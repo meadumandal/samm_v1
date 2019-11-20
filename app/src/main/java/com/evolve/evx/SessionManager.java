@@ -284,17 +284,17 @@ public class SessionManager {
     }
     public Enums.UserType getUserType(){
         if(isFacebook())
-            return Enums.UserType.SAMM_FACEBOOK;
+            return Enums.UserType.EVX_FACEBOOK;
         if(pref.getBoolean(KEY_ISDRIVER, false))
-            return Enums.UserType.SAMM_DEFAULT_REGISTERED;
+            return Enums.UserType.EVX_DEFAULT_REGISTERED;
         if(pref.getBoolean(KEY_ISADMIN,false))
-            return Enums.UserType.SAMM_ADMINISTRATOR;
+            return Enums.UserType.EVX_ADMINISTRATOR;
         if(pref.getBoolean(KEY_ISSUPERADMIN,false))
-            return Enums.UserType.SAMM_SUPERADMIN;
+            return Enums.UserType.EVX_SUPERADMIN;
         if(pref.getBoolean(KEY_ISGUEST,false))
-            return Enums.UserType.SAMM_DEFAULT;
+            return Enums.UserType.EVX_DEFAULT;
         if(pref.getBoolean(KEY_ISPASSENGER,false))
-            return Enums.UserType.SAMM_DEFAULT_REGISTERED;
+            return Enums.UserType.EVX_DEFAULT_REGISTERED;
         return null;
     }
 

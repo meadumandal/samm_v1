@@ -171,7 +171,6 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                     _arrivalHelper.GetGPSDetailsFromFirebase(L_TM_AllPossibleTerminals.get(tab.getPosition()),true);
                     // GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(tab.getPosition()));
                     RemoveListenerFromLoop();
-                    PlayButtonClickSound();
                     drawLines(L_L_STR_TerminalPointsList.get(tab.getPosition()).get(tab.getPosition()));
                 }
 
@@ -203,9 +202,6 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
 
     }
 
-    public void PlayButtonClickSound(){
-        MenuActivity._buttonClick.start();
-    }
     public static void clearLines() {
         if(_skyBluePolyLine != null && _skyBluePolyLine.getPoints().size() >0) {
             _skyBluePolyLine.remove();

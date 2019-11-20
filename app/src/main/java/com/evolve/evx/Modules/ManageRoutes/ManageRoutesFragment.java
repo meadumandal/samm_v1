@@ -144,6 +144,8 @@ public class ManageRoutesFragment extends Fragment {
         {
             FAB_SammIcon = (ImageButton) _myView.findViewById(R.id.SAMMLogoFAB);
             FAB_SammIcon.setImageResource(R.drawable.ic_back_left_arrow);
+            FAB_SammIcon.getLayoutParams().height = 60;
+            FAB_SammIcon.getLayoutParams().width = 60;
             FAB_SammIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
