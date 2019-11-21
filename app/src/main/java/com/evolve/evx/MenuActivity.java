@@ -183,6 +183,7 @@ public class MenuActivity extends AppCompatActivity implements
         Route3.OnFragmentInteractionListener,
         Html.ImageGetter,
         LocationListener {
+    //region STATIC VARIABLES
     //Put here all global variables related to Firebase
     public static FirebaseDatabase _firebaseDB;
     public static DatabaseReference _usersDBRef;
@@ -196,13 +197,11 @@ public class MenuActivity extends AppCompatActivity implements
     public static List<Terminal> _terminalList;
     public static HashMap<String, Terminal> _distinctTerminalList;
     public static HashMap<String, Marker> _terminalMarkerHashmap = new HashMap<>();
-    public HashMap _userMarkerHashmap = new HashMap();
     public static List<Eloop> _eloopList;
     public static List<Eloop> _eloopListFilteredBySignedInAdmin;
     public static ArrayList<Routes> _routeList;
     public static ArrayList<Lines> _lineList;
     public static HashMap<Integer, ArrayList<Terminal>> _HM_GroupedTerminals;
-    private UserMovementBroadcastReceiver _userMovementBroadcastReceiver;
     public static ArrayList<Users> _driverList;
     public static ArrayList<Setting> _AL_applicationSettings;
     public static HashMap _driverMarkerHashmap = new HashMap();
@@ -228,21 +227,13 @@ public class MenuActivity extends AppCompatActivity implements
     public static TextView _HeaderUserEmail;
     public static AppBarLayout _AppBar;
     public static LinearLayout _MapsHolderLinearLayout, _LL_MapActions;
-    public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton;
     public static FloatingActionMenu _AdminToolsFloatingMenu;
-    public Button _BTN_SignUp_NavDrawer;
     public static ImageView FAB_SammIcon;
     public static FrameLayout FrameSearchBarHolder;
     public static ImageView Search_BackBtn;
     public static TextView _DestinationTextView;
     public static ProgressBar _LoopArrivalProgress;
     public static String _FragmentTitle, _SelectedTerminalMarkerTitle;
-    private TextView _infoTitleTV, _infoDescriptionTV, _infoDescriptionTV2;
-    private LinearLayout _infoLayout;
-    private ImageButton _infoPanelBtnClose, _IB_Maptype, _IB_MyLocation, _IB_MapType_Normal,
-            _IB_MapType_Satellite, _IB_MapType_Hybrid, _IB_MapType_Terrain;
-    private ImageView _infoImage;
-    private Animation slide_down, slide_down_bounce, slide_up, slide_up_bounce;
     private static TextView placeAutoCompleteFragmentInstance;
     public static LocationManager _locationManager;
     public static Place _placeSearchSelected;
@@ -254,25 +245,15 @@ public class MenuActivity extends AppCompatActivity implements
 
     //Put here other global variables
     public static GoogleApiClient _googleAPI;
-    public Helper _helper;
-    public ArrivalHelper _arrivalHelper;
-
     public static LatLng _userCurrentLoc;
-    public Marker _userCurrentLocMarker;
-    public LocationRequest _locationRequest;
     public static GoogleMap _googleMap;
-    public SessionManager _sessionManager;
-    boolean _isAppFirstLoad;
     public static LevelListDrawable _drawable = new LevelListDrawable();
     public static Terminal _selectedPickUpPoint;
     public static ValueAnimator _markerAnimator;
-    public Marker _vehicleMarker;
     public static Boolean _isUserLoggingOut = false, _BOOL_IsGoogleMapShownAndAppIsOnHomeScreen = false;
-    public String _facebookImg;
     public static Boolean _isVehicleMarkerRotating = false, _IsPolyLineDrawn = false;
     public static String _smsMessageForGPS;
     public static String _GPSMobileNumber;
-    public Constants _constants;
     public static Boolean _IsOnSearchMode = false, _BOOL_IsGPSAcquired = false;
     public static Terminal[] _PointsArray;
     public static Typeface FONT_PLATE, FONT_STATION, FONT_RUBIK_REGULAR, FONT_RUBIK_BOLD, FONT_RUBIK_MEDIUM, FONT_ROBOTO_CONDENDSED_BOLD, FONT_RUBIK_BLACK;
@@ -290,30 +271,42 @@ public class MenuActivity extends AppCompatActivity implements
     public static Activity _activity;
     public static Context _context;
     public static Boolean _BOOL_IsPlateNumberVisible = false;
-    public int AUTOCOMPLETE_REQUEST_CODE = 1;
-
-
-    public boolean _InfoPanel_IsEditingEnabled = true;
-    private Terminal TM_ClickedTerminal = new Terminal();
-    private int _passengerCountInTerminal = 0;
     public static HashMap<String, String> _currentRoutesOfEachLoop = new HashMap<>();
-
     public static ArrayList<Users> _adminUsers = new ArrayList<Users>();
     public static String _currentFragment = "";
-    public final FragmentManager _fragmentManager = getSupportFragmentManager();
-
     //Declare all fragments here:
     public static ManageLinesFragment _manageLinesFragment = new ManageLinesFragment();
     public static ManageRoutesFragment _manageRoutesFragment = new ManageRoutesFragment();
     public static ManageStationsFragment _manageStationsFragment = new ManageStationsFragment();
-
+    //endregion
+    //region NON-STATIC VARIABLES
+    public HashMap _userMarkerHashmap = new HashMap();
+    private UserMovementBroadcastReceiver _userMovementBroadcastReceiver = new UserMovementBroadcastReceiver();
+    public FloatingActionButton _AddGPSFloatingButton, _AddPointFloatingButton, _ViewGPSFloatingButton;
+    public Button _BTN_SignUp_NavDrawer;
+    private TextView _infoTitleTV, _infoDescriptionTV, _infoDescriptionTV2;
+    private LinearLayout _infoLayout;
+    private ImageButton _infoPanelBtnClose, _IB_Maptype, _IB_MyLocation, _IB_MapType_Normal,
+            _IB_MapType_Satellite, _IB_MapType_Hybrid, _IB_MapType_Terrain;
+    private ImageView _infoImage;
+    private Animation slide_down, slide_down_bounce, slide_up, slide_up_bounce;
+    public Helper _helper;
+    public ArrivalHelper _arrivalHelper;
+    public Marker _userCurrentLocMarker;
+    public LocationRequest _locationRequest;
+    public SessionManager _sessionManager;
+    public Marker _vehicleMarker;
+    public String _facebookImg;
+    public Constants _constants;
     public Boolean _allowLogin;
+    public Boolean _isAppFirstLoad;
+    public int AUTOCOMPLETE_REQUEST_CODE = 1;
+    public boolean _InfoPanel_IsEditingEnabled = true;
+    private Terminal TM_ClickedTerminal = new Terminal();
+    private int _passengerCountInTerminal = 0;
+    public final FragmentManager _fragmentManager = getSupportFragmentManager();
+    //endregion
 
-    /**
-     * This method checks if the app has permission to access user location
-     *
-     * @return Returns true if permission granted. Otherwise, false
-     */
     public boolean checkLocationPermission() {
         Log.i(_constants.LOG_TAG, "Checking location permission (checkLocationPermission)");
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -337,27 +330,21 @@ public class MenuActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Place place = Autocomplete.getPlaceFromIntent(data);
-                _placeSearchSelected = place;
-                _DestinationTextView.setText(_constants.DESTINATION_PREFIX + place.getName().toString());
+                _placeSearchSelected = Autocomplete.getPlaceFromIntent(data);
+                _DestinationTextView.setText(_constants.DESTINATION_PREFIX + _placeSearchSelected.getName().toString());
                 _DestinationTextView.setBackgroundResource(R.color.colorGrassGreen);
                 _DestinationTextView.setTextSize(Helper.dpToPx(8, _context));
                 _DestinationTextView.setTextColor(getApplication().getResources().getColor(R.color.colorWhite));
                 _DestinationTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(_placeSearchSelected.getLatLng(), 16);
-                        _googleMap.animateCamera(cameraUpdate);
-                        Marker marker;
-                        MarkerOptions markerOptions = new MarkerOptions();
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-                        markerOptions.position(_placeSearchSelected.getLatLng());
-                        marker = _googleMap.addMarker(markerOptions);
-                        _userMarkerHashmap.put("destination", marker);
+                        _googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(_placeSearchSelected.getLatLng(), 16));
+                        _userMarkerHashmap.put("destination", _googleMap.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA))
+                                .position(_placeSearchSelected.getLatLng())));
                     }
                 });
                 new asyncProcessSelectedDestination(MenuActivity.this, getApplicationContext(), _terminalList, _placeSearchSelected).execute();
-
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 // TODO: Handle the error.
             } else if (resultCode == RESULT_CANCELED) {
@@ -380,7 +367,6 @@ public class MenuActivity extends AppCompatActivity implements
 
             if (_sessionManager == null)
                 _sessionManager = new SessionManager(_context);
-
             if (!_sessionManager.isLoggedIn()) {
                 String username = "";
                 if (_sessionManager.getUsername().isEmpty())
@@ -672,7 +658,7 @@ public class MenuActivity extends AppCompatActivity implements
                     Toast.makeText(getApplicationContext(), _GlobalResource.getString(R.string.Error_NonFacebook_Username), Toast.LENGTH_LONG).show();
                 }
 
-                NavigationView navigationView =  findViewById(R.id.nav_view);
+                NavigationView navigationView = findViewById(R.id.nav_view);
                 navigationView.setNavigationItemSelectedListener(this);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     checkLocationPermission();
@@ -682,14 +668,8 @@ public class MenuActivity extends AppCompatActivity implements
                 SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                         .findFragmentById(id.map);
                 mapFragment.getMapAsync(this);
-
                 _usersDBRef.addChildEventListener(new AddUserMarkers(getApplicationContext(), this));
-
-
                 _terminalsDBRef.addChildEventListener(new AddPassengerCountLabel(getApplicationContext(), this));
-
-                _userMovementBroadcastReceiver = new UserMovementBroadcastReceiver();
-
                 IntentFilter intentFilter = new IntentFilter(GeofenceTransitionsIntentService.ACTION_MyIntentService);
                 intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
 
@@ -736,8 +716,6 @@ public class MenuActivity extends AppCompatActivity implements
                     initializeOnlinePresence();
                 }
                 _mapRoot = findViewById(R.id.mapCFL);
-
-
             } else {
                 _helper.showNoInternetPrompt(MenuActivity.this);
             }
@@ -1273,7 +1251,7 @@ public class MenuActivity extends AppCompatActivity implements
             } else if (id == R.id.nav_login) {
                 if (_sessionManager.getIsBeta() && !_sessionManager.getIsDeveloper())
                     Toast.makeText(_context, _GlobalResource.getString(R.string.USER_login_not_available_in_beta), Toast.LENGTH_LONG).show();
-                 else {
+                else {
                     try {
                         FacebookSdk.sdkInitialize(getApplicationContext());
                         LoginManager.getInstance().logOut();

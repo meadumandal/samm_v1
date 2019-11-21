@@ -44,11 +44,11 @@ public class ErrorDialog extends Dialog implements
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_error);
-        this.errorMessage = (TextView) findViewById(R.id.txtTitleMessage);
+        this.errorMessage = findViewById(R.id.txtTitleMessage);
         this.errorMessage.setText(this._errorMessage);
         this.errorMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         this.errorMessage.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        btnOk    = (Button) findViewById(R.id.btnYes);
+        btnOk    =  findViewById(R.id.btnYes);
         btnOk.setTypeface(Helper.FONT_RUBIK_BOLD);
         btnOk.setOnClickListener(this);
         MenuActivity.buttonEffect(btnOk);

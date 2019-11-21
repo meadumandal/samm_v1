@@ -494,8 +494,8 @@ public class Helper {
                 break;
             }
         }
-        if(_result.PlateNumber==null)
-            _result.PlateNumber="Filinvest E-loop";
+        if(_result.PlateNumber==null || (_result.PlateNumber!=null && _result.PlateNumber.trim().equals("")))
+            _result.PlateNumber="E-loop";
         if(_result.DriverName==null || (_result.DriverName!=null && _result.DriverName.trim().equals("")))
             _result.DriverName="No description available";
         return _result;
@@ -649,19 +649,13 @@ public class Helper {
                 markerOptions.position(latLng);
 
                 markerOptions.icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_ecoloopstop));
-                //markerOptions.snippet("0 passenger/s waiting");
-
                 markerOptions.title(station.ID.toString()+"-"+ station.getValue());
                 Marker marker = googleMap.addMarker(markerOptions);
-               // dropMarker(marker,googleMap);
-                // marker.showInfoWindow();
 
                 MenuActivity._terminalMarkerHashmap.put(station.Value, marker);
             }
         }
-//        startGeofence(StationList, googleMap, googleApiClient);
     }
-    // Start Geofence creation process
     private void startGeofence(List<Terminal> listTerminals, GoogleMap googleMap, GoogleApiClient googleApiClient) {
 
 
@@ -694,7 +688,6 @@ public class Helper {
                         geofenceList.add(new Geofence.Builder()
                                 .setRequestId(geofenceRequestId)
                                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-//                                .setLoiteringDelay(5000)
                                 .setCircularRegion(terminal.Lat, terminal.Lng, Constants.GEOFENCE_RADIUS)
                                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                                 .build());
@@ -709,15 +702,10 @@ public class Helper {
                     }
                 }
                 i++;
-
-//                if(i==1)
-//                    break;
-                //drawGeofence(new LatLng(terminal.Lat, terminal.Lng));
             }
 
         return geofenceList;
     }
-    // Add the created GeofenceRequest to the device's monitoring list
     private void addGeofence(GeofencingRequest request,  final GoogleMap googleMap, GoogleApiClient googleApiClient,final List<Terminal> terminals) {
 
         Log.d(LOG_TAG, "addGeofence");

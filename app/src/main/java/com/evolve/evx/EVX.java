@@ -9,10 +9,8 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class EVX extends android.app.Application {
 
-    private boolean IsOnline = true;
     public void onCreate()
     {
-
         setTheme(R.style.SplashTheme);
         super.onCreate();
         FirebaseDatabase.getInstance().setPersistenceEnabled(true);

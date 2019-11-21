@@ -34,7 +34,7 @@ public class LoaderDialog extends Dialog {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_loader);
-        this._loaderImage = (ImageView) findViewById(R.id.IB_samm_loader_circle);
+        this._loaderImage = findViewById(R.id.IB_samm_loader_circle);
         this.dialog = new Dialog(_activity.getApplicationContext());
         Animation rotation;
         rotation = AnimationUtils.loadAnimation(_activity, R.anim.rotate);

@@ -111,46 +111,6 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<
                 possiblePickUpPoints.add(new Terminal(ID, tblRouteID,Value, Description, OrderOfArrival,Direction,  Lat, Lng,"",null,0, LineName, isMainTerminal.toString(),routeName,LineID, distanceFromPreviousStation));
             }
 
-//            for(Routes route: _activity._routeList)
-//            {
-//                Integer iStationCount = 0;
-//                for(Terminal terminal:_activity._terminalList)
-//                {
-//                    if (terminal.tblRouteID == route.getID())
-//                    {
-//                        iStationCount++;
-//                        if (terminal.getValue().equals(_ChosenTerminal.getValue()))
-//                        {
-//                            if (!_routeIDsThatServeTheChosenDropOffPoint.contains(route.getID()))
-//                                _routeIDsThatServeTheChosenDropOffPoint.add(route.getID());
-//                        }
-//                    }
-//
-//                }
-//                _numberOfStationsPerRoute.put(route, iStationCount);
-//            }
-//            HashMap<Terminal, Integer> halfwayIndexOfEachRoute = new HashMap<>();
-//            List<Terminal> possiblePickUpPoints = new ArrayList<>();
-//
-//            for(Terminal terminal: _activity._terminalList)
-//            {
-//                if (_routeIDsThatServeTheChosenDropOffPoint.contains(terminal.getTblRouteID()))
-//                {
-//                    int stationGap = Math.abs(terminal.getOrderOfArrival() - _ChosenTerminal.getOrderOfArrival());
-//                    for(Map.Entry<Routes, Integer> numberOfStation: _numberOfStationsPerRoute.entrySet())
-//                    {
-//                        if (numberOfStation.getKey().getID() == terminal.tblRouteID)
-//                        {
-//                            if (stationGap<=numberOfStation.getValue()/2)
-//                            {
-//                                possiblePickUpPoints.add(terminal);
-//                                break;
-//                            }
-//
-//                        }
-//                    }
-//                }
-//            }
             return possiblePickUpPoints;
         }catch (Exception ex){
             Helper.logger(ex);
@@ -171,30 +131,4 @@ public class asyncProcessSelectedDestination extends AsyncTask<Void, Void, List<
             }
 
     }
-//    public List<Terminal> FindPossiblePickUpPoints(Terminal dropOffPoint) {
-//
-//        List<Terminal> possiblePickUpPoints = new ArrayList<>();
-//        if(_helper.isOnline(_activity,_activity))
-//        {
-//            // ArrayList<Terminal> dropOffPointList = GetAllDestinationRegardlessOfTheirTableRouteIds(dropOffPoint);
-//            Terminal chosenTerminal =dropOffPoint;
-//            //saveDestination(chosenTerminal.Value);
-//
-//
-//            for(Terminal terminal : _activity._terminalList)
-//            {
-//                if (terminal.Direction.equals(chosenTerminal.Direction) && terminal.tblRouteID == chosenTerminal.tblRouteID)
-//                {
-//                    if(terminal.OrderOfArrival < chosenTerminal.OrderOfArrival)
-//                        possiblePickUpPoints.add(terminal);
-//                }
-//            }
-//            return possiblePickUpPoints;
-//        }
-//        else
-//        {
-//            return possiblePickUpPoints;
-//        }
-//
-//    }
 }

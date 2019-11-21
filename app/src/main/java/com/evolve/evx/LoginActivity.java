@@ -194,9 +194,6 @@ public class LoginActivity extends AppCompatActivity{
 
                                             }
                                         });
-
-
-
                                     }
                                 }
                             });
@@ -229,9 +226,9 @@ public class LoginActivity extends AppCompatActivity{
                 auth = FirebaseAuth.getInstance();
 
 
-            usernameField = (EditText) findViewById(R.id.username);
-            passwordField = (EditText) findViewById(R.id.password);
-            btn_SignIn = (Button) findViewById(R.id.email_sign_in_button);
+            usernameField = findViewById(R.id.username);
+            passwordField = findViewById(R.id.password);
+            btn_SignIn = findViewById(R.id.email_sign_in_button);
             MenuActivity.buttonEffect(btn_SignIn);
 
             forgotPasswordTextView.setOnClickListener(new View.OnClickListener() {
@@ -290,8 +287,6 @@ public class LoginActivity extends AppCompatActivity{
                                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
-
-
                                                             }
                                                         })
                                                         .addOnFailureListener(new OnFailureListener() {
@@ -306,7 +301,6 @@ public class LoginActivity extends AppCompatActivity{
                                             }
                                         }
                                     }
-                                    //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                     catch (Exception ex) {
                                         HideLogInProgressDialog();
                                         Toast.makeText(LoginActivity.this, "Error Occurred", Toast.LENGTH_LONG).show();
@@ -319,31 +313,20 @@ public class LoginActivity extends AppCompatActivity{
                                     Log.d(Constants.LOG_TAG, t.toString());
                                 }
                             });
-
-
-
-
                         }
                     }
                     catch(Exception ex)
                     {
                         Helper.logger(ex,true);
                     }
-
-
                 }
             });
-
-
             if (sessionManager.isLoggedIn()) {
                 startActivity(new Intent(LoginActivity.this, MenuActivity.class));
                 finish();
-
-
             }
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            Toolbar toolbar = findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
-
 
             btn_SignIn.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -389,7 +372,6 @@ public class LoginActivity extends AppCompatActivity{
                                         } else {
                                             if (response.body().getDeviceId()==null)
                                             {
-
                                                 ErrorDialog errorDialog = new ErrorDialog(LoginActivity.this, "You have no asssigned vehicle.");
                                                 errorDialog.show();
                                             }
@@ -430,9 +412,6 @@ public class LoginActivity extends AppCompatActivity{
                                                                     errorDialog.show();
                                                                     HideLogInProgressDialog();
                                                                 }
-//                                                        {
-//                                                            signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
-//                                                        }
                                                             }
                                                         }
 
@@ -452,7 +431,6 @@ public class LoginActivity extends AppCompatActivity{
 
                                     }
                                 }
-                                //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
                                 catch (Exception ex) {
                                     LogInLoader.hide();
                                     HideLogInProgressDialog();
@@ -466,32 +444,6 @@ public class LoginActivity extends AppCompatActivity{
                                 Log.d(Constants.LOG_TAG, t.toString());
                             }
                         });
-
-//                        String url = "http://meadumandal.website/sammAPI/";
-//                        Retrofit retrofit = new Retrofit.Builder()
-//                                .baseUrl(url)
-//                                .addConverterFactory(GsonConverterFactory.create())
-//                                .build();
-//                        RetrofitDatabase service = retrofit.create(RetrofitDatabase.class);
-//                        Call<UserPOJO> call = service.getUserDetails(username, username);
-//                        call.enqueue(new Callback<UserPOJO>() {
-//                            @Override
-//                            public void onResponse(Response<UserPOJO> response, Retrofit retrofit) {
-//                                try {
-//                                    signIn(response.body().getEmailAddress(), password, response.body().getLastName(), response.body().getFirstName(), response.body().getUsername());
-//                                    }
-//                                    //_markeropt.title(response.body().getRoutes().get(0).getLegs().get(0).getDuration().getText());
-//                                catch (Exception e) {
-//                                    Log._drawable(LOG_TAG, "There is an error");
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onFailure(Throwable t) {
-//                                Log._drawable(LOG_TAG, t.toString());
-//                            }
-//                        });
                     }
 
                 }
@@ -505,38 +457,30 @@ public class LoginActivity extends AppCompatActivity{
 
     private void signIn(final String param_email, String param_password, final String param_lastname, final String param_firstname, final String param_username, final Integer param_userid,  final String param_deviceId, final String userType)
     {
-
         userDatabaseRef = userDatabase.getReference();
         auth.signInWithEmailAndPassword(param_email, param_password)
                     .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-
                         if(!task.isSuccessful())
                         {
                             ErrorDialog ED_LoginError = new ErrorDialog(LoginActivity.this, task.getException().getMessage());
                             ED_LoginError.show();
-                            //Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG).show();
                             Helper.logger(task.getException(),true);
                             HideLogInProgressDialog();
                         }
                         else
                         {
                             try{
-
                                 String firstName = param_firstname;
                                 String lastName = param_lastname;
                                 String username =  param_username;
                                 String deviceId = param_deviceId;
-                                boolean isDriver = false;
-                                if(param_email.equals(_constants.DRIVER_EMAILADDRESS))
-                                    isDriver = true;
 
                                 userDatabaseRef.child(sessionManager.getUsername()).removeValue();
                                 if(checkIfEmailVerified(userType)){
                                     sessionManager.CreateLoginSession(firstName,lastName, username, param_userid, param_email, deviceId, false, userType);
-                                    Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                                    startActivity(intent);
+                                    startActivity(new Intent(LoginActivity.this, MenuActivity.class));
                                     finish();
                                     Toast.makeText(LoginActivity.this, ("Logged in as "+ username ), Toast.LENGTH_LONG).show();
                                 }
@@ -551,30 +495,12 @@ public class LoginActivity extends AppCompatActivity{
                             {
                                 Helper.logger(ex,true);
                             }
-
                         }
                     }
                 });
 
 
     }
-
-//    public void SignIn(View v)
-//    {
-//        String username  = usernameField.getText().toString();
-//        String password = passwordField.getText().toString();
-////        HashMap<String,String> parameters = new HashMap<>();
-////        parameters.put("URL", "http://meadumandal.website/commuteBuddyAPI/signIn.php?");
-////        parameters.put("username", username);
-////        parameters.put("password", password);
-////        Helper helper = new Helper();
-////        new mySQLDataProvider(getApplicationContext(), LoginActivity.this, "Signing In...").execute(parameters);
-//
-////        Intent menu = new Intent(LoginActivity.this, MenuActivity.class);
-////      startActivity(menu);
-//    }
-
-
     public void SignUp(View v)
     {
         MenuActivity.buttonEffect(v);
@@ -584,8 +510,7 @@ public class LoginActivity extends AppCompatActivity{
             startActivity(SignUpForm);
             finish();
         }catch(Exception ex){
-            String test = ex.getMessage();
-            _helper.logger(ex);
+            _helper.logger(ex.getMessage());
         }
     }
     private void handleFacebookAccessToken(final AccessToken token, final String LastName, final String FirstName, final String Email) {
@@ -602,12 +527,8 @@ public class LoginActivity extends AppCompatActivity{
                             saveUserDetails(FirstName,LastName,token.getUserId().toString(),Email);
                             sessionManager.CreateLoginSession(FirstName,LastName,token.getUserId().toString(),0, Email, "", true, Constants.PASSENGER_USERTYPE);
                             HideLogInProgressDialog();
-                            Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                            startActivity(intent);
+                            startActivity(new Intent(LoginActivity.this, MenuActivity.class));
                             finish();
-                            //Toast.makeText(LoginActivity.this, ("Logged in as "+ FirstName +" "+ LastName), Toast.LENGTH_LONG).show();
-
-
                         } else {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed : " + task.getException(),
@@ -618,11 +539,9 @@ public class LoginActivity extends AppCompatActivity{
     }
     private void saveUserDetails(String firstName, String lastName, String username, String emailAddress)
     {
-        User user = new User(username, firstName, lastName, emailAddress);
-            userDatabase = FirebaseDatabase.getInstance();
-            userDatabaseRef = userDatabase.getReference("users");
-
-        userDatabaseRef.child(username).setValue(user);
+        userDatabase = FirebaseDatabase.getInstance();
+        userDatabaseRef = userDatabase.getReference("users");
+        userDatabaseRef.child(username).setValue(new User(username, firstName, lastName, emailAddress));
         new mySQLSignUp(getApplicationContext(), this).execute(username, firstName, lastName, emailAddress, Constants.FB_AUTH_TYPE);
     }
     private void ShowLogInProgressDialog(String From){
@@ -641,13 +560,9 @@ public class LoginActivity extends AppCompatActivity{
         if (userType.equalsIgnoreCase("Administrator") || userType.equalsIgnoreCase("Driver") || userType.equalsIgnoreCase("SuperAdministrator"))
             return true;
         if (user.isEmailVerified())
-        {
             result = true;
-        }
         else
-        {
             FirebaseAuth.getInstance().signOut();
-        }
         return  result;
     }
 

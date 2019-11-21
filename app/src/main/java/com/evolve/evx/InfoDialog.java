@@ -35,11 +35,11 @@ public class InfoDialog extends Dialog implements
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_info);
-        this.infoMessage = (TextView) findViewById(R.id.txtInfoMessage);
+        this.infoMessage = findViewById(R.id.txtInfoMessage);
         this.infoMessage.setText(this._infoMessage);
         this.infoMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         this.infoMessage.setTypeface(Helper.FONT_RUBIK_REGULAR);
-        btnOk    = (Button) findViewById(R.id.btnYes);
+        btnOk = findViewById(R.id.btnYes);
         btnOk.setOnClickListener(this);
         btnOk.setTypeface(Helper.FONT_RUBIK_BLACK);
         MenuActivity.buttonEffect(btnOk);

@@ -104,7 +104,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
     @Override
     protected List<Terminal> doInBackground(Void... voids) {
         Helper helper = new Helper();
-        if (helper.isConnectedToInternet(this._context)) {
+        if (helper.isConnectedToInternet(this._context) && MenuActivity._BOOL_IsGPSAcquired) {
             HashMap<Integer, Integer> destinationId_distance = new HashMap<>();
             String url = _GlobalResource.getString(R.string.GM_maps_url);
             Retrofit retrofit = new Retrofit.Builder()
@@ -114,14 +114,13 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             RetrofitMaps service = retrofit.create(RetrofitMaps.class);
             List<Terminal> topTerminals = new ArrayList<>();
             for (Terminal d : _possibleTerminals) {
-                Call<Directions> call = service.getDistanceDuration("metric", _currentLocation.latitude + "," + _currentLocation.longitude, d.Lat + "," + d.Lng, "walking");
                 try {
+                    Call<Directions> call = service.getDistanceDuration("metric", _currentLocation.latitude + "," + _currentLocation.longitude, d.Lat + "," + d.Lng, "walking");
                     Directions directions = call.execute().body();
                     d.directionsFromCurrentLocation = directions;
                     d.distanceFromCurrentLocation = helper.getDistanceFromLatLonInKm(
                             new LatLng(_currentLocation.latitude, _currentLocation.longitude),
                             new LatLng(d.getLat(), d.getLng()));
-//                        destinationId_distance.put(dialog.ID, directions.getRoutes().get(1).getLegs().get(1).getDistance().getValue());
                     Log.i(LOG_TAG, "Success retrofit");
                 } catch (MalformedURLException ex) {
                     helper.logger(ex,true);
@@ -153,7 +152,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
             } catch (Exception ex) {
                 HashMap<String, Object> returnValues = new HashMap<String, Object>();
                 returnValues.put("IsValid", 0);
-                returnValues.put("Message", ex.getMessage());
+                returnValues.put("Message", "Please check your Internet connection and ensure GPS services are turned on.");
                 Helper.logger(ex,true);
                 return null;
             }
@@ -163,7 +162,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
         } else {
             HashMap<String, Object> returnValues = new HashMap<String, Object>();
             returnValues.put("IsValid", 0);
-            returnValues.put("Message", "You are not connected to the internet. Please check your connection and try again.");
+            returnValues.put("Message", "Please check your Internet connection and ensure GPS services are turned on.");
             return null;
         }
 

@@ -42,12 +42,6 @@ public class InfoLayout extends Dialog {
 
     }
 
-
-//    public void Show() {
-//       // Initialize();
-//        _infoLayout.setVisibility(View.VISIBLE);
-//    }
-
     public void Hide() {
         _infoLayout.setVisibility(View.GONE);
     }
