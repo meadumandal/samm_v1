@@ -531,9 +531,7 @@ public class MenuActivity extends AppCompatActivity implements
                 _BTN_SignUp_NavDrawer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent SignUp = new Intent(MenuActivity.this, SignUpActivity.class);
-                        SignUp.putExtra("IsFromNavDrawer", "true");
-                        startActivity(SignUp);
+                        startActivity(new Intent(MenuActivity.this, SignUpActivity.class).putExtra("IsFromNavDrawer", "true"));
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
                         finish();
                     }
@@ -649,7 +647,6 @@ public class MenuActivity extends AppCompatActivity implements
                 placeAutoCompleteFragmentInstance.setTextSize(18);
                 placeAutoCompleteFragmentInstance.setHint(_GlobalResource.getString(R.string.PlaceAutoCompleteFragment_Hint));
                 placeAutoCompleteFragmentInstance.setText(null);
-
                 _facebookImg = _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL) + _sessionManager.getUsername().trim() + _GlobalResource.getString(R.string.Facebook_ProfilePic_Graph_URL_QueryString);
                 try {
                     FetchFBDPTask dptask = new FetchFBDPTask();
@@ -923,10 +920,7 @@ public class MenuActivity extends AppCompatActivity implements
     public void onConnected(@Nullable Bundle bundle) {
         try {
             Log.i(_constants.LOG_TAG, "Google API Client is connected...");
-            _locationRequest = new LocationRequest();
-            _locationRequest.setInterval(0);
-            _locationRequest.setFastestInterval(0);
-            _locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+            _locationRequest = new LocationRequest().setInterval(0).setFastestInterval(0).setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -1531,8 +1525,7 @@ public class MenuActivity extends AppCompatActivity implements
             } catch (OutOfMemoryError e) {
                 try {
                     options.inSampleSize = 2;
-                    bitmap = BitmapFactory.decodeStream(imageURL.openConnection().getInputStream());
-                    return bitmap;
+                    return BitmapFactory.decodeStream(imageURL.openConnection().getInputStream());
                 } catch (Exception ex) {
 
                 }
@@ -1563,7 +1556,7 @@ public class MenuActivity extends AppCompatActivity implements
 
     public static Boolean IsNight() {
         Integer currentTime = Calendar.getInstance().getTime().getHours();
-        return (currentTime >= 18 || currentTime <= 5) ? true : false;
+        return (currentTime >= 18 || currentTime <= 5);
     }
 
     public void BuildToolTip(String text, Activity activity, View view, int gravity, int highlightShape, Boolean hasOverlay, int BGColor, final Enums.TutorialType tutorialType) {

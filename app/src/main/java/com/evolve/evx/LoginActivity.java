@@ -505,9 +505,7 @@ public class LoginActivity extends AppCompatActivity{
     {
         MenuActivity.buttonEffect(v);
         try {
-            Intent SignUpForm = new Intent(LoginActivity.this, SignUpActivity.class);
-            SignUpForm.putExtra("IsFromNavDrawer","false");
-            startActivity(SignUpForm);
+            startActivity(new Intent(LoginActivity.this, SignUpActivity.class).putExtra("IsFromNavDrawer","false"));
             finish();
         }catch(Exception ex){
             _helper.logger(ex.getMessage());
@@ -556,7 +554,6 @@ public class LoginActivity extends AppCompatActivity{
 
         Boolean result =false;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userEmailAddress = user.getEmail().toLowerCase();
         if (userType.equalsIgnoreCase("Administrator") || userType.equalsIgnoreCase("Driver") || userType.equalsIgnoreCase("SuperAdministrator"))
             return true;
         if (user.isEmailVerified())

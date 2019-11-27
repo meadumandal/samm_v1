@@ -186,7 +186,7 @@ public class asyncGenerateDirectionSteps extends AsyncTask<Void, Void, String> {
                         +strTab
                         +strSignBoard
                         +"<br>"+strTab
-                        +"Alight on "
+                        +"Alight at "
                         + "<b>"
 //                        +dist
                         +TM_DropOff.Description
