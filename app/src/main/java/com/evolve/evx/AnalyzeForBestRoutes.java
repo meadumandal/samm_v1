@@ -147,6 +147,7 @@ public class AnalyzeForBestRoutes extends AsyncTask<Void, Void, List<Terminal>> 
 
             try {
                 for (counter = 0; counter < limit; counter++) {
+                    if(_possibleTerminals.get(counter).directionsFromCurrentLocation.getRoutes().size() > 0)
                     topTerminals.add(_possibleTerminals.get(counter));
                 }
             } catch (Exception ex) {

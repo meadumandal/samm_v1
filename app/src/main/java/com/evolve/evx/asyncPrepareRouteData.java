@@ -105,23 +105,24 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
             for (Terminal terminal : _L_Terminals) {
                 String TotalTime = "";
                 List<String> DirectionSteps = new ArrayList<String>();
-                for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
-                    TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
-                    String encodedString = terminal.directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
-                    //drawLines(encodedString);
-                    _L_AllPoints.add(encodedString);
-                    _L_STR_TotalTimeList.add(TotalTime);
-                }
-                for (int x = 0; x < terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++) {
-                    String Instructions = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
-                    DirectionSteps.add(Instructions);
+                    for (int i = 0; i < terminal.directionsFromCurrentLocation.getRoutes().size(); i++) {
+                        TotalTime = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getDuration().getText();
+                        String encodedString = terminal.directionsFromCurrentLocation.getRoutes().get(0).getOverviewPolyline().getPoints();
+                        //drawLines(encodedString);
+                        _L_AllPoints.add(encodedString);
+                        _L_STR_TotalTimeList.add(TotalTime);
+                    }
+                    for (int x = 0; x < terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().size(); x++) {
+                        String Instructions = terminal.directionsFromCurrentLocation.getRoutes().get(0).getLegs().get(0).getInstructions().get(x).getSteps().toString();
+                        DirectionSteps.add(Instructions);
+                    }
+
+                    publishProgress((ctr / INT_TMSize) * 100);
+                    _L_L_STR_TerminalPointsList.add(_L_AllPoints);
+                    _L_L_STR_DirectionStepsList.add(DirectionSteps);
+                    ctr++;
                 }
 
-                publishProgress((ctr/INT_TMSize)*100);
-                _L_L_STR_TerminalPointsList.add(_L_AllPoints);
-                _L_L_STR_DirectionStepsList.add(DirectionSteps);
-                ctr++;
-            }
 
         }catch (Exception ex){
             Helper.logger(ex);
@@ -142,9 +143,11 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
 
     }
     public void createRouteTabs(final List<String> L_STR_TotalTimeList, final List<List<String>> L_L_STR_DirectionStepsList, final List<Terminal> L_TM_AllPossibleTerminals, final List<List<String>> L_L_STR_TerminalPointsList) {
+        final Handler HND_ShowPanel = new Handler();
+        final Handler HND_UpdateUI = new Handler();
         try {
-            final Handler HND_ShowPanel = new Handler();
-            final Handler HND_UpdateUI = new Handler();
+            if (L_TM_AllPossibleTerminals.size() == 0 || L_TM_AllPossibleTerminals == null || _L_Terminals.size() == 0)
+                throw new Exception("Unable to find route for this destination.");
             HND_ShowPanel.postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -152,8 +155,6 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
                 }
             }, 1200);
             MenuActivity._selectedPickUpPoint = _L_Terminals.get(0);
-            if (L_TM_AllPossibleTerminals.size() == 0 || L_TM_AllPossibleTerminals == null)
-                throw new Exception("Unable to find route for this destination.");
             for (Terminal entry : L_TM_AllPossibleTerminals) {
                 MenuActivity.RouteTabs.addTab( MenuActivity.RouteTabs.newTab().setText(entry.Description));
             }
@@ -196,7 +197,15 @@ public class asyncPrepareRouteData extends AsyncTask<Void,Integer,Void>{
             //GetArrivalTimeOfLoopBasedOnSelectedStation(L_TM_AllPossibleTerminals.get(0));
 
         } catch (Exception ex) {
-            //Loader.dismiss();
+            _loader.dismiss();
+            HND_ShowPanel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ((MenuActivity)asyncPrepareRouteData.this._activity).HideRouteTabsAndSlidingPanel();
+                }
+            }, 1500);
+            InfoDialog info = new InfoDialog(_activity,ex.getMessage());
+            info.show();
             Helper.logger(ex);
         }
 
