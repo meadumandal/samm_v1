@@ -2280,7 +2280,7 @@ public class MenuActivity extends AppCompatActivity implements
 
     public void RenderSearchAutocomplete() {
         List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
-        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(this);
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).setCountry("PH").build(this);
         startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
     }
 

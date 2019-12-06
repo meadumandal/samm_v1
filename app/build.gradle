@@ -16,10 +16,10 @@ android {
         applicationId "com.evolve.evx"
         minSdkVersion 21
         targetSdkVersion 28
-        versionName '1.0.3'
+        versionName '1.0.4'
         multiDexEnabled true
         signingConfig signingConfigs.release
-        versionCode 5
+        versionCode 6
     }
     buildTypes {
         release {
